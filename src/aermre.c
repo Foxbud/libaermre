@@ -19,20 +19,13 @@
 		} \
 	} while (false)
 
-#define RegistrationStage() \
+#define Stage(stageId) \
 	WarnIf( \
-			!mre.registrationStage, \
+			mre.stage != (stageId), \
 			AER_OUT_OF_SEQ, \
-			"\"%s\" called outside registration period.", \
-			__func__ \
-	)
-
-#define ActionStage() \
-	WarnIf( \
-			!mre.actionStage, \
-			AER_OUT_OF_SEQ, \
-			"\"%s\" called outside action period.", \
-			__func__ \
+			"\"%s\" called outside of \"%s.\"", \
+			__func__, \
+			#stageId \
 	)
 
 #define ArgGuard(ptr) \
@@ -114,12 +107,15 @@ typedef struct AERMRE {
 	size_t numMods;
 	AERMod * mods[128];
 	AERMod * regActiveMod;
-	bool registrationStage;
-	bool actionStage;
 	size_t numRoomStepCallbacks;
 	void (* roomStepCallbacks[128])(void);
 	size_t numRoomChangeCallbacks;
 	void (* roomChangeCallbacks[128])(int32_t, int32_t);
+	enum {
+		STAGE_INIT,
+		STAGE_REGISTRATION,
+		STAGE_ACTION
+	} stage;
 } AERMRE;
 
 
@@ -173,12 +169,11 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 		.numMods = 0,
 		.mods = {},
 		.regActiveMod = NULL,
-		.registrationStage = false,
-		.actionStage = false,
 		.numRoomStepCallbacks = 0,
 		.roomStepCallbacks = {},
 		.numRoomChangeCallbacks = 0,
 		.roomChangeCallbacks = {},
+		.stage = STAGE_INIT
 	};
 	AERLogInfo(NAME, "Done.");
 
@@ -249,7 +244,7 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 __attribute__((cdecl)) void AERHookUpdate(void) {
 	/* Registry. */
 	if (*mre.refs.numSteps == 0) {
-		mre.registrationStage = true;
+		mre.stage = STAGE_REGISTRATION;
 
 		/* Register sprites. */
 		AERLogInfo(NAME, "Registering mod sprites...");
@@ -264,8 +259,7 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 		mre.regActiveMod = NULL;
 		AERLogInfo(NAME, "Done.");
 
-		mre.registrationStage = false;
-		mre.actionStage = true;
+		mre.stage = STAGE_ACTION;
 	}
 
 	/* Check if room changed. */
@@ -346,7 +340,7 @@ AERErrCode AERRegisterSprite(
 		uint32_t origY,
 		int32_t * spriteIdx
 ) {
-	RegistrationStage();
+	Stage(STAGE_REGISTRATION);
 	ArgGuard(filename);
 	ArgGuard(spriteIdx);
 
@@ -375,7 +369,7 @@ AERErrCode AERRegisterSprite(
 }
 
 AERErrCode AERGetNumSteps(uint32_t * numSteps) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(numSteps);
 
 	*numSteps = *mre.refs.numSteps;
@@ -384,7 +378,7 @@ AERErrCode AERGetNumSteps(uint32_t * numSteps) {
 }
 
 AERErrCode AERGetKeysPressed(const bool ** keys) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(keys);
 
 	*keys = *mre.refs.keysPressedTable;
@@ -393,7 +387,7 @@ AERErrCode AERGetKeysPressed(const bool ** keys) {
 }
 
 AERErrCode AERGetKeysHeld(const bool ** keys) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(keys);
 
 	*keys = *mre.refs.keysHeldTable;
@@ -402,7 +396,7 @@ AERErrCode AERGetKeysHeld(const bool ** keys) {
 }
 
 AERErrCode AERGetKeysReleased(const bool ** keys) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(keys);
 
 	*keys = *mre.refs.keysReleasedTable;
@@ -411,7 +405,7 @@ AERErrCode AERGetKeysReleased(const bool ** keys) {
 }
 
 AERErrCode AERGetCurrentRoom(int32_t * roomIdx) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(roomIdx);
 
 	*roomIdx = *mre.refs.roomIndexCurrent;
@@ -420,7 +414,7 @@ AERErrCode AERGetCurrentRoom(int32_t * roomIdx) {
 }
 
 AERErrCode AERGetNumInstances(size_t * numInsts) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(numInsts);
 
 	*numInsts = (*mre.refs.roomCurrent)->numInstances;
@@ -432,7 +426,7 @@ AERErrCode AERGetNumInstancesByObject(
 		int32_t objIdx,
 		size_t * numInsts
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(numInsts);
 
 	HLDObject * obj = ObjectLookup(objIdx);
@@ -448,7 +442,7 @@ AERErrCode AERGetInstances(
 		AERInstance ** instBuf,
 		size_t * numInsts
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(instBuf);
 	ArgGuard(numInsts);
 
@@ -471,7 +465,7 @@ AERErrCode AERGetInstancesByObject(
 		AERInstance ** instBuf,
 		size_t * numInsts
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(instBuf);
 	ArgGuard(numInsts);
 
@@ -494,7 +488,7 @@ AERErrCode AERGetInstanceById(
 		int32_t instId,
 		AERInstance ** inst
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
 	*inst = (AERInstance *)InstanceLookup(instId);
@@ -509,7 +503,7 @@ AERErrCode AERInstanceCreate(
 		float y,
 		AERInstance ** inst
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	ObjectGuard(ObjectLookup(objIdx));
 
@@ -520,7 +514,7 @@ AERErrCode AERInstanceCreate(
 }
 
 AERErrCode AERInstanceDestroy(AERInstance * inst) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
 	mre.refs.actionInstanceDestroy(
@@ -534,7 +528,7 @@ AERErrCode AERInstanceDestroy(AERInstance * inst) {
 }
 
 AERErrCode AERInstanceDelete(AERInstance * inst) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
 	mre.refs.actionInstanceDestroy(
@@ -551,7 +545,7 @@ AERErrCode AERInstanceGetId(
 		AERInstance * inst,
 		int32_t * instId
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	ArgGuard(instId);
 
@@ -565,7 +559,7 @@ AERErrCode AERInstanceGetPosition(
 		float * x,
 		float * y
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	ArgGuard(x);
 	ArgGuard(y);
@@ -581,7 +575,7 @@ AERErrCode AERInstanceSetPosition(
 		float x,
 		float y
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
 	((HLDInstance *)inst)->pos.x = x;
@@ -594,7 +588,7 @@ AERErrCode AERInstanceGetSprite(
 		AERInstance * inst,
 		int32_t * spriteIdx
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	ArgGuard(spriteIdx);
 
@@ -607,7 +601,7 @@ AERErrCode AERInstanceSetSprite(
 		AERInstance * inst,
 		int32_t spriteIdx
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
 	((HLDInstance *)inst)->spriteIndex = spriteIdx;
@@ -619,7 +613,7 @@ AERErrCode AERInstanceGetSpriteFrame(
 		AERInstance * inst,
 		uint32_t * frame
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	ArgGuard(frame);
 
@@ -632,7 +626,7 @@ AERErrCode AERInstanceSetSpriteFrame(
 		AERInstance * inst,
 		uint32_t frame
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
 	((HLDInstance *)inst)->imageIndex = (float)frame;
@@ -644,7 +638,7 @@ AERErrCode AERInstanceGetSpriteSpeed(
 		AERInstance * inst,
 		float * speed
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	ArgGuard(speed);
 
@@ -657,7 +651,7 @@ AERErrCode AERInstanceSetSpriteSpeed(
 		AERInstance * inst,
 		float speed
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
 	((HLDInstance *)inst)->imageSpeed = speed;
@@ -669,7 +663,7 @@ AERErrCode AERInstanceGetSolid(
 		AERInstance * inst,
 		bool * solid
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	ArgGuard(solid);
 
@@ -682,7 +676,7 @@ AERErrCode AERInstanceSetSolid(
 		AERInstance * inst,
 		bool solid
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
 	((HLDInstance *)inst)->solid = solid;
@@ -694,7 +688,7 @@ AERErrCode AERInstanceGetAge(
 		AERInstance * inst,
 		uint32_t * age
 ) {
-	ActionStage();
+	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	ArgGuard(age);
 
