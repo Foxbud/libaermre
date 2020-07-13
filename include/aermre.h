@@ -150,22 +150,22 @@ AERErrCode AERInstanceSetSprite(
 		int32_t spriteIdx
 );
 
-AERErrCode AERInstanceGetAnimationFrame(
+AERErrCode AERInstanceGetSpriteFrame(
 		AERInstance * inst,
 		uint32_t * frame
 );
 
-AERErrCode AERInstanceSetAnimationFrame(
+AERErrCode AERInstanceSetSpriteFrame(
 		AERInstance * inst,
 		uint32_t frame
 );
 
-AERErrCode AERInstanceGetAnimationSpeed(
+AERErrCode AERInstanceGetSpriteSpeed(
 		AERInstance * inst,
 		float * speed
 );
 
-AERErrCode AERInstanceSetAnimationSpeed(
+AERErrCode AERInstanceSetSpriteSpeed(
 		AERInstance * inst,
 		float speed
 );
@@ -178,12 +178,6 @@ AERErrCode AERInstanceGetSolid(
 AERErrCode AERInstanceSetSolid(
 		AERInstance * inst,
 		bool solid
-);
-
-AERErrCode AERInstanceGetPosition(
-		AERInstance * inst,
-		float * x,
-		float * y
 );
 
 

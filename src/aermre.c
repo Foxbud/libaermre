@@ -615,7 +615,7 @@ AERErrCode AERInstanceSetSprite(
 	return AER_OK;
 }
 
-AERErrCode AERInstanceGetAnimationFrame(
+AERErrCode AERInstanceGetSpriteFrame(
 		AERInstance * inst,
 		uint32_t * frame
 ) {
@@ -628,7 +628,7 @@ AERErrCode AERInstanceGetAnimationFrame(
 	return AER_OK;
 }
 
-AERErrCode AERInstanceSetAnimationFrame(
+AERErrCode AERInstanceSetSpriteFrame(
 		AERInstance * inst,
 		uint32_t frame
 ) {
@@ -640,7 +640,7 @@ AERErrCode AERInstanceSetAnimationFrame(
 	return AER_OK;
 }
 
-AERErrCode AERInstanceGetAnimationSpeed(
+AERErrCode AERInstanceGetSpriteSpeed(
 		AERInstance * inst,
 		float * speed
 ) {
@@ -653,7 +653,7 @@ AERErrCode AERInstanceGetAnimationSpeed(
 	return AER_OK;
 }
 
-AERErrCode AERInstanceSetAnimationSpeed(
+AERErrCode AERInstanceSetSpriteSpeed(
 		AERInstance * inst,
 		float speed
 ) {
