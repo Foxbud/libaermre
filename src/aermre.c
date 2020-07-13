@@ -689,3 +689,16 @@ AERErrCode AERInstanceSetSolid(
 
 	return AER_OK;
 }
+
+AERErrCode AERInstanceGetAge(
+		AERInstance * inst,
+		uint32_t * age
+) {
+	ActionStage();
+	ArgGuard(inst);
+	ArgGuard(age);
+
+	*age = ((HLDInstance *)inst)->age;
+
+	return AER_OK;
+}

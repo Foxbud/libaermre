@@ -180,6 +180,11 @@ AERErrCode AERInstanceSetSolid(
 		bool solid
 );
 
+AERErrCode AERInstanceGetAge(
+		AERInstance * inst,
+		uint32_t * age
+);
+
 
 
 #endif /* AERMRE_H */
