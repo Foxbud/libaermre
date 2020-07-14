@@ -1,14 +1,5 @@
 /**
  * @file
- *
- * @brief This module contains pseudorandom number generation functions.
- *
- * Mods that require random number generation should prefer this module over
- * stdlib's "rand." The Game Maker engine appears to seed the stdlib's "rand"
- * with a constant value, limiting it's usefulness in practice.
- *
- * Not only does this module automatically seed itself using the current time,
- * but it also provides useful functions.
  */
 #ifndef AERRAND_H
 #define AERRAND_H
@@ -18,7 +9,15 @@
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/**
+ * @defgroup rand Random
+ *
+ * This module contains all pseudorandom number generation utilities.
+ *
+ * @sa aerrand.h
+ *
+ * @{
+ */
 
 /**
  * Get a pseudorandom unsigned integer on the interval [0, ULONG_MAX].
@@ -78,6 +77,10 @@ float AERRandFloat(void);
  * @return pseudorandom boolean
  */
 bool AERRandBool(void);
+
+/**
+ * @}
+ */
 
 
 

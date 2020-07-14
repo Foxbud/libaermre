@@ -1,17 +1,20 @@
 /**
  * @file
- *
- * @brief This module contains logging related functions.
- *
- * While not required, including this header file and using its functions
- * can make it easier for users to debug a mod.
  */
 #ifndef AERLOG_H
 #define AERLOG_H
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/**
+ * @defgroup log Logging
+ *
+ * This module contains all logging related utilities.
+ * 
+ * @sa aerlog.h
+ *
+ * @{
+ */
 
 /**
  * Display an informational message to STDOUT.
@@ -50,6 +53,10 @@ void AERLogWarn(const char * moduleName, const char * fmt, ...);
  * @param[in] ... optional format replacement arguments
  */
 void AERLogErr(const char * moduleName, const char * fmt, ...);
+
+/**
+ * @}
+ */
 
 
 

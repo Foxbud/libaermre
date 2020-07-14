@@ -1,11 +1,5 @@
 /**
  * @file
- *
- * @brief This module contains the core modding functions for interacting
- * with the game.
- *
- * All mods should include this header file. Without its function, a mod
- * cannot meaningfully interact with the game.
  */
 #ifndef AERMRE_H
 #define AERMRE_H
@@ -15,7 +9,15 @@
 
 
 
-/* ----- PUBLIC TYPES ----- */
+/**
+ * @defgroup general General
+ *
+ * This module contains all general utilities.
+ *
+ * @sa aermre.h
+ *
+ * @{
+ */
 
 typedef enum AERErrCode {
 	AER_OK,
@@ -26,22 +28,6 @@ typedef enum AERErrCode {
 	AER_OUT_OF_SEQ,
 	AER_SPRITE_REG_FAILED
 } AERErrCode;
-
-typedef struct AERInstance {
-	const uint8_t rawData[0x184];
-} AERInstance;
-
-
-
-/* ----- PUBLIC FUNCTIONS ----- */
-
-AERErrCode AERRegisterSprite(
-		const char * filename,
-		size_t numFrames,
-		uint32_t origX,
-		uint32_t origY,
-		int32_t * spriteIdx
-);
 
 /**
  * Get the number of steps since the start of the game.
@@ -86,6 +72,50 @@ AERErrCode AERGetKeysHeld(const bool ** keys);
 AERErrCode AERGetKeysReleased(const bool ** keys);
 
 AERErrCode AERGetCurrentRoom(int32_t * roomIdx);
+
+/**
+ * @}
+ */
+
+
+
+/**
+ * @defgroup registration Registration
+ *
+ * This module contains all registration related utilities.
+ *
+ * @sa aermre.h
+ *
+ * @{
+ */
+
+AERErrCode AERRegisterSprite(
+		const char * filename,
+		size_t numFrames,
+		uint32_t origX,
+		uint32_t origY,
+		int32_t * spriteIdx
+);
+
+/**
+ * @}
+ */
+
+
+
+/**
+ * @defgroup instance Instance
+ *
+ * This module contains all instance related utilities.
+ *
+ * @sa aermre.h
+ *
+ * @{
+ */
+
+typedef struct AERInstance {
+	const uint8_t rawData[0x184];
+} AERInstance;
 
 AERErrCode AERGetNumInstances(size_t * numInsts);
 
@@ -184,6 +214,10 @@ AERErrCode AERInstanceGetAge(
 		AERInstance * inst,
 		uint32_t * age
 );
+
+/**
+ * @}
+ */
 
 
 
