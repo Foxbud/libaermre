@@ -158,6 +158,11 @@ AERErrCode AERInstanceGetId(
 		int32_t * instId
 );
 
+AERErrCode AERInstanceGetObject(
+		AERInstance * inst,
+		int32_t * objIdx
+);
+
 AERErrCode AERInstanceGetPosition(
 		AERInstance * inst,
 		float * x,

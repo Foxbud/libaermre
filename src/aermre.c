@@ -554,6 +554,19 @@ AERErrCode AERInstanceGetId(
 	return AER_OK;
 }
 
+AERErrCode AERInstanceGetObject(
+		AERInstance * inst,
+		int32_t * objIdx
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(objIdx);
+
+	*objIdx = ((HLDInstance *)inst)->objectIndex;
+
+	return AER_OK;
+}
+
 AERErrCode AERInstanceGetPosition(
 		AERInstance * inst,
 		float * x,
