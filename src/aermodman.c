@@ -44,7 +44,7 @@ AERModManErrCode AERModManLoad(const char * modLib, AERMod ** mod) {
 	}
 	tmpMod->version = tmpVersion;
 
-	/* Read REGISTER_SPRITE_CALLBACK symbol. */
+	/* Read REGISTER_SPRITES_CALLBACK symbol. */
 	void (** tmpRegSpritesHandle)(void) = dlsym(
 			tmpHandle,
 			"REGISTER_SPRITES_CALLBACK"
@@ -53,6 +53,17 @@ AERModManErrCode AERModManLoad(const char * modLib, AERMod ** mod) {
 	tmpMod->registerSpritesCallback = NULL;
 	if (tmpRegSpritesHandle && (tmpRegSprites = *tmpRegSpritesHandle)) {
 		tmpMod->registerSpritesCallback = tmpRegSprites;
+	}
+
+	/* Read REGISTER_OBJECTS_CALLBACK symbol. */
+	void (** tmpRegObjectsHandle)(void) = dlsym(
+			tmpHandle,
+			"REGISTER_OBJECTS_CALLBACK"
+	);
+	void (* tmpRegObjects)(void);
+	tmpMod->registerObjectsCallback = NULL;
+	if (tmpRegObjectsHandle && (tmpRegObjects = *tmpRegObjectsHandle)) {
+		tmpMod->registerObjectsCallback = tmpRegObjects;
 	}
 
 	/* Read ROOM_STEP_CALLBACK symbol. */

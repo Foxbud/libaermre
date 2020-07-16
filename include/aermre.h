@@ -97,6 +97,17 @@ AERErrCode AERRegisterSprite(
 		int32_t * spriteIdx
 );
 
+AERErrCode AERRegisterObject(
+		const char * name,
+		int32_t parentIdx,
+		int32_t spriteIdx,
+		bool visible,
+		bool solid,
+		bool collisions,
+		bool persistent,
+		int32_t * objIdx
+);
+
 /**
  * @}
  */

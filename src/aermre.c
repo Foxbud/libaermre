@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "aerlog.h"
 #include "aermodman.h"
 #include "aermre.h"
@@ -114,7 +115,8 @@ typedef struct AERMRE {
 	void (* roomChangeCallbacks[128])(int32_t, int32_t);
 	enum {
 		STAGE_INIT,
-		STAGE_REGISTRATION,
+		STAGE_REG_SPRITE,
+		STAGE_REG_OBJECT,
 		STAGE_ACTION
 	} stage;
 } AERMRE;
@@ -243,11 +245,10 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 }
 
 __attribute__((cdecl)) void AERHookUpdate(void) {
-	/* Registry. */
+	/* Registration. */
 	if (*mre.refs.numSteps == 0) {
-		mre.stage = STAGE_REGISTRATION;
-
 		/* Register sprites. */
+		mre.stage = STAGE_REG_SPRITE;
 		AERLogInfo(NAME, "Registering mod sprites...");
 		for (uint32_t modIdx = 0; modIdx < mre.numMods; modIdx++) {
 			AERMod * mod = mre.mods[modIdx];
@@ -257,9 +258,22 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 				AERLogInfo(NAME, "Registred sprites for mod \"%s.\"", mod->name);
 			}
 		}
-		mre.regActiveMod = NULL;
 		AERLogInfo(NAME, "Done.");
 
+		/* Register objects. */
+		mre.stage = STAGE_REG_OBJECT;
+		AERLogInfo(NAME, "Registering mod objects...");
+		for (uint32_t modIdx = 0; modIdx < mre.numMods; modIdx++) {
+			AERMod * mod = mre.mods[modIdx];
+			mre.regActiveMod = mod;
+			if (mod->registerObjectsCallback) {
+				mod->registerObjectsCallback();
+				AERLogInfo(NAME, "Registred objects for mod \"%s.\"", mod->name);
+			}
+		}
+		AERLogInfo(NAME, "Done.");
+
+		mre.regActiveMod = NULL;
 		mre.stage = STAGE_ACTION;
 	}
 
@@ -341,7 +355,7 @@ AERErrCode AERRegisterSprite(
 		uint32_t origY,
 		int32_t * spriteIdx
 ) {
-	Stage(STAGE_REGISTRATION);
+	Stage(STAGE_REG_SPRITE);
 	ArgGuard(filename);
 	ArgGuard(spriteIdx);
 
@@ -365,6 +379,44 @@ AERErrCode AERRegisterSprite(
 			"Could not register sprite \"%s.\"",
 			pathBuf
 	);
+
+	return AER_OK;
+}
+
+AERErrCode AERRegisterObject(
+		const char * name,
+		int32_t parentIdx,
+		int32_t spriteIdx,
+		bool visible,
+		bool solid,
+		bool collisions,
+		bool persistent,
+		int32_t * objIdx
+) {
+	Stage(STAGE_REG_OBJECT);
+	ArgGuard(name);
+	ArgGuard(objIdx);
+
+	HLDObject * parent = ObjectLookup(parentIdx);
+	ObjectGuard(parent);
+
+	int32_t idx = mre.refs.actionObjectAdd();
+	HLDObject * obj = ObjectLookup(idx);
+	MemoryGuard(obj);
+
+	/* The engine expects a freeable (dynamically allocated) string for name. */
+	char * tmpName = malloc(strlen(name) + 1);
+	MemoryGuard(tmpName);
+	obj->name = strcpy(tmpName, name);
+	obj->parentIndex = parentIdx;
+	obj->parent = parent;
+	obj->spriteIndex = spriteIdx;
+	obj->flags.visible = visible;
+	obj->flags.solid = solid;
+	obj->flags.collisions = collisions;
+	obj->flags.persistent = persistent;
+
+	*objIdx = idx;
 
 	return AER_OK;
 }

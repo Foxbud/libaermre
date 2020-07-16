@@ -91,14 +91,24 @@ typedef struct HLDEventWrapper {
 } HLDEventWrapper;
 
 typedef struct HLDObject {
-	uint32_t field_0;
+	struct {
+		uint8_t solid : 1;
+		uint8_t visible : 1;
+		uint8_t persistent : 1;
+		uint8_t : 1;
+		uint8_t collisions : 1;
+		uint8_t : 3;
+	} flags;
+	uint8_t field_01;
+	uint8_t field_02;
+	uint8_t field_03;
 	int32_t spriteIndex;
 	uint32_t depth;
-	uint32_t field_C;
-	uint32_t field_10;
+	uint32_t parentIndex;
+	uint32_t maskIndex;
 	const char * name;
 	int32_t index;
-	uint32_t field_1C;
+	uint32_t physics;
 	uint32_t field_20;
 	uint32_t field_24;
 	uint32_t field_28;
