@@ -78,6 +78,7 @@ typedef struct HLDRefs {
 	HLDHashTable ** objectTableHandle;
 	HLDHashTable * instanceTable;
 	/* Functions. */
+	__attribute__((cdecl)) int32_t (* actionObjectAdd)();
 	__attribute__((cdecl)) HLDInstance * (* actionInstanceCreate)(
 			int32_t objIdx,
 			float posX,

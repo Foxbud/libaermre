@@ -93,7 +93,7 @@ typedef struct HLDEventWrapper {
 typedef struct HLDObject {
 	uint32_t field_0;
 	int32_t spriteIndex;
-	uint32_t field_8;
+	uint32_t depth;
 	uint32_t field_C;
 	uint32_t field_10;
 	const char * name;
