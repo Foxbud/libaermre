@@ -1,26 +1,26 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <stdlib.h>
-#include "aermodman.h"
+#include "modman.h"
 
 
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AERModManErrCode AERModManLoad(const char * modLib, AERMod ** mod) {
+ModManErrCode ModManLoad(const char * modLib, AERMod ** mod) {
 	assert(modLib != NULL);
 	assert(mod != NULL);
 
 	/* Open library. */
 	void * tmpHandle = dlopen(modLib, RTLD_NOW);
 	if (!tmpHandle) {
-		return AER_MOD_MAN_NO_SUCH_MOD;
+		return MOD_MAN_NO_SUCH_MOD;
 	}
 
 	/* Allocate memory for library. */
 	AERMod * tmpMod = malloc(sizeof(AERMod));
 	if (!tmpMod) {
-		return AER_MOD_MAN_OUT_OF_MEM;
+		return MOD_MAN_OUT_OF_MEM;
 	}
 	tmpMod->libHandle = tmpHandle;
 
@@ -30,7 +30,7 @@ AERModManErrCode AERModManLoad(const char * modLib, AERMod ** mod) {
 	if (!tmpNameHandle || !(tmpName = *tmpNameHandle)) {
 		free(tmpMod);
 		tmpMod = NULL;
-		return AER_MOD_MAN_NAME_NOT_FOUND;
+		return MOD_MAN_NAME_NOT_FOUND;
 	}
 	tmpMod->name = tmpName;
 
@@ -40,7 +40,7 @@ AERModManErrCode AERModManLoad(const char * modLib, AERMod ** mod) {
 	if (!tmpVersionHandle || !(tmpVersion = *tmpVersionHandle)) {
 		free(tmpMod);
 		tmpMod = NULL;
-		return AER_MOD_MAN_VERSION_NOT_FOUND;
+		return MOD_MAN_VERSION_NOT_FOUND;
 	}
 	tmpMod->version = tmpVersion;
 
@@ -90,10 +90,10 @@ AERModManErrCode AERModManLoad(const char * modLib, AERMod ** mod) {
 
 	/* Success. */
 	*mod = tmpMod;
-	return AER_MOD_MAN_OK;
+	return MOD_MAN_OK;
 }
 
-AERModManErrCode AERModManUnload(AERMod * mod) {
+ModManErrCode ModManUnload(AERMod * mod) {
 	assert(mod != NULL);
 
 	/* Close library handle. */
@@ -101,5 +101,5 @@ AERModManErrCode AERModManUnload(AERMod * mod) {
 	/* Deallocate mod. */
 	free(mod);
 
-	return AER_MOD_MAN_OK;
+	return MOD_MAN_OK;
 }

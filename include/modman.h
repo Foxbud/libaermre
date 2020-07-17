@@ -1,17 +1,17 @@
-#ifndef AERMODMAN_H
-#define AERMODMAN_H
+#ifndef MODMAN_H
+#define MODMAN_H
 
 
 
 /* ----- PUBLIC TYPES ----- */
 
-typedef enum AERModManErrCode {
-	AER_MOD_MAN_OK,
-	AER_MOD_MAN_NO_SUCH_MOD,
-	AER_MOD_MAN_NAME_NOT_FOUND,
-	AER_MOD_MAN_VERSION_NOT_FOUND,
-	AER_MOD_MAN_OUT_OF_MEM,
-} AERModManErrCode;
+typedef enum ModManErrCode {
+	MOD_MAN_OK,
+	MOD_MAN_NO_SUCH_MOD,
+	MOD_MAN_NAME_NOT_FOUND,
+	MOD_MAN_VERSION_NOT_FOUND,
+	MOD_MAN_OUT_OF_MEM,
+} ModManErrCode;
 
 typedef struct AERMod {
 	/* Technical. */
@@ -31,10 +31,10 @@ typedef struct AERMod {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AERModManErrCode AERModManLoad(const char * modLib, AERMod ** mod);
+ModManErrCode ModManLoad(const char * modLib, AERMod ** mod);
 
-AERModManErrCode AERModManUnload(AERMod * mod);
+ModManErrCode ModManUnload(AERMod * mod);
 
 
 
-#endif /* AERMODMAN_H */
+#endif /* MODMAN_H */

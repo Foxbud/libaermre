@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aerlog.h"
-#include "aermodman.h"
 #include "aermre.h"
 #include "hld.h"
+#include "modman.h"
 
 
 
@@ -187,10 +187,10 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 		AERMod * mod;
 		char nameBuf[16];
 		snprintf(nameBuf, 16, MOD_NAME_FMT, modIdx);
-		AERModManErrCode err = AERModManLoad(nameBuf, &mod);
+		ModManErrCode err = ModManLoad(nameBuf, &mod);
 
 		/* Valid mod. */
-		if (err == AER_MOD_MAN_OK) {
+		if (err == MOD_MAN_OK) {
 			mre.mods[modIdx] = mod;
 			mre.numMods++;
 			if (mod->roomStepCallback) {
@@ -207,21 +207,21 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 		}
 
 		/* No more mods. */
-		else if (err == AER_MOD_MAN_NO_SUCH_MOD) {
+		else if (err == MOD_MAN_NO_SUCH_MOD) {
 			break;
 		}
 
 		/* Error while loading. */
 		else {
 			switch (err) {
-				case AER_MOD_MAN_NAME_NOT_FOUND:
+				case MOD_MAN_NAME_NOT_FOUND:
 					AERLogErr(
 							NAME,
 							"Could not find symbol \"MOD_NAME\" in mod %u.",
 							modIdx
 					);
 					break;
-				case AER_MOD_MAN_VERSION_NOT_FOUND:
+				case MOD_MAN_VERSION_NOT_FOUND:
 					AERLogErr(
 							NAME,
 							"Could not find symbol \"MOD_VERSION\" in mod %u.",
@@ -320,7 +320,7 @@ __attribute__((destructor)) void AERDestructor(void) {
 		const char * modName = mod->name;
 
 		/* Unload mod. */
-		if (AERModManUnload(mod) == AER_MOD_MAN_OK) {
+		if (ModManUnload(mod) == MOD_MAN_OK) {
 			mre.numMods--;
 			AERLogInfo(NAME, "Unloaded mod \"%s.\"", modName);
 		}
@@ -462,6 +462,21 @@ AERErrCode AERGetCurrentRoom(int32_t * roomIdx) {
 	ArgGuard(roomIdx);
 
 	*roomIdx = *mre.refs.roomIndexCurrent;
+
+	return AER_OK;
+}
+
+AERErrCode AERObjectGetName(
+		int32_t objIdx,
+		const char ** name
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(name);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+
+	*name = obj->name;
 
 	return AER_OK;
 }

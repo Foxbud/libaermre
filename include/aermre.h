@@ -115,6 +115,27 @@ AERErrCode AERRegisterObject(
 
 
 /**
+ * @defgroup object Object
+ *
+ * This module contains all object related utilities.
+ *
+ * @sa aermre.h
+ *
+ * @{
+ */
+
+AERErrCode AERObjectGetName(
+		int32_t objIdx,
+		const char ** name
+);
+
+/**
+ * @}
+ */
+
+
+
+/**
  * @defgroup instance Instance
  *
  * This module contains all instance related utilities.
