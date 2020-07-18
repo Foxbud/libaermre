@@ -298,6 +298,16 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 	return;
 }
 
+__attribute__((cdecl)) bool AERHookEvent(
+		HLDInstance * target,
+		HLDInstance * other,
+		int32_t targetObjIdx,
+		int32_t eventType,
+		int32_t eventNum
+) {
+	return true;
+}
+
 
 
 /* ----- LIBRARY MANAGEMENT ----- */

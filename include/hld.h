@@ -9,6 +9,11 @@
 
 /* ----- PUBLIC TYPES ----- */
 
+typedef enum HLDEventType {
+	HLDEventCreate;
+	HLDEventDestroy;
+} HLDEventType;
+
 typedef struct HLDHashItem {
 	struct HLDHashItem * prev;
 	struct HLDHashItem * next;
