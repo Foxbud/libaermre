@@ -15,7 +15,7 @@ inc = $(wildcard $(incdir)/*.h)
 obj = $(src:.c=.o)
 target = $(builddir)/aermre.so
 
-CFLAGS = -Wall -Wextra -O3 -g
+CFLAGS = -Wall -Wextra -O3
 ALL_CFLAGS = -I$(incdir) -m32 $(CFLAGS)
 
 ALL_LDFLAGS = -shared -m32 $(LDFLAGS)

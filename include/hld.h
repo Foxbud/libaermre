@@ -10,8 +10,8 @@
 /* ----- PUBLIC TYPES ----- */
 
 typedef enum HLDEventType {
-	HLDEventCreate;
-	HLDEventDestroy;
+	HLDEventCreate,
+	HLDEventDestroy
 } HLDEventType;
 
 typedef struct HLDHashItem {

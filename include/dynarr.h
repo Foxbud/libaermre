@@ -16,25 +16,40 @@ typedef struct DynArr {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-DynArr * DynArrNew(
-		size_t elemSize,
-		size_t capacity
-);
+DynArr * DynArrNew(size_t capacity);
 
 void DynArrFree(DynArr * array);
 
 size_t DynArrSize(DynArr * array);
 
 void * DynArrGet(
-		size_t elemSize,
+		DynArr * array,
 		uint32_t idx
 );
 
 void DynArrSet(
-		size_t elemSize,
+		DynArr * array,
 		uint32_t idx,
 		void * val
 );
+
+void DynArrInsert(
+		DynArr * array,
+		uint32_t idx,
+		void * val
+);
+
+void DynArrPush(
+		DynArr * array,
+		void * val
+);
+
+void * DynArrRemove(
+		DynArr * array,
+		uint32_t idx
+);
+
+void * DynArrPop(DynArr * array);
 
 
 

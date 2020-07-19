@@ -5,6 +5,7 @@
 #include <string.h>
 #include "aerlog.h"
 #include "aermre.h"
+#include "dynarr.h"
 #include "hld.h"
 #include "modman.h"
 
@@ -106,13 +107,10 @@ typedef struct HLDRefs {
 typedef struct AERMRE {
 	HLDRefs refs;
 	int32_t roomIndexPrevious;
-	size_t numMods;
-	AERMod * mods[128];
 	AERMod * regActiveMod;
-	size_t numRoomStepCallbacks;
-	void (* roomStepCallbacks[128])(void);
-	size_t numRoomChangeCallbacks;
-	void (* roomChangeCallbacks[128])(int32_t, int32_t);
+	DynArr * mods;
+	DynArr * roomStepCallbacks;
+	DynArr * roomChangeCallbacks;
 	enum {
 		STAGE_INIT,
 		STAGE_REG_SPRITE,
@@ -128,8 +126,6 @@ typedef struct AERMRE {
 static const char * NAME = "MRE";
 
 static const char * VERSION = "0.1.0dev";
-
-static const size_t MAX_NUM_MODS = 128;
 
 static const char * MOD_NAME_FMT = "aermod%u.so";
 
@@ -169,20 +165,18 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 	mre = (AERMRE){
 		.refs = refs,
 		.roomIndexPrevious = 0,
-		.numMods = 0,
-		.mods = {},
 		.regActiveMod = NULL,
-		.numRoomStepCallbacks = 0,
-		.roomStepCallbacks = {},
-		.numRoomChangeCallbacks = 0,
-		.roomChangeCallbacks = {},
+		.mods = DynArrNew(16),
+		.roomStepCallbacks = DynArrNew(16),
+		.roomChangeCallbacks = DynArrNew(16),
 		.stage = STAGE_INIT
 	};
 	AERLogInfo(NAME, "Done.");
 
 	/* Load mods. */
 	AERLogInfo(NAME, "Loading mods...");
-	for (size_t modIdx = 0; modIdx < MAX_NUM_MODS; modIdx++) {
+	size_t modIdx = 0;
+	while (true) {
 		/* Load mod. */
 		AERMod * mod;
 		char nameBuf[16];
@@ -191,17 +185,12 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 
 		/* Valid mod. */
 		if (err == MOD_MAN_OK) {
-			mre.mods[modIdx] = mod;
-			mre.numMods++;
+			DynArrPush(mre.mods, mod);
 			if (mod->roomStepCallback) {
-				size_t tmpIdx = mre.numRoomStepCallbacks;
-				mre.roomStepCallbacks[tmpIdx] = mod->roomStepCallback;
-				mre.numRoomStepCallbacks++;
+				DynArrPush(mre.roomStepCallbacks, mod->roomStepCallback);
 			}
 			if (mod->roomChangeCallback) {
-				size_t tmpIdx = mre.numRoomChangeCallbacks;
-				mre.roomChangeCallbacks[tmpIdx] = mod->roomChangeCallback;
-				mre.numRoomChangeCallbacks++;
+				DynArrPush(mre.roomChangeCallbacks, mod->roomChangeCallback);
 			}
 			AERLogInfo(NAME, "Loaded mod \"%s\" v%s.", mod->name, mod->version);
 		}
@@ -238,8 +227,10 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 			}
 			exit(1);
 		}
+
+		modIdx++;
 	}
-	AERLogInfo(NAME, "Done. Loaded %u mod(s).", mre.numMods);
+	AERLogInfo(NAME, "Done. Loaded %u mod(s).", DynArrSize(mre.mods));
 
 	return;
 }
@@ -247,11 +238,13 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 __attribute__((cdecl)) void AERHookUpdate(void) {
 	/* Registration. */
 	if (*mre.refs.numSteps == 0) {
+		size_t numMods = DynArrSize(mre.mods);
+
 		/* Register sprites. */
 		mre.stage = STAGE_REG_SPRITE;
 		AERLogInfo(NAME, "Registering mod sprites...");
-		for (uint32_t modIdx = 0; modIdx < mre.numMods; modIdx++) {
-			AERMod * mod = mre.mods[modIdx];
+		for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+			AERMod * mod = DynArrGet(mre.mods, modIdx);
 			mre.regActiveMod = mod;
 			if (mod->registerSpritesCallback) {
 				mod->registerSpritesCallback();
@@ -263,8 +256,8 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 		/* Register objects. */
 		mre.stage = STAGE_REG_OBJECT;
 		AERLogInfo(NAME, "Registering mod objects...");
-		for (uint32_t modIdx = 0; modIdx < mre.numMods; modIdx++) {
-			AERMod * mod = mre.mods[modIdx];
+		for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+			AERMod * mod = DynArrGet(mre.mods, modIdx);
 			mre.regActiveMod = mod;
 			if (mod->registerObjectsCallback) {
 				mod->registerObjectsCallback();
@@ -281,18 +274,25 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 	int32_t roomIndexCurrent = *mre.refs.roomIndexCurrent;
 	if (roomIndexCurrent != mre.roomIndexPrevious) {
 		/* Call room change mod callbacks. */
-		for (uint32_t idx = 0; idx < mre.numRoomChangeCallbacks; idx++) {
-			mre.roomChangeCallbacks[idx](
-					roomIndexCurrent,
-					mre.roomIndexPrevious
+		size_t numCallbacks = DynArrSize(mre.roomChangeCallbacks);
+		for (uint32_t idx = 0; idx < numCallbacks; idx++) {
+			void (* callback)(int32_t, int32_t) = DynArrGet(
+					mre.roomChangeCallbacks,
+					idx
 			);
+			callback(roomIndexCurrent, mre.roomIndexPrevious);
 		}
 		mre.roomIndexPrevious = roomIndexCurrent;
 	}
 
 	/* Call room step mod callbacks. */
-	for (uint32_t idx = 0; idx < mre.numRoomStepCallbacks; idx++) {
-		mre.roomStepCallbacks[idx]();
+	size_t numCallbacks = DynArrSize(mre.roomStepCallbacks);
+	for (uint32_t idx = 0; idx < numCallbacks; idx++) {
+		void (* callback)(void) = DynArrGet(
+				mre.roomStepCallbacks,
+				idx
+		);
+		callback();
 	}
 
 	return;
@@ -305,6 +305,12 @@ __attribute__((cdecl)) bool AERHookEvent(
 		int32_t eventType,
 		int32_t eventNum
 ) {
+	(void)target;
+	(void)other;
+	(void)targetObjIdx;
+	(void)eventType;
+	(void)eventNum;
+
 	return true;
 }
 
@@ -324,14 +330,15 @@ __attribute__((constructor)) void AERConstructor(void) {
 
 __attribute__((destructor)) void AERDestructor(void) {
 	AERLogInfo(NAME, "Unloading mods...");
-	size_t initNumMods = mre.numMods;
-	for (uint32_t modIdx = 0; modIdx < initNumMods; modIdx++) {
-		AERMod * mod = mre.mods[modIdx];
+	size_t initNumMods = DynArrSize(mre.mods);
+	size_t numUnloaded = 0;
+	while (DynArrSize(mre.mods) > 0) {
+		AERMod * mod = DynArrPop(mre.mods);
 		const char * modName = mod->name;
 
 		/* Unload mod. */
 		if (ModManUnload(mod) == MOD_MAN_OK) {
-			mre.numMods--;
+			numUnloaded++;
 			AERLogInfo(NAME, "Unloaded mod \"%s.\"", modName);
 		}
 
@@ -347,9 +354,15 @@ __attribute__((destructor)) void AERDestructor(void) {
 	AERLogInfo(
 			NAME,
 			"Done. Unloaded %u of %u mod(s).",
-			initNumMods - mre.numMods,
+			numUnloaded,
 			initNumMods
 	);
+
+	AERLogInfo(NAME, "Deinitializing mod runtime environment...");
+	DynArrFree(mre.mods);
+	DynArrFree(mre.roomStepCallbacks);
+	DynArrFree(mre.roomChangeCallbacks);
+	AERLogInfo(NAME, "Done.");
 
 	return;
 }
