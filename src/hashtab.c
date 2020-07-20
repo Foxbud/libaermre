@@ -18,7 +18,8 @@ typedef struct TableValue {
 } TableValue;
 
 typedef struct Table {
-	uint32_t numSlots;
+	size_t numSlots;
+	uint32_t slotIdxMask;
 	DynArr ** slots;
 	DynArr * values;
 } Table;
@@ -43,7 +44,7 @@ static TableItem * LookupItem(
 	DynArr * tmpSlot = NULL;
 	uint32_t tmpItemIdx = 0;
 
-	uint32_t slotIdx = key & table->numSlots;
+	uint32_t slotIdx = key & table->slotIdxMask;
 	if ((tmpSlot = table->slots[slotIdx])) {
 		size_t numItems = DynArrSize(tmpSlot);
 		for (uint32_t idx = 0; idx < numItems; idx++) {
@@ -75,8 +76,9 @@ HashTab * HashTabNew(uint32_t slotMagnitude) {
 
 	Table * table = malloc(sizeof(Table));
 	assert(table);
-	size_t numSlots = (1 << (slotMagnitude - 1)) - 1;
+	size_t numSlots = 1 << (slotMagnitude - 1);
 	table->numSlots = numSlots;
+	table->slotIdxMask = numSlots - 1;
 	table->slots = calloc(numSlots, sizeof(DynArr *));
 	assert(table->slots);
 	table->values = DynArrNew(32);
@@ -161,7 +163,7 @@ void HashTabSet(
 
 	/* Get slot. */
 	DynArr ** slots = ((Table *)table)->slots;
-	uint32_t slotIdx = key & ((Table *)table)->numSlots;
+	uint32_t slotIdx = key & ((Table *)table)->slotIdxMask;
 	DynArr * slot;
 	/* Ensure slot has been initialized. */
 	if (!(slot = slots[slotIdx])) {
