@@ -56,8 +56,8 @@ typedef struct HLDNodeDLL {
 typedef struct HLDEvent {
 	void * classDef;
 	struct HLDEvent * eventNext;
-	uint32_t field_08;
-	uint32_t field_0C;
+	uint32_t field_8;
+	uint32_t field_C;
 	uint32_t field_10;
 	uint32_t field_14;
 	uint32_t field_18;
@@ -104,9 +104,9 @@ typedef struct HLDObject {
 		uint8_t collisions : 1;
 		uint8_t : 3;
 	} flags;
-	uint8_t field_01;
-	uint8_t field_02;
-	uint8_t field_03;
+	uint8_t field_1;
+	uint8_t field_2;
+	uint8_t field_3;
 	int32_t spriteIndex;
 	uint32_t depth;
 	uint32_t parentIndex;
@@ -257,7 +257,7 @@ typedef struct HLDInstance {
 } HLDInstance;
 
 typedef struct HLDRoom {
-	uint32_t field_00;
+	uint32_t field_0;
 	struct HLDRoom * self;
 	uint32_t field_8;
 	uint32_t field_C;
@@ -331,6 +331,43 @@ typedef struct HLDRoom {
 	uint32_t field_11C;
 	uint32_t field_120;
 } HLDRoom;
+
+typedef struct HLDSprite {
+	uint32_t field_0;
+	uint32_t field_4;
+	uint32_t field_8;
+	uint32_t field_C;
+	uint32_t field_10;
+	uint32_t field_14;
+	uint32_t numImages;
+	uint32_t field_1C;
+	uint32_t field_20;
+	uint32_t field_24;
+	uint32_t field_28;
+	uint32_t field_2C;
+	uint32_t field_30;
+	uint32_t field_34;
+	uint32_t field_38;
+	uint32_t field_3C;
+	uint32_t field_40;
+	uint32_t field_44;
+	uint32_t field_48;
+	uint32_t field_4C;
+	uint32_t field_50;
+	uint32_t field_54;
+	uint32_t field_58;
+	const char * name;
+	uint32_t field_60;
+	uint32_t field_64;
+	uint32_t field_68;
+	float speed;
+	uint32_t field_70;
+	uint32_t field_74;
+	uint32_t field_78;
+	uint32_t field_7C;
+	uint32_t field_80;
+	uint32_t field_84;
+} HLDSprite;
 
 
 
