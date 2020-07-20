@@ -80,41 +80,6 @@ AERErrCode AERGetCurrentRoom(int32_t * roomIdx);
 
 
 /**
- * @defgroup registration Registration
- *
- * This module contains all registration related utilities.
- *
- * @sa aermre.h
- *
- * @{
- */
-
-AERErrCode AERRegisterSprite(
-		const char * filename,
-		size_t numFrames,
-		uint32_t origX,
-		uint32_t origY,
-		int32_t * spriteIdx
-);
-
-AERErrCode AERRegisterObject(
-		const char * name,
-		int32_t parentIdx,
-		int32_t spriteIdx,
-		bool visible,
-		bool solid,
-		bool collisions,
-		bool persistent,
-		int32_t * objIdx
-);
-
-/**
- * @}
- */
-
-
-
-/**
  * @defgroup object Object
  *
  * This module contains all object related utilities.
@@ -250,6 +215,46 @@ AERErrCode AERInstanceSetSolid(
 AERErrCode AERInstanceGetAge(
 		AERInstance * inst,
 		uint32_t * age
+);
+
+/**
+ * @}
+ */
+
+
+
+/**
+ * @defgroup registration Registration
+ *
+ * This module contains all registration related utilities.
+ *
+ * @sa aermre.h
+ *
+ * @{
+ */
+
+AERErrCode AERRegisterSprite(
+		const char * filename,
+		size_t numFrames,
+		uint32_t origX,
+		uint32_t origY,
+		int32_t * spriteIdx
+);
+
+AERErrCode AERRegisterObject(
+		const char * name,
+		int32_t parentIdx,
+		int32_t spriteIdx,
+		bool visible,
+		bool solid,
+		bool collisions,
+		bool persistent,
+		int32_t * objIdx
+);
+
+AERErrCode AERRegisterCreateListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst)
 );
 
 /**

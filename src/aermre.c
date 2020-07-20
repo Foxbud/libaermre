@@ -6,6 +6,7 @@
 #include "aerlog.h"
 #include "aermre.h"
 #include "dynarr.h"
+#include "hashtab.h"
 #include "hld.h"
 #include "modman.h"
 
@@ -109,12 +110,14 @@ typedef struct AERMRE {
 	int32_t roomIndexPrevious;
 	AERMod * regActiveMod;
 	DynArr * mods;
-	DynArr * roomStepCallbacks;
-	DynArr * roomChangeCallbacks;
+	DynArr * roomStepListeners;
+	DynArr * roomChangeListeners;
+	HashTab * eventListeners;
 	enum {
 		STAGE_INIT,
-		STAGE_REG_SPRITE,
-		STAGE_REG_OBJECT,
+		STAGE_SPRITE_REG,
+		STAGE_OBJECT_REG,
+		STAGE_LISTENER_REG,
 		STAGE_ACTION
 	} stage;
 } AERMRE;
@@ -155,6 +158,37 @@ static HLDInstance * InstanceLookup(int32_t key) {
 	);
 }
 
+static uint32_t GenerateListenerKey(
+		HLDEventType eventType,
+		uint32_t eventNum,
+		uint32_t targetObjIdx
+) {
+	union {
+		uint32_t raw;
+		struct {
+			uint32_t objIdx : 14;
+			uint32_t num : 14;
+			uint32_t type : 4;
+		} parts;
+	} key;
+
+	key.parts.type = eventType & 0xf;
+	key.parts.num = eventNum & 0x3fff;
+	key.parts.objIdx = targetObjIdx & 0x3fff;
+
+	return key.raw;
+}
+
+static void FreeListenersArray(
+		uint32_t key,
+		void * listeners
+) {
+	(void)key;
+	DynArrFree(listeners);
+
+	return;
+}
+
 
 
 /* ----- UNLISTED FUNCTIONS ----- */
@@ -167,8 +201,9 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 		.roomIndexPrevious = 0,
 		.regActiveMod = NULL,
 		.mods = DynArrNew(16),
-		.roomStepCallbacks = DynArrNew(16),
-		.roomChangeCallbacks = DynArrNew(16),
+		.roomStepListeners = DynArrNew(16),
+		.roomChangeListeners = DynArrNew(16),
+		.eventListeners = HashTabNew(10), /* 1023 slots. */
 		.stage = STAGE_INIT
 	};
 	AERLogInfo(NAME, "Done.");
@@ -186,11 +221,11 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 		/* Valid mod. */
 		if (err == MOD_MAN_OK) {
 			DynArrPush(mre.mods, mod);
-			if (mod->roomStepCallback) {
-				DynArrPush(mre.roomStepCallbacks, mod->roomStepCallback);
+			if (mod->roomStepListener) {
+				DynArrPush(mre.roomStepListeners, mod->roomStepListener);
 			}
-			if (mod->roomChangeCallback) {
-				DynArrPush(mre.roomChangeCallbacks, mod->roomChangeCallback);
+			if (mod->roomChangeListener) {
+				DynArrPush(mre.roomChangeListeners, mod->roomChangeListener);
 			}
 			AERLogInfo(NAME, "Loaded mod \"%s\" v%s.", mod->name, mod->version);
 		}
@@ -241,27 +276,44 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 		size_t numMods = DynArrSize(mre.mods);
 
 		/* Register sprites. */
-		mre.stage = STAGE_REG_SPRITE;
+		mre.stage = STAGE_SPRITE_REG;
 		AERLogInfo(NAME, "Registering mod sprites...");
 		for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
 			AERMod * mod = DynArrGet(mre.mods, modIdx);
 			mre.regActiveMod = mod;
-			if (mod->registerSpritesCallback) {
-				mod->registerSpritesCallback();
+			if (mod->registerSprites) {
+				mod->registerSprites();
 				AERLogInfo(NAME, "Registred sprites for mod \"%s.\"", mod->name);
 			}
 		}
 		AERLogInfo(NAME, "Done.");
 
 		/* Register objects. */
-		mre.stage = STAGE_REG_OBJECT;
+		mre.stage = STAGE_OBJECT_REG;
 		AERLogInfo(NAME, "Registering mod objects...");
 		for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
 			AERMod * mod = DynArrGet(mre.mods, modIdx);
 			mre.regActiveMod = mod;
-			if (mod->registerObjectsCallback) {
-				mod->registerObjectsCallback();
+			if (mod->registerObjects) {
+				mod->registerObjects();
 				AERLogInfo(NAME, "Registred objects for mod \"%s.\"", mod->name);
+			}
+		}
+		AERLogInfo(NAME, "Done.");
+
+		/* Register listeners. */
+		mre.stage = STAGE_LISTENER_REG;
+		AERLogInfo(NAME, "Registering mod event listeners...");
+		for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+			AERMod * mod = DynArrGet(mre.mods, modIdx);
+			mre.regActiveMod = mod;
+			if (mod->registerListeners) {
+				mod->registerListeners();
+				AERLogInfo(
+						NAME,
+						"Registred event listeners for mod \"%s.\"",
+						mod->name
+				);
 			}
 		}
 		AERLogInfo(NAME, "Done.");
@@ -273,26 +325,26 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 	/* Check if room changed. */
 	int32_t roomIndexCurrent = *mre.refs.roomIndexCurrent;
 	if (roomIndexCurrent != mre.roomIndexPrevious) {
-		/* Call room change mod callbacks. */
-		size_t numCallbacks = DynArrSize(mre.roomChangeCallbacks);
-		for (uint32_t idx = 0; idx < numCallbacks; idx++) {
-			void (* callback)(int32_t, int32_t) = DynArrGet(
-					mre.roomChangeCallbacks,
+		/* Call room change listeners. */
+		size_t numListeners = DynArrSize(mre.roomChangeListeners);
+		for (uint32_t idx = 0; idx < numListeners; idx++) {
+			void (* listener)(int32_t, int32_t) = DynArrGet(
+					mre.roomChangeListeners,
 					idx
 			);
-			callback(roomIndexCurrent, mre.roomIndexPrevious);
+			listener(roomIndexCurrent, mre.roomIndexPrevious);
 		}
 		mre.roomIndexPrevious = roomIndexCurrent;
 	}
 
-	/* Call room step mod callbacks. */
-	size_t numCallbacks = DynArrSize(mre.roomStepCallbacks);
-	for (uint32_t idx = 0; idx < numCallbacks; idx++) {
-		void (* callback)(void) = DynArrGet(
-				mre.roomStepCallbacks,
+	/* Call room step listeners. */
+	size_t numListeners = DynArrSize(mre.roomStepListeners);
+	for (uint32_t idx = 0; idx < numListeners; idx++) {
+		void (* listener)(void) = DynArrGet(
+				mre.roomStepListeners,
 				idx
 		);
-		callback();
+		listener();
 	}
 
 	return;
@@ -302,16 +354,44 @@ __attribute__((cdecl)) bool AERHookEvent(
 		HLDInstance * target,
 		HLDInstance * other,
 		int32_t targetObjIdx,
-		int32_t eventType,
+		HLDEventType eventType,
 		int32_t eventNum
 ) {
-	(void)target;
 	(void)other;
-	(void)targetObjIdx;
-	(void)eventType;
-	(void)eventNum;
+	bool result = true;
 
-	return true;
+	if (
+			eventType == HLD_EVENT_CREATE
+	) {
+		uint32_t key = GenerateListenerKey(eventType, eventNum, targetObjIdx);
+		bool exists;
+		DynArr * listeners = HashTabGet(
+				mre.eventListeners,
+				key,
+				&exists
+		);
+
+		if (exists) {
+			size_t numListeners = DynArrSize(listeners);
+			switch (eventType) {
+				/* Create. */
+				case HLD_EVENT_CREATE:
+					for (uint32_t idx = 0; idx < numListeners; idx++) {
+						bool (* listener)(AERInstance *);
+						listener = DynArrGet(listeners, idx);
+						if (!(result = listener((AERInstance *)target))) {
+							break;
+						}
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
+
+	return result;
 }
 
 
@@ -359,9 +439,11 @@ __attribute__((destructor)) void AERDestructor(void) {
 	);
 
 	AERLogInfo(NAME, "Deinitializing mod runtime environment...");
+	HashTabEach(mre.eventListeners, &FreeListenersArray);
+	HashTabFree(mre.eventListeners);
+	DynArrFree(mre.roomChangeListeners);
+	DynArrFree(mre.roomStepListeners);
 	DynArrFree(mre.mods);
-	DynArrFree(mre.roomStepCallbacks);
-	DynArrFree(mre.roomChangeCallbacks);
 	AERLogInfo(NAME, "Done.");
 
 	return;
@@ -378,7 +460,7 @@ AERErrCode AERRegisterSprite(
 		uint32_t origY,
 		int32_t * spriteIdx
 ) {
-	Stage(STAGE_REG_SPRITE);
+	Stage(STAGE_SPRITE_REG);
 	ArgGuard(filename);
 	ArgGuard(spriteIdx);
 
@@ -416,7 +498,7 @@ AERErrCode AERRegisterObject(
 		bool persistent,
 		int32_t * objIdx
 ) {
-	Stage(STAGE_REG_OBJECT);
+	Stage(STAGE_OBJECT_REG);
 	ArgGuard(name);
 	ArgGuard(objIdx);
 
@@ -440,6 +522,31 @@ AERErrCode AERRegisterObject(
 	obj->flags.persistent = persistent;
 
 	*objIdx = idx;
+
+	return AER_OK;
+}
+
+AERErrCode AERRegisterCreateListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst)
+) {
+	Stage(STAGE_LISTENER_REG);
+	ArgGuard(listener);
+	ObjectGuard(ObjectLookup(objIdx));
+
+	uint32_t key = GenerateListenerKey(
+			HLD_EVENT_CREATE,
+			0,
+			objIdx
+	);
+
+	bool exists;
+	DynArr * listeners = HashTabGet(mre.eventListeners, key, &exists);
+	if (!exists) {
+		listeners = DynArrNew(4);
+		HashTabSet(mre.eventListeners, key, listeners);
+	}
+	DynArrPush(listeners, listener);
 
 	return AER_OK;
 }

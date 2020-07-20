@@ -20,11 +20,12 @@ typedef struct AERMod {
 	const char * name;
 	const char * version;
 	/* Registration. */
-	void (* registerSpritesCallback)(void);
-	void (* registerObjectsCallback)(void);
+	void (* registerSprites)(void);
+	void (* registerObjects)(void);
+	void (* registerListeners)(void);
 	/* Event. */
-	void (* roomStepCallback)(void);
-	void (* roomChangeCallback)(int32_t, int32_t);
+	void (* roomStepListener)(void);
+	void (* roomChangeListener)(int32_t, int32_t);
 } AERMod;
 
 

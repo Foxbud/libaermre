@@ -44,48 +44,42 @@ ModManErrCode ModManLoad(const char * modLib, AERMod ** mod) {
 	}
 	tmpMod->version = tmpVersion;
 
-	/* Read REGISTER_SPRITES_CALLBACK symbol. */
-	void (** tmpRegSpritesHandle)(void) = dlsym(
-			tmpHandle,
-			"REGISTER_SPRITES_CALLBACK"
-	);
-	void (* tmpRegSprites)(void);
-	tmpMod->registerSpritesCallback = NULL;
-	if (tmpRegSpritesHandle && (tmpRegSprites = *tmpRegSpritesHandle)) {
-		tmpMod->registerSpritesCallback = tmpRegSprites;
+	/* Read ModRegisterSprites symbol. */
+	void (* tmpRegSprites)(void) = dlsym(tmpHandle, "ModRegisterSprites");
+	tmpMod->registerSprites = NULL;
+	if (tmpRegSprites) {
+		tmpMod->registerSprites = tmpRegSprites;
 	}
 
-	/* Read REGISTER_OBJECTS_CALLBACK symbol. */
-	void (** tmpRegObjectsHandle)(void) = dlsym(
-			tmpHandle,
-			"REGISTER_OBJECTS_CALLBACK"
-	);
-	void (* tmpRegObjects)(void);
-	tmpMod->registerObjectsCallback = NULL;
-	if (tmpRegObjectsHandle && (tmpRegObjects = *tmpRegObjectsHandle)) {
-		tmpMod->registerObjectsCallback = tmpRegObjects;
+	/* Read ModRegisterObjects symbol. */
+	void (* tmpRegObjects)(void) = dlsym(tmpHandle, "ModRegisterObjects");
+	tmpMod->registerObjects = NULL;
+	if (tmpRegObjects) {
+		tmpMod->registerObjects = tmpRegObjects;
 	}
 
-	/* Read ROOM_STEP_CALLBACK symbol. */
-	void (** tmpRoomStepHandle)(void) = dlsym(
-			tmpHandle,
-			"ROOM_STEP_CALLBACK"
-	);
-	void (* tmpRoomStep)(void);
-	tmpMod->roomStepCallback = NULL;
-	if (tmpRoomStepHandle && (tmpRoomStep = *tmpRoomStepHandle)) {
-		tmpMod->roomStepCallback = tmpRoomStep;
+	/* Read ModRegisterListeners symbol. */
+	void (* tmpRegListeners)(void) = dlsym(tmpHandle, "ModRegisterListeners");
+	tmpMod->registerListeners = NULL;
+	if (tmpRegListeners) {
+		tmpMod->registerListeners = tmpRegListeners;
 	}
 
-	/* Read ROOM_CHANGE_CALLBACK symbol. */
-	void (** tmpRoomChangeHandle)(int32_t, int32_t) = dlsym(
+	/* Read ModRoomStepListener symbol. */
+	void (* tmpRoomStep)(void) = dlsym(tmpHandle, "ModRoomStepListener");
+	tmpMod->roomStepListener = NULL;
+	if (tmpRoomStep) {
+		tmpMod->roomStepListener = tmpRoomStep;
+	}
+
+	/* Read ModRoomChangeListener symbol. */
+	void (* tmpRoomChange)(int32_t, int32_t) = dlsym(
 			tmpHandle,
-			"ROOM_CHANGE_CALLBACK"
+			"ModRoomChangeListener"
 	);
-	void (* tmpRoomChange)(int32_t, int32_t);
-	tmpMod->roomChangeCallback = NULL;
-	if (tmpRoomChangeHandle && (tmpRoomChange = *tmpRoomChangeHandle)) {
-		tmpMod->roomChangeCallback = tmpRoomChange;
+	tmpMod->roomChangeListener = NULL;
+	if (tmpRoomChange) {
+		tmpMod->roomChangeListener = tmpRoomChange;
 	}
 
 	/* Success. */
