@@ -6,6 +6,7 @@
 #include "aerlog.h"
 #include "aermre.h"
 #include "dynarr.h"
+#include "eventkey.h"
 #include "hashtab.h"
 #include "hld.h"
 #include "modman.h"
@@ -158,32 +159,14 @@ static HLDInstance * InstanceLookup(int32_t key) {
 	);
 }
 
-static uint32_t GenerateListenerKey(
-		HLDEventType eventType,
-		uint32_t eventNum,
-		uint32_t targetObjIdx
-) {
-	union {
-		uint32_t raw;
-		struct {
-			uint32_t objIdx : 14;
-			uint32_t num : 14;
-			uint32_t type : 4;
-		} parts;
-	} key;
-
-	key.parts.type = eventType & 0xf;
-	key.parts.num = eventNum & 0x3fff;
-	key.parts.objIdx = targetObjIdx & 0x3fff;
-
-	return key.raw;
-}
-
-static void FreeListenersArray(
-		uint32_t key,
-		void * listeners
+static void ListenerArrayFree(
+		void * key,
+		void * listeners,
+		void * context
 ) {
 	(void)key;
+	(void)context;
+
 	DynArrFree(listeners);
 
 	return;
@@ -203,7 +186,12 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 		.mods = DynArrNew(16),
 		.roomStepListeners = DynArrNew(16),
 		.roomChangeListeners = DynArrNew(16),
-		.eventListeners = HashTabNew(10), /* 1023 slots. */
+		.eventListeners = HashTabNew(
+				12, /* 4096 slots. */
+				sizeof(EventKey),
+				&EventKeyHash,
+				&EventKeyEqual
+		),
 		.stage = STAGE_INIT
 	};
 	AERLogInfo(NAME, "Done.");
@@ -363,13 +351,14 @@ __attribute__((cdecl)) bool AERHookEvent(
 	if (
 			eventType == HLD_EVENT_CREATE
 	) {
-		uint32_t key = GenerateListenerKey(eventType, eventNum, targetObjIdx);
+		EventKey key = (EventKey){
+			.type = eventType,
+			.num = eventNum,
+			.objIdx = targetObjIdx
+		};
+
 		bool exists;
-		DynArr * listeners = HashTabGet(
-				mre.eventListeners,
-				key,
-				&exists
-		);
+		DynArr * listeners = HashTabGet(mre.eventListeners, &key, &exists);
 
 		if (exists) {
 			size_t numListeners = DynArrSize(listeners);
@@ -379,9 +368,7 @@ __attribute__((cdecl)) bool AERHookEvent(
 					for (uint32_t idx = 0; idx < numListeners; idx++) {
 						bool (* listener)(AERInstance *);
 						listener = DynArrGet(listeners, idx);
-						if (!(result = listener((AERInstance *)target))) {
-							break;
-						}
+						if (!(result = listener((AERInstance *)target))) break;
 					}
 					break;
 
@@ -439,7 +426,7 @@ __attribute__((destructor)) void AERDestructor(void) {
 	);
 
 	AERLogInfo(NAME, "Deinitializing mod runtime environment...");
-	HashTabEach(mre.eventListeners, &FreeListenersArray);
+	HashTabEach(mre.eventListeners, &ListenerArrayFree, NULL);
 	HashTabFree(mre.eventListeners);
 	DynArrFree(mre.roomChangeListeners);
 	DynArrFree(mre.roomStepListeners);
@@ -534,17 +521,17 @@ AERErrCode AERRegisterCreateListener(
 	ArgGuard(listener);
 	ObjectGuard(ObjectLookup(objIdx));
 
-	uint32_t key = GenerateListenerKey(
-			HLD_EVENT_CREATE,
-			0,
-			objIdx
-	);
+	EventKey key = (EventKey){
+		.type = HLD_EVENT_CREATE,
+		.num = 0,
+		.objIdx = objIdx
+	};
 
 	bool exists;
-	DynArr * listeners = HashTabGet(mre.eventListeners, key, &exists);
+	DynArr * listeners = HashTabGet(mre.eventListeners, &key, &exists);
 	if (!exists) {
 		listeners = DynArrNew(4);
-		HashTabSet(mre.eventListeners, key, listeners);
+		HashTabInsert(mre.eventListeners, &key, listeners);
 	}
 	DynArrPush(listeners, listener);
 

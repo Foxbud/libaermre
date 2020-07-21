@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include "dynarr.h"
 #include "hashtab.h"
 
@@ -7,61 +8,117 @@
 
 /* ----- PRIVATE TYPES ----- */
 
+typedef struct SlotNode {
+	struct SlotNode * next;
+	struct SlotNode * prev;
+	void * key;
+	uint32_t itemIdx;
+} SlotNode;
+
 typedef struct TableItem {
-	uint32_t key;
-	uint32_t valueIdx;
+	struct SlotNode * node;
+	void * value;
 } TableItem;
 
-typedef struct TableValue {
-	TableItem * item;
-	void * raw;
-} TableValue;
-
 typedef struct Table {
+	size_t keySize;
 	size_t numSlots;
 	uint32_t slotIdxMask;
-	DynArr ** slots;
-	DynArr * values;
+	SlotNode ** slots;
+	DynArr * items;
+	uint32_t (* hashKey)(void *);
+	bool (* keysEqual)(void *, void *);
 } Table;
-
-
-
-/* ----- PRIVATE CONSTANTS ----- */
-
-static const size_t INIT_SLOT_CAP = 8;
 
 
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static TableItem * LookupItem(
+static void SlotNodeFree(SlotNode * node) {
+	free(node->key);
+	free(node);
+
+	return;
+}
+
+static SlotNode * SlotAddNode(
 		Table * table,
-		uint32_t key,
-		DynArr ** slot,
-		uint32_t * itemIdx
+		uint32_t slotIdx,
+		void * key,
+		uint32_t itemIdx
 ) {
-	TableItem * result = NULL;
-	DynArr * tmpSlot = NULL;
-	uint32_t tmpItemIdx = 0;
+	/* Initialize node. */
+	SlotNode * node = malloc(sizeof(SlotNode));
+	assert(node);
+	node->itemIdx = itemIdx;
 
-	uint32_t slotIdx = key & table->slotIdxMask;
-	if ((tmpSlot = table->slots[slotIdx])) {
-		size_t numItems = DynArrSize(tmpSlot);
-		for (uint32_t idx = 0; idx < numItems; idx++) {
-			TableItem * item = DynArrGet(tmpSlot, idx);
-			if (item->key == key) {
-				result = item;
-				tmpItemIdx = idx;
-				break;
-			}
-		}
+	/* Update connections. */
+	SlotNode * first = table->slots[slotIdx];
+	if (first) first->prev = node;
+	node->next = first;
+	node->prev = NULL;
+
+	/* Update slot. */
+	table->slots[slotIdx] = node;
+
+	/* Copy key. */
+	node->key = malloc(table->keySize);
+	assert(node->key);
+	memcpy(node->key, key, table->keySize);
+
+	return node;
+}
+
+static void SlotRemoveNode(
+		Table * table,
+		uint32_t slotIdx,
+		SlotNode * node
+) {
+	/* Update slot. */
+	if (table->slots[slotIdx] == node) table->slots[slotIdx] = node->next;
+
+	/* Update connections. */
+	if (node->next) node->next->prev = node->prev;
+	if (node->prev) node->prev->next = node->next;
+
+	SlotNodeFree(node);
+
+	return;
+}
+
+static SlotNode * SlotFindNode(
+		Table * table,
+		uint32_t slotIdx,
+		void * key
+) {
+	SlotNode * node = table->slots[slotIdx];
+
+	while (node) {
+		if (table->keysEqual(key, node->key)) break;
+		node = node->next;
 	}
 
-	if (slot) {
-		*slot = tmpSlot;
-	}
-	if (itemIdx) {
-		*itemIdx = tmpItemIdx;
+	return node;
+}
+
+static uint32_t SlotGetIndex(
+		Table * table,
+		void * key
+) {
+	return table->hashKey(key) & table->slotIdxMask;
+}
+
+static void * RemoveItem(Table * table, uint32_t itemIdx) {
+	void * result = NULL;
+
+	DynArr * items = table->items;
+	TableItem * item = DynArrGet(items, itemIdx);
+	result = item->value;
+	free(item);
+	TableItem * last = DynArrPop(items);
+	if (DynArrSize(items) != itemIdx) {
+		DynArrSet(items, itemIdx, last);
+		item->node->itemIdx = itemIdx;
 	}
 
 	return result;
@@ -71,17 +128,27 @@ static TableItem * LookupItem(
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-HashTab * HashTabNew(uint32_t slotMagnitude) {
+HashTab * HashTabNew(
+		uint32_t slotMagnitude,
+		size_t keySize,
+		uint32_t (* hashKey)(void * key),
+		bool (* keysEqual)(void * keyA, void * keyB)
+) {
+	assert(hashKey);
+	assert(keysEqual);
 	assert(slotMagnitude > 1 && slotMagnitude < 32);
 
 	Table * table = malloc(sizeof(Table));
 	assert(table);
+	table->keySize = keySize;
 	size_t numSlots = 1 << (slotMagnitude - 1);
 	table->numSlots = numSlots;
 	table->slotIdxMask = numSlots - 1;
-	table->slots = calloc(numSlots, sizeof(DynArr *));
+	table->slots = calloc(numSlots, sizeof(SlotNode *));
 	assert(table->slots);
-	table->values = DynArrNew(32);
+	table->items = DynArrNew(32);
+	table->hashKey = hashKey;
+	table->keysEqual = keysEqual;
 
 	return (HashTab *)table;
 }
@@ -89,25 +156,18 @@ HashTab * HashTabNew(uint32_t slotMagnitude) {
 void HashTabFree(HashTab * table) {
 	assert(table);
 
-	/* Free values and items. */
-	DynArr * values = ((Table *)table)->values;
-	while (DynArrSize(values) > 0) {
-		TableValue * value = DynArrPop(values);
-		free(value->item);
-		free(value);
+	/* Free items and slot nodes. */
+	DynArr * items = ((Table *)table)->items;
+	size_t numItems = DynArrSize(items);
+	for (uint32_t idx = 0; idx < numItems; idx++) {
+		TableItem * item = DynArrGet(items, idx);
+		SlotNodeFree(item->node);
+		free(item);
 	}
-	DynArrFree(values);
 
-	/* Free slots. */
-	size_t numSlots = ((Table *)table)->numSlots;
-	DynArr ** slots = ((Table *)table)->slots;
-	for (uint32_t slotIdx = 0; slotIdx < numSlots; slotIdx++) {
-		DynArr * slot;
-		if ((slot = slots[slotIdx])) {
-			DynArrFree(slot);
-		}
-	}
-	free(slots);
+	/* Free arrays. */
+	DynArrFree(items);
+	free(((Table *)table)->slots);
 
 	free(table);
 
@@ -117,34 +177,39 @@ void HashTabFree(HashTab * table) {
 size_t HashTabSize(HashTab * table) {
 	assert(table);
 
-	return DynArrSize(((Table *)table)->values);
+	return DynArrSize(((Table *)table)->items);
 }
 
 bool HashTabExists(
 		HashTab * table,
-		uint32_t key
+		void * key
 ) {
 	assert(table);
+	assert(key);
 
-	return LookupItem((Table *)table, key, NULL, NULL) != NULL;
+	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
+
+	return SlotFindNode((Table *)table, slotIdx, key) != NULL;
 }
 
 void * HashTabGet(
 		HashTab * table,
-		uint32_t key,
+		void * key,
 		bool * exists
 ) {
 	assert(table);
+	assert(key);
 	void * result = NULL;
 	bool tmpExists = false;
 
-	TableItem * item = LookupItem((Table *)table, key, NULL, NULL);
-	tmpExists = item != NULL;
+	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
+	SlotNode * node = SlotFindNode((Table *)table, slotIdx, key);
+	tmpExists = node != NULL;
 	assert(tmpExists || exists != NULL);
 
 	if (tmpExists) {
-		TableValue * value = DynArrGet(((Table *)table)->values, item->valueIdx);
-		result = value->raw;
+		TableItem * item = DynArrGet(((Table *)table)->items, node->itemIdx);
+		result = item->value;
 	}
 
 	if (exists) {
@@ -156,110 +221,87 @@ void * HashTabGet(
 
 void HashTabSet(
 		HashTab * table,
-		uint32_t key,
+		void * key,
 		void * value
 ) {
 	assert(table);
+	assert(key);
+
+	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
+	SlotNode * node = SlotFindNode((Table *)table, slotIdx, key);
+	assert(node);
+	TableItem * item = DynArrGet(((Table *)table)->items, node->itemIdx);
+	item->value = value;
+
+	return;
+}
+
+void HashTabInsert(
+		HashTab * table,
+		void * key,
+		void * value
+) {
+	assert(table);
+	assert(key);
 
 	/* Get slot. */
-	DynArr ** slots = ((Table *)table)->slots;
-	uint32_t slotIdx = key & ((Table *)table)->slotIdxMask;
-	DynArr * slot;
-	/* Ensure slot has been initialized. */
-	if (!(slot = slots[slotIdx])) {
-		slots[slotIdx] = slot = DynArrNew(INIT_SLOT_CAP);
-	}
+	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
+	assert(!SlotFindNode((Table *)table, slotIdx, key));
 
-	/* Get item. */
-	TableItem * item = NULL;
-	size_t numItems = DynArrSize(slot);
-	for (uint32_t idx = 0; idx < numItems; idx++) {
-		TableItem * tmpItem = DynArrGet(slot, idx);
-		if (tmpItem->key == key) {
-			item = tmpItem;
-			break;
-		}
-	}
+	/* Create item. */
+	DynArr * items = ((Table *)table)->items;
+	TableItem * item = malloc(sizeof(TableItem));
+	assert(item);
+	item->value = value;
+	uint32_t itemIdx = DynArrSize(items);
+	DynArrPush(items, item);
 
-	/* Get value. */
-	DynArr * values = ((Table *)table)->values;
-	TableValue * tabVal;
-	/* Item & value exist. */
-	if (item) {
-		tabVal = DynArrGet(values, item->valueIdx);
-	}
-	/* Item & value do not exist. */
-	else {
-		/* Create item. */
-		item = malloc(sizeof(TableItem));
-		assert(item);
-		item->key = key;
-		item->valueIdx = DynArrSize(values);
-		DynArrPush(slot, item);
-		/* Create value. */
-		tabVal = malloc(sizeof(TableValue));
-		assert(tabVal);
-		tabVal->item = item;
-		DynArrPush(values, tabVal);
-	}
-
-	/* Set value. */
-	tabVal->raw = value;
+	/* Create node. */
+	item->node = SlotAddNode(
+			(Table *)table,
+			slotIdx,
+			key,
+			itemIdx
+	);
 
 	return;
 }
 
 void * HashTabRemove(
 		HashTab * table,
-		uint32_t key
+		void * key
 ) {
 	assert(table);
+	assert(key);
 	void * result = NULL;
 
-	/* Get value. */
-	DynArr * values = ((Table *)table)->values;
-	DynArr * slot;
-	uint32_t itemIdx;
-	TableItem * item = LookupItem((Table *)table, key, &slot, &itemIdx);
-	assert(item);
-	TableValue * value = DynArrGet(values, item->valueIdx);
-	result = value->raw;
-
-	/* Remove value. */
-	free(value);
-	value = NULL;
-	uint32_t removedValIdx = item->valueIdx;
-	TableValue * lastVal = DynArrPop(values);
-	/* Move last value into removed value's position. */
-	if (removedValIdx != DynArrSize(values)) {
-		DynArrSet(values, removedValIdx, lastVal);
-		lastVal->item->valueIdx = removedValIdx;
-	}
-	/* Removed value was last value. */
-	else {
-		lastVal = NULL;
-	}
+	/* Get slot and node. */
+	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
+	SlotNode * node = SlotFindNode((Table *)table, slotIdx, key);
+	assert(node);
 
 	/* Remove item. */
-	free(item);
-	item = NULL;
-	DynArrRemove(slot, itemIdx);
+	result = RemoveItem((Table *)table, node->itemIdx);
+
+	/* Remove node. */
+	SlotRemoveNode((Table *)table, slotIdx, node);
 
 	return result;
 }
 
 void HashTabEach(
 		HashTab * table,
-		void (* callback)(uint32_t key, void * value)
+		void (* callback)(void * key, void * value, void * context),
+		void * context
 ) {
 	assert(table);
 	assert(callback);
 
-	DynArr * values = ((Table *)table)->values;
-	size_t numValues = DynArrSize(values);
-	for (uint32_t idx = 0; idx < numValues; idx++) {
-		TableValue * value = DynArrGet(values, idx);
-		callback(value->item->key, value->raw);
+	DynArr * items = ((Table *)table)->items;
+	size_t numItems = DynArrSize(items);
+	for (uint32_t idx = 0; idx < numItems; idx++) {
+		TableItem * item = DynArrGet(items, idx);
+		callback(item->node->key, item->value, context);
 	}
 
 	return;
