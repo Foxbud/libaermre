@@ -159,7 +159,18 @@ static HLDInstance * InstanceLookup(int32_t key) {
 	);
 }
 
-static void ListenerArrayFree(
+static DynArr * ListenerArrGetOrInit(EventKey * key) {
+	bool exists;
+	DynArr * listeners = HashTabGet(mre.eventListeners, key, &exists);
+	if (!exists) {
+		listeners = DynArrNew(4);
+		HashTabInsert(mre.eventListeners, key, listeners);
+	}
+
+	return listeners;
+}
+
+static void ListenerArrFree(
 		void * key,
 		void * listeners,
 		void * context
@@ -350,6 +361,7 @@ __attribute__((cdecl)) bool AERHookEvent(
 
 	if (
 			eventType == HLD_EVENT_CREATE
+			|| eventType == HLD_EVENT_DESTROY
 	) {
 		EventKey key = (EventKey){
 			.type = eventType,
@@ -365,6 +377,8 @@ __attribute__((cdecl)) bool AERHookEvent(
 			switch (eventType) {
 				/* Create. */
 				case HLD_EVENT_CREATE:
+				/* Destroy. */
+				case HLD_EVENT_DESTROY:
 					for (uint32_t idx = 0; idx < numListeners; idx++) {
 						bool (* listener)(AERInstance *);
 						listener = DynArrGet(listeners, idx);
@@ -426,7 +440,7 @@ __attribute__((destructor)) void AERDestructor(void) {
 	);
 
 	AERLogInfo(NAME, "Deinitializing mod runtime environment...");
-	HashTabEach(mre.eventListeners, &ListenerArrayFree, NULL);
+	HashTabEach(mre.eventListeners, &ListenerArrFree, NULL);
 	HashTabFree(mre.eventListeners);
 	DynArrFree(mre.roomChangeListeners);
 	DynArrFree(mre.roomStepListeners);
@@ -526,14 +540,25 @@ AERErrCode AERRegisterCreateListener(
 		.num = 0,
 		.objIdx = objIdx
 	};
+	DynArrPush(ListenerArrGetOrInit(&key), listener);
 
-	bool exists;
-	DynArr * listeners = HashTabGet(mre.eventListeners, &key, &exists);
-	if (!exists) {
-		listeners = DynArrNew(4);
-		HashTabInsert(mre.eventListeners, &key, listeners);
-	}
-	DynArrPush(listeners, listener);
+	return AER_OK;
+}
+
+AERErrCode AERRegisterDestroyListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst)
+) {
+	Stage(STAGE_LISTENER_REG);
+	ArgGuard(listener);
+	ObjectGuard(ObjectLookup(objIdx));
+
+	EventKey key = (EventKey){
+		.type = HLD_EVENT_DESTROY,
+		.num = 0,
+		.objIdx = objIdx
+	};
+	DynArrPush(ListenerArrGetOrInit(&key), listener);
 
 	return AER_OK;
 }

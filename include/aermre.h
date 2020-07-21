@@ -257,6 +257,11 @@ AERErrCode AERRegisterCreateListener(
 		bool (* listener)(AERInstance * inst)
 );
 
+AERErrCode AERRegisterDestroyListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst)
+);
+
 /**
  * @}
  */
