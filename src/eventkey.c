@@ -21,7 +21,7 @@ uint32_t EventKeyHash(void * key) {
 	hash.parts.objIdx = (uint32_t)keyCopy.objIdx & 0x3fff;
 
 	/* 
-	 * Perform xorshift32 with parameters recommend by Marsaglia in
+	 * Perform xorshift32 with parameters recommended by Marsaglia in
 	 * "Xorshift RNGs."
 	 */
 	hash.raw ^= hash.raw << 13;
