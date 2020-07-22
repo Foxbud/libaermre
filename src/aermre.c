@@ -362,6 +362,7 @@ __attribute__((cdecl)) bool AERHookEvent(
 	if (
 			eventType == HLD_EVENT_CREATE
 			|| eventType == HLD_EVENT_DESTROY
+			|| eventType == HLD_EVENT_COLLISION
 	) {
 		EventKey key = (EventKey){
 			.type = eventType,
@@ -377,12 +378,27 @@ __attribute__((cdecl)) bool AERHookEvent(
 			switch (eventType) {
 				/* Create. */
 				case HLD_EVENT_CREATE:
+
 				/* Destroy. */
 				case HLD_EVENT_DESTROY:
 					for (uint32_t idx = 0; idx < numListeners; idx++) {
 						bool (* listener)(AERInstance *);
 						listener = DynArrGet(listeners, idx);
 						if (!(result = listener((AERInstance *)target))) break;
+					}
+					break;
+
+				/* Collision. */
+				case HLD_EVENT_COLLISION:
+					for (uint32_t idx = 0; idx < numListeners; idx++) {
+						bool (* listener)(AERInstance *, AERInstance *);
+						listener = DynArrGet(listeners, idx);
+						if (!(result = listener(
+										(AERInstance *)target,
+										(AERInstance *)other
+						))) {
+							break;
+						}
 					}
 					break;
 
@@ -493,6 +509,7 @@ AERErrCode AERRegisterObject(
 		const char * name,
 		int32_t parentIdx,
 		int32_t spriteIdx,
+		int32_t depth,
 		bool visible,
 		bool solid,
 		bool collisions,
@@ -517,6 +534,7 @@ AERErrCode AERRegisterObject(
 	obj->parentIndex = parentIdx;
 	obj->parent = parent;
 	obj->spriteIndex = spriteIdx;
+	obj->depth = depth;
 	obj->flags.visible = visible;
 	obj->flags.solid = solid;
 	obj->flags.collisions = collisions;
@@ -557,6 +575,26 @@ AERErrCode AERRegisterDestroyListener(
 		.type = HLD_EVENT_DESTROY,
 		.num = 0,
 		.objIdx = objIdx
+	};
+	DynArrPush(ListenerArrGetOrInit(&key), listener);
+
+	return AER_OK;
+}
+
+AERErrCode AERRegisterCollisionListener(
+		int32_t targetObjIdx,
+		int32_t otherObjIdx,
+		bool (* listener)(AERInstance * target, AERInstance * other)
+) {
+	Stage(STAGE_LISTENER_REG);
+	ArgGuard(listener);
+	ObjectGuard(ObjectLookup(targetObjIdx));
+	ObjectGuard(ObjectLookup(otherObjIdx));
+
+	EventKey key = (EventKey){
+		.type = HLD_EVENT_COLLISION,
+		.num = otherObjIdx,
+		.objIdx = targetObjIdx
 	};
 	DynArrPush(ListenerArrGetOrInit(&key), listener);
 

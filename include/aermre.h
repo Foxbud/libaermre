@@ -245,6 +245,7 @@ AERErrCode AERRegisterObject(
 		const char * name,
 		int32_t parentIdx,
 		int32_t spriteIdx,
+		int32_t depth,
 		bool visible,
 		bool solid,
 		bool collisions,
@@ -260,6 +261,12 @@ AERErrCode AERRegisterCreateListener(
 AERErrCode AERRegisterDestroyListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst)
+);
+
+AERErrCode AERRegisterCollisionListener(
+		int32_t targetObjIdx,
+		int32_t otherObjIdx,
+		bool (* listener)(AERInstance * target, AERInstance * other)
 );
 
 /**
