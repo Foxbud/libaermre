@@ -136,12 +136,12 @@ HashTab * HashTabNew(
 ) {
 	assert(hashKey);
 	assert(keysEqual);
-	assert(slotMagnitude > 1 && slotMagnitude < 32);
+	assert(slotMagnitude > 0 && slotMagnitude < 32);
 
 	Table * table = malloc(sizeof(Table));
 	assert(table);
 	table->keySize = keySize;
-	size_t numSlots = 1 << (slotMagnitude - 1);
+	size_t numSlots = 1 << slotMagnitude;
 	table->numSlots = numSlots;
 	table->slotIdxMask = numSlots - 1;
 	table->slots = calloc(numSlots, sizeof(SlotNode *));
