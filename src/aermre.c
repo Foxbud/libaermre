@@ -79,6 +79,7 @@ typedef struct HLDRefs {
 	int32_t * numRooms;
 	int32_t * roomIndexCurrent;
 	HLDRoom ** roomCurrent;
+	HLDSprite *** spriteTable;
 	HLDHashTable ** objectTableHandle;
 	HLDHashTable * instanceTable;
 	/* Functions. */
