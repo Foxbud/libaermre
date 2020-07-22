@@ -21,12 +21,14 @@ uint32_t EventKeyHash(void * key) {
 	hash.parts.objIdx = (uint32_t)keyCopy.objIdx & 0x3fff;
 
 	/* 
-	 * Perform xorshift32 with parameters recommended by Marsaglia in
-	 * "Xorshift RNGs."
+	 * Perform three rounds of xorshift32 with parameters recommended by
+	 * Marsaglia in "Xorshift RNGs."
 	 */
-	hash.raw ^= hash.raw << 13;
-	hash.raw ^= hash.raw >> 17;
-	hash.raw ^= hash.raw << 5;
+	for (uint32_t idx = 0; idx < 3; idx++) {
+		hash.raw ^= hash.raw << 13;
+		hash.raw ^= hash.raw >> 17;
+		hash.raw ^= hash.raw << 5;
+	}
 
 	return hash.raw;
 }
