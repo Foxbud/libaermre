@@ -873,25 +873,25 @@ AERErrCode AERInstanceSetSprite(
 
 AERErrCode AERInstanceGetSpriteFrame(
 		AERInstance * inst,
-		uint32_t * frame
+		float * frame
 ) {
 	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	ArgGuard(frame);
 
-	*frame = (uint32_t)((HLDInstance *)inst)->imageIndex;
+	*frame = ((HLDInstance *)inst)->imageIndex;
 
 	return AER_OK;
 }
 
 AERErrCode AERInstanceSetSpriteFrame(
 		AERInstance * inst,
-		uint32_t frame
+		float frame
 ) {
 	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
-	((HLDInstance *)inst)->imageIndex = (float)frame;
+	((HLDInstance *)inst)->imageIndex = frame;
 
 	return AER_OK;
 }

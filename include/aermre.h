@@ -184,12 +184,12 @@ AERErrCode AERInstanceSetSprite(
 
 AERErrCode AERInstanceGetSpriteFrame(
 		AERInstance * inst,
-		uint32_t * frame
+		float * frame
 );
 
 AERErrCode AERInstanceSetSpriteFrame(
 		AERInstance * inst,
-		uint32_t frame
+		float frame
 );
 
 AERErrCode AERInstanceGetSpriteSpeed(
