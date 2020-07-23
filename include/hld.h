@@ -91,7 +91,7 @@ typedef struct HLDEvent {
 	uint32_t field_54;
 	uint32_t field_58;
 	const char * name;
-	uint32_t field_60;
+	uint32_t handlerIndex;
 	struct HLDNamedFunction * handler;
 	uint32_t field_68;
 	uint32_t field_6C;
@@ -387,6 +387,10 @@ typedef struct HLDSprite {
 /* ----- PUBLIC FUNCTIONS ----- */
 
 void * HLDHashTableLookup(HLDHashTable * table, int32_t key);
+
+HLDEvent * HLDEventNew(HLDNamedFunction * handler);
+
+HLDEventWrapper * HLDEventWrapperNew(HLDEvent * event);
 
 
 

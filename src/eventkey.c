@@ -8,9 +8,9 @@ uint32_t EventKeyHash(void * key) {
 	union {
 		uint32_t raw;
 		struct {
-			uint32_t objIdx : 14;
-			uint32_t num : 14;
 			uint32_t type : 4;
+			uint32_t num : 14;
+			uint32_t objIdx : 14;
 		} parts;
 	} hash;
 	

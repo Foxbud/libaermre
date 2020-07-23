@@ -30,6 +30,11 @@ typedef struct Table {
 	bool (* keysEqual)(void *, void *);
 } Table;
 
+typedef struct TableIter {
+	Table * table;
+	uint32_t nextIdx;
+} TableIter;
+
 
 
 /* ----- PRIVATE FUNCTIONS ----- */
@@ -289,20 +294,38 @@ void * HashTabRemove(
 	return result;
 }
 
-void HashTabEach(
-		HashTab * table,
-		void (* callback)(void * key, void * value, void * context),
-		void * context
-) {
+HashTabIter HashTabGetIter(HashTab * table) {
 	assert(table);
-	assert(callback);
+	union {
+		TableIter priv;
+		HashTabIter pub;
+	} iter;
 
-	DynArr * items = ((Table *)table)->items;
-	size_t numItems = DynArrSize(items);
-	for (uint32_t idx = 0; idx < numItems; idx++) {
-		TableItem * item = DynArrGet(items, idx);
-		callback(item->node->key, item->value, context);
+	iter.priv = (TableIter){
+		.table = (Table *)table,
+		.nextIdx = 0
+	};
+
+	return iter.pub;
+}
+
+bool HashTabIterNext(
+		HashTabIter * iter,
+		const void ** key,
+		void ** value
+) {
+	assert(iter);
+	bool success;
+
+	Table * table = ((TableIter *)iter)->table;
+	uint32_t curIdx = ((TableIter *)iter)->nextIdx;
+	size_t numItems = DynArrSize(table->items);
+	if ((success = curIdx < numItems)) {
+		TableItem * item = DynArrGet(table->items, curIdx);
+		if (key) *key = item->node->key;
+		if (value) *value = item->value;
+		((TableIter *)iter)->nextIdx++;
 	}
 
-	return;
+	return success;
 }

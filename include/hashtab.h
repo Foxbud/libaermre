@@ -13,6 +13,10 @@ typedef struct HashTab {
 	const uint8_t rawData[4 * 7];
 } HashTab;
 
+typedef struct HashTabIter {
+	const uint8_t rawData[4 * 2];
+} HashTabIter;
+
 
 
 /* ----- PUBLIC FUNCTIONS ----- */
@@ -56,10 +60,12 @@ void * HashTabRemove(
 		void * key
 );
 
-void HashTabEach(
-		HashTab * table,
-		void (* callback)(void * key, void * value, void * context),
-		void * context
+HashTabIter HashTabGetIter(HashTab * table);
+
+bool HashTabIterNext(
+		HashTabIter * iter,
+		const void ** key,
+		void ** value
 );
 
 

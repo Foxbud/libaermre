@@ -255,18 +255,21 @@ AERErrCode AERRegisterObject(
 
 AERErrCode AERRegisterCreateListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst)
+		bool (* listener)(AERInstance * inst),
+		bool downstream
 );
 
 AERErrCode AERRegisterDestroyListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst)
+		bool (* listener)(AERInstance * inst),
+		bool downstream
 );
 
 AERErrCode AERRegisterCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
-		bool (* listener)(AERInstance * target, AERInstance * other)
+		bool (* listener)(AERInstance * target, AERInstance * other),
+		bool downstream
 );
 
 /**

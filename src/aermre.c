@@ -7,6 +7,7 @@
 #include "aermre.h"
 #include "dynarr.h"
 #include "eventkey.h"
+#include "eventtrap.h"
 #include "hashtab.h"
 #include "hld.h"
 #include "modman.h"
@@ -114,7 +115,9 @@ typedef struct AERMRE {
 	DynArr * mods;
 	DynArr * roomStepListeners;
 	DynArr * roomChangeListeners;
-	HashTab * eventListeners;
+	HashTab * eventTraps;
+	EventKey currentEvent;
+	HLDNamedFunction eventHandler;
 	enum {
 		STAGE_INIT,
 		STAGE_SPRITE_REG,
@@ -160,26 +163,138 @@ static HLDInstance * InstanceLookup(int32_t key) {
 	);
 }
 
-static DynArr * ListenerArrGetOrInit(EventKey * key) {
+static __attribute__((cdecl)) void CommonEventListener(
+		HLDInstance * target,
+		HLDInstance * other
+) {
 	bool exists;
-	DynArr * listeners = HashTabGet(mre.eventListeners, key, &exists);
-	if (!exists) {
-		listeners = DynArrNew(4);
-		HashTabInsert(mre.eventListeners, key, listeners);
-	}
+	EventTrap * trap = HashTabGet(mre.eventTraps, &mre.currentEvent, &exists);
+	assert(exists);
 
-	return listeners;
+	EventTrapExecute(trap, target, other);
+
+	return;
 }
 
-static void ListenerArrFree(
-		void * key,
-		void * listeners,
-		void * context
+static EventTrap * EntrapEvent(
+		HLDObject * obj,
+		HLDEventType eventType,
+		uint32_t eventNum
 ) {
-	(void)key;
-	(void)context;
+	size_t numObjects = (*mre.refs.objectTableHandle)->numItems;
+	HLDArrayPreSize oldArr, newArr;
 
-	DynArrFree(listeners);
+	/* Get original event array. */
+	switch (eventType) {
+		case HLD_EVENT_CREATE:
+			oldArr = obj->createEvents;
+			break;
+		case HLD_EVENT_DESTROY:
+			oldArr = obj->destroyEvents;
+			break;
+		case HLD_EVENT_COLLISION:
+			oldArr = obj->collisionEvents;
+			break;
+		default:
+			oldArr = (HLDArrayPreSize){};
+			break;
+	}
+
+	/* Get new event array. */
+	switch (eventType) {
+		case HLD_EVENT_CREATE:
+		case HLD_EVENT_DESTROY:
+			if (oldArr.size < 1) {
+				newArr = (HLDArrayPreSize){
+					.size = 1,
+					.elements = calloc(1, sizeof(HLDEventWrapper *))
+				};
+				assert(newArr.elements);
+			} else {
+				newArr = oldArr;
+			}
+			break;
+
+		case HLD_EVENT_COLLISION:
+			if (oldArr.size < numObjects) {
+				newArr = (HLDArrayPreSize){
+					.size = numObjects,
+					.elements = calloc(numObjects, sizeof(HLDEventWrapper *))
+				};
+				assert(newArr.elements);
+				if (oldArr.size > 0) {
+					memcpy(
+							newArr.elements,
+							oldArr.elements,
+							oldArr.size * sizeof(HLDEventWrapper *)
+					);
+					free(oldArr.elements);
+				}
+			} else {
+				newArr = oldArr;
+			}
+			break;
+
+		default:
+			newArr = (HLDArrayPreSize){};
+			break;
+	}
+
+	/* Update object with new event array. */
+	switch (eventType) {
+		case HLD_EVENT_CREATE:
+			obj->createEvents = newArr;
+			break;
+		case HLD_EVENT_DESTROY:
+			obj->destroyEvents = newArr;
+			break;
+		case HLD_EVENT_COLLISION:
+			obj->collisionEvents = newArr;
+			break;
+		default:
+			break;
+	}
+
+	/* Get wrapper, event and handler. */
+	HLDEventWrapper * wrapper = ((HLDEventWrapper **)newArr.elements)[eventNum];
+	HLDEvent * event;
+	HLDNamedFunction * oldHandler;
+	if (wrapper) {
+		event = wrapper->event;
+		oldHandler = event->handler;
+		event->handler = &mre.eventHandler;
+	} else {
+		oldHandler = NULL;
+		event = HLDEventNew(&mre.eventHandler);
+		wrapper = HLDEventWrapperNew(event);
+		((HLDEventWrapper **)newArr.elements)[eventNum] = wrapper;
+	}
+
+	/* Create event trap. */
+	return EventTrapNew(
+			eventType,
+			(oldHandler) ? oldHandler->function : NULL
+	);
+}
+
+static void RegisterObjectListener(
+		HLDObject * obj,
+		EventKey key,
+		void * listener,
+		bool downstream
+) {
+	bool exists;
+	EventTrap * trap = HashTabGet(mre.eventTraps, &key, &exists);
+	if (!exists) {
+		trap = EntrapEvent(obj, key.type, key.num);
+		HashTabInsert(mre.eventTraps, &key, trap);
+	}
+
+	if (downstream) {
+		EventTrapAddDownstream(trap, listener);
+	} else {
+		EventTrapAddUpstream(trap, listener);
+	}
 
 	return;
 }
@@ -198,12 +313,17 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 		.mods = DynArrNew(16),
 		.roomStepListeners = DynArrNew(16),
 		.roomChangeListeners = DynArrNew(16),
-		.eventListeners = HashTabNew(
+		.eventTraps = HashTabNew(
 				12, /* 4096 slots. */
 				sizeof(EventKey),
 				&EventKeyHash,
 				&EventKeyEqual
 		),
+		.currentEvent = (EventKey){},
+		.eventHandler = (HLDNamedFunction){
+			.name = "AEREventHandler",
+			.function = &CommonEventListener
+		},
 		.stage = STAGE_INIT
 	};
 	AERLogInfo(NAME, "Done.");
@@ -350,66 +470,23 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 	return;
 }
 
-__attribute__((cdecl)) bool AERHookEvent(
+__attribute__((cdecl)) void AERHookEvent(
 		HLDInstance * target,
 		HLDInstance * other,
 		int32_t targetObjIdx,
 		HLDEventType eventType,
 		int32_t eventNum
 ) {
+	(void)target;
 	(void)other;
-	bool result = true;
 
-	if (
-			eventType == HLD_EVENT_CREATE
-			|| eventType == HLD_EVENT_DESTROY
-			|| eventType == HLD_EVENT_COLLISION
-	) {
-		EventKey key = (EventKey){
-			.type = eventType,
-			.num = eventNum,
-			.objIdx = targetObjIdx
-		};
+	mre.currentEvent = (EventKey){
+		.type = eventType,
+		.num = eventNum,
+		.objIdx = targetObjIdx
+	};
 
-		bool exists;
-		DynArr * listeners = HashTabGet(mre.eventListeners, &key, &exists);
-
-		if (exists) {
-			size_t numListeners = DynArrSize(listeners);
-			switch (eventType) {
-				/* Create. */
-				case HLD_EVENT_CREATE:
-
-				/* Destroy. */
-				case HLD_EVENT_DESTROY:
-					for (uint32_t idx = 0; idx < numListeners; idx++) {
-						bool (* listener)(AERInstance *);
-						listener = DynArrGet(listeners, idx);
-						if (!(result = listener((AERInstance *)target))) break;
-					}
-					break;
-
-				/* Collision. */
-				case HLD_EVENT_COLLISION:
-					for (uint32_t idx = 0; idx < numListeners; idx++) {
-						bool (* listener)(AERInstance *, AERInstance *);
-						listener = DynArrGet(listeners, idx);
-						if (!(result = listener(
-										(AERInstance *)target,
-										(AERInstance *)other
-						))) {
-							break;
-						}
-					}
-					break;
-
-				default:
-					break;
-			}
-		}
-	}
-
-	return result;
+	return;
 }
 
 
@@ -457,10 +534,16 @@ __attribute__((destructor)) void AERDestructor(void) {
 	);
 
 	AERLogInfo(NAME, "Deinitializing mod runtime environment...");
-	HashTabEach(mre.eventListeners, &ListenerArrFree, NULL);
-	HashTabFree(mre.eventListeners);
+	HashTabIter iter = HashTabGetIter(mre.eventTraps);
+	EventTrap * trap;
+	while (HashTabIterNext(&iter, NULL, (void **)&trap)) EventTrapFree(trap);
+	HashTabFree(mre.eventTraps);
 	DynArrFree(mre.roomChangeListeners);
 	DynArrFree(mre.roomStepListeners);
+	size_t numMods = DynArrSize(mre.mods);
+	for (uint32_t idx = 0; idx < numMods; idx++) {
+		free(DynArrGet(mre.mods, idx));
+	}
 	DynArrFree(mre.mods);
 	AERLogInfo(NAME, "Done.");
 
@@ -548,36 +631,40 @@ AERErrCode AERRegisterObject(
 
 AERErrCode AERRegisterCreateListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst)
+		bool (* listener)(AERInstance * inst),
+		bool downstream
 ) {
 	Stage(STAGE_LISTENER_REG);
 	ArgGuard(listener);
-	ObjectGuard(ObjectLookup(objIdx));
 
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
 	EventKey key = (EventKey){
 		.type = HLD_EVENT_CREATE,
 		.num = 0,
 		.objIdx = objIdx
 	};
-	DynArrPush(ListenerArrGetOrInit(&key), listener);
+	RegisterObjectListener(obj, key, listener, downstream);
 
 	return AER_OK;
 }
 
 AERErrCode AERRegisterDestroyListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst)
+		bool (* listener)(AERInstance * inst),
+		bool downstream
 ) {
 	Stage(STAGE_LISTENER_REG);
 	ArgGuard(listener);
-	ObjectGuard(ObjectLookup(objIdx));
 
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
 	EventKey key = (EventKey){
 		.type = HLD_EVENT_DESTROY,
 		.num = 0,
 		.objIdx = objIdx
 	};
-	DynArrPush(ListenerArrGetOrInit(&key), listener);
+	RegisterObjectListener(obj, key, listener, downstream);
 
 	return AER_OK;
 }
@@ -585,19 +672,21 @@ AERErrCode AERRegisterDestroyListener(
 AERErrCode AERRegisterCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
-		bool (* listener)(AERInstance * target, AERInstance * other)
+		bool (* listener)(AERInstance * target, AERInstance * other),
+		bool downstream
 ) {
 	Stage(STAGE_LISTENER_REG);
 	ArgGuard(listener);
-	ObjectGuard(ObjectLookup(targetObjIdx));
 	ObjectGuard(ObjectLookup(otherObjIdx));
 
+	HLDObject * obj = ObjectLookup(targetObjIdx);
+	ObjectGuard(obj);
 	EventKey key = (EventKey){
 		.type = HLD_EVENT_COLLISION,
 		.num = otherObjIdx,
 		.objIdx = targetObjIdx
 	};
-	DynArrPush(ListenerArrGetOrInit(&key), listener);
+	RegisterObjectListener(obj, key, listener, downstream);
 
 	return AER_OK;
 }
