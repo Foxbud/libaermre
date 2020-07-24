@@ -27,6 +27,10 @@ typedef enum HLDEventType {
 	HLD_EVENT_UNKNOWN_7
 } HLDEventType;
 
+typedef enum HLDEventOtherType {
+	HLD_EVENT_OTHER_ANIMATION_END = 7
+} HLDEventOtherType;
+
 typedef struct HLDHashItem {
 	struct HLDHashItem * prev;
 	struct HLDHashItem * next;
@@ -138,21 +142,7 @@ typedef struct HLDObject {
 	uint32_t field_40;
 	uint32_t field_44;
 	struct HLDObject * parent;
-	struct HLDArrayPreSize createEvents;
-	struct HLDArrayPreSize destroyEvents;
-	struct HLDArrayPreSize alarmEvents;
-	struct HLDArrayPreSize stepEvents;
-	struct HLDArrayPreSize collisionEvents;
-	struct HLDArrayPreSize unknown0Events;
-	struct HLDArrayPreSize unknown1Events;
-	struct HLDArrayPreSize otherEvents;
-	struct HLDArrayPreSize drawEvents;
-	struct HLDArrayPreSize unknown2Events;
-	struct HLDArrayPreSize unknown3Events;
-	struct HLDArrayPreSize unknown4Events;
-	struct HLDArrayPreSize unknown5Events;
-	struct HLDArrayPreSize unknown6Events;
-	struct HLDArrayPreSize unknown7Events;
+	struct HLDArrayPreSize eventListeners[15];
 	struct HLDNodeDLL * instanceFirst;
 	struct HLDNodeDLL * instanceLast;
 	uint32_t numInstances;
@@ -257,7 +247,7 @@ typedef struct HLDInstance {
 	struct HLDInstance * instancePrev;
 	uint32_t field_154;
 	uint32_t field_158;
-	uint32_t age;
+	uint32_t lastUpdate;
 	uint32_t field_160;
 	uint32_t field_164;
 	uint32_t field_168;

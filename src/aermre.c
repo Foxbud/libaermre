@@ -214,20 +214,7 @@ static EventTrap * EntrapEvent(
 	HLDArrayPreSize oldArr, newArr;
 
 	/* Get original event array. */
-	switch (eventType) {
-		case HLD_EVENT_CREATE:
-			oldArr = obj->createEvents;
-			break;
-		case HLD_EVENT_DESTROY:
-			oldArr = obj->destroyEvents;
-			break;
-		case HLD_EVENT_COLLISION:
-			oldArr = obj->collisionEvents;
-			break;
-		default:
-			oldArr = (HLDArrayPreSize){};
-			break;
-	}
+	oldArr = obj->eventListeners[eventType];
 
 	/* Get new event array. */
 	switch (eventType) {
@@ -264,25 +251,33 @@ static EventTrap * EntrapEvent(
 			}
 			break;
 
+		case HLD_EVENT_OTHER:
+			if (oldArr.size < 27) {
+				newArr = (HLDArrayPreSize){
+					.size = 27,
+					.elements = calloc(27, sizeof(HLDEventWrapper *))
+				};
+				assert(newArr.elements);
+				if (oldArr.size > 0) {
+					memcpy(
+							newArr.elements,
+							oldArr.elements,
+							oldArr.size * sizeof(HLDEventWrapper *)
+					);
+					free(oldArr.elements);
+				}
+			} else {
+				newArr = oldArr;
+			}
+			break;
+
 		default:
 			newArr = (HLDArrayPreSize){};
 			break;
 	}
 
 	/* Update object with new event array. */
-	switch (eventType) {
-		case HLD_EVENT_CREATE:
-			obj->createEvents = newArr;
-			break;
-		case HLD_EVENT_DESTROY:
-			obj->destroyEvents = newArr;
-			break;
-		case HLD_EVENT_COLLISION:
-			obj->collisionEvents = newArr;
-			break;
-		default:
-			break;
-	}
+	obj->eventListeners[eventType] = newArr;
 
 	/* Get wrapper, event and handler. */
 	HLDEventWrapper * wrapper = ((HLDEventWrapper **)newArr.elements)[eventNum];
@@ -720,6 +715,26 @@ AERErrCode AERRegisterCollisionListener(
 	return AER_OK;
 }
 
+AERErrCode AERRegisterAnimationEndListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+) {
+	Stage(STAGE_LISTENER_REG);
+	ArgGuard(listener);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+	EventKey key = (EventKey){
+		.type = HLD_EVENT_OTHER,
+		.num = HLD_EVENT_OTHER_ANIMATION_END,
+		.objIdx = objIdx
+	};
+	RegisterObjectListener(obj, key, listener, downstream);
+
+	return AER_OK;
+}
+
 AERErrCode AERGetNumSteps(uint32_t * numSteps) {
 	Stage(STAGE_ACTION);
 	ArgGuard(numSteps);
@@ -1060,19 +1075,6 @@ AERErrCode AERInstanceSetSolid(
 	ArgGuard(inst);
 
 	((HLDInstance *)inst)->solid = solid;
-
-	return AER_OK;
-}
-
-AERErrCode AERInstanceGetAge(
-		AERInstance * inst,
-		uint32_t * age
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(age);
-
-	*age = ((HLDInstance *)inst)->age;
 
 	return AER_OK;
 }

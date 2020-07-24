@@ -37,6 +37,7 @@ static bool ExecuteListeners(
 	switch (eventType) {
 		case HLD_EVENT_CREATE:
 		case HLD_EVENT_DESTROY:
+		case HLD_EVENT_OTHER:
 			for (uint32_t idx = 0; idx < numListeners; idx++) {
 				bool (* listener)(HLDInstance *);
 				listener = DynArrGet(listeners, (reverse) ? lastIdx - idx : idx);

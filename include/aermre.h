@@ -212,11 +212,6 @@ AERErrCode AERInstanceSetSolid(
 		bool solid
 );
 
-AERErrCode AERInstanceGetAge(
-		AERInstance * inst,
-		uint32_t * age
-);
-
 /**
  * @}
  */
@@ -269,6 +264,12 @@ AERErrCode AERRegisterCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
 		bool (* listener)(AERInstance * target, AERInstance * other),
+		bool downstream
+);
+
+AERErrCode AERRegisterAnimationEndListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
 		bool downstream
 );
 
