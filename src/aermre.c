@@ -84,7 +84,24 @@ typedef struct HLDRefs {
 	HLDHashTable ** objectTableHandle;
 	HLDHashTable * instanceTable;
 	/* Functions. */
-	__attribute__((cdecl)) int32_t (* actionObjectAdd)();
+	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
+			const char * fname,
+			size_t imgNum,
+			int32_t unknown0,
+			int32_t unknown1,
+			int32_t unknown2,
+			int32_t unknown3,
+			uint32_t origX,
+			uint32_t origY
+	);
+	__attribute__((cdecl)) int32_t (* actionObjectAdd)(void);
+	__attribute__((cdecl)) int32_t (* actionEventPerform)(
+			HLDInstance * target,
+			HLDInstance * other,
+			int32_t targetObjIdx,
+			uint32_t eventType,
+			int32_t eventNum
+	);
 	__attribute__((cdecl)) HLDInstance * (* actionInstanceCreate)(
 			int32_t objIdx,
 			float posX,
@@ -95,16 +112,6 @@ typedef struct HLDRefs {
 			HLDInstance * inst1,
 			int32_t objIdx,
 			bool doEvent
-	);
-	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
-			const char * fname,
-			size_t imgNum,
-			int32_t unknown0,
-			int32_t unknown1,
-			int32_t unknown2,
-			int32_t unknown3,
-			uint32_t origX,
-			uint32_t origY
 	);
 } HLDRefs;
 
@@ -161,6 +168,28 @@ static HLDInstance * InstanceLookup(int32_t key) {
 			mre.refs.instanceTable,
 			key
 	);
+}
+
+static void PerformParentEvent(
+		HLDInstance * target,
+		HLDInstance * other
+) {
+	HLDObject * obj = ObjectLookup(target->objectIndex);
+	int32_t parentObjIdx = obj->parentIndex;
+	if (
+			parentObjIdx >= 0
+			&& (uint32_t)parentObjIdx < (*mre.refs.objectTableHandle)->numItems
+	) {
+		mre.refs.actionEventPerform(
+				target,
+				other,
+				parentObjIdx,
+				mre.currentEvent.type,
+				mre.currentEvent.num
+		);
+	}
+
+	return;
 }
 
 static __attribute__((cdecl)) void CommonEventListener(
@@ -273,7 +302,7 @@ static EventTrap * EntrapEvent(
 	/* Create event trap. */
 	return EventTrapNew(
 			eventType,
-			(oldHandler) ? oldHandler->function : NULL
+			(oldHandler) ? oldHandler->function : &PerformParentEvent
 	);
 }
 
