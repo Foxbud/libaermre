@@ -11,18 +11,19 @@
 #include "hashtab.h"
 #include "hld.h"
 #include "modman.h"
+#include "utilmacs.h"
 
 
 
 /* ----- PRIVATE MACROS ----- */
 
 #define WarnIf(cond, retCode, fmt, ...) \
-	do { \
+	MacWrap( \
 		if (cond) { \
 			AERLogWarn(NAME, fmt, ##__VA_ARGS__); \
 			return retCode; \
 		} \
-	} while (false)
+	)
 
 #define Stage(stageId) \
 	WarnIf( \
@@ -67,6 +68,15 @@
 			__func__ \
 	)
 
+#define BufSizeGuard(ptr, bufSize, numWritten) \
+	WarnIf( \
+			!(ptr) && (numWritten) < (bufSize), \
+			AER_BUF_SIZE_RECORD, \
+			"\"%s\" could not completely fill buffer, and caller did not record " \
+			"number of buffer elements written.", \
+			__func__ \
+	)
+
 
 
 /* ----- PRIVATE TYPES ----- */
@@ -101,6 +111,13 @@ typedef struct HLDRefs {
 			int32_t targetObjIdx,
 			uint32_t eventType,
 			int32_t eventNum
+	);
+	__attribute__((cdecl)) HLDInstance * (* gmlScriptSetdepth)(
+			HLDInstance * target,
+			HLDInstance * other,
+			void * unknown0,
+			uint32_t unknown1,
+			uint32_t unknown2
 	);
 	__attribute__((cdecl)) HLDInstance * (* actionInstanceCreate)(
 			int32_t objIdx,
@@ -252,10 +269,15 @@ static EventTrap * EntrapEvent(
 			break;
 
 		case HLD_EVENT_OTHER:
-			if (oldArr.size < 27) {
+			/* 
+			 * We don't yet know the maximum number of other events in this
+			 * version of the engine, so we're using 128 as a presumably safe
+			 * upper bound until we learn the true maximum.
+			 */
+			if (oldArr.size < 128) {
 				newArr = (HLDArrayPreSize){
-					.size = 27,
-					.elements = calloc(27, sizeof(HLDEventWrapper *))
+					.size = 128,
+					.elements = calloc(128, sizeof(HLDEventWrapper *))
 				};
 				assert(newArr.elements);
 				if (oldArr.size > 0) {
@@ -564,10 +586,6 @@ __attribute__((destructor)) void AERDestructor(void) {
 	HashTabFree(mre.eventTraps);
 	DynArrFree(mre.roomChangeListeners);
 	DynArrFree(mre.roomStepListeners);
-	size_t numMods = DynArrSize(mre.mods);
-	for (uint32_t idx = 0; idx < numMods; idx++) {
-		free(DynArrGet(mre.mods, idx));
-	}
 	DynArrFree(mre.mods);
 	AERLogInfo(NAME, "Done.");
 
@@ -826,17 +844,18 @@ AERErrCode AERGetInstances(
 ) {
 	Stage(STAGE_ACTION);
 	ArgGuard(instBuf);
-	ArgGuard(numInsts);
 
 	HLDRoom * room = *mre.refs.roomCurrent;
 	size_t numAvail = room->numInstances;
-	size_t numToWrite = (numAvail < bufSize) ? numAvail : bufSize;
+	size_t numToWrite = Min(numAvail, bufSize);
 	HLDInstance * inst = room->instanceFirst;
 	for (size_t idx = 0; idx < numToWrite; idx++) {
 		instBuf[idx] = (AERInstance *)inst;
 		inst = inst->instanceNext;
 	}
-	*numInsts = numToWrite;
+
+	if (numInsts) *numInsts = numAvail;
+	BufSizeGuard(numInsts, bufSize, numToWrite);
 
 	return AER_OK;
 }
@@ -849,19 +868,20 @@ AERErrCode AERGetInstancesByObject(
 ) {
 	Stage(STAGE_ACTION);
 	ArgGuard(instBuf);
-	ArgGuard(numInsts);
 
 	HLDObject * obj = ObjectLookup(objIdx);
 	ObjectGuard(obj);
 
 	size_t numAvail = obj->numInstances;
-	size_t numToWrite = (numAvail < bufSize) ? numAvail : bufSize;
+	size_t numToWrite = Min(numAvail, bufSize);
 	HLDNodeDLL * node = obj->instanceFirst;
 	for (size_t idx = 0; idx < numToWrite; idx++) {
 		instBuf[idx] = (AERInstance *)node->item;
 		node = node->next;
 	}
-	*numInsts = numToWrite;
+
+	if (numInsts) *numInsts = numAvail;
+	BufSizeGuard(numInsts, bufSize, numToWrite);
 
 	return AER_OK;
 }
@@ -923,6 +943,22 @@ AERErrCode AERInstanceDelete(AERInstance * inst) {
 	return AER_OK;
 }
 
+AERErrCode AERInstanceSyncDepth(AERInstance * inst) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	uint32_t unknownDatastructure[4] = {};
+	mre.refs.gmlScriptSetdepth(
+			(HLDInstance *)inst,
+			(HLDInstance *)inst,
+			&unknownDatastructure,
+			0,
+			0
+	);
+
+	return AER_OK;
+}
+
 AERErrCode AERInstanceGetId(
 		AERInstance * inst,
 		int32_t * instId
@@ -956,11 +992,10 @@ AERErrCode AERInstanceGetPosition(
 ) {
 	Stage(STAGE_ACTION);
 	ArgGuard(inst);
-	ArgGuard(x);
-	ArgGuard(y);
+	ArgGuard(x || y);
 
-	*x = ((HLDInstance *)inst)->pos.x;
-	*y = ((HLDInstance *)inst)->pos.y;
+	if (x) *x = ((HLDInstance *)inst)->pos.x;
+	if (y) *y = ((HLDInstance *)inst)->pos.y;
 
 	return AER_OK;
 }

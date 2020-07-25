@@ -242,7 +242,10 @@ typedef struct HLDInstance {
 	uint32_t field_13C;
 	uint32_t field_140;
 	uint32_t field_144;
-	uint32_t field_148;
+	bool field_148;
+	uint8_t field_149;
+	uint8_t field_14A;
+	uint8_t field_14B;
 	struct HLDInstance * instanceNext;
 	struct HLDInstance * instancePrev;
 	uint32_t field_154;

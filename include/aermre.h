@@ -26,7 +26,8 @@ typedef enum AERErrCode {
 	AER_NO_SUCH_INSTANCE,
 	AER_OUT_OF_MEM,
 	AER_OUT_OF_SEQ,
-	AER_SPRITE_REG_FAILED
+	AER_SPRITE_REG_FAILED,
+	AER_BUF_SIZE_RECORD
 } AERErrCode;
 
 /**
@@ -150,6 +151,8 @@ AERErrCode AERInstanceDestroy(AERInstance * inst);
 
 AERErrCode AERInstanceDelete(AERInstance * inst);
 
+AERErrCode AERInstanceSyncDepth(AERInstance * inst);
+
 AERErrCode AERInstanceGetId(
 		AERInstance * inst,
 		int32_t * instId
@@ -248,6 +251,15 @@ AERErrCode AERRegisterObject(
 		int32_t * objIdx
 );
 
+/**
+ * Attach a listener to an object's creation event.
+ *
+ * @param[in] objIdx index of target object
+ * @param[in] listener event callback
+ * @param[in] downstream whether to attach downstream of original event
+ *
+ * @return error code
+ */
 AERErrCode AERRegisterCreateListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
