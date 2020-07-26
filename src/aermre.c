@@ -191,7 +191,7 @@ static void PerformParentEvent(
 		HLDInstance * target,
 		HLDInstance * other
 ) {
-	HLDObject * obj = ObjectLookup(target->objectIndex);
+	HLDObject * obj = ObjectLookup(mre.currentEvent.objIdx);
 	int32_t parentObjIdx = obj->parentIndex;
 	if (
 			parentObjIdx >= 0
@@ -517,15 +517,10 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 }
 
 __attribute__((cdecl)) void AERHookEvent(
-		HLDInstance * target,
-		HLDInstance * other,
 		int32_t targetObjIdx,
 		HLDEventType eventType,
 		int32_t eventNum
 ) {
-	(void)target;
-	(void)other;
-
 	mre.currentEvent = (EventKey){
 		.type = eventType,
 		.num = eventNum,

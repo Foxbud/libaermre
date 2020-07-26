@@ -70,6 +70,13 @@ typedef struct HLDNodeDLL {
 	void * item;
 } HLDNodeDLL;
 
+typedef struct HLDBoundingBox {
+	int32_t left;
+	int32_t top;
+	int32_t right;
+	int32_t bottom;
+} HLDBoundingBox;
+
 typedef struct HLDEvent {
 	void * classDef;
 	struct HLDEvent * eventNext;
@@ -165,14 +172,14 @@ typedef struct HLDInstance {
 	uint32_t field_1C;
 	uint32_t field_20;
 	uint32_t field_24;
-	uint32_t solid;
+	uint32_t field_28;
 	uint32_t field_2C;
 	uint32_t field_30;
 	uint32_t field_34;
 	uint8_t field_38;
-	uint8_t field_39;
-	uint8_t field_3A;
-	uint8_t field_3B;
+	bool visible;
+	bool solid;
+	bool persistent;
 	bool marked;
 	bool deactivated;
 	uint8_t field_3E;
@@ -204,22 +211,8 @@ typedef struct HLDInstance {
 	uint32_t field_B0;
 	uint32_t field_B4;
 	uint32_t field_B8;
-	uint32_t field_BC;
-	uint32_t field_C0;
-	uint32_t field_C4;
-	uint32_t field_C8;
-	uint32_t field_CC;
-	uint32_t field_D0;
-	uint32_t field_D4;
-	uint32_t field_D8;
-	uint32_t field_DC;
-	uint32_t field_E0;
-	uint32_t field_E4;
-	uint32_t field_E8;
-	uint32_t field_EC;
-	uint32_t field_F0;
-	uint32_t field_F4;
-	uint32_t field_F8;
+	struct HLDBoundingBox bbox;
+	int32_t alarms[12];
 	int32_t pathIndex;
 	float pathPos;
 	float pathPosPrev;

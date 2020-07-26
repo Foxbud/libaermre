@@ -127,9 +127,7 @@ void EventTrapExecute(
 	);
 
 	if (doNext) {
-		if (((Trap *)trap)->origListener) {
-			((Trap *)trap)->origListener(target, other);
-		}
+		((Trap *)trap)->origListener(target, other);
 
 		ExecuteListeners(
 				((Trap *)trap)->downstreamListeners,
