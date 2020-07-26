@@ -517,14 +517,14 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 }
 
 __attribute__((cdecl)) void AERHookEvent(
-		int32_t targetObjIdx,
+		HLDObject * targetObject,
 		HLDEventType eventType,
 		int32_t eventNum
 ) {
 	mre.currentEvent = (EventKey){
 		.type = eventType,
 		.num = eventNum,
-		.objIdx = targetObjIdx
+		.objIdx = targetObject->index
 	};
 
 	return;
