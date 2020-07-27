@@ -59,6 +59,11 @@ typedef struct HLDArrayPreSize {
 	void * elements;
 } HLDArrayPreSize;
 
+typedef struct HLDEventSubscribers {
+	int32_t * objects;
+	uint32_t field_4;
+} HLDEventSubscribers;
+
 typedef struct HLDNamedFunction {
 	const char * name;
 	void * function;

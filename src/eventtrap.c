@@ -35,16 +35,6 @@ static bool ExecuteListeners(
 	size_t numListeners = DynArrSize(listeners);
 	uint32_t lastIdx = numListeners - 1;
 	switch (eventType) {
-		case HLD_EVENT_CREATE:
-		case HLD_EVENT_DESTROY:
-		case HLD_EVENT_OTHER:
-			for (uint32_t idx = 0; idx < numListeners; idx++) {
-				bool (* listener)(HLDInstance *);
-				listener = DynArrGet(listeners, (reverse) ? lastIdx - idx : idx);
-				if (!(doNext = listener(target))) break;
-			}
-			break;
-
 		case HLD_EVENT_COLLISION:
 			for (uint32_t idx = 0; idx < numListeners; idx++) {
 				bool (* listener)(HLDInstance *, HLDInstance *);
@@ -54,7 +44,11 @@ static bool ExecuteListeners(
 			break;
 
 		default:
-			doNext = true;
+			for (uint32_t idx = 0; idx < numListeners; idx++) {
+				bool (* listener)(HLDInstance *);
+				listener = DynArrGet(listeners, (reverse) ? lastIdx - idx : idx);
+				if (!(doNext = listener(target))) break;
+			}
 			break;
 	}
 

@@ -68,6 +68,14 @@
 			__func__ \
 	)
 
+#define AlarmGuard(alarmIdx) \
+	WarnIf( \
+			(alarmIdx) >= 12, \
+			AER_NO_SUCH_ALARM_EVENT, \
+			"\"%s\" called with invalid alarm event index.", \
+			__func__ \
+	)
+
 #define BufSizeGuard(ptr, bufSize, numWritten) \
 	WarnIf( \
 			!(ptr) && (numWritten) < (bufSize), \
@@ -93,6 +101,8 @@ typedef struct HLDRefs {
 	HLDSprite *** spriteTable;
 	HLDHashTable ** objectTableHandle;
 	HLDHashTable * instanceTable;
+	size_t (* alarmEventSubscriberSizes)[12];
+	HLDEventSubscribers (* alarmEventSubscribers)[12];
 	/* Functions. */
 	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
 			const char * fname,
@@ -222,6 +232,33 @@ static __attribute__((cdecl)) void CommonEventListener(
 	return;
 }
 
+static HLDArrayPreSize ReallocEventArr(
+		HLDArrayPreSize oldArr,
+		size_t newSize
+) {
+	HLDArrayPreSize newArr;
+
+	if (oldArr.size < newSize) {
+		newArr = (HLDArrayPreSize){
+			.size = newSize,
+			.elements = calloc(newSize, sizeof(HLDEventWrapper *))
+		};
+		assert(newArr.elements);
+		if (oldArr.size > 0) {
+			memcpy(
+					newArr.elements,
+					oldArr.elements,
+					oldArr.size * sizeof(HLDEventWrapper *)
+			);
+			free(oldArr.elements);
+		}
+	} else {
+		newArr = oldArr;
+	}
+
+	return newArr;
+}
+
 static EventTrap * EntrapEvent(
 		HLDObject * obj,
 		HLDEventType eventType,
@@ -237,35 +274,15 @@ static EventTrap * EntrapEvent(
 	switch (eventType) {
 		case HLD_EVENT_CREATE:
 		case HLD_EVENT_DESTROY:
-			if (oldArr.size < 1) {
-				newArr = (HLDArrayPreSize){
-					.size = 1,
-					.elements = calloc(1, sizeof(HLDEventWrapper *))
-				};
-				assert(newArr.elements);
-			} else {
-				newArr = oldArr;
-			}
+			newArr = ReallocEventArr(oldArr, 1);
+			break;
+
+		case HLD_EVENT_ALARM:
+			newArr = ReallocEventArr(oldArr, 12);
 			break;
 
 		case HLD_EVENT_COLLISION:
-			if (oldArr.size < numObjects) {
-				newArr = (HLDArrayPreSize){
-					.size = numObjects,
-					.elements = calloc(numObjects, sizeof(HLDEventWrapper *))
-				};
-				assert(newArr.elements);
-				if (oldArr.size > 0) {
-					memcpy(
-							newArr.elements,
-							oldArr.elements,
-							oldArr.size * sizeof(HLDEventWrapper *)
-					);
-					free(oldArr.elements);
-				}
-			} else {
-				newArr = oldArr;
-			}
+			newArr = ReallocEventArr(oldArr, numObjects);
 			break;
 
 		case HLD_EVENT_OTHER:
@@ -274,23 +291,7 @@ static EventTrap * EntrapEvent(
 			 * version of the engine, so we're using 128 as a presumably safe
 			 * upper bound until we learn the true maximum.
 			 */
-			if (oldArr.size < 128) {
-				newArr = (HLDArrayPreSize){
-					.size = 128,
-					.elements = calloc(128, sizeof(HLDEventWrapper *))
-				};
-				assert(newArr.elements);
-				if (oldArr.size > 0) {
-					memcpy(
-							newArr.elements,
-							oldArr.elements,
-							oldArr.size * sizeof(HLDEventWrapper *)
-					);
-					free(oldArr.elements);
-				}
-			} else {
-				newArr = oldArr;
-			}
+			newArr = ReallocEventArr(oldArr, 128);
 			break;
 
 		default:
@@ -706,6 +707,28 @@ AERErrCode AERRegisterDestroyListener(
 	return AER_OK;
 }
 
+AERErrCode AERRegisterAlarmListener(
+		int32_t objIdx,
+		uint32_t alarmIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+) {
+	Stage(STAGE_LISTENER_REG);
+	ArgGuard(listener);
+	AlarmGuard(alarmIdx);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+	EventKey key = (EventKey){
+		.type = HLD_EVENT_ALARM,
+		.num = alarmIdx,
+		.objIdx = objIdx
+	};
+	RegisterObjectListener(obj, key, listener, downstream);
+
+	return AER_OK;
+}
+
 AERErrCode AERRegisterCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
@@ -1105,6 +1128,35 @@ AERErrCode AERInstanceSetSolid(
 	ArgGuard(inst);
 
 	((HLDInstance *)inst)->solid = solid;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceGetAlarm(
+		AERInstance * inst,
+		uint32_t alarmIdx,
+		int32_t * alarmSteps
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(alarmSteps);
+	AlarmGuard(alarmIdx);
+
+	*alarmSteps = ((HLDInstance *)inst)->alarms[alarmIdx];
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceSetAlarm(
+		AERInstance * inst,
+		uint32_t alarmIdx,
+		int32_t alarmSteps
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	AlarmGuard(alarmIdx);
+
+	((HLDInstance *)inst)->alarms[alarmIdx] = alarmSteps;
 
 	return AER_OK;
 }

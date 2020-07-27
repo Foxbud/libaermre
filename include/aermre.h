@@ -24,6 +24,7 @@ typedef enum AERErrCode {
 	AER_NULL_ARG,
 	AER_NO_SUCH_OBJECT,
 	AER_NO_SUCH_INSTANCE,
+	AER_NO_SUCH_ALARM_EVENT,
 	AER_OUT_OF_MEM,
 	AER_OUT_OF_SEQ,
 	AER_SPRITE_REG_FAILED,
@@ -215,6 +216,18 @@ AERErrCode AERInstanceSetSolid(
 		bool solid
 );
 
+AERErrCode AERInstanceGetAlarm(
+		AERInstance * inst,
+		uint32_t alarmIdx,
+		int32_t * alarmSteps
+);
+
+AERErrCode AERInstanceSetAlarm(
+		AERInstance * inst,
+		uint32_t alarmIdx,
+		int32_t alarmSteps
+);
+
 /**
  * @}
  */
@@ -268,6 +281,13 @@ AERErrCode AERRegisterCreateListener(
 
 AERErrCode AERRegisterDestroyListener(
 		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+AERErrCode AERRegisterAlarmListener(
+		int32_t objIdx,
+		uint32_t alarmIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 );
