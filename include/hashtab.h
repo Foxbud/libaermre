@@ -60,7 +60,9 @@ void * HashTabRemove(
 		void * key
 );
 
-HashTabIter HashTabGetIter(HashTab * table);
+HashTabIter * HashTabIterNew(HashTab * table);
+
+void HashTabIterFree(HashTabIter * iter);
 
 bool HashTabIterNext(
 		HashTabIter * iter,

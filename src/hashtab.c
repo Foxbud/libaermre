@@ -294,19 +294,23 @@ void * HashTabRemove(
 	return result;
 }
 
-HashTabIter HashTabGetIter(HashTab * table) {
+HashTabIter * HashTabIterNew(HashTab * table) {
 	assert(table);
-	union {
-		TableIter priv;
-		HashTabIter pub;
-	} iter;
 
-	iter.priv = (TableIter){
-		.table = (Table *)table,
-		.nextIdx = 0
-	};
+	TableIter * iter = malloc(sizeof(TableIter));
+	assert(iter);
+	iter->table = (Table *)table;
+	iter->nextIdx = 0;
 
-	return iter.pub;
+	return (HashTabIter *)iter;
+}
+
+void HashTabIterFree(HashTabIter * iter) {
+	assert(iter);
+
+	free(iter);
+
+	return;
 }
 
 bool HashTabIterNext(

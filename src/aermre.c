@@ -11,6 +11,7 @@
 #include "hashtab.h"
 #include "hld.h"
 #include "modman.h"
+#include "objtree.h"
 #include "utilmacs.h"
 
 
@@ -101,7 +102,7 @@ typedef struct HLDRefs {
 	HLDSprite *** spriteTable;
 	HLDHashTable ** objectTableHandle;
 	HLDHashTable * instanceTable;
-	size_t (* alarmEventSubscriberSizes)[12];
+	size_t (* alarmEventSubscriberCounts)[12];
 	HLDEventSubscribers (* alarmEventSubscribers)[12];
 	/* Functions. */
 	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
@@ -145,6 +146,7 @@ typedef struct HLDRefs {
 typedef struct AERMRE {
 	HLDRefs refs;
 	int32_t roomIndexPrevious;
+	ObjTree * objTree;
 	AERMod * regActiveMod;
 	DynArr * mods;
 	DynArr * roomStepListeners;
@@ -152,6 +154,7 @@ typedef struct AERMRE {
 	HashTab * eventTraps;
 	EventKey currentEvent;
 	HLDNamedFunction eventHandler;
+	HashTab * eventSubscribers;
 	enum {
 		STAGE_INIT,
 		STAGE_SPRITE_REG,
@@ -172,6 +175,8 @@ static const char * VERSION = "0.1.0dev";
 static const char * MOD_NAME_FMT = "libaermod%u.so";
 
 static const char * ASSET_PATH_FMT = "assets/mod/%s/%s";
+
+static const size_t MAX_OBJ_TREE_DEPTH = 64;
 
 
 
@@ -346,6 +351,73 @@ static void RegisterObjectListener(
 	return;
 }
 
+static void BuildObjTree(void) {
+	size_t numObjs = (*mre.refs.objectTableHandle)->numItems;
+	for (uint32_t idx = 0; idx < numObjs; idx++) {
+		HLDObject * obj = ObjectLookup(idx);
+		assert(obj);
+		ObjTreeInsert(
+				mre.objTree,
+				obj->parentIndex,
+				idx
+		);
+	}
+
+	return;
+}
+
+static bool EnsureAlarmEventSubscriber(
+		int32_t objIdx,
+		void * context
+) {
+	EventKey key = (EventKey){
+		.type = HLD_EVENT_ALARM,
+		.num = *((uint32_t *)context),
+		.objIdx = objIdx
+	};
+	if (!HashTabExists(mre.eventSubscribers, &key)) {
+		uint32_t arrIdx = (*mre.refs.alarmEventSubscriberCounts)[key.num]++;
+		(*mre.refs.alarmEventSubscribers)[key.num].objects[arrIdx] = objIdx;
+		HashTabInsert(mre.eventSubscribers, &key, NULL);
+	}
+
+	return true;
+}
+
+static void WrapAlarmEventSubscribers(void) {
+	size_t numObjs = (*mre.refs.objectTableHandle)->numItems;
+
+	for (uint32_t alarmIdx = 0; alarmIdx < 12; alarmIdx++) {
+		size_t oldSubCount = (
+				*mre.refs.alarmEventSubscriberCounts
+		)[alarmIdx];
+		/*
+		 * Note that original array is static, meaning it doesn't have to be freed
+		 * and new mask array does have to be freed.
+		 */
+		int32_t * oldSubArr = (
+				*mre.refs.alarmEventSubscribers
+		)[alarmIdx].objects;
+
+		int32_t * newSubArr = malloc(numObjs * sizeof(int32_t));
+		assert(newSubArr);
+		(*mre.refs.alarmEventSubscribers)[alarmIdx].objects = newSubArr;
+		(*mre.refs.alarmEventSubscriberCounts)[alarmIdx] = 0;
+
+		for (uint32_t subIdx = 0; subIdx < oldSubCount; subIdx++) {
+			ObjTreeEach(
+					mre.objTree,
+					oldSubArr[subIdx],
+					MAX_OBJ_TREE_DEPTH,
+					&EnsureAlarmEventSubscriber,
+					&alarmIdx
+			);
+		}
+	}
+
+	return;
+}
+
 
 
 /* ----- UNLISTED FUNCTIONS ----- */
@@ -356,6 +428,7 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 	mre = (AERMRE){
 		.refs = refs,
 		.roomIndexPrevious = 0,
+		.objTree = ObjTreeNew(),
 		.regActiveMod = NULL,
 		.mods = DynArrNew(16),
 		.roomStepListeners = DynArrNew(16),
@@ -371,6 +444,12 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 			.name = "AEREventHandler",
 			.function = &CommonEventListener
 		},
+		.eventSubscribers = HashTabNew(
+				10, /* 1024 slots. */
+				sizeof(EventKey),
+				&EventKeyHash,
+				&EventKeyEqual
+		),
 		.stage = STAGE_INIT
 	};
 	AERLogInfo(NAME, "Done.");
@@ -467,6 +546,10 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 			}
 		}
 		AERLogInfo(NAME, "Done.");
+
+		/* Build object inheritance tree and wrap event subscribers. */
+		BuildObjTree();
+		WrapAlarmEventSubscribers();
 
 		/* Register listeners. */
 		mre.stage = STAGE_LISTENER_REG;
@@ -576,13 +659,19 @@ __attribute__((destructor)) void AERDestructor(void) {
 	);
 
 	AERLogInfo(NAME, "Deinitializing mod runtime environment...");
-	HashTabIter iter = HashTabGetIter(mre.eventTraps);
+	for (uint32_t idx = 0; idx < 12; idx++) {
+		free((*mre.refs.alarmEventSubscribers)[idx].objects);
+	}
+	HashTabFree(mre.eventSubscribers);
+	HashTabIter * iter = HashTabIterNew(mre.eventTraps);
 	EventTrap * trap;
-	while (HashTabIterNext(&iter, NULL, (void **)&trap)) EventTrapFree(trap);
+	while (HashTabIterNext(iter, NULL, (void **)&trap)) EventTrapFree(trap);
+	HashTabIterFree(iter);
 	HashTabFree(mre.eventTraps);
 	DynArrFree(mre.roomChangeListeners);
 	DynArrFree(mre.roomStepListeners);
 	DynArrFree(mre.mods);
+	ObjTreeFree(mre.objTree);
 	AERLogInfo(NAME, "Done.");
 
 	return;
@@ -725,6 +814,13 @@ AERErrCode AERRegisterAlarmListener(
 		.objIdx = objIdx
 	};
 	RegisterObjectListener(obj, key, listener, downstream);
+	ObjTreeEach(
+			mre.objTree,
+			objIdx,
+			MAX_OBJ_TREE_DEPTH,
+			&EnsureAlarmEventSubscriber,
+			&alarmIdx
+	);
 
 	return AER_OK;
 }
