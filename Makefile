@@ -4,30 +4,38 @@ SHELL = /bin/sh
 
 
 
+# Build directories.
 prjdir = $(realpath $(CURDIR))
 srcdir = $(prjdir)/src
 incdir = $(prjdir)/include
 builddir = $(prjdir)/build
 docdir = $(prjdir)/docs
 
+# Installation directories.
+prefix = /usr/local
+exec_prefix = $(prefix)
+libdir = $(exec_prefix)/lib
+includedir = $(prefix)/include
+
+# Build files.
 src = $(wildcard $(srcdir)/*.c)
-inc = $(wildcard $(incdir)/*.h)
+pubinc = $(wildcard $(incdir)/aer*.h)
 obj = $(src:.c=.o)
-target = $(builddir)/aermre.so
+lib = $(builddir)/libaermre.so
 
-CFLAGS = -Wall -Wextra -O3
+# Program and flag defaults.
+CFLAGS = -Wall -Wextra -O3 -g
 ALL_CFLAGS = -I$(incdir) -m32 $(CFLAGS)
-
-ALL_LDFLAGS = -shared -m32 $(LDFLAGS)
-
+ALL_LDFLAGS = -shared -m32 -ldl $(LDFLAGS)
 DOC = doxygen
+INSTALL = install
 
 
 
-.PHONY: target
-target: $(target)
+.PHONY: lib
+lib: $(lib)
 
-$(target): $(obj) $(builddir)
+$(lib): $(obj) $(builddir)
 	$(CC) $(ALL_LDFLAGS) -o $@ $(obj)
 
 %.o: %.c
@@ -36,11 +44,11 @@ $(target): $(obj) $(builddir)
 $(builddir):
 	mkdir -p $@
 
-$(docdir): $(inc)
+$(docdir): $(pubinc)
 	$(DOC) $(DOCFLAGS)
 
 .PHONY: all
-all: target docs
+all: lib docs
 
 .PHONY: docs
 docs: $(docdir)
@@ -48,3 +56,13 @@ docs: $(docdir)
 .PHONY: clean
 clean:
 	rm -rf $(obj) $(builddir) $(docdir)
+
+.PHONY: install
+install: lib $(pubinc)
+	$(INSTALL) -Dt $(DESTDIR)$(libdir) $(lib)
+	$(INSTALL) -Dt $(DESTDIR)$(includedir) -m 644 $(pubinc)
+
+.PHONY: uninstall
+uninstall:
+	rm $(subst $(incdir),$(DESTDIR)$(includedir),$(pubinc))
+	rm $(subst $(builddir),$(DESTDIR)$(libdir),$(lib))

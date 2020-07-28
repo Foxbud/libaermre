@@ -169,7 +169,7 @@ static const char * NAME = "MRE";
 
 static const char * VERSION = "0.1.0dev";
 
-static const char * MOD_NAME_FMT = "aermod%u.so";
+static const char * MOD_NAME_FMT = "libaermod%u.so";
 
 static const char * ASSET_PATH_FMT = "assets/mod/%s/%s";
 
