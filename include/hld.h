@@ -27,6 +27,12 @@ typedef enum HLDEventType {
 	HLD_EVENT_UNKNOWN_7
 } HLDEventType;
 
+typedef enum HLDEventStepType {
+	HLD_EVENT_STEP_INLINE,
+	HLD_EVENT_STEP_PRE,
+	HLD_EVENT_STEP_POST
+} HLDEventStepType;
+
 typedef enum HLDEventOtherType {
 	HLD_EVENT_OTHER_ANIMATION_END = 7
 } HLDEventOtherType;
@@ -138,8 +144,8 @@ typedef struct HLDObject {
 	uint8_t field_3;
 	int32_t spriteIndex;
 	uint32_t depth;
-	uint32_t parentIndex;
-	uint32_t maskIndex;
+	int32_t parentIndex;
+	int32_t maskIndex;
 	const char * name;
 	int32_t index;
 	uint32_t physics;

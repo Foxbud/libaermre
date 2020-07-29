@@ -90,21 +90,39 @@
 
 /* ----- PRIVATE TYPES ----- */
 
+/*
+ * This struct holds pointers to raw values and functions in the Game Maker
+ * engine. These pointers are passed into the MRE from the hooks injected
+ * into the game's executable.
+ */
 typedef struct HLDRefs {
-	/* Globals. */
+	/* Number of steps since start of the game. */
 	int32_t * numSteps;
+	/* Tables of booleans where each index represents a key code. */
 	bool (* keysPressedTable)[0x100];
 	bool (* keysHeldTable)[0x100];
 	bool (* keysReleasedTable)[0x100];
-	int32_t * numRooms;
+	/* Array of all registered rooms. */
+	HLDArrayPreSize * roomTable;
+	/* Index of currently active room. */
 	int32_t * roomIndexCurrent;
+	/* Actual room object of currently active room. */
 	HLDRoom ** roomCurrent;
+	/* Array of all registered sprites. */
 	HLDSprite *** spriteTable;
+	/* Hash table of all registered objects. */
 	HLDHashTable ** objectTableHandle;
+	/* Hash table of all in-game instances. */
 	HLDHashTable * instanceTable;
+	/*
+	 * As an optimization, the engine only checks for alarm events on objects
+	 * listed (or "subscribed") in these arrays.
+	 */
 	size_t (* alarmEventSubscriberCounts)[12];
 	HLDEventSubscribers (* alarmEventSubscribers)[12];
-	/* Functions. */
+	size_t (* stepEventSubscriberCounts)[3];
+	HLDEventSubscribers (* stepEventSubscribers)[3];
+	/* Register a new sprite. */
 	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
 			const char * fname,
 			size_t imgNum,
@@ -115,7 +133,9 @@ typedef struct HLDRefs {
 			uint32_t origX,
 			uint32_t origY
 	);
+	/* Register a new object. */
 	__attribute__((cdecl)) int32_t (* actionObjectAdd)(void);
+	/* Trigger an event as if it occurred "naturally." */
 	__attribute__((cdecl)) int32_t (* actionEventPerform)(
 			HLDInstance * target,
 			HLDInstance * other,
@@ -123,6 +143,10 @@ typedef struct HLDRefs {
 			uint32_t eventType,
 			int32_t eventNum
 	);
+	/*
+	 * Custom Heart Machine function that sets an instance's draw depth based
+	 * on its y position and the current room's height.
+	 */
 	__attribute__((cdecl)) HLDInstance * (* gmlScriptSetdepth)(
 			HLDInstance * target,
 			HLDInstance * other,
@@ -130,11 +154,13 @@ typedef struct HLDRefs {
 			uint32_t unknown1,
 			uint32_t unknown2
 	);
+	/* Spawn a new instance of an object. */
 	__attribute__((cdecl)) HLDInstance * (* actionInstanceCreate)(
 			int32_t objIdx,
 			float posX,
 			float posY
 	);
+	/* Destroy an instance. */
 	__attribute__((cdecl)) void (* actionInstanceDestroy)(
 			HLDInstance * inst0,
 			HLDInstance * inst1,
@@ -143,18 +169,44 @@ typedef struct HLDRefs {
 	);
 } HLDRefs;
 
+/* This struct represents the current state of the mod runtime environment. */
 typedef struct AERMRE {
+	/* Raw engine pointers passed in by the hooks. */
 	HLDRefs refs;
+	/*
+	 * Index of active room during previous game step. Solely for detecting
+	 * room changes.
+	 */
 	int32_t roomIndexPrevious;
+	/* Inheritance tree of all objects (including mod-registered). */
 	ObjTree * objTree;
+	/*
+	 * Mod currently performing registration. Has no meaning after the
+	 * registration stage.
+	 */
 	AERMod * regActiveMod;
+	/* Array of all loaded mods. */
 	DynArr * mods;
+	/* Array of registered listeners for the room step pseudo-event. */
 	DynArr * roomStepListeners;
+	/* Array of registered listeners for the room change pseudo-event. */
 	DynArr * roomChangeListeners;
+	/*
+	 * Hash table of all events that have been entrapped during the mod
+	 * event listener registration stage.
+	 */
 	HashTab * eventTraps;
+	/* Key of currently active event. */
 	EventKey currentEvent;
+	/* 
+	 * Because C lacks enclosures, all entrapped events point to this common
+	 * event handler which then looks up and executes the trap for the
+	 * current event.
+	 */
 	HLDNamedFunction eventHandler;
+	/* Internal record of all subscriptions to subscribable events. */
 	HashTab * eventSubscribers;
+	/* Current stage of the MRE. */
 	enum {
 		STAGE_INIT,
 		STAGE_SPRITE_REG,
@@ -163,6 +215,17 @@ typedef struct AERMRE {
 		STAGE_ACTION
 	} stage;
 } AERMRE;
+
+/*
+ * This struct holds context information about the target event when
+ * recursively subscribing objects to an event that requires subscription.
+ */
+typedef struct SubscriptionContext {
+	HLDEventType eventType;
+	uint32_t eventNum;
+	size_t * subCountsArr;
+	HLDEventSubscribers * subArrs;
+} SubscriptionContext;
 
 
 
@@ -269,25 +332,30 @@ static EventTrap * EntrapEvent(
 		HLDEventType eventType,
 		uint32_t eventNum
 ) {
-	size_t numObjects = (*mre.refs.objectTableHandle)->numItems;
+	size_t numObjs = (*mre.refs.objectTableHandle)->numItems;
 	HLDArrayPreSize oldArr, newArr;
 
 	/* Get original event array. */
 	oldArr = obj->eventListeners[eventType];
 
 	/* Get new event array. */
+	uint32_t numSubEvents;
 	switch (eventType) {
 		case HLD_EVENT_CREATE:
 		case HLD_EVENT_DESTROY:
-			newArr = ReallocEventArr(oldArr, 1);
+			numSubEvents = 1;
+			break;
+
+		case HLD_EVENT_STEP:
+			numSubEvents = 3;
 			break;
 
 		case HLD_EVENT_ALARM:
-			newArr = ReallocEventArr(oldArr, 12);
+			numSubEvents = 12;
 			break;
 
 		case HLD_EVENT_COLLISION:
-			newArr = ReallocEventArr(oldArr, numObjects);
+			numSubEvents = numObjs;
 			break;
 
 		case HLD_EVENT_OTHER:
@@ -296,13 +364,19 @@ static EventTrap * EntrapEvent(
 			 * version of the engine, so we're using 128 as a presumably safe
 			 * upper bound until we learn the true maximum.
 			 */
-			newArr = ReallocEventArr(oldArr, 128);
+			numSubEvents = 128;
 			break;
 
 		default:
-			newArr = (HLDArrayPreSize){};
-			break;
+			AERLogErr(
+					NAME,
+					"\"%s\" called with unsupported event type %u.",
+					__func__,
+					eventType
+			);
+			exit(1);
 	}
+	newArr = ReallocEventArr(oldArr, numSubEvents);
 
 	/* Update object with new event array. */
 	obj->eventListeners[eventType] = newArr;
@@ -366,52 +440,92 @@ static void BuildObjTree(void) {
 	return;
 }
 
-static bool EnsureAlarmEventSubscriber(
+static bool EnsureEventSubscriber(
 		int32_t objIdx,
 		void * context
 ) {
-	EventKey key = (EventKey){
-		.type = HLD_EVENT_ALARM,
-		.num = *((uint32_t *)context),
+#define context ((SubscriptionContext *)context)
+	EventKey key = {
+		.type = context->eventType,
+		.num = context->eventNum,
 		.objIdx = objIdx
 	};
 	if (!HashTabExists(mre.eventSubscribers, &key)) {
-		uint32_t arrIdx = (*mre.refs.alarmEventSubscriberCounts)[key.num]++;
-		(*mre.refs.alarmEventSubscribers)[key.num].objects[arrIdx] = objIdx;
+		uint32_t arrIdx = context->subCountsArr[key.num]++;
+		context->subArrs[key.num].objects[arrIdx] = objIdx;
 		HashTabInsert(mre.eventSubscribers, &key, NULL);
 	}
 
 	return true;
+#undef context
 }
 
-static void WrapAlarmEventSubscribers(void) {
+static void RegisterEventSubscriber(EventKey key) {
+	SubscriptionContext context;
+	context.eventType = key.type;
+	context.eventNum = key.num;
+	switch (key.type) {
+		case HLD_EVENT_ALARM:
+			context.subCountsArr = *mre.refs.alarmEventSubscriberCounts;
+			context.subArrs = *mre.refs.alarmEventSubscribers;
+			break;
+
+		case HLD_EVENT_STEP:
+			context.subCountsArr = *mre.refs.stepEventSubscriberCounts;
+			context.subArrs = *mre.refs.stepEventSubscribers;
+			break;
+
+		default:
+			AERLogErr(
+					NAME,
+					"\"%s\" called with unsupported event type %u.",
+					__func__,
+					key.type
+			);
+			exit(1);
+	}
+
+	if (!HashTabExists(mre.eventSubscribers, &key)) {
+		ObjTreeEach(
+				mre.objTree,
+				key.objIdx,
+				MAX_OBJ_TREE_DEPTH,
+				&EnsureEventSubscriber,
+				&context
+		);
+	}
+
+	return;
+}
+
+static void MaskEventSubscribers(
+		HLDEventType eventType,
+		size_t numEvents,
+		size_t * subCountsArr,
+		HLDEventSubscribers * subArrs
+) {
 	size_t numObjs = (*mre.refs.objectTableHandle)->numItems;
 
-	for (uint32_t alarmIdx = 0; alarmIdx < 12; alarmIdx++) {
-		size_t oldSubCount = (
-				*mre.refs.alarmEventSubscriberCounts
-		)[alarmIdx];
+	for (uint32_t eventNum = 0; eventNum < numEvents; eventNum++) {
+		size_t oldSubCount = subCountsArr[eventNum];
 		/*
 		 * Note that original array is static, meaning it doesn't have to be freed
 		 * and new mask array does have to be freed.
 		 */
-		int32_t * oldSubArr = (
-				*mre.refs.alarmEventSubscribers
-		)[alarmIdx].objects;
+		int32_t * oldSubArr = subArrs[eventNum].objects;
 
 		int32_t * newSubArr = malloc(numObjs * sizeof(int32_t));
 		assert(newSubArr);
-		(*mre.refs.alarmEventSubscribers)[alarmIdx].objects = newSubArr;
-		(*mre.refs.alarmEventSubscriberCounts)[alarmIdx] = 0;
+		subArrs[eventNum].objects = newSubArr;
+		subCountsArr[eventNum] = 0;
 
 		for (uint32_t subIdx = 0; subIdx < oldSubCount; subIdx++) {
-			ObjTreeEach(
-					mre.objTree,
-					oldSubArr[subIdx],
-					MAX_OBJ_TREE_DEPTH,
-					&EnsureAlarmEventSubscriber,
-					&alarmIdx
-			);
+			EventKey key = {
+				.type = eventType,
+				.num = eventNum,
+				.objIdx = oldSubArr[subIdx]
+			};
+			RegisterEventSubscriber(key);
 		}
 	}
 
@@ -547,9 +661,20 @@ __attribute__((cdecl)) void AERHookUpdate(void) {
 		}
 		AERLogInfo(NAME, "Done.");
 
-		/* Build object inheritance tree and wrap event subscribers. */
+		/* Build object inheritance tree and mask event subscribers. */
 		BuildObjTree();
-		WrapAlarmEventSubscribers();
+		MaskEventSubscribers(
+				HLD_EVENT_ALARM,
+				12,
+				*mre.refs.alarmEventSubscriberCounts,
+				*mre.refs.alarmEventSubscribers
+		);
+		MaskEventSubscribers(
+				HLD_EVENT_STEP,
+				3,
+				*mre.refs.stepEventSubscriberCounts,
+				*mre.refs.stepEventSubscribers
+		);
 
 		/* Register listeners. */
 		mre.stage = STAGE_LISTENER_REG;
@@ -786,7 +911,7 @@ AERErrCode AERRegisterDestroyListener(
 
 	HLDObject * obj = ObjectLookup(objIdx);
 	ObjectGuard(obj);
-	EventKey key = (EventKey){
+	EventKey key = {
 		.type = HLD_EVENT_DESTROY,
 		.num = 0,
 		.objIdx = objIdx
@@ -808,19 +933,76 @@ AERErrCode AERRegisterAlarmListener(
 
 	HLDObject * obj = ObjectLookup(objIdx);
 	ObjectGuard(obj);
-	EventKey key = (EventKey){
+	EventKey key = {
 		.type = HLD_EVENT_ALARM,
 		.num = alarmIdx,
 		.objIdx = objIdx
 	};
 	RegisterObjectListener(obj, key, listener, downstream);
-	ObjTreeEach(
-			mre.objTree,
-			objIdx,
-			MAX_OBJ_TREE_DEPTH,
-			&EnsureAlarmEventSubscriber,
-			&alarmIdx
-	);
+	RegisterEventSubscriber(key);
+
+	return AER_OK;
+}
+
+AERErrCode AERRegisterStepListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+) {
+	Stage(STAGE_LISTENER_REG);
+	ArgGuard(listener);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+	EventKey key = {
+		.type = HLD_EVENT_STEP,
+		.num = HLD_EVENT_STEP_INLINE,
+		.objIdx = objIdx
+	};
+	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterEventSubscriber(key);
+
+	return AER_OK;
+}
+
+AERErrCode AERRegisterPreStepListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+) {
+	Stage(STAGE_LISTENER_REG);
+	ArgGuard(listener);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+	EventKey key = {
+		.type = HLD_EVENT_STEP,
+		.num = HLD_EVENT_STEP_PRE,
+		.objIdx = objIdx
+	};
+	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterEventSubscriber(key);
+
+	return AER_OK;
+}
+
+AERErrCode AERRegisterPostStepListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+) {
+	Stage(STAGE_LISTENER_REG);
+	ArgGuard(listener);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+	EventKey key = {
+		.type = HLD_EVENT_STEP,
+		.num = HLD_EVENT_STEP_POST,
+		.objIdx = objIdx
+	};
+	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterEventSubscriber(key);
 
 	return AER_OK;
 }
@@ -837,7 +1019,7 @@ AERErrCode AERRegisterCollisionListener(
 
 	HLDObject * obj = ObjectLookup(targetObjIdx);
 	ObjectGuard(obj);
-	EventKey key = (EventKey){
+	EventKey key = {
 		.type = HLD_EVENT_COLLISION,
 		.num = otherObjIdx,
 		.objIdx = targetObjIdx
@@ -857,7 +1039,7 @@ AERErrCode AERRegisterAnimationEndListener(
 
 	HLDObject * obj = ObjectLookup(objIdx);
 	ObjectGuard(obj);
-	EventKey key = (EventKey){
+	EventKey key = {
 		.type = HLD_EVENT_OTHER,
 		.num = HLD_EVENT_OTHER_ANIMATION_END,
 		.objIdx = objIdx
@@ -1203,6 +1385,56 @@ AERErrCode AERInstanceSetSpriteSpeed(
 	return AER_OK;
 }
 
+AERErrCode AERInstanceGetSpriteAlpha(
+		AERInstance * inst,
+		float * alpha
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(alpha);
+
+	*alpha = ((HLDInstance *)inst)->imageAlpha;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceSetSpriteAlpha(
+		AERInstance * inst,
+		float alpha
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	((HLDInstance *)inst)->imageAlpha = alpha;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceGetSpriteAngle(
+		AERInstance * inst,
+		float * angle
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(angle);
+
+	*angle = ((HLDInstance *)inst)->imageAngle;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceSetSpriteAngle(
+		AERInstance * inst,
+		float angle
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	((HLDInstance *)inst)->imageAngle = angle;
+
+	return AER_OK;
+}
+
 AERErrCode AERInstanceGetSolid(
 		AERInstance * inst,
 		bool * solid
@@ -1231,14 +1463,14 @@ AERErrCode AERInstanceSetSolid(
 AERErrCode AERInstanceGetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx,
-		int32_t * alarmSteps
+		int32_t * numSteps
 ) {
 	Stage(STAGE_ACTION);
 	ArgGuard(inst);
-	ArgGuard(alarmSteps);
+	ArgGuard(numSteps);
 	AlarmGuard(alarmIdx);
 
-	*alarmSteps = ((HLDInstance *)inst)->alarms[alarmIdx];
+	*numSteps = ((HLDInstance *)inst)->alarms[alarmIdx];
 
 	return AER_OK;
 }
@@ -1246,13 +1478,13 @@ AERErrCode AERInstanceGetAlarm(
 AERErrCode AERInstanceSetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx,
-		int32_t alarmSteps
+		int32_t numSteps
 ) {
 	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 	AlarmGuard(alarmIdx);
 
-	((HLDInstance *)inst)->alarms[alarmIdx] = alarmSteps;
+	((HLDInstance *)inst)->alarms[alarmIdx] = numSteps;
 
 	return AER_OK;
 }

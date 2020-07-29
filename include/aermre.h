@@ -206,6 +206,26 @@ AERErrCode AERInstanceSetSpriteSpeed(
 		float speed
 );
 
+AERErrCode AERInstanceGetSpriteAlpha(
+		AERInstance * inst,
+		float * alpha
+);
+
+AERErrCode AERInstanceSetSpriteAlpha(
+		AERInstance * inst,
+		float alpha
+);
+
+AERErrCode AERInstanceGetSpriteAngle(
+		AERInstance * inst,
+		float * angle
+);
+
+AERErrCode AERInstanceSetSpriteAngle(
+		AERInstance * inst,
+		float angle
+);
+
 AERErrCode AERInstanceGetSolid(
 		AERInstance * inst,
 		bool * solid
@@ -219,13 +239,13 @@ AERErrCode AERInstanceSetSolid(
 AERErrCode AERInstanceGetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx,
-		int32_t * alarmSteps
+		int32_t * numSteps
 );
 
 AERErrCode AERInstanceSetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx,
-		int32_t alarmSteps
+		int32_t numSteps
 );
 
 /**
@@ -288,6 +308,24 @@ AERErrCode AERRegisterDestroyListener(
 AERErrCode AERRegisterAlarmListener(
 		int32_t objIdx,
 		uint32_t alarmIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+AERErrCode AERRegisterStepListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+AERErrCode AERRegisterPreStepListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+AERErrCode AERRegisterPostStepListener(
+		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 );

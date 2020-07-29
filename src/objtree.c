@@ -112,6 +112,7 @@ void ObjTreeInsert(
 
 	int32_t * child = malloc(sizeof(int32_t));
 	assert(child);
+	*child = childIdx;
 	DynArrPush(parent, child);
 
 	return;
