@@ -176,6 +176,52 @@ AERErrCode AERInstanceSetPosition(
 		float y
 );
 
+AERErrCode AERInstanceGetSpeed(
+		AERInstance * inst,
+		float * speed
+);
+
+AERErrCode AERInstanceSetSpeed(
+		AERInstance * inst,
+		float speed
+);
+
+AERErrCode AERInstanceGetDirection(
+		AERInstance * inst,
+		float * direction
+);
+
+AERErrCode AERInstanceSetDirection(
+		AERInstance * inst,
+		float direction
+);
+
+AERErrCode AERInstanceGetFriction(
+		AERInstance * inst,
+		float * friction
+);
+
+AERErrCode AERInstanceSetFriction(
+		AERInstance * inst,
+		float friction
+);
+
+AERErrCode AERInstanceAddMotion(
+		AERInstance * inst,
+		float direction,
+		float speed
+);
+
+AERErrCode AERInstanceGetMask(
+		AERInstance * inst,
+		int32_t * maskIdx
+);
+
+AERErrCode AERInstanceSetMask(
+		AERInstance * inst,
+		int32_t maskIdx
+);
+
 AERErrCode AERInstanceGetSprite(
 		AERInstance * inst,
 		int32_t * spriteIdx
@@ -276,6 +322,7 @@ AERErrCode AERRegisterObject(
 		const char * name,
 		int32_t parentIdx,
 		int32_t spriteIdx,
+		int32_t maskIdx,
 		int32_t depth,
 		bool visible,
 		bool solid,

@@ -167,6 +167,23 @@ typedef struct HLDRefs {
 			int32_t objIdx,
 			bool doEvent
 	);
+	__attribute__((cdecl)) void (* Instance_setSpeed)(
+			HLDInstance * inst,
+			float speed
+	);
+	__attribute__((cdecl)) void (* Instance_setDirection)(
+			HLDInstance * inst,
+			float direction
+	);
+	__attribute__((cdecl)) void (* actionMotionAdd)(
+			HLDInstance * inst,
+			float direction,
+			float speed
+	);
+	__attribute__((cdecl)) void (* Instance_setMaskIndex)(
+			HLDInstance * inst,
+			int32_t maskIndex
+	);
 } HLDRefs;
 
 /* This struct represents the current state of the mod runtime environment. */
@@ -845,6 +862,7 @@ AERErrCode AERRegisterObject(
 		const char * name,
 		int32_t parentIdx,
 		int32_t spriteIdx,
+		int32_t maskIdx,
 		int32_t depth,
 		bool visible,
 		bool solid,
@@ -870,6 +888,7 @@ AERErrCode AERRegisterObject(
 	obj->parentIndex = parentIdx;
 	obj->parent = parent;
 	obj->spriteIndex = spriteIdx;
+	obj->maskIndex = maskIdx;
 	obj->depth = depth;
 	obj->flags.visible = visible;
 	obj->flags.solid = solid;
@@ -1306,6 +1325,126 @@ AERErrCode AERInstanceSetPosition(
 
 	((HLDInstance *)inst)->pos.x = x;
 	((HLDInstance *)inst)->pos.y = y;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceGetSpeed(
+		AERInstance * inst,
+		float * speed
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(speed);
+
+	*speed = ((HLDInstance *)inst)->speed;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceSetSpeed(
+		AERInstance * inst,
+		float speed
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	mre.refs.Instance_setSpeed((HLDInstance *)inst, speed);
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceGetDirection(
+		AERInstance * inst,
+		float * direction
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(direction);
+
+	*direction = ((HLDInstance *)inst)->direction;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceSetDirection(
+		AERInstance * inst,
+		float direction
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	((HLDInstance *)inst)->direction = direction;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceGetFriction(
+		AERInstance * inst,
+		float * friction
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(friction);
+
+	*friction = ((HLDInstance *)inst)->friction;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceSetFriction(
+		AERInstance * inst,
+		float friction
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	((HLDInstance *)inst)->friction = friction;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceAddMotion(
+		AERInstance * inst,
+		float direction,
+		float speed
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	mre.refs.actionMotionAdd(
+			(HLDInstance *)inst,
+			direction,
+			speed
+	);
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceGetMask(
+		AERInstance * inst,
+		int32_t * maskIdx
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(maskIdx);
+
+	*maskIdx = ((HLDInstance *)inst)->maskIndex;
+
+	return AER_OK;
+}
+
+AERErrCode AERInstanceSetMask(
+		AERInstance * inst,
+		int32_t maskIdx
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	mre.refs.Instance_setMaskIndex(
+			(HLDInstance *)inst,
+			maskIdx
+	);
 
 	return AER_OK;
 }
