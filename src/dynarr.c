@@ -69,10 +69,12 @@ void * DynArrGet(
 		DynArr * array,
 		uint32_t idx
 ) {
+#define array ((Array *)array)
 	assert(array);
-	assert(idx < ((Array *)array)->size);
+	assert(idx < array->size);
 
-	return ((Array *)array)->data[idx];
+	return array->data[idx];
+#undef array
 }
 
 void DynArrSet(
@@ -80,12 +82,14 @@ void DynArrSet(
 		uint32_t idx,
 		void * val
 ) {
+#define array ((Array *)array)
 	assert(array);
-	assert(idx < ((Array *)array)->size);
+	assert(idx < array->size);
 
-	((Array *)array)->data[idx] = val;
+	array->data[idx] = val;
 
 	return;
+#undef array
 }
 
 void DynArrInsert(
@@ -93,24 +97,26 @@ void DynArrInsert(
 		uint32_t idx,
 		void * val
 ) {
+#define array ((Array *)array)
 	assert(array);
-	assert(idx <= ((Array *)array)->size);
+	assert(idx <= array->size);
 
-	if (++(((Array *)array)->size) > ((Array *)array)->capacity) {
-		ArrayGrow((Array *)array);
+	if (++(array->size) > array->capacity) {
+		ArrayGrow(array);
 	}
 
-	size_t numToMove = ((Array *)array)->size - idx - 1;
+	size_t numToMove = array->size - idx - 1;
 	if (numToMove > 0) {
 		memmove(
-				((Array *)array)->data + idx + 1,
-				((Array *)array)->data + idx,
+				array->data + idx + 1,
+				array->data + idx,
 				numToMove * sizeof(void *)
 		);
 	}
-	((Array *)array)->data[idx] = val;
+	array->data[idx] = val;
 
 	return;
+#undef array
 }
 
 void DynArrPush(
@@ -128,20 +134,22 @@ void * DynArrRemove(
 		DynArr * array,
 		uint32_t idx
 ) {
+#define array ((Array *)array)
 	assert(array);
-	assert(idx < ((Array *)array)->size);
-	void * result = ((Array *)array)->data[idx];
+	assert(idx < array->size);
+	void * result = array->data[idx];
 
-	size_t numToMove = --(((Array *)array)->size) - idx;
+	size_t numToMove = --(array->size) - idx;
 	if (numToMove > 0) {
 		memmove(
-				((Array *)array)->data + idx,
-				((Array *)array)->data + idx + 1,
+				array->data + idx,
+				array->data + idx + 1,
 				numToMove * sizeof(void *)
 		);
 	}
 
 	return result;
+#undef array
 }
 
 void * DynArrPop(DynArr * array) {

@@ -159,10 +159,11 @@ HashTab * HashTabNew(
 }
 
 void HashTabFree(HashTab * table) {
+#define table ((Table *)table)
 	assert(table);
 
 	/* Free items and slot nodes. */
-	DynArr * items = ((Table *)table)->items;
+	DynArr * items = table->items;
 	size_t numItems = DynArrSize(items);
 	for (uint32_t idx = 0; idx < numItems; idx++) {
 		TableItem * item = DynArrGet(items, idx);
@@ -172,11 +173,12 @@ void HashTabFree(HashTab * table) {
 
 	/* Free arrays. */
 	DynArrFree(items);
-	free(((Table *)table)->slots);
+	free(table->slots);
 
 	free(table);
 
 	return;
+#undef table
 }
 
 size_t HashTabSize(HashTab * table) {
@@ -189,12 +191,14 @@ bool HashTabExists(
 		HashTab * table,
 		void * key
 ) {
+#define table ((Table *)table)
 	assert(table);
 	assert(key);
 
-	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
+	uint32_t slotIdx = SlotGetIndex(table, key);
 
-	return SlotFindNode((Table *)table, slotIdx, key) != NULL;
+	return SlotFindNode(table, slotIdx, key) != NULL;
+#undef table
 }
 
 void * HashTabGet(
@@ -202,18 +206,19 @@ void * HashTabGet(
 		void * key,
 		bool * exists
 ) {
+#define table ((Table *)table)
 	assert(table);
 	assert(key);
 	void * result = NULL;
 	bool tmpExists = false;
 
-	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
-	SlotNode * node = SlotFindNode((Table *)table, slotIdx, key);
+	uint32_t slotIdx = SlotGetIndex(table, key);
+	SlotNode * node = SlotFindNode(table, slotIdx, key);
 	tmpExists = node != NULL;
 	assert(tmpExists || exists != NULL);
 
 	if (tmpExists) {
-		TableItem * item = DynArrGet(((Table *)table)->items, node->itemIdx);
+		TableItem * item = DynArrGet(table->items, node->itemIdx);
 		result = item->value;
 	}
 
@@ -222,6 +227,7 @@ void * HashTabGet(
 	}
 
 	return result;
+#undef table
 }
 
 void HashTabSet(
@@ -229,16 +235,18 @@ void HashTabSet(
 		void * key,
 		void * value
 ) {
+#define table ((Table *)table)
 	assert(table);
 	assert(key);
 
-	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
-	SlotNode * node = SlotFindNode((Table *)table, slotIdx, key);
+	uint32_t slotIdx = SlotGetIndex(table, key);
+	SlotNode * node = SlotFindNode(table, slotIdx, key);
 	assert(node);
-	TableItem * item = DynArrGet(((Table *)table)->items, node->itemIdx);
+	TableItem * item = DynArrGet(table->items, node->itemIdx);
 	item->value = value;
 
 	return;
+#undef table
 }
 
 void HashTabInsert(
@@ -246,15 +254,16 @@ void HashTabInsert(
 		void * key,
 		void * value
 ) {
+#define table ((Table *)table)
 	assert(table);
 	assert(key);
 
 	/* Get slot. */
-	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
-	assert(!SlotFindNode((Table *)table, slotIdx, key));
+	uint32_t slotIdx = SlotGetIndex(table, key);
+	assert(!SlotFindNode(table, slotIdx, key));
 
 	/* Create item. */
-	DynArr * items = ((Table *)table)->items;
+	DynArr * items = table->items;
 	TableItem * item = malloc(sizeof(TableItem));
 	assert(item);
 	item->value = value;
@@ -263,35 +272,38 @@ void HashTabInsert(
 
 	/* Create node. */
 	item->node = SlotAddNode(
-			(Table *)table,
+			table,
 			slotIdx,
 			key,
 			itemIdx
 	);
 
 	return;
+#undef table
 }
 
 void * HashTabRemove(
 		HashTab * table,
 		void * key
 ) {
+#define table ((Table *)table)
 	assert(table);
 	assert(key);
 	void * result = NULL;
 
 	/* Get slot and node. */
-	uint32_t slotIdx = SlotGetIndex((Table *)table, key);
-	SlotNode * node = SlotFindNode((Table *)table, slotIdx, key);
+	uint32_t slotIdx = SlotGetIndex(table, key);
+	SlotNode * node = SlotFindNode(table, slotIdx, key);
 	assert(node);
 
 	/* Remove item. */
-	result = RemoveItem((Table *)table, node->itemIdx);
+	result = RemoveItem(table, node->itemIdx);
 
 	/* Remove node. */
-	SlotRemoveNode((Table *)table, slotIdx, node);
+	SlotRemoveNode(table, slotIdx, node);
 
 	return result;
+#undef table
 }
 
 HashTabIter * HashTabIterNew(HashTab * table) {
@@ -318,18 +330,20 @@ bool HashTabIterNext(
 		const void ** key,
 		void ** value
 ) {
+#define iter ((TableIter *)iter)
 	assert(iter);
 	bool success;
 
-	Table * table = ((TableIter *)iter)->table;
-	uint32_t curIdx = ((TableIter *)iter)->nextIdx;
+	Table * table = iter->table;
+	uint32_t curIdx = iter->nextIdx;
 	size_t numItems = DynArrSize(table->items);
 	if ((success = curIdx < numItems)) {
 		TableItem * item = DynArrGet(table->items, curIdx);
 		if (key) *key = item->node->key;
 		if (value) *value = item->value;
-		((TableIter *)iter)->nextIdx++;
+		iter->nextIdx++;
 	}
 
 	return success;
+#undef iter
 }
