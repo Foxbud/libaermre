@@ -183,7 +183,7 @@ typedef struct HLDInstance {
 	uint32_t field_1C;
 	uint32_t field_20;
 	uint32_t field_24;
-	uint32_t field_28;
+	uint32_t tangible;
 	uint32_t field_2C;
 	uint32_t field_30;
 	uint32_t field_34;

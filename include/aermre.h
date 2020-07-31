@@ -272,14 +272,14 @@ AERErrCode AERInstanceSetSpriteAngle(
 		float angle
 );
 
-AERErrCode AERInstanceGetSolid(
+AERErrCode AERInstanceGetTangible(
 		AERInstance * inst,
-		bool * solid
+		bool * tangible
 );
 
-AERErrCode AERInstanceSetSolid(
+AERErrCode AERInstanceSetTangible(
 		AERInstance * inst,
-		bool solid
+		bool tangible
 );
 
 AERErrCode AERInstanceGetAlarm(
@@ -325,7 +325,6 @@ AERErrCode AERRegisterObject(
 		int32_t maskIdx,
 		int32_t depth,
 		bool visible,
-		bool solid,
 		bool collisions,
 		bool persistent,
 		int32_t * objIdx

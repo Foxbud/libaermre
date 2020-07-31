@@ -167,19 +167,23 @@ typedef struct HLDRefs {
 			int32_t objIdx,
 			bool doEvent
 	);
+	/* Set instance's movement speed. */
 	__attribute__((cdecl)) void (* Instance_setSpeed)(
 			HLDInstance * inst,
 			float speed
 	);
+	/* Set instance's movement direction. */
 	__attribute__((cdecl)) void (* Instance_setDirection)(
 			HLDInstance * inst,
 			float direction
 	);
+	/* Non-destructively add to instance's movement. */
 	__attribute__((cdecl)) void (* actionMotionAdd)(
 			HLDInstance * inst,
 			float direction,
 			float speed
 	);
+	/* Set instance's mask index. */
 	__attribute__((cdecl)) void (* Instance_setMaskIndex)(
 			HLDInstance * inst,
 			int32_t maskIndex
@@ -865,7 +869,6 @@ AERErrCode AERRegisterObject(
 		int32_t maskIdx,
 		int32_t depth,
 		bool visible,
-		bool solid,
 		bool collisions,
 		bool persistent,
 		int32_t * objIdx
@@ -891,7 +894,6 @@ AERErrCode AERRegisterObject(
 	obj->maskIndex = maskIdx;
 	obj->depth = depth;
 	obj->flags.visible = visible;
-	obj->flags.solid = solid;
 	obj->flags.collisions = collisions;
 	obj->flags.persistent = persistent;
 
@@ -1574,27 +1576,27 @@ AERErrCode AERInstanceSetSpriteAngle(
 	return AER_OK;
 }
 
-AERErrCode AERInstanceGetSolid(
+AERErrCode AERInstanceGetTangible(
 		AERInstance * inst,
-		bool * solid
+		bool * tangible
 ) {
 	Stage(STAGE_ACTION);
 	ArgGuard(inst);
-	ArgGuard(solid);
+	ArgGuard(tangible);
 
-	*solid = ((HLDInstance *)inst)->solid;
+	*tangible = ((HLDInstance *)inst)->tangible;
 
 	return AER_OK;
 }
 
-AERErrCode AERInstanceSetSolid(
+AERErrCode AERInstanceSetTangible(
 		AERInstance * inst,
-		bool solid
+		bool tangible
 ) {
 	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
-	((HLDInstance *)inst)->solid = solid;
+	((HLDInstance *)inst)->tangible = tangible;
 
 	return AER_OK;
 }
