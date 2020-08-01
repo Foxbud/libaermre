@@ -5,6 +5,7 @@
 #define AERMRE_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 
@@ -148,6 +149,12 @@ AERErrCode AERInstanceCreate(
 		AERInstance ** inst
 );
 
+AERErrCode AERInstanceChange(
+		AERInstance * inst,
+		int32_t newObjIdx,
+		bool doEvents
+);
+
 AERErrCode AERInstanceDestroy(AERInstance * inst);
 
 AERErrCode AERInstanceDelete(AERInstance * inst);
@@ -270,6 +277,18 @@ AERErrCode AERInstanceGetSpriteAngle(
 AERErrCode AERInstanceSetSpriteAngle(
 		AERInstance * inst,
 		float angle
+);
+
+AERErrCode AERInstanceGetSpriteScale(
+		AERInstance * inst,
+		float * x,
+		float * y
+);
+
+AERErrCode AERInstanceSetSpriteScale(
+		AERInstance * inst,
+		float x,
+		float y
 );
 
 AERErrCode AERInstanceGetTangible(

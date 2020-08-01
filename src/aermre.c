@@ -160,6 +160,12 @@ typedef struct HLDRefs {
 			float posX,
 			float posY
 	);
+	/*  */
+	__attribute__((cdecl)) void (* actionInstanceChange)(
+			HLDInstance * inst,
+			int32_t newObjIdx,
+			bool doEvents
+	);
 	/* Destroy an instance. */
 	__attribute__((cdecl)) void (* actionInstanceDestroy)(
 			HLDInstance * inst0,
@@ -553,12 +559,7 @@ static void MaskEventSubscribers(
 	return;
 }
 
-
-
-/* ----- UNLISTED FUNCTIONS ----- */
-
-__attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
-	/* Initialize MRE. */
+static void InitMRE(HLDRefs refs) {
 	AERLogInfo(NAME, "Initializing mod runtime environment...");
 	mre = (AERMRE){
 		.refs = refs,
@@ -589,7 +590,10 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 	};
 	AERLogInfo(NAME, "Done.");
 
-	/* Load mods. */
+	return;
+}
+
+static void LoadMods(void) {
 	AERLogInfo(NAME, "Loading mods...");
 	size_t modIdx = 0;
 	while (true) {
@@ -651,73 +655,86 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 	return;
 }
 
-__attribute__((cdecl)) void AERHookUpdate(void) {
-	/* Registration. */
-	if (*mre.refs.numSteps == 0) {
-		size_t numMods = DynArrSize(mre.mods);
+static void InitMods(void) {
+	size_t numMods = DynArrSize(mre.mods);
 
-		/* Register sprites. */
-		mre.stage = STAGE_SPRITE_REG;
-		AERLogInfo(NAME, "Registering mod sprites...");
-		for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-			AERMod * mod = DynArrGet(mre.mods, modIdx);
-			mre.regActiveMod = mod;
-			if (mod->registerSprites) {
-				mod->registerSprites();
-				AERLogInfo(NAME, "Registred sprites for mod \"%s.\"", mod->name);
-			}
+	/* Register sprites. */
+	mre.stage = STAGE_SPRITE_REG;
+	AERLogInfo(NAME, "Registering mod sprites...");
+	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+		AERMod * mod = DynArrGet(mre.mods, modIdx);
+		mre.regActiveMod = mod;
+		if (mod->registerSprites) {
+			mod->registerSprites();
+			AERLogInfo(NAME, "Registred sprites for mod \"%s.\"", mod->name);
 		}
-		AERLogInfo(NAME, "Done.");
-
-		/* Register objects. */
-		mre.stage = STAGE_OBJECT_REG;
-		AERLogInfo(NAME, "Registering mod objects...");
-		for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-			AERMod * mod = DynArrGet(mre.mods, modIdx);
-			mre.regActiveMod = mod;
-			if (mod->registerObjects) {
-				mod->registerObjects();
-				AERLogInfo(NAME, "Registred objects for mod \"%s.\"", mod->name);
-			}
-		}
-		AERLogInfo(NAME, "Done.");
-
-		/* Build object inheritance tree and mask event subscribers. */
-		BuildObjTree();
-		MaskEventSubscribers(
-				HLD_EVENT_ALARM,
-				12,
-				*mre.refs.alarmEventSubscriberCounts,
-				*mre.refs.alarmEventSubscribers
-		);
-		MaskEventSubscribers(
-				HLD_EVENT_STEP,
-				3,
-				*mre.refs.stepEventSubscriberCounts,
-				*mre.refs.stepEventSubscribers
-		);
-
-		/* Register listeners. */
-		mre.stage = STAGE_LISTENER_REG;
-		AERLogInfo(NAME, "Registering mod event listeners...");
-		for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-			AERMod * mod = DynArrGet(mre.mods, modIdx);
-			mre.regActiveMod = mod;
-			if (mod->registerListeners) {
-				mod->registerListeners();
-				AERLogInfo(
-						NAME,
-						"Registred event listeners for mod \"%s.\"",
-						mod->name
-				);
-			}
-		}
-		AERLogInfo(NAME, "Done.");
-
-		mre.regActiveMod = NULL;
-		mre.stage = STAGE_ACTION;
 	}
+	AERLogInfo(NAME, "Done.");
 
+	/* Register objects. */
+	mre.stage = STAGE_OBJECT_REG;
+	AERLogInfo(NAME, "Registering mod objects...");
+	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+		AERMod * mod = DynArrGet(mre.mods, modIdx);
+		mre.regActiveMod = mod;
+		if (mod->registerObjects) {
+			mod->registerObjects();
+			AERLogInfo(NAME, "Registred objects for mod \"%s.\"", mod->name);
+		}
+	}
+	AERLogInfo(NAME, "Done.");
+
+	/* Build object inheritance tree and mask event subscribers. */
+	BuildObjTree();
+	MaskEventSubscribers(
+			HLD_EVENT_ALARM,
+			12,
+			*mre.refs.alarmEventSubscriberCounts,
+			*mre.refs.alarmEventSubscribers
+	);
+	MaskEventSubscribers(
+			HLD_EVENT_STEP,
+			3,
+			*mre.refs.stepEventSubscriberCounts,
+			*mre.refs.stepEventSubscribers
+	);
+
+	/* Register listeners. */
+	mre.stage = STAGE_LISTENER_REG;
+	AERLogInfo(NAME, "Registering mod event listeners...");
+	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+		AERMod * mod = DynArrGet(mre.mods, modIdx);
+		mre.regActiveMod = mod;
+		if (mod->registerListeners) {
+			mod->registerListeners();
+			AERLogInfo(
+					NAME,
+					"Registred event listeners for mod \"%s.\"",
+					mod->name
+			);
+		}
+	}
+	AERLogInfo(NAME, "Done.");
+
+	mre.regActiveMod = NULL;
+	mre.stage = STAGE_ACTION;
+
+	return;
+}
+
+
+
+/* ----- UNLISTED FUNCTIONS ----- */
+
+__attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
+	InitMRE(refs);
+	LoadMods();
+	InitMods();
+
+	return;
+}
+
+__attribute__((cdecl)) void AERHookStep(void) {
 	/* Check if room changed. */
 	int32_t roomIndexCurrent = *mre.refs.roomIndexCurrent;
 	if (roomIndexCurrent != mre.roomIndexPrevious) {
@@ -1232,6 +1249,24 @@ AERErrCode AERInstanceCreate(
 	return AER_OK;
 }
 
+AERErrCode AERInstanceChange(
+		AERInstance * inst,
+		int32_t newObjIdx,
+		bool doEvents
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ObjectGuard(ObjectLookup(newObjIdx));
+
+	mre.refs.actionInstanceChange(
+			(HLDInstance *)inst,
+			newObjIdx,
+			doEvents
+	);
+
+	return AER_OK;
+}
+
 AERErrCode AERInstanceDestroy(AERInstance * inst) {
 	Stage(STAGE_ACTION);
 	ArgGuard(inst);
@@ -1574,6 +1609,39 @@ AERErrCode AERInstanceSetSpriteAngle(
 	((HLDInstance *)inst)->imageAngle = angle;
 
 	return AER_OK;
+}
+
+AERErrCode AERInstanceGetSpriteScale(
+		AERInstance * inst,
+		float * x,
+		float * y
+) {
+#define inst ((HLDInstance *)inst)
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(x || y);
+
+	if (x) *x = inst->imageScale.x;
+	if (y) *y = inst->imageScale.y;
+
+	return AER_OK;
+#undef inst
+}
+
+AERErrCode AERInstanceSetSpriteScale(
+		AERInstance * inst,
+		float x,
+		float y
+) {
+#define inst ((HLDInstance *)inst)
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	inst->imageScale.x = x;
+	inst->imageScale.y = y;
+
+	return AER_OK;
+#undef inst
 }
 
 AERErrCode AERInstanceGetTangible(

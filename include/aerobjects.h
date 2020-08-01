@@ -443,7 +443,8 @@ typedef enum AERObjectType {
 	AER_OBJECT_DRAWCIRCLE = 0x1a4,
 	AER_OBJECT_DRAWOVAL = 0x1a5,
 	AER_OBJECT_DRAWTEXT = 0x1a6,
-	AER_OBJECT_ATTACKCOL = 0x1a7,
+	AER_OBJECT_ATTACKCOL = 0x1a7, /**< Hitmask of attack when player swings
+																	sword. */
 	AER_OBJECT_HITCOLLIDER = 0x1a8,
 	AER_OBJECT_CHAR = 0x1a9, /**< Player character. */
 	AER_OBJECT_DECOY = 0x1aa,
