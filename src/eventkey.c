@@ -1,4 +1,5 @@
 #include "eventkey.h"
+#include "xorshift.h"
 
 
 
@@ -20,14 +21,9 @@ uint32_t EventKeyHash(void * key) {
 	hash.parts.num = (uint32_t)keyCopy.num & 0x3fff;
 	hash.parts.objIdx = (uint32_t)keyCopy.objIdx & 0x3fff;
 
-	/* 
-	 * Perform three rounds of xorshift32 with parameters recommended by
-	 * Marsaglia in "Xorshift RNGs."
-	 */
+	/* Perform hash. */
 	for (uint32_t idx = 0; idx < 3; idx++) {
-		hash.raw ^= hash.raw << 13;
-		hash.raw ^= hash.raw >> 17;
-		hash.raw ^= hash.raw << 5;
+		XS32Round(hash.raw);
 	}
 
 	return hash.raw;
