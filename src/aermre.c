@@ -173,26 +173,14 @@ typedef struct HLDRefs {
 			int32_t objIdx,
 			bool doEvent
 	);
-	/* Set instance's movement speed. */
-	__attribute__((cdecl)) void (* Instance_setSpeed)(
-			HLDInstance * inst,
-			float speed
-	);
-	/* Set instance's movement direction. */
-	__attribute__((cdecl)) void (* Instance_setDirection)(
-			HLDInstance * inst,
-			float direction
-	);
-	/* Non-destructively add to instance's movement. */
-	__attribute__((cdecl)) void (* actionMotionAdd)(
-			HLDInstance * inst,
-			float direction,
-			float speed
-	);
 	/* Set instance's mask index. */
 	__attribute__((cdecl)) void (* Instance_setMaskIndex)(
 			HLDInstance * inst,
 			int32_t maskIndex
+	);
+	/* Set an instance's direction and speed based on its motion vector. */
+	__attribute__((cdecl)) void (* Instance_setMotionPolarFromCartesian)(
+			HLDInstance * inst
 	);
 } HLDRefs;
 
@@ -1366,56 +1354,6 @@ AERErrCode AERInstanceSetPosition(
 	return AER_OK;
 }
 
-AERErrCode AERInstanceGetSpeed(
-		AERInstance * inst,
-		float * speed
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(speed);
-
-	*speed = ((HLDInstance *)inst)->speed;
-
-	return AER_OK;
-}
-
-AERErrCode AERInstanceSetSpeed(
-		AERInstance * inst,
-		float speed
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-
-	mre.refs.Instance_setSpeed((HLDInstance *)inst, speed);
-
-	return AER_OK;
-}
-
-AERErrCode AERInstanceGetDirection(
-		AERInstance * inst,
-		float * direction
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(direction);
-
-	*direction = ((HLDInstance *)inst)->direction;
-
-	return AER_OK;
-}
-
-AERErrCode AERInstanceSetDirection(
-		AERInstance * inst,
-		float direction
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-
-	((HLDInstance *)inst)->direction = direction;
-
-	return AER_OK;
-}
-
 AERErrCode AERInstanceGetFriction(
 		AERInstance * inst,
 		float * friction
@@ -1441,21 +1379,55 @@ AERErrCode AERInstanceSetFriction(
 	return AER_OK;
 }
 
-AERErrCode AERInstanceAddMotion(
+AERErrCode AERInstanceGetMotion(
 		AERInstance * inst,
-		float direction,
-		float speed
+		float * x,
+		float * y
 ) {
+#define inst ((HLDInstance *)inst)
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+	ArgGuard(x || y);
+
+	if (x) *x = inst->speedX;
+	if (y) *y = inst->speedY;
+
+	return AER_OK;
+#undef inst
+}
+
+AERErrCode AERInstanceSetMotion(
+		AERInstance * inst,
+		float x,
+		float y
+) {
+#define inst ((HLDInstance *)inst)
 	Stage(STAGE_ACTION);
 	ArgGuard(inst);
 
-	mre.refs.actionMotionAdd(
-			(HLDInstance *)inst,
-			direction,
-			speed
-	);
+	inst->speedX = x;
+	inst->speedY = y;
+	mre.refs.Instance_setMotionPolarFromCartesian(inst);
 
 	return AER_OK;
+#undef inst
+}
+
+AERErrCode AERInstanceAddMotion(
+		AERInstance * inst,
+		float x,
+		float y
+) {
+#define inst ((HLDInstance *)inst)
+	Stage(STAGE_ACTION);
+	ArgGuard(inst);
+
+	inst->speedX += x;
+	inst->speedY += y;
+	mre.refs.Instance_setMotionPolarFromCartesian(inst);
+
+	return AER_OK;
+#undef inst
 }
 
 AERErrCode AERInstanceGetMask(

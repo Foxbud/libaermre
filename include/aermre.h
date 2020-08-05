@@ -183,26 +183,6 @@ AERErrCode AERInstanceSetPosition(
 		float y
 );
 
-AERErrCode AERInstanceGetSpeed(
-		AERInstance * inst,
-		float * speed
-);
-
-AERErrCode AERInstanceSetSpeed(
-		AERInstance * inst,
-		float speed
-);
-
-AERErrCode AERInstanceGetDirection(
-		AERInstance * inst,
-		float * direction
-);
-
-AERErrCode AERInstanceSetDirection(
-		AERInstance * inst,
-		float direction
-);
-
 AERErrCode AERInstanceGetFriction(
 		AERInstance * inst,
 		float * friction
@@ -213,10 +193,22 @@ AERErrCode AERInstanceSetFriction(
 		float friction
 );
 
+AERErrCode AERInstanceGetMotion(
+		AERInstance * inst,
+		float * x,
+		float * y
+);
+
+AERErrCode AERInstanceSetMotion(
+		AERInstance * inst,
+		float x,
+		float y
+);
+
 AERErrCode AERInstanceAddMotion(
 		AERInstance * inst,
-		float direction,
-		float speed
+		float x,
+		float y
 );
 
 AERErrCode AERInstanceGetMask(
