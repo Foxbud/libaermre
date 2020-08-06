@@ -414,7 +414,11 @@ static EventTrap * EntrapEvent(
 	/* Create event trap. */
 	return EventTrapNew(
 			eventType,
-			(oldHandler) ? oldHandler->function : &PerformParentEvent
+			(oldHandler) ? (
+				(void (*)(HLDInstance *, HLDInstance *))oldHandler->function
+				)	: (
+					&PerformParentEvent
+				)
 	);
 }
 
@@ -1135,16 +1139,7 @@ AERErrCode AERObjectGetName(
 	return AER_OK;
 }
 
-AERErrCode AERGetNumInstances(size_t * numInsts) {
-	Stage(STAGE_ACTION);
-	ArgGuard(numInsts);
-
-	*numInsts = (*mre.refs.roomCurrent)->numInstances;
-
-	return AER_OK;
-}
-
-AERErrCode AERGetNumInstancesByObject(
+AERErrCode AERObjectGetNumInstances(
 		int32_t objIdx,
 		size_t * numInsts
 ) {
@@ -1155,6 +1150,68 @@ AERErrCode AERGetNumInstancesByObject(
 	ObjectGuard(obj);
 
 	*numInsts = obj->numInstances;
+
+	return AER_OK;
+}
+
+AERErrCode AERObjectGetInstances(
+		int32_t objIdx,
+		size_t bufSize,
+		AERInstance ** instBuf,
+		size_t * numInsts
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(instBuf);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+
+	size_t numAvail = obj->numInstances;
+	size_t numToWrite = Min(numAvail, bufSize);
+	HLDNodeDLL * node = obj->instanceFirst;
+	for (size_t idx = 0; idx < numToWrite; idx++) {
+		instBuf[idx] = (AERInstance *)node->item;
+		node = node->next;
+	}
+
+	if (numInsts) *numInsts = numAvail;
+	BufSizeGuard(numInsts, bufSize, numToWrite);
+
+	return AER_OK;
+}
+
+AERErrCode AERObjectGetCollisions(
+		int32_t objIdx,
+		bool * collisions
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(collisions);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+	*collisions = obj->flags.collisions;
+
+	return AER_OK;
+}
+
+AERErrCode AERObjectSetCollisions(
+		int32_t objIdx,
+		bool collisions
+) {
+	Stage(STAGE_ACTION);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+	obj->flags.collisions = collisions;
+
+	return AER_OK;
+}
+
+AERErrCode AERGetNumInstances(size_t * numInsts) {
+	Stage(STAGE_ACTION);
+	ArgGuard(numInsts);
+
+	*numInsts = (*mre.refs.roomCurrent)->numInstances;
 
 	return AER_OK;
 }
@@ -1174,32 +1231,6 @@ AERErrCode AERGetInstances(
 	for (size_t idx = 0; idx < numToWrite; idx++) {
 		instBuf[idx] = (AERInstance *)inst;
 		inst = inst->instanceNext;
-	}
-
-	if (numInsts) *numInsts = numAvail;
-	BufSizeGuard(numInsts, bufSize, numToWrite);
-
-	return AER_OK;
-}
-
-AERErrCode AERGetInstancesByObject(
-		int32_t objIdx,
-		size_t bufSize,
-		AERInstance ** instBuf,
-		size_t * numInsts
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(instBuf);
-
-	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
-
-	size_t numAvail = obj->numInstances;
-	size_t numToWrite = Min(numAvail, bufSize);
-	HLDNodeDLL * node = obj->instanceFirst;
-	for (size_t idx = 0; idx < numToWrite; idx++) {
-		instBuf[idx] = (AERInstance *)node->item;
-		node = node->next;
 	}
 
 	if (numInsts) *numInsts = numAvail;

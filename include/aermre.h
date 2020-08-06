@@ -20,16 +20,21 @@
  * @{
  */
 
+/**
+ * All possible error codes returned by functions in aermre.h.
+ */
 typedef enum AERErrCode {
-	AER_OK,
-	AER_NULL_ARG,
-	AER_NO_SUCH_OBJECT,
-	AER_NO_SUCH_INSTANCE,
-	AER_NO_SUCH_ALARM_EVENT,
-	AER_OUT_OF_MEM,
-	AER_OUT_OF_SEQ,
-	AER_SPRITE_REG_FAILED,
-	AER_BUF_SIZE_RECORD
+	AER_OK, /**< No error occurred. */
+	AER_NULL_ARG, /**< Function received a null pointer. */
+	AER_NO_SUCH_OBJECT, /**< Invalid object index. */
+	AER_NO_SUCH_INSTANCE, /**< Invalid instance index. */
+	AER_NO_SUCH_ALARM_EVENT, /**< Invalid alarm event index. */
+	AER_OUT_OF_MEM, /**< Function ran out of memory. */
+	AER_OUT_OF_SEQ, /**< Function called at inappropriate time. */
+	AER_SPRITE_REG_FAILED, /**< Sprite could not be registered. */
+	AER_BUF_SIZE_RECORD /**< Function could not completely fill buffer, and
+												caller did not record number of buffer elements
+												written. */
 } AERErrCode;
 
 /**
@@ -83,27 +88,6 @@ AERErrCode AERGetCurrentRoom(int32_t * roomIdx);
 
 
 /**
- * @defgroup object Object
- *
- * This module contains all object related utilities.
- *
- * @sa aermre.h
- *
- * @{
- */
-
-AERErrCode AERObjectGetName(
-		int32_t objIdx,
-		const char ** name
-);
-
-/**
- * @}
- */
-
-
-
-/**
  * @defgroup instance Instance
  *
  * This module contains all instance related utilities.
@@ -113,25 +97,18 @@ AERErrCode AERObjectGetName(
  * @{
  */
 
+/**
+ * This struct represents an in-game instance.
+ *
+ * @note This struct should not be modified directly.
+ */
 typedef struct AERInstance {
 	const uint8_t rawData[0x184];
 } AERInstance;
 
 AERErrCode AERGetNumInstances(size_t * numInsts);
 
-AERErrCode AERGetNumInstancesByObject(
-		int32_t objIdx,
-		size_t * numInsts
-);
-
 AERErrCode AERGetInstances(
-		size_t bufSize,
-		AERInstance ** instBuf,
-		size_t * numInsts
-);
-
-AERErrCode AERGetInstancesByObject(
-		int32_t objIdx,
 		size_t bufSize,
 		AERInstance ** instBuf,
 		size_t * numInsts
@@ -303,6 +280,49 @@ AERErrCode AERInstanceSetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx,
 		int32_t numSteps
+);
+
+/**
+ * @}
+ */
+
+
+
+/**
+ * @defgroup object Object
+ *
+ * This module contains all object related utilities.
+ *
+ * @sa aermre.h
+ *
+ * @{
+ */
+
+AERErrCode AERObjectGetName(
+		int32_t objIdx,
+		const char ** name
+);
+
+AERErrCode AERObjectGetNumInstances(
+		int32_t objIdx,
+		size_t * numInsts
+);
+
+AERErrCode AERObjectGetInstances(
+		int32_t objIdx,
+		size_t bufSize,
+		AERInstance ** instBuf,
+		size_t * numInsts
+);
+
+AERErrCode AERObjectGetCollisions(
+		int32_t objIdx,
+		bool * collisions
+);
+
+AERErrCode AERObjectSetCollisions(
+		int32_t objIdx,
+		bool collisions
 );
 
 /**
