@@ -26,6 +26,7 @@ lib = $(builddir)/libaermre.so
 # Program and flag defaults.
 CFLAGS = -Wall -Wextra -O3
 ALL_CFLAGS = -I$(incdir) -m32 $(CFLAGS)
+LDFLAGS = -l:libfoxutils32.a
 ALL_LDFLAGS = -shared -m32 -ldl $(LDFLAGS)
 DOC = doxygen
 INSTALL = install
@@ -36,7 +37,7 @@ INSTALL = install
 lib: $(lib)
 
 $(lib): $(obj) $(builddir)
-	$(CC) $(ALL_LDFLAGS) -o $@ $(obj)
+	$(CC) -o $@ $(obj) $(ALL_LDFLAGS)
 
 %.o: %.c
 	$(CC) -c $(ALL_CFLAGS) -o $@ $<

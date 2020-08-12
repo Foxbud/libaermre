@@ -86,6 +86,7 @@ void ObjTreeFree(ObjTree * tree) {
 		while (DynArrSize(obj) > 0) {
 			free(DynArrPop(obj));
 		}
+		DynArrFree(obj);
 	}
 	HashTabIterFree(iter);
 	HashTabFree(table);

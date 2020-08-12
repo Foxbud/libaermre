@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "foxutils/arraymacs.h"
+
 #include "aerlog.h"
 #include "aermre.h"
 #include "dynarr.h"
@@ -201,11 +204,11 @@ typedef struct AERMRE {
 	 */
 	AERMod * regActiveMod;
 	/* Array of all loaded mods. */
-	DynArr * mods;
+	FoxArray * mods;
 	/* Array of registered listeners for the room step pseudo-event. */
-	DynArr * roomStepListeners;
+	FoxArray * roomStepListeners;
 	/* Array of registered listeners for the room change pseudo-event. */
-	DynArr * roomChangeListeners;
+	FoxArray * roomChangeListeners;
 	/*
 	 * Hash table of all events that have been entrapped during the mod
 	 * event listener registration stage.
@@ -558,9 +561,9 @@ static void InitMRE(HLDRefs refs) {
 		.roomIndexPrevious = 0,
 		.objTree = ObjTreeNew(),
 		.regActiveMod = NULL,
-		.mods = DynArrNew(16),
-		.roomStepListeners = DynArrNew(16),
-		.roomChangeListeners = DynArrNew(16),
+		.mods = FoxArrayMNew(AERMod),
+		.roomStepListeners = FoxArrayMNew(RoomStepListener),
+		.roomChangeListeners = FoxArrayMNew(RoomChangeListener),
 		.eventTraps = HashTabNew(
 				12, /* 4096 slots. */
 				sizeof(EventKey),
@@ -590,21 +593,27 @@ static void LoadMods(void) {
 	size_t modIdx = 0;
 	while (true) {
 		/* Load mod. */
-		AERMod * mod;
+		AERMod mod;
 		char nameBuf[16];
 		snprintf(nameBuf, 16, MOD_NAME_FMT, modIdx);
 		ModManErrCode err = ModManLoad(nameBuf, &mod);
 
 		/* Valid mod. */
 		if (err == MOD_MAN_OK) {
-			DynArrPush(mre.mods, mod);
-			if (mod->roomStepListener) {
-				DynArrPush(mre.roomStepListeners, mod->roomStepListener);
+			*FoxArrayMPush(AERMod, mre.mods) = mod;
+			if (mod.roomStepListener) {
+				*FoxArrayMPush(
+						RoomStepListener,
+						mre.roomStepListeners
+				) = mod.roomStepListener;
 			}
-			if (mod->roomChangeListener) {
-				DynArrPush(mre.roomChangeListeners, mod->roomChangeListener);
+			if (mod.roomChangeListener) {
+				*FoxArrayMPush(
+						RoomChangeListener,
+						mre.roomChangeListeners
+				) = mod.roomChangeListener;
 			}
-			AERLogInfo(NAME, "Loaded mod \"%s\" v%s.", mod->name, mod->version);
+			AERLogInfo(NAME, "Loaded mod \"%s\" v%s.", mod.name, mod.version);
 		}
 
 		/* No more mods. */
@@ -632,7 +641,7 @@ static void LoadMods(void) {
 				default:
 					AERLogErr(
 							NAME,
-							"Ran out of memory while loading mod %u.",
+							"Unknown error while loading mod %u.",
 							modIdx
 					);
 					break;
@@ -642,19 +651,19 @@ static void LoadMods(void) {
 
 		modIdx++;
 	}
-	AERLogInfo(NAME, "Done. Loaded %u mod(s).", DynArrSize(mre.mods));
+	AERLogInfo(NAME, "Done. Loaded %u mod(s).", FoxArrayMSize(AERMod, mre.mods));
 
 	return;
 }
 
 static void InitMods(void) {
-	size_t numMods = DynArrSize(mre.mods);
+	size_t numMods = FoxArrayMSize(AERMod, mre.mods);
 
 	/* Register sprites. */
 	mre.stage = STAGE_SPRITE_REG;
 	AERLogInfo(NAME, "Registering mod sprites...");
 	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-		AERMod * mod = DynArrGet(mre.mods, modIdx);
+		AERMod * mod = FoxArrayMIndex(AERMod, mre.mods, modIdx);
 		mre.regActiveMod = mod;
 		if (mod->registerSprites) {
 			mod->registerSprites();
@@ -667,7 +676,7 @@ static void InitMods(void) {
 	mre.stage = STAGE_OBJECT_REG;
 	AERLogInfo(NAME, "Registering mod objects...");
 	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-		AERMod * mod = DynArrGet(mre.mods, modIdx);
+		AERMod * mod = FoxArrayMIndex(AERMod, mre.mods, modIdx);
 		mre.regActiveMod = mod;
 		if (mod->registerObjects) {
 			mod->registerObjects();
@@ -695,7 +704,7 @@ static void InitMods(void) {
 	mre.stage = STAGE_LISTENER_REG;
 	AERLogInfo(NAME, "Registering mod event listeners...");
 	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-		AERMod * mod = DynArrGet(mre.mods, modIdx);
+		AERMod * mod = FoxArrayMIndex(AERMod, mre.mods, modIdx);
 		mre.regActiveMod = mod;
 		if (mod->registerListeners) {
 			mod->registerListeners();
@@ -731,25 +740,26 @@ __attribute__((cdecl)) void AERHookStep(void) {
 	int32_t roomIndexCurrent = *mre.refs.roomIndexCurrent;
 	if (roomIndexCurrent != mre.roomIndexPrevious) {
 		/* Call room change listeners. */
-		size_t numListeners = DynArrSize(mre.roomChangeListeners);
+		size_t numListeners = FoxArrayMSize(
+				RoomChangeListener,
+				mre.roomChangeListeners
+		);
 		for (uint32_t idx = 0; idx < numListeners; idx++) {
-			void (* listener)(int32_t, int32_t) = DynArrGet(
-					mre.roomChangeListeners,
-					idx
+			(*FoxArrayMIndex(RoomChangeListener, mre.roomChangeListeners, idx))(
+					roomIndexCurrent,
+					mre.roomIndexPrevious
 			);
-			listener(roomIndexCurrent, mre.roomIndexPrevious);
 		}
 		mre.roomIndexPrevious = roomIndexCurrent;
 	}
 
 	/* Call room step listeners. */
-	size_t numListeners = DynArrSize(mre.roomStepListeners);
+	size_t numListeners = FoxArrayMSize(
+			RoomStepListener,
+			mre.roomStepListeners
+	);
 	for (uint32_t idx = 0; idx < numListeners; idx++) {
-		void (* listener)(void) = DynArrGet(
-				mre.roomStepListeners,
-				idx
-		);
-		listener();
+		(*FoxArrayMIndex(RoomStepListener, mre.roomStepListeners, idx))();
 	}
 
 	return;
@@ -785,14 +795,14 @@ __attribute__((constructor)) void AERConstructor(void) {
 
 __attribute__((destructor)) void AERDestructor(void) {
 	AERLogInfo(NAME, "Unloading mods...");
-	size_t initNumMods = DynArrSize(mre.mods);
+	size_t initNumMods = FoxArrayMSize(AERMod, mre.mods);
 	size_t numUnloaded = 0;
-	while (DynArrSize(mre.mods) > 0) {
-		AERMod * mod = DynArrPop(mre.mods);
-		const char * modName = mod->name;
+	while (FoxArrayMSize(AERMod, mre.mods) > 0) {
+		AERMod mod = FoxArrayMPop(AERMod, mre.mods);
+		const char * modName = mod.name;
 
 		/* Unload mod. */
-		if (ModManUnload(mod) == MOD_MAN_OK) {
+		if (ModManUnload(&mod) == MOD_MAN_OK) {
 			numUnloaded++;
 			AERLogInfo(NAME, "Unloaded mod \"%s.\"", modName);
 		}
@@ -823,9 +833,9 @@ __attribute__((destructor)) void AERDestructor(void) {
 	while (HashTabIterNext(iter, NULL, (void **)&trap)) EventTrapFree(trap);
 	HashTabIterFree(iter);
 	HashTabFree(mre.eventTraps);
-	DynArrFree(mre.roomChangeListeners);
-	DynArrFree(mre.roomStepListeners);
-	DynArrFree(mre.mods);
+	FoxArrayMFree(RoomChangeListener, mre.roomChangeListeners);
+	FoxArrayMFree(RoomStepListener, mre.roomStepListeners);
+	FoxArrayMFree(AERMod, mre.mods);
 	ObjTreeFree(mre.objTree);
 	AERLogInfo(NAME, "Done.");
 

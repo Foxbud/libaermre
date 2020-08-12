@@ -9,9 +9,12 @@ typedef enum ModManErrCode {
 	MOD_MAN_OK,
 	MOD_MAN_NO_SUCH_MOD,
 	MOD_MAN_NAME_NOT_FOUND,
-	MOD_MAN_VERSION_NOT_FOUND,
-	MOD_MAN_OUT_OF_MEM,
+	MOD_MAN_VERSION_NOT_FOUND
 } ModManErrCode;
+
+typedef void (* RoomStepListener)(void);
+
+typedef void (* RoomChangeListener)(int32_t, int32_t);
 
 typedef struct AERMod {
 	/* Technical. */
@@ -24,15 +27,15 @@ typedef struct AERMod {
 	void (* registerObjects)(void);
 	void (* registerListeners)(void);
 	/* Event. */
-	void (* roomStepListener)(void);
-	void (* roomChangeListener)(int32_t, int32_t);
+	RoomStepListener roomStepListener;
+	RoomChangeListener roomChangeListener;
 } AERMod;
 
 
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-ModManErrCode ModManLoad(const char * modLib, AERMod ** mod);
+ModManErrCode ModManLoad(const char * modLib, AERMod * mod);
 
 ModManErrCode ModManUnload(AERMod * mod);
 

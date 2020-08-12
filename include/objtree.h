@@ -9,7 +9,11 @@
 /* ----- PUBLIC TYPES ----- */
 
 typedef struct ObjTree {
-	uint8_t rawData[4 * 1];
+	uint8_t rawData[
+		sizeof(struct {
+				HashTab * table;
+		})
+	];
 } ObjTree;
 
 

@@ -7,7 +7,7 @@
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-ModManErrCode ModManLoad(const char * modLib, AERMod ** mod) {
+ModManErrCode ModManLoad(const char * modLib, AERMod * mod) {
 	assert(modLib != NULL);
 	assert(mod != NULL);
 
@@ -17,73 +17,64 @@ ModManErrCode ModManLoad(const char * modLib, AERMod ** mod) {
 		return MOD_MAN_NO_SUCH_MOD;
 	}
 
-	/* Allocate memory for library. */
-	AERMod * tmpMod = malloc(sizeof(AERMod));
-	if (!tmpMod) {
-		return MOD_MAN_OUT_OF_MEM;
-	}
-	tmpMod->libHandle = tmpHandle;
+	/* Record handle to library. */
+	mod->libHandle = tmpHandle;
 
 	/* Read MOD_NAME symbol. */
 	const char ** tmpNameHandle = dlsym(tmpHandle, "MOD_NAME");
 	const char * tmpName;
 	if (!tmpNameHandle || !(tmpName = *tmpNameHandle)) {
-		free(tmpMod);
-		tmpMod = NULL;
 		return MOD_MAN_NAME_NOT_FOUND;
 	}
-	tmpMod->name = tmpName;
+	mod->name = tmpName;
 
 	/* Read MOD_VERSION symbol. */
 	const char ** tmpVersionHandle = dlsym(tmpHandle, "MOD_VERSION");
 	const char * tmpVersion;
 	if (!tmpVersionHandle || !(tmpVersion = *tmpVersionHandle)) {
-		free(tmpMod);
-		tmpMod = NULL;
 		return MOD_MAN_VERSION_NOT_FOUND;
 	}
-	tmpMod->version = tmpVersion;
+	mod->version = tmpVersion;
 
 	/* Read ModRegisterSprites symbol. */
 	void (* tmpRegSprites)(void) = dlsym(tmpHandle, "ModRegisterSprites");
-	tmpMod->registerSprites = NULL;
+	mod->registerSprites = NULL;
 	if (tmpRegSprites) {
-		tmpMod->registerSprites = tmpRegSprites;
+		mod->registerSprites = tmpRegSprites;
 	}
 
 	/* Read ModRegisterObjects symbol. */
 	void (* tmpRegObjects)(void) = dlsym(tmpHandle, "ModRegisterObjects");
-	tmpMod->registerObjects = NULL;
+	mod->registerObjects = NULL;
 	if (tmpRegObjects) {
-		tmpMod->registerObjects = tmpRegObjects;
+		mod->registerObjects = tmpRegObjects;
 	}
 
 	/* Read ModRegisterListeners symbol. */
 	void (* tmpRegListeners)(void) = dlsym(tmpHandle, "ModRegisterListeners");
-	tmpMod->registerListeners = NULL;
+	mod->registerListeners = NULL;
 	if (tmpRegListeners) {
-		tmpMod->registerListeners = tmpRegListeners;
+		mod->registerListeners = tmpRegListeners;
 	}
 
 	/* Read ModRoomStepListener symbol. */
-	void (* tmpRoomStep)(void) = dlsym(tmpHandle, "ModRoomStepListener");
-	tmpMod->roomStepListener = NULL;
+	RoomStepListener tmpRoomStep = dlsym(tmpHandle, "ModRoomStepListener");
+	mod->roomStepListener = NULL;
 	if (tmpRoomStep) {
-		tmpMod->roomStepListener = tmpRoomStep;
+		mod->roomStepListener = tmpRoomStep;
 	}
 
 	/* Read ModRoomChangeListener symbol. */
-	void (* tmpRoomChange)(int32_t, int32_t) = dlsym(
+	RoomChangeListener tmpRoomChange = dlsym(
 			tmpHandle,
 			"ModRoomChangeListener"
 	);
-	tmpMod->roomChangeListener = NULL;
+	mod->roomChangeListener = NULL;
 	if (tmpRoomChange) {
-		tmpMod->roomChangeListener = tmpRoomChange;
+		mod->roomChangeListener = tmpRoomChange;
 	}
 
 	/* Success. */
-	*mod = tmpMod;
 	return MOD_MAN_OK;
 }
 
@@ -92,8 +83,6 @@ ModManErrCode ModManUnload(AERMod * mod) {
 
 	/* Close library handle. */
 	dlclose(mod->libHandle);
-	/* Deallocate mod. */
-	free(mod);
 
 	return MOD_MAN_OK;
 }
