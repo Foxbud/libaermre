@@ -1115,7 +1115,7 @@ AERErrCode AERGetKeysReleased(const bool ** keys) {
 	return AER_OK;
 }
 
-AERErrCode AERGetCurrentRoom(int32_t * roomIdx) {
+AERErrCode AERRoomGetCurrent(int32_t * roomIdx) {
 	Stage(STAGE_ACTION);
 	ArgGuard(roomIdx);
 
@@ -1133,8 +1133,21 @@ AERErrCode AERObjectGetName(
 
 	HLDObject * obj = ObjectLookup(objIdx);
 	ObjectGuard(obj);
-
 	*name = obj->name;
+
+	return AER_OK;
+}
+
+AERErrCode AERObjectGetParent(
+		int32_t objIdx,
+		int32_t * parentIdx
+) {
+	Stage(STAGE_ACTION);
+	ArgGuard(parentIdx);
+
+	HLDObject * obj = ObjectLookup(objIdx);
+	ObjectGuard(obj);
+	*parentIdx = obj->parentIndex;
 
 	return AER_OK;
 }
@@ -1148,7 +1161,6 @@ AERErrCode AERObjectGetNumInstances(
 
 	HLDObject * obj = ObjectLookup(objIdx);
 	ObjectGuard(obj);
-
 	*numInsts = obj->numInstances;
 
 	return AER_OK;

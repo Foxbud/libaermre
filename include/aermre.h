@@ -79,8 +79,6 @@ AERErrCode AERGetKeysHeld(const bool ** keys);
  */
 AERErrCode AERGetKeysReleased(const bool ** keys);
 
-AERErrCode AERGetCurrentRoom(int32_t * roomIdx);
-
 /**
  * @}
  */
@@ -289,6 +287,24 @@ AERErrCode AERInstanceSetAlarm(
 
 
 /**
+ * @defgroup room Room
+ *
+ * This module contains all room related utilities.
+ *
+ * @sa aermre.h
+ *
+ * @{
+ */
+
+AERErrCode AERRoomGetCurrent(int32_t * roomIdx);
+
+/**
+ * @}
+ */
+
+
+
+/**
  * @defgroup object Object
  *
  * This module contains all object related utilities.
@@ -301,6 +317,11 @@ AERErrCode AERInstanceSetAlarm(
 AERErrCode AERObjectGetName(
 		int32_t objIdx,
 		const char ** name
+);
+
+AERErrCode AERObjectGetParent(
+		int32_t objIdx,
+		int32_t * parentIdx
 );
 
 AERErrCode AERObjectGetNumInstances(
