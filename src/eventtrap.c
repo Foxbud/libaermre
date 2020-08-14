@@ -3,28 +3,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#include "foxutils/arraymacs.h"
+
 #include "eventtrap.h"
-
-
-
-/* ----- PRIVATE TYPES ----- */
-
-typedef struct Trap {
-	HLDEventType eventType;
-	__attribute__((cdecl)) void (* origListener)(
-			HLDInstance * target,
-			HLDInstance * other
-	);
-	DynArr * upstreamListeners;
-	DynArr * downstreamListeners;
-} Trap;
 
 
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
 static bool ExecuteListeners(
-		DynArr * listeners,
+		FoxArray * listeners,
 		HLDEventType eventType,
 		HLDInstance * target,
 		HLDInstance * other,
@@ -32,13 +21,17 @@ static bool ExecuteListeners(
 ) {
 	bool doNext;
 
-	size_t numListeners = DynArrSize(listeners);
+	size_t numListeners = FoxArrayMSize(void *, listeners);
 	uint32_t lastIdx = numListeners - 1;
 	switch (eventType) {
 		case HLD_EVENT_COLLISION:
 			for (uint32_t idx = 0; idx < numListeners; idx++) {
 				bool (* listener)(HLDInstance *, HLDInstance *);
-				listener = DynArrGet(listeners, (reverse) ? lastIdx - idx : idx);
+				listener = *FoxArrayMIndex(
+						void *,
+						listeners,
+						(reverse) ? lastIdx - idx : idx
+				);
 				if (!(doNext = listener(target, other))) break;
 			}
 			break;
@@ -46,7 +39,11 @@ static bool ExecuteListeners(
 		default:
 			for (uint32_t idx = 0; idx < numListeners; idx++) {
 				bool (* listener)(HLDInstance *);
-				listener = DynArrGet(listeners, (reverse) ? lastIdx - idx : idx);
+				listener = *FoxArrayMIndex(
+						void *,
+						listeners,
+						(reverse) ? lastIdx - idx : idx
+				);
 				if (!(doNext = listener(target))) break;
 			}
 			break;
@@ -59,26 +56,29 @@ static bool ExecuteListeners(
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-EventTrap * EventTrapNew(
+void EventTrapInit(
+		EventTrap * trap,
 		HLDEventType eventType,
 		void (* origListener)(HLDInstance *, HLDInstance *)
 ) {
-	Trap * trap = malloc(sizeof(Trap));
 	assert(trap);
+	assert(origListener);
+
 	trap->eventType = eventType;
 	trap->origListener = origListener;
-	trap->upstreamListeners = DynArrNew(4);
-	trap->downstreamListeners = DynArrNew(4);
+	FoxArrayMInitExt(void *, &trap->upstreamListeners, 4);
+	FoxArrayMInitExt(void *, &trap->downstreamListeners, 4);
 
-	return (EventTrap *)trap;
+	return;
 }
 
-void EventTrapFree(EventTrap * trap) {
+void EventTrapDeinit(EventTrap * trap) {
 	assert(trap);
 
-	DynArrFree(((Trap *)trap)->downstreamListeners);
-	DynArrFree(((Trap *)trap)->upstreamListeners);
-	free(trap);
+	trap->eventType = 0;
+	trap->origListener = NULL;
+	FoxArrayMDeinit(void *, &trap->upstreamListeners);
+	FoxArrayMDeinit(void *, &trap->downstreamListeners);
 
 	return;
 }
@@ -90,7 +90,7 @@ void EventTrapAddUpstream(
 	assert(trap);
 	assert(listener);
 
-	DynArrPush(((Trap *)trap)->upstreamListeners, listener);
+	*FoxArrayMPush(void *, &trap->upstreamListeners) = listener;
 
 	return;
 }
@@ -102,7 +102,7 @@ void EventTrapAddDownstream(
 	assert(trap);
 	assert(listener);
 
-	DynArrPush(((Trap *)trap)->downstreamListeners, listener);
+	*FoxArrayMPush(void *, &trap->downstreamListeners) = listener;
 
 	return;
 }
@@ -113,19 +113,19 @@ void EventTrapExecute(
 		HLDInstance * other
 ) {
 	bool doNext = ExecuteListeners(
-			((Trap *)trap)->upstreamListeners,
-			((Trap *)trap)->eventType,
+			&trap->upstreamListeners,
+			trap->eventType,
 			target,
 			other,
 			false
 	);
 
 	if (doNext) {
-		((Trap *)trap)->origListener(target, other);
+		trap->origListener(target, other);
 
 		ExecuteListeners(
-				((Trap *)trap)->downstreamListeners,
-				((Trap *)trap)->eventType,
+				&trap->downstreamListeners,
+				trap->eventType,
 				target,
 				other,
 				true

@@ -1,7 +1,8 @@
 #ifndef EVENTTRAP_H
 #define EVENTTRAP_H
 
-#include "dynarr.h"
+#include "foxutils/array.h"
+
 #include "hld.h"
 
 
@@ -9,14 +10,21 @@
 /* ----- PUBLIC TYPES ----- */
 
 typedef struct EventTrap {
-	uint8_t rawData[4 * 4];
+	FoxArray upstreamListeners;
+	FoxArray downstreamListeners;
+	__attribute__((cdecl)) void (* origListener)(
+			HLDInstance * target,
+			HLDInstance * other
+	);
+	HLDEventType eventType;
 } EventTrap;
 
 
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-EventTrap * EventTrapNew(
+void EventTrapInit(
+		EventTrap * trap,
 		HLDEventType eventType,
 		__attribute__((cdecl)) void (* origListener)(
 			HLDInstance * target,
@@ -24,7 +32,7 @@ EventTrap * EventTrapNew(
 		)
 );
 
-void EventTrapFree(EventTrap * trap);
+void EventTrapDeinit(EventTrap * trap);
 
 void EventTrapAddUpstream(
 		EventTrap * trap,

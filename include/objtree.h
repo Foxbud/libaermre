@@ -5,15 +5,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "foxutils/map.h"
+
 
 /* ----- PUBLIC TYPES ----- */
 
 typedef struct ObjTree {
-	uint8_t rawData[
-		sizeof(struct {
-				HashTab * table;
-		})
-	];
+	FoxMap table;
 } ObjTree;
 
 
@@ -30,12 +28,12 @@ void ObjTreeInsert(
 		int32_t childIdx
 );
 
-void ObjTreeEach(
+void ObjTreeForEach(
 		ObjTree * tree,
 		int32_t rootObjIdx,
 		size_t maxDepth,
-		bool (* callback)(int32_t objIdx, void * context),
-		void * context
+		bool (* callback)(int32_t objIdx, void * ctx),
+		void * ctx
 );
 
 

@@ -1,51 +1,37 @@
 #include <assert.h>
 #include <stdlib.h>
-#include "dynarr.h"
-#include "hashtab.h"
+
+#include "foxutils/arraymacs.h"
+#include "foxutils/hash.h"
+#include "foxutils/mapmacs.h"
+
 #include "hld.h"
 #include "objtree.h"
 
 
 
-/* ----- PRIVATE TYPES ----- */
-
-typedef struct Tree {
-	HashTab * table;
-} Tree;
-
-
-
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static uint32_t KeyHash(void * key) {
-	return *((uint32_t *)key);
-}
-
-static bool KeyEqual(void * key, void * other) {
-	return *((int32_t *)key) == *((int32_t *)other);
-}
-
 static bool VisitObj(
-		HashTab * table,
+		FoxMap * table,
 		int32_t objIdx,
 		uint32_t remainDepth,
-		bool (* callback)(int32_t objIdx, void * context),
-		void * context
+		bool (* callback)(int32_t objIdx, void * ctx),
+		void * ctx
 ) {
 	bool cont = true;
 
 	if (remainDepth > 0) {
-		bool exists;
-		DynArr * children = HashTabGet(table, &objIdx, &exists);
-		if (exists) {
-			size_t numChildren = DynArrSize(children);
+		FoxArray * children = FoxMapMIndex(int32_t, FoxArray, table, objIdx);
+		if (children) {
+			size_t numChildren = FoxArrayMSize(int32_t, children);
 			for (uint32_t idx = 0; idx < numChildren; idx++) {
 				cont = VisitObj(
 						table,
-						*((int32_t *)DynArrGet(children, idx)),
+						*FoxArrayMIndex(int32_t, children, idx),
 						remainDepth - 1,
 						callback,
-						context
+						ctx
 				);
 				if (!cont) break;
 			}
@@ -53,10 +39,18 @@ static bool VisitObj(
 	}
 
 	if (cont) {
-		cont = callback(objIdx, context);
+		cont = callback(objIdx, ctx);
 	}
 
 	return cont;
+}
+
+static bool ElemDeinit(FoxArray * elem, void * ctx) {
+	(void)ctx;
+
+	FoxArrayMDeinit(int32_t, elem);
+
+	return true;
 }
 
 
@@ -64,32 +58,25 @@ static bool VisitObj(
 /* ----- PUBLIC FUNCTIONS ----- */
 
 ObjTree * ObjTreeNew(void) {
-	Tree * tree = malloc(sizeof(Tree));
+	ObjTree * tree = malloc(sizeof(ObjTree));
 	assert(tree);
-	tree->table = HashTabNew(
-			9,
-			sizeof(int32_t),
-			&KeyHash,
-			&KeyEqual
-	);
+	FoxMapMInit(int32_t, FoxArray, &tree->table);
 
-	return (ObjTree *)tree;
+	return tree;
 }
 
 void ObjTreeFree(ObjTree * tree) {
 	assert(tree);
 
-	HashTab * table = ((Tree *)tree)->table;
-	HashTabIter * iter = HashTabIterNew(table);
-	DynArr * obj;
-	while (HashTabIterNext(iter, NULL, (void **)&obj)) {
-		while (DynArrSize(obj) > 0) {
-			free(DynArrPop(obj));
-		}
-		DynArrFree(obj);
-	}
-	HashTabIterFree(iter);
-	HashTabFree(table);
+	FoxMap * table = &tree->table;
+	FoxMapMForEachElement(
+			int32_t,
+			FoxArray,
+			table,
+			&ElemDeinit,
+			NULL
+	);
+	FoxMapMDeinit(int32_t, FoxArray, table);
 	free(tree);
 
 	return;
@@ -103,38 +90,33 @@ void ObjTreeInsert(
 	assert(tree);
 	assert(objIdx != childIdx);
 
-	HashTab * table = ((Tree *)tree)->table;
-	bool exists;
-	DynArr * parent = HashTabGet(table, &objIdx, &exists);
-	if (!exists) {
-		parent = DynArrNew(4);
-		HashTabInsert(table, &objIdx, parent);
+	FoxMap * table = &tree->table;
+	FoxArray * parent = FoxMapMIndex(int32_t, FoxArray, table, objIdx);
+	if (!parent) {
+		parent = FoxMapMInsert(int32_t, FoxArray, table, objIdx);
+		FoxArrayMInit(int32_t, parent);
 	}
-
-	int32_t * child = malloc(sizeof(int32_t));
-	assert(child);
-	*child = childIdx;
-	DynArrPush(parent, child);
+	*FoxArrayMPush(int32_t, parent) = childIdx;
 
 	return;
 }
 
-void ObjTreeEach(
+void ObjTreeForEach(
 		ObjTree * tree,
 		int32_t rootObjIdx,
 		size_t maxDepth,
-		bool (* callback)(int32_t objIdx, void * context),
-		void * context
+		bool (* callback)(int32_t objIdx, void * ctx),
+		void * ctx
 ) {
 	assert(tree);
 	assert(callback);
 
 	VisitObj(
-			((Tree *)tree)->table,
+			&tree->table,
 			rootObjIdx,
 			maxDepth,
 			callback,
-			context
+			ctx
 	);
 
 	return;

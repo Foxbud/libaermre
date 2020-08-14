@@ -1,8 +1,8 @@
 #ifndef EVENTKEY_H
 #define EVENTKEY_H
 
-#include <stdbool.h>
 #include <stdint.h>
+
 #include "hld.h"
 
 
@@ -19,9 +19,9 @@ typedef struct EventKey {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-uint32_t EventKeyHash(void * key);
+uint32_t EventKeyHash(const EventKey * key);
 
-bool EventKeyEqual(void * key, void * other);
+int32_t EventKeyCompare(const EventKey * keyA, const EventKey * keyB);
 
 
 

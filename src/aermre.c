@@ -5,13 +5,12 @@
 #include <string.h>
 
 #include "foxutils/arraymacs.h"
+#include "foxutils/mapmacs.h"
 
 #include "aerlog.h"
 #include "aermre.h"
-#include "dynarr.h"
 #include "eventkey.h"
 #include "eventtrap.h"
-#include "hashtab.h"
 #include "hld.h"
 #include "modman.h"
 #include "objtree.h"
@@ -213,7 +212,7 @@ typedef struct AERMRE {
 	 * Hash table of all events that have been entrapped during the mod
 	 * event listener registration stage.
 	 */
-	HashTab * eventTraps;
+	FoxMap * eventTraps;
 	/* Key of currently active event. */
 	EventKey currentEvent;
 	/* 
@@ -223,7 +222,7 @@ typedef struct AERMRE {
 	 */
 	HLDNamedFunction eventHandler;
 	/* Internal record of all subscriptions to subscribable events. */
-	HashTab * eventSubscribers;
+	FoxMap * eventSubscribers;
 	/* Current stage of the MRE. */
 	enum {
 		STAGE_INIT,
@@ -283,6 +282,14 @@ static HLDInstance * InstanceLookup(int32_t key) {
 	);
 }
 
+static bool EventTrapDeinitCallback(EventTrap * trap, void * ctx) {
+	(void)ctx;
+
+	EventTrapDeinit(trap);
+
+	return true;
+}
+
 static void PerformParentEvent(
 		HLDInstance * target,
 		HLDInstance * other
@@ -309,9 +316,13 @@ static __attribute__((cdecl)) void CommonEventListener(
 		HLDInstance * target,
 		HLDInstance * other
 ) {
-	bool exists;
-	EventTrap * trap = HashTabGet(mre.eventTraps, &mre.currentEvent, &exists);
-	assert(exists);
+	EventTrap * trap = FoxMapMIndex(
+			EventKey,
+			EventTrap,
+			mre.eventTraps,
+			mre.currentEvent
+	);
+	assert(trap);
 
 	EventTrapExecute(trap, target, other);
 
@@ -345,7 +356,7 @@ static HLDArrayPreSize ReallocEventArr(
 	return newArr;
 }
 
-static EventTrap * EntrapEvent(
+static EventTrap EntrapEvent(
 		HLDObject * obj,
 		HLDEventType eventType,
 		uint32_t eventNum
@@ -415,7 +426,9 @@ static EventTrap * EntrapEvent(
 	}
 
 	/* Create event trap. */
-	return EventTrapNew(
+	EventTrap trap;
+	EventTrapInit(
+			&trap,
 			eventType,
 			(oldHandler) ? (
 				(void (*)(HLDInstance *, HLDInstance *))oldHandler->function
@@ -423,6 +436,8 @@ static EventTrap * EntrapEvent(
 					&PerformParentEvent
 				)
 	);
+	
+	return trap;
 }
 
 static void RegisterObjectListener(
@@ -431,11 +446,20 @@ static void RegisterObjectListener(
 		void * listener,
 		bool downstream
 ) {
-	bool exists;
-	EventTrap * trap = HashTabGet(mre.eventTraps, &key, &exists);
-	if (!exists) {
-		trap = EntrapEvent(obj, key.type, key.num);
-		HashTabInsert(mre.eventTraps, &key, trap);
+	EventTrap * trap = FoxMapMIndex(
+			EventKey,
+			EventTrap,
+			mre.eventTraps,
+			key
+	);
+	if (!trap) {
+		trap = FoxMapMInsert(
+				EventKey,
+				EventTrap,
+				mre.eventTraps,
+				key
+		);
+		*trap = EntrapEvent(obj, key.type, key.num);
 	}
 
 	if (downstream) {
@@ -464,37 +488,37 @@ static void BuildObjTree(void) {
 
 static bool EnsureEventSubscriber(
 		int32_t objIdx,
-		void * context
+		void * ctx
 ) {
-#define context ((SubscriptionContext *)context)
+#define ctx ((SubscriptionContext *)ctx)
 	EventKey key = {
-		.type = context->eventType,
-		.num = context->eventNum,
+		.type = ctx->eventType,
+		.num = ctx->eventNum,
 		.objIdx = objIdx
 	};
-	if (!HashTabExists(mre.eventSubscribers, &key)) {
-		uint32_t arrIdx = context->subCountsArr[key.num]++;
-		context->subArrs[key.num].objects[arrIdx] = objIdx;
-		HashTabInsert(mre.eventSubscribers, &key, NULL);
+	if (!FoxMapMIndex(EventKey, uint8_t, mre.eventSubscribers, key)) {
+		uint32_t arrIdx = ctx->subCountsArr[key.num]++;
+		ctx->subArrs[key.num].objects[arrIdx] = objIdx;
+		FoxMapMInsert(EventKey, uint8_t, mre.eventSubscribers, key);
 	}
 
 	return true;
-#undef context
+#undef ctx
 }
 
 static void RegisterEventSubscriber(EventKey key) {
-	SubscriptionContext context;
-	context.eventType = key.type;
-	context.eventNum = key.num;
+	SubscriptionContext ctx;
+	ctx.eventType = key.type;
+	ctx.eventNum = key.num;
 	switch (key.type) {
 		case HLD_EVENT_ALARM:
-			context.subCountsArr = *mre.refs.alarmEventSubscriberCounts;
-			context.subArrs = *mre.refs.alarmEventSubscribers;
+			ctx.subCountsArr = *mre.refs.alarmEventSubscriberCounts;
+			ctx.subArrs = *mre.refs.alarmEventSubscribers;
 			break;
 
 		case HLD_EVENT_STEP:
-			context.subCountsArr = *mre.refs.stepEventSubscriberCounts;
-			context.subArrs = *mre.refs.stepEventSubscribers;
+			ctx.subCountsArr = *mre.refs.stepEventSubscriberCounts;
+			ctx.subArrs = *mre.refs.stepEventSubscribers;
 			break;
 
 		default:
@@ -507,13 +531,13 @@ static void RegisterEventSubscriber(EventKey key) {
 			exit(1);
 	}
 
-	if (!HashTabExists(mre.eventSubscribers, &key)) {
-		ObjTreeEach(
+	if (!FoxMapMIndex(EventKey, uint8_t, mre.eventSubscribers, key)) {
+		ObjTreeForEach(
 				mre.objTree,
 				key.objIdx,
 				MAX_OBJ_TREE_DEPTH,
 				&EnsureEventSubscriber,
-				&context
+				&ctx
 		);
 	}
 
@@ -564,22 +588,24 @@ static void InitMRE(HLDRefs refs) {
 		.mods = FoxArrayMNew(AERMod),
 		.roomStepListeners = FoxArrayMNew(RoomStepListener),
 		.roomChangeListeners = FoxArrayMNew(RoomChangeListener),
-		.eventTraps = HashTabNew(
-				12, /* 4096 slots. */
-				sizeof(EventKey),
+		.eventTraps = FoxMapMNewExt(
+				EventKey,
+				EventTrap,
+				FOXMAP_DEF_INITSLOTS,
 				&EventKeyHash,
-				&EventKeyEqual
+				&EventKeyCompare
 		),
 		.currentEvent = (EventKey){},
 		.eventHandler = (HLDNamedFunction){
 			.name = "AEREventHandler",
 			.function = &CommonEventListener
 		},
-		.eventSubscribers = HashTabNew(
-				10, /* 1024 slots. */
-				sizeof(EventKey),
+		.eventSubscribers = FoxMapMNewExt(
+				EventKey,
+				uint8_t,
+				FOXMAP_DEF_INITSLOTS,
 				&EventKeyHash,
-				&EventKeyEqual
+				&EventKeyCompare
 		),
 		.stage = STAGE_INIT
 	};
@@ -827,15 +853,21 @@ __attribute__((destructor)) void AERDestructor(void) {
 	for (uint32_t idx = 0; idx < 12; idx++) {
 		free((*mre.refs.alarmEventSubscribers)[idx].objects);
 	}
-	HashTabFree(mre.eventSubscribers);
-	HashTabIter * iter = HashTabIterNew(mre.eventTraps);
-	EventTrap * trap;
-	while (HashTabIterNext(iter, NULL, (void **)&trap)) EventTrapFree(trap);
-	HashTabIterFree(iter);
-	HashTabFree(mre.eventTraps);
+	FoxMapMFree(EventKey, uint8_t, mre.eventSubscribers);
+
+	FoxMapMForEachElement(
+			EventKey,
+			EventTrap,
+			mre.eventTraps,
+			&EventTrapDeinitCallback,
+			NULL
+	);
+	FoxMapMFree(EventKey, EventTrap, mre.eventTraps);
+
 	FoxArrayMFree(RoomChangeListener, mre.roomChangeListeners);
 	FoxArrayMFree(RoomStepListener, mre.roomStepListeners);
 	FoxArrayMFree(AERMod, mre.mods);
+
 	ObjTreeFree(mre.objTree);
 	AERLogInfo(NAME, "Done.");
 
