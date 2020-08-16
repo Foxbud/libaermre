@@ -96,13 +96,9 @@ AERErrCode AERGetKeysReleased(const bool ** keys);
  */
 
 /**
- * This struct represents an in-game instance.
- *
- * @note This struct should not be modified directly.
+ * This type represents an in-game instance.
  */
-typedef struct AERInstance {
-	const uint8_t rawData[0x184];
-} AERInstance;
+typedef void AERInstance;
 
 AERErrCode AERGetNumInstances(size_t * numInsts);
 
