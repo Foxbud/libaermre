@@ -7,14 +7,14 @@
 #include "foxutils/arraymacs.h"
 #include "foxutils/mapmacs.h"
 
-#include "aerlog.h"
-#include "aermre.h"
-#include "eventkey.h"
-#include "eventtrap.h"
-#include "hld.h"
-#include "modman.h"
-#include "objtree.h"
-#include "utilmacs.h"
+#include "aer/log.h"
+#include "aer/mre.h"
+#include "private/eventkey.h"
+#include "private/eventtrap.h"
+#include "private/hld.h"
+#include "private/modman.h"
+#include "private/objtree.h"
+#include "private/utilmacs.h"
 
 
 
@@ -347,7 +347,6 @@ static HLDArrayPreSize ReallocEventArr(
 					oldArr.elements,
 					oldArr.size * sizeof(HLDEventWrapper *)
 			);
-			free(oldArr.elements);
 		}
 	} else {
 		newArr = oldArr;
@@ -554,10 +553,6 @@ static void MaskEventSubscribers(
 
 	for (uint32_t eventNum = 0; eventNum < numEvents; eventNum++) {
 		size_t oldSubCount = subCountsArr[eventNum];
-		/*
-		 * Note that original array is static, meaning it doesn't have to be freed
-		 * and new mask array does have to be freed.
-		 */
 		int32_t * oldSubArr = subArrs[eventNum].objects;
 
 		int32_t * newSubArr = malloc(numObjs * sizeof(int32_t));
@@ -851,7 +846,18 @@ __attribute__((destructor)) void AERDestructor(void) {
 
 	AERLogInfo(NAME, "Deinitializing mod runtime environment...");
 	for (uint32_t idx = 0; idx < 12; idx++) {
-		free((*mre.refs.alarmEventSubscribers)[idx].objects);
+		HLDEventSubscribers * subArr = *mre.refs.alarmEventSubscribers + idx;
+		if (subArr->objects) {
+			free(subArr->objects);
+			subArr->objects = NULL;
+		}
+	}
+	for (uint32_t idx = 0; idx < 3; idx++) {
+		HLDEventSubscribers * subArr = *mre.refs.stepEventSubscribers + idx;
+		if (subArr->objects) {
+			free(subArr->objects);
+			subArr->objects = NULL;
+		}
 	}
 	FoxMapMFree(EventKey, uint8_t, mre.eventSubscribers);
 

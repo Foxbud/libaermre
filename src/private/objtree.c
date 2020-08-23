@@ -5,8 +5,8 @@
 #include "foxutils/hash.h"
 #include "foxutils/mapmacs.h"
 
-#include "hld.h"
-#include "objtree.h"
+#include "private/hld.h"
+#include "private/objtree.h"
 
 
 

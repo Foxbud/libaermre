@@ -1,7 +1,7 @@
-#ifndef XORSHIFT_H
-#define XORSHIFT_H
+#ifndef PRIVATE_XORSHIFT_H
+#define PRIVATE_XORSHIFT_H
 
-#include "utilmacs.h"
+#include "private/utilmacs.h"
 
 
 
@@ -9,24 +9,24 @@
 
 /* Parameters recommended by Marsaglia in "Xorshift RNGs." */
 
-#define XS32_PARAM_A 13
+#define XS32_PARAM_A 13u
 
-#define XS32_PARAM_B 17
+#define XS32_PARAM_B 17u
 
-#define XS32_PARAM_C 5
+#define XS32_PARAM_C 5u
 
 /* 
  * Parameters recommended by Vigna in "An experimental exploration of
  * Marsaglia's xorshift generators, scrambled."
  */
 
-#define XS64_PARAM_A 12
+#define XS64_PARAM_A 12u
 
-#define XS64_PARAM_B 25
+#define XS64_PARAM_B 25u
 
-#define XS64_PARAM_C 17
+#define XS64_PARAM_C 17u
 
-#define XS64_STAR_COEF 0x2545f4914f6cdd1d
+#define XS64_STAR_COEF 0x2545f4914f6cdd1dul
 
 #define XS32Round(state) \
 	MacWrap( \
@@ -44,4 +44,4 @@
 
 
 
-#endif /* XORSHIFT_H */
+#endif /* PRIVATE_XORSHIFT_H */

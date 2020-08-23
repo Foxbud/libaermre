@@ -1,5 +1,5 @@
-#ifndef OBJTREE_H
-#define OBJTREE_H
+#ifndef PRIVATE_OBJTREE_H
+#define PRIVATE_OBJTREE_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -38,4 +38,4 @@ void ObjTreeForEach(
 
 
 
-#endif /* OBJTREE_H */
+#endif /* PRIVATE_OBJTREE_H */

@@ -1,5 +1,5 @@
-#ifndef MODMAN_H
-#define MODMAN_H
+#ifndef PRIVATE_MODMAN_H
+#define PRIVATE_MODMAN_H
 
 
 
@@ -41,4 +41,4 @@ ModManErrCode ModManUnload(AERMod * mod);
 
 
 
-#endif /* MODMAN_H */
+#endif /* PRIVATE_MODMAN_H */

@@ -1,9 +1,9 @@
-#ifndef EVENTTRAP_H
-#define EVENTTRAP_H
+#ifndef PRIVATE_EVENTTRAP_H
+#define PRIVATE_EVENTTRAP_H
 
 #include "foxutils/array.h"
 
-#include "hld.h"
+#include "private/hld.h"
 
 
 
@@ -52,4 +52,4 @@ void EventTrapExecute(
 
 
 
-#endif /* EVENTTRAP_H */
+#endif /* PRIVATE_EVENTTRAP_H */

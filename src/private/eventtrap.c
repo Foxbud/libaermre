@@ -6,7 +6,7 @@
 
 #include "foxutils/arraymacs.h"
 
-#include "eventtrap.h"
+#include "private/eventtrap.h"
 
 
 

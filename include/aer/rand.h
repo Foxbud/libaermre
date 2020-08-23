@@ -1,8 +1,8 @@
 /**
  * @file
  */
-#ifndef AERRAND_H
-#define AERRAND_H
+#ifndef AER_RAND_H
+#define AER_RAND_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -14,7 +14,7 @@
  *
  * This module contains all pseudorandom number generation utilities.
  *
- * @sa aerrand.h
+ * @sa aer/rand.h
  *
  * @{
  */
@@ -84,4 +84,4 @@ bool AERRandBool(void);
 
 
 
-#endif /* AERRAND_H */
+#endif /* AER_RAND_H */

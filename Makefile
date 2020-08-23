@@ -4,10 +4,18 @@ SHELL = /bin/sh
 
 
 
+# Names.
+libname = aermre
+libnamev0 = lib$(libname).so
+libnamev1 = $(libnamev0).1
+libnamev3 = $(libnamev1).0.0dev
+pubincname = aer
+
 # Build directories.
 prjdir = $(realpath $(CURDIR))
 srcdir = $(prjdir)/src
 incdir = $(prjdir)/include
+pubincdir = $(incdir)/$(pubincname)
 builddir = $(prjdir)/build
 docdir = $(prjdir)/docs
 
@@ -18,16 +26,17 @@ libdir = $(exec_prefix)/lib
 includedir = $(prefix)/include
 
 # Build files.
-src = $(wildcard $(srcdir)/*.c)
-pubinc = $(wildcard $(incdir)/aer*.h)
+src = $(wildcard $(srcdir)/private/*.c) $(wildcard $(srcdir)/$(pubincname)/*.c)
+pubinc = $(wildcard $(pubincdir)/*.h)
 obj = $(src:.c=.o)
-lib = $(builddir)/libaermre.so
+lib = $(builddir)/$(libnamev3)
 
 # Program and flag defaults.
 CFLAGS = -Wall -Wextra -O3
-ALL_CFLAGS = -I$(incdir) -m32 $(CFLAGS)
-LDFLAGS = -rdynamic -ldl -l:libfoxutils.a
-ALL_LDFLAGS = -shared -m32 $(LDFLAGS)
+ALL_CFLAGS = -m32 -I$(incdir) $(CFLAGS)
+LD = $(CC)
+LDFLAGS = -rdynamic -l:libfoxutils.a
+ALL_LDFLAGS = -m32 -shared -Wl,-soname,$(libnamev1) $(LDFLAGS)
 DOC = doxygen
 INSTALL = install
 
@@ -36,14 +45,12 @@ INSTALL = install
 .PHONY: lib
 lib: $(lib)
 
-$(lib): $(obj) $(builddir)
-	$(CC) -o $@ $(obj) $(ALL_LDFLAGS)
+$(lib): $(obj)
+	mkdir -p $(builddir)
+	$(LD) -o $@ $(obj) $(ALL_LDFLAGS)
 
 %.o: %.c
 	$(CC) -c $(ALL_CFLAGS) -o $@ $<
-
-$(builddir):
-	mkdir -p $@
 
 $(docdir): $(pubinc)
 	$(DOC) $(DOCFLAGS)
@@ -59,11 +66,32 @@ clean:
 	rm -rf $(obj) $(builddir) $(docdir)
 
 .PHONY: install
-install: lib $(pubinc)
-	$(INSTALL) -Dt $(DESTDIR)$(libdir) $(lib)
-	$(INSTALL) -Dt $(DESTDIR)$(includedir) -m 644 $(pubinc)
+install: install-symlinks install-headers
+
+.PHONY: install-lib
+install-lib: lib
+	$(INSTALL) -Dt $(DESTDIR)$(libdir) $(dlib)
+
+.PHONY: install-symlinks
+install-symlinks: install-lib
+	ln -srf $(DESTDIR)$(libdir)/$(libnamev3) $(DESTDIR)$(libdir)/$(libnamev1)
+	ln -srf $(DESTDIR)$(libdir)/$(libnamev3) $(DESTDIR)$(libdir)/$(libnamev0)
+
+.PHONY: install-headers
+install-headers: $(pubinc)
+	$(INSTALL) -Dt $(DESTDIR)$(includedir)/$(pubincname) -m 644 $(pubinc)
 
 .PHONY: uninstall
-uninstall:
-	rm $(subst $(incdir),$(DESTDIR)$(includedir),$(pubinc))
-	rm $(subst $(builddir),$(DESTDIR)$(libdir),$(lib))
+uninstall: uninstall-lib uninstall-headers
+
+.PHONY: uninstall-lib
+uninstall-lib: uninstall-symlinks
+	rm -f $(DESTDIR)$(libdir)/$(libnamev3)
+
+.PHONY: uninstall-symlinks
+uninstall-symlinks:
+	rm -f $(DESTDIR)$(libdir)/$(libnamev0) $(DESTDIR)$(libdir)/$(libnamev1)
+
+.PHONY: uninstall-headers
+uninstall-headers:
+	rm -rf $(DESTDIR)$(includedir)/$(pubincname)

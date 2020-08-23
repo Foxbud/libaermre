@@ -1,8 +1,8 @@
 /**
  * @file
  */
-#ifndef AERLOG_H
-#define AERLOG_H
+#ifndef AER_LOG_H
+#define AER_LOG_H
 
 
 
@@ -11,7 +11,7 @@
  *
  * This module contains all logging related utilities.
  * 
- * @sa aerlog.h
+ * @sa aer/log.h
  *
  * @{
  */
@@ -60,4 +60,4 @@ void AERLogErr(const char * moduleName, const char * fmt, ...);
 
 
 
-#endif /* AERLOG_H */
+#endif /* AER_LOG_H */

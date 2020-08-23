@@ -1,8 +1,8 @@
 /**
  * @file
  */
-#ifndef AERMRE_H
-#define AERMRE_H
+#ifndef AER_MRE_H
+#define AER_MRE_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -15,7 +15,7 @@
  *
  * This module contains all general utilities.
  *
- * @sa aermre.h
+ * @sa aer/mre.h
  *
  * @{
  */
@@ -90,7 +90,7 @@ AERErrCode AERGetKeysReleased(const bool ** keys);
  *
  * This module contains all instance related utilities.
  *
- * @sa aermre.h
+ * @sa aer/mre.h
  *
  * @{
  */
@@ -287,7 +287,7 @@ AERErrCode AERInstanceSetAlarm(
  *
  * This module contains all room related utilities.
  *
- * @sa aermre.h
+ * @sa aer/mre.h
  *
  * @{
  */
@@ -305,7 +305,7 @@ AERErrCode AERRoomGetCurrent(int32_t * roomIdx);
  *
  * This module contains all object related utilities.
  *
- * @sa aermre.h
+ * @sa aer/mre.h
  *
  * @{
  */
@@ -353,7 +353,7 @@ AERErrCode AERObjectSetCollisions(
  *
  * This module contains all registration related utilities.
  *
- * @sa aermre.h
+ * @sa aer/mre.h
  *
  * @{
  */
@@ -443,4 +443,4 @@ AERErrCode AERRegisterAnimationEndListener(
 
 
 
-#endif /* AERMRE_H */
+#endif /* AER_MRE_H */

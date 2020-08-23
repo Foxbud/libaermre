@@ -1,8 +1,8 @@
 /**
  * @file
  */
-#ifndef AEROBJECTS_H
-#define AEROBJECTS_H
+#ifndef AER_OBJECTS_H
+#define AER_OBJECTS_H
 
 
 
@@ -11,7 +11,7 @@
  *
  * This module enumerates all vanilla objects in the game.
  *
- * @sa aerobjects.h
+ * @sa aer/objects.h
  *
  * @{
  */
@@ -539,4 +539,4 @@ typedef enum AERObjectType {
 
 
 
-#endif /* AEROBJECTS_H */
+#endif /* AER_OBJECTS_H */

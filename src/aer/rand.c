@@ -1,7 +1,8 @@
 #include <assert.h>
 #include <time.h>
-#include "aerrand.h"
-#include "xorshift.h"
+
+#include "aer/rand.h"
+#include "private/xorshift.h"
 
 
 

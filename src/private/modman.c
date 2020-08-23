@@ -1,7 +1,8 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <stdlib.h>
-#include "modman.h"
+
+#include "private/modman.h"
 
 
 

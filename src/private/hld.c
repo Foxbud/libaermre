@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
-#include "hld.h"
+
+#include "private/hld.h"
 
 
 

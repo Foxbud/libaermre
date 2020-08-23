@@ -1,5 +1,5 @@
-#ifndef HLD_H
-#define HLD_H
+#ifndef PRIVATE_HLD_H
+#define PRIVATE_HLD_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -391,4 +391,4 @@ HLDEventWrapper * HLDEventWrapperNew(HLDEvent * event);
 
 
 
-#endif /* HLD_H */
+#endif /* PRIVATE_HLD_H */

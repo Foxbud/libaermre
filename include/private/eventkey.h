@@ -1,9 +1,9 @@
-#ifndef EVENTKEY_H
-#define EVENTKEY_H
+#ifndef PRIVATE_EVENTKEY_H
+#define PRIVATE_EVENTKEY_H
 
 #include <stdint.h>
 
-#include "hld.h"
+#include "private/hld.h"
 
 
 
@@ -25,4 +25,4 @@ int32_t EventKeyCompare(const EventKey * keyA, const EventKey * keyB);
 
 
 
-#endif /* EVENTKEY_H */
+#endif /* PRIVATE_EVENTKEY_H */
