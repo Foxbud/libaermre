@@ -1,13 +1,13 @@
-#ifndef PRIVATE_EVENTTRAP_H
-#define PRIVATE_EVENTTRAP_H
+#ifndef INTERNAL_EVENTTRAP_H
+#define INTERNAL_EVENTTRAP_H
 
 #include "foxutils/array.h"
 
-#include "private/hld.h"
+#include "internal/hld.h"
 
 
 
-/* ----- PUBLIC TYPES ----- */
+/* ----- INTERNAL TYPES ----- */
 
 typedef struct EventTrap {
 	FoxArray upstreamListeners;
@@ -21,7 +21,7 @@ typedef struct EventTrap {
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 void EventTrapInit(
 		EventTrap * trap,
@@ -52,4 +52,4 @@ void EventTrapExecute(
 
 
 
-#endif /* PRIVATE_EVENTTRAP_H */
+#endif /* INTERNAL_EVENTTRAP_H */

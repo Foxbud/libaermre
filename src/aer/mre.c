@@ -6,27 +6,28 @@
 
 #include "foxutils/arraymacs.h"
 #include "foxutils/mapmacs.h"
+#include "foxutils/math.h"
 
 #include "aer/log.h"
 #include "aer/mre.h"
-#include "private/eventkey.h"
-#include "private/eventtrap.h"
-#include "private/hld.h"
-#include "private/modman.h"
-#include "private/objtree.h"
-#include "private/utilmacs.h"
+#include "internal/eventkey.h"
+#include "internal/eventtrap.h"
+#include "internal/hld.h"
+#include "internal/modman.h"
+#include "internal/objtree.h"
+#include "internal/rand.h"
 
 
 
 /* ----- PRIVATE MACROS ----- */
 
 #define WarnIf(cond, retCode, fmt, ...) \
-	MacWrap( \
+	do { \
 		if (cond) { \
 			AERLogWarn(NAME, fmt, ##__VA_ARGS__); \
 			return retCode; \
 		} \
-	)
+	} while (0)
 
 #define Stage(stageId) \
 	WarnIf( \
@@ -347,6 +348,7 @@ static HLDArrayPreSize ReallocEventArr(
 					oldArr.elements,
 					oldArr.size * sizeof(HLDEventWrapper *)
 			);
+			/* TODO Figured out how to safely free oldArr.elements. */
 		}
 	} else {
 		newArr = oldArr;
@@ -604,6 +606,8 @@ static void InitMRE(HLDRefs refs) {
 		),
 		.stage = STAGE_INIT
 	};
+
+	RandConstructor();
 	AERLogInfo(NAME, "Done.");
 
 	return;
@@ -875,6 +879,8 @@ __attribute__((destructor)) void AERDestructor(void) {
 	FoxArrayMFree(AERMod, mre.mods);
 
 	ObjTreeFree(mre.objTree);
+
+	RandDestructor();
 	AERLogInfo(NAME, "Done.");
 
 	return;
@@ -1227,7 +1233,7 @@ AERErrCode AERObjectGetInstances(
 	ObjectGuard(obj);
 
 	size_t numAvail = obj->numInstances;
-	size_t numToWrite = Min(numAvail, bufSize);
+	size_t numToWrite = FoxMin(numAvail, bufSize);
 	HLDNodeDLL * node = obj->instanceFirst;
 	for (size_t idx = 0; idx < numToWrite; idx++) {
 		instBuf[idx] = (AERInstance *)node->item;
@@ -1286,7 +1292,7 @@ AERErrCode AERGetInstances(
 
 	HLDRoom * room = *mre.refs.roomCurrent;
 	size_t numAvail = room->numInstances;
-	size_t numToWrite = Min(numAvail, bufSize);
+	size_t numToWrite = FoxMin(numAvail, bufSize);
 	HLDInstance * inst = room->instanceFirst;
 	for (size_t idx = 0; idx < numToWrite; idx++) {
 		instBuf[idx] = (AERInstance *)inst;

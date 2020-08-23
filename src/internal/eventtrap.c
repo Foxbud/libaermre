@@ -6,7 +6,7 @@
 
 #include "foxutils/arraymacs.h"
 
-#include "private/eventtrap.h"
+#include "internal/eventtrap.h"
 
 
 
@@ -54,7 +54,7 @@ static bool ExecuteListeners(
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 void EventTrapInit(
 		EventTrap * trap,

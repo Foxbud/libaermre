@@ -1,5 +1,5 @@
-#ifndef PRIVATE_HLD_H
-#define PRIVATE_HLD_H
+#ifndef INTERNAL_HLD_H
+#define INTERNAL_HLD_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -7,7 +7,7 @@
 
 
 
-/* ----- PUBLIC TYPES ----- */
+/* ----- INTERNAL TYPES ----- */
 
 typedef enum HLDEventType {
 	HLD_EVENT_CREATE,
@@ -381,7 +381,7 @@ typedef struct HLDSprite {
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 void * HLDHashTableLookup(HLDHashTable * table, int32_t key);
 
@@ -391,4 +391,4 @@ HLDEventWrapper * HLDEventWrapperNew(HLDEvent * event);
 
 
 
-#endif /* PRIVATE_HLD_H */
+#endif /* INTERNAL_HLD_H */

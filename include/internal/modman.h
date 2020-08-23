@@ -1,9 +1,9 @@
-#ifndef PRIVATE_MODMAN_H
-#define PRIVATE_MODMAN_H
+#ifndef INTERNAL_MODMAN_H
+#define INTERNAL_MODMAN_H
 
 
 
-/* ----- PUBLIC TYPES ----- */
+/* ----- INTERNAL TYPES ----- */
 
 typedef enum ModManErrCode {
 	MOD_MAN_OK,
@@ -33,7 +33,7 @@ typedef struct AERMod {
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 ModManErrCode ModManLoad(const char * modLib, AERMod * mod);
 
@@ -41,4 +41,4 @@ ModManErrCode ModManUnload(AERMod * mod);
 
 
 
-#endif /* PRIVATE_MODMAN_H */
+#endif /* INTERNAL_MODMAN_H */

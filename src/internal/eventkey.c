@@ -1,10 +1,10 @@
 #include "foxutils/hash.h"
 
-#include "private/eventkey.h"
+#include "internal/eventkey.h"
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 uint32_t EventKeyHash(const EventKey * key) {
 	uint32_t mem[] = {

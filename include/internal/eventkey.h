@@ -1,13 +1,13 @@
-#ifndef PRIVATE_EVENTKEY_H
-#define PRIVATE_EVENTKEY_H
+#ifndef INTERNAL_EVENTKEY_H
+#define INTERNAL_EVENTKEY_H
 
 #include <stdint.h>
 
-#include "private/hld.h"
+#include "internal/hld.h"
 
 
 
-/* ----- PUBLIC TYPES ----- */
+/* ----- INTERNAL TYPES ----- */
 
 typedef struct EventKey {
 	HLDEventType type;
@@ -17,7 +17,7 @@ typedef struct EventKey {
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 uint32_t EventKeyHash(const EventKey * key);
 
@@ -25,4 +25,4 @@ int32_t EventKeyCompare(const EventKey * keyA, const EventKey * keyB);
 
 
 
-#endif /* PRIVATE_EVENTKEY_H */
+#endif /* INTERNAL_EVENTKEY_H */

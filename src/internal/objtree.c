@@ -5,8 +5,8 @@
 #include "foxutils/hash.h"
 #include "foxutils/mapmacs.h"
 
-#include "private/hld.h"
-#include "private/objtree.h"
+#include "internal/hld.h"
+#include "internal/objtree.h"
 
 
 
@@ -55,7 +55,7 @@ static bool ElemDeinit(FoxArray * elem, void * ctx) {
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 ObjTree * ObjTreeNew(void) {
 	ObjTree * tree = malloc(sizeof(ObjTree));

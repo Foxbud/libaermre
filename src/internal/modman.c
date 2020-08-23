@@ -2,11 +2,11 @@
 #include <dlfcn.h>
 #include <stdlib.h>
 
-#include "private/modman.h"
+#include "internal/modman.h"
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 ModManErrCode ModManLoad(const char * modLib, AERMod * mod) {
 	assert(modLib != NULL);

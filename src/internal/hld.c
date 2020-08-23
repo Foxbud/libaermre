@@ -1,11 +1,11 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "private/hld.h"
+#include "internal/hld.h"
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 void * HLDHashTableLookup(HLDHashTable * table, int32_t key) {
 	assert(table != NULL);

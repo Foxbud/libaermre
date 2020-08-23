@@ -1,5 +1,5 @@
-#ifndef PRIVATE_OBJTREE_H
-#define PRIVATE_OBJTREE_H
+#ifndef INTERNAL_OBJTREE_H
+#define INTERNAL_OBJTREE_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -8,7 +8,7 @@
 #include "foxutils/map.h"
 
 
-/* ----- PUBLIC TYPES ----- */
+/* ----- INTERNAL TYPES ----- */
 
 typedef struct ObjTree {
 	FoxMap table;
@@ -16,7 +16,7 @@ typedef struct ObjTree {
 
 
 
-/* ----- PUBLIC FUNCTIONS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
 ObjTree * ObjTreeNew(void);
 
@@ -38,4 +38,4 @@ void ObjTreeForEach(
 
 
 
-#endif /* PRIVATE_OBJTREE_H */
+#endif /* INTERNAL_OBJTREE_H */
