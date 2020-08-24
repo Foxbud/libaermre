@@ -26,7 +26,7 @@ libdir = $(exec_prefix)/lib
 includedir = $(prefix)/include
 
 # Build files.
-src = $(wildcard $(srcdir)/*/*.c)
+src = $(wildcard $(srcdir)/*.c)
 pubinc = $(wildcard $(pubincdir)/*.h)
 obj = $(src:.c=.o)
 lib = $(builddir)/$(libnamev3)

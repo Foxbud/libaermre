@@ -10,6 +10,7 @@
 
 #include "aer/log.h"
 #include "aer/mre.h"
+#include "internal/envconf.h"
 #include "internal/eventkey.h"
 #include "internal/eventtrap.h"
 #include "internal/hld.h"
@@ -607,6 +608,7 @@ static void InitMRE(HLDRefs refs) {
 		.stage = STAGE_INIT
 	};
 
+	EnvConfConstructor();
 	RandConstructor();
 	AERLogInfo(NAME, "Done.");
 
@@ -880,6 +882,7 @@ __attribute__((destructor)) void AERDestructor(void) {
 
 	ObjTreeFree(mre.objTree);
 
+	EnvConfDestructor();
 	RandDestructor();
 	AERLogInfo(NAME, "Done.");
 
