@@ -11,84 +11,13 @@
 #include "aer/log.h"
 #include "aer/mre.h"
 #include "internal/envconf.h"
+#include "internal/err.h"
 #include "internal/eventkey.h"
 #include "internal/eventtrap.h"
 #include "internal/hld.h"
 #include "internal/modman.h"
 #include "internal/objtree.h"
 #include "internal/rand.h"
-
-
-
-/* ----- PRIVATE MACROS ----- */
-
-#define WarnIf(cond, retCode, fmt, ...) \
-	do { \
-		if (cond) { \
-			AERLogWarn(NAME, fmt, ##__VA_ARGS__); \
-			return retCode; \
-		} \
-	} while (0)
-
-#define Stage(stageId) \
-	WarnIf( \
-			mre.stage != (stageId), \
-			AER_OUT_OF_SEQ, \
-			"\"%s\" called outside of \"%s.\"", \
-			__func__, \
-			#stageId \
-	)
-
-#define ArgGuard(ptr) \
-	WarnIf( \
-			!(ptr), \
-			AER_NULL_ARG, \
-			"\"%s\" called with null reference for " \
-			"argument \"%s.\"", \
-			__func__, \
-			#ptr \
-	)
-
-#define ObjectGuard(objPtr) \
-	WarnIf( \
-			!(objPtr), \
-			AER_NO_SUCH_OBJECT, \
-			"\"%s\" called with invalid object index.", \
-			__func__ \
-	)
-
-#define InstanceGuard(instPtr) \
-	WarnIf( \
-			!(instPtr), \
-			AER_NO_SUCH_INSTANCE, \
-			"\"%s\" called with invalid instance ID.", \
-			__func__ \
-	)
-
-#define MemoryGuard(ptr) \
-	WarnIf( \
-			!(ptr), \
-			AER_OUT_OF_MEM, \
-			"Ran out of memory during call to \"%s.\"", \
-			__func__ \
-	)
-
-#define AlarmGuard(alarmIdx) \
-	WarnIf( \
-			(alarmIdx) >= 12, \
-			AER_NO_SUCH_ALARM_EVENT, \
-			"\"%s\" called with invalid alarm event index.", \
-			__func__ \
-	)
-
-#define BufSizeGuard(ptr, bufSize, numWritten) \
-	WarnIf( \
-			!(ptr) && (numWritten) < (bufSize), \
-			AER_BUF_SIZE_RECORD, \
-			"\"%s\" could not completely fill buffer, and caller did not record " \
-			"number of buffer elements written.", \
-			__func__ \
-	)
 
 
 
@@ -893,22 +822,20 @@ __attribute__((destructor)) void AERDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AERErrCode AERRegisterSprite(
+int32_t AERRegisterSprite(
 		const char * filename,
 		size_t numFrames,
 		uint32_t origX,
-		uint32_t origY,
-		int32_t * spriteIdx
+		uint32_t origY
 ) {
-	Stage(STAGE_SPRITE_REG);
-	ArgGuard(filename);
-	ArgGuard(spriteIdx);
+	ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, -1);
+	ErrIf(!filename, AER_NULL_ARG, -1);
 
 	/* Construct asset path. */
 	char pathBuf[256];
 	snprintf(pathBuf, 256, ASSET_PATH_FMT, mre.regActiveMod->name, filename);
 
-	*spriteIdx = mre.refs.actionSpriteAdd(
+	int32_t spriteIdx = mre.refs.actionSpriteAdd(
 			pathBuf,
 			numFrames,
 			0,
@@ -918,17 +845,12 @@ AERErrCode AERRegisterSprite(
 			origX,
 			origY
 	);
-	WarnIf(
-			*spriteIdx < 0,
-			AER_SPRITE_REG_FAILED,
-			"Could not register sprite \"%s.\"",
-			pathBuf
-	);
+	ErrIf(spriteIdx < 0, AER_BAD_FILE, -1);
 
-	return AER_OK;
+	return spriteIdx;
 }
 
-AERErrCode AERRegisterObject(
+int32_t AERRegisterObject(
 		const char * name,
 		int32_t parentIdx,
 		int32_t spriteIdx,
@@ -936,24 +858,23 @@ AERErrCode AERRegisterObject(
 		int32_t depth,
 		bool visible,
 		bool collisions,
-		bool persistent,
-		int32_t * objIdx
+		bool persistent
 ) {
-	Stage(STAGE_OBJECT_REG);
-	ArgGuard(name);
-	ArgGuard(objIdx);
+	ErrIf(mre.stage != STAGE_OBJECT_REG, AER_SEQ_BREAK, -1);
+	ErrIf(!name, AER_NULL_ARG, -1);
 
 	HLDObject * parent = ObjectLookup(parentIdx);
-	ObjectGuard(parent);
+	ErrIf(!parent, AER_FAILED_LOOKUP, -1);
 
 	int32_t idx = mre.refs.actionObjectAdd();
 	HLDObject * obj = ObjectLookup(idx);
-	MemoryGuard(obj);
+	ErrIf(!obj, AER_OUT_OF_MEM, -1);
 
 	/* The engine expects a freeable (dynamically allocated) string for name. */
 	char * tmpName = malloc(strlen(name) + 1);
-	MemoryGuard(tmpName);
+	ErrIf(!tmpName, AER_OUT_OF_MEM, -1);
 	obj->name = strcpy(tmpName, name);
+
 	obj->parentIndex = parentIdx;
 	obj->parent = parent;
 	obj->spriteIndex = spriteIdx;
@@ -963,21 +884,20 @@ AERErrCode AERRegisterObject(
 	obj->flags.collisions = collisions;
 	obj->flags.persistent = persistent;
 
-	*objIdx = idx;
-
-	return AER_OK;
+	return idx;
 }
 
-AERErrCode AERRegisterCreateListener(
+void AERRegisterCreateListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
-	Stage(STAGE_LISTENER_REG);
-	ArgGuard(listener);
+	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
+	ErrIf(!listener, AER_NULL_ARG);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP);
+
 	EventKey key = (EventKey){
 		.type = HLD_EVENT_CREATE,
 		.num = 0,
@@ -985,19 +905,20 @@ AERErrCode AERRegisterCreateListener(
 	};
 	RegisterObjectListener(obj, key, listener, downstream);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERRegisterDestroyListener(
+void AERRegisterDestroyListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
-	Stage(STAGE_LISTENER_REG);
-	ArgGuard(listener);
+	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
+	ErrIf(!listener, AER_NULL_ARG);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP);
+
 	EventKey key = {
 		.type = HLD_EVENT_DESTROY,
 		.num = 0,
@@ -1005,21 +926,22 @@ AERErrCode AERRegisterDestroyListener(
 	};
 	RegisterObjectListener(obj, key, listener, downstream);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERRegisterAlarmListener(
+void AERRegisterAlarmListener(
 		int32_t objIdx,
 		uint32_t alarmIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
-	Stage(STAGE_LISTENER_REG);
-	ArgGuard(listener);
-	AlarmGuard(alarmIdx);
+	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
+	ErrIf(!listener, AER_NULL_ARG);
+	ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP);
+
 	EventKey key = {
 		.type = HLD_EVENT_ALARM,
 		.num = alarmIdx,
@@ -1028,19 +950,20 @@ AERErrCode AERRegisterAlarmListener(
 	RegisterObjectListener(obj, key, listener, downstream);
 	RegisterEventSubscriber(key);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERRegisterStepListener(
+void AERRegisterStepListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
-	Stage(STAGE_LISTENER_REG);
-	ArgGuard(listener);
+	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
+	ErrIf(!listener, AER_NULL_ARG);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP);
+
 	EventKey key = {
 		.type = HLD_EVENT_STEP,
 		.num = HLD_EVENT_STEP_INLINE,
@@ -1049,19 +972,20 @@ AERErrCode AERRegisterStepListener(
 	RegisterObjectListener(obj, key, listener, downstream);
 	RegisterEventSubscriber(key);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERRegisterPreStepListener(
+void AERRegisterPreStepListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
-	Stage(STAGE_LISTENER_REG);
-	ArgGuard(listener);
+	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
+	ErrIf(!listener, AER_NULL_ARG);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP);
+
 	EventKey key = {
 		.type = HLD_EVENT_STEP,
 		.num = HLD_EVENT_STEP_PRE,
@@ -1070,19 +994,20 @@ AERErrCode AERRegisterPreStepListener(
 	RegisterObjectListener(obj, key, listener, downstream);
 	RegisterEventSubscriber(key);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERRegisterPostStepListener(
+void AERRegisterPostStepListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
-	Stage(STAGE_LISTENER_REG);
-	ArgGuard(listener);
+	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
+	ErrIf(!listener, AER_NULL_ARG);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP);
+
 	EventKey key = {
 		.type = HLD_EVENT_STEP,
 		.num = HLD_EVENT_STEP_POST,
@@ -1091,21 +1016,22 @@ AERErrCode AERRegisterPostStepListener(
 	RegisterObjectListener(obj, key, listener, downstream);
 	RegisterEventSubscriber(key);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERRegisterCollisionListener(
+void AERRegisterCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
 		bool (* listener)(AERInstance * target, AERInstance * other),
 		bool downstream
 ) {
-	Stage(STAGE_LISTENER_REG);
-	ArgGuard(listener);
-	ObjectGuard(ObjectLookup(otherObjIdx));
+	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
+	ErrIf(!listener, AER_NULL_ARG);
+	ErrIf(!ObjectLookup(otherObjIdx), AER_FAILED_LOOKUP);
 
 	HLDObject * obj = ObjectLookup(targetObjIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP);
+
 	EventKey key = {
 		.type = HLD_EVENT_COLLISION,
 		.num = otherObjIdx,
@@ -1113,19 +1039,20 @@ AERErrCode AERRegisterCollisionListener(
 	};
 	RegisterObjectListener(obj, key, listener, downstream);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERRegisterAnimationEndListener(
+void AERRegisterAnimationEndListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
-	Stage(STAGE_LISTENER_REG);
-	ArgGuard(listener);
+	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
+	ErrIf(!listener, AER_NULL_ARG);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP);
+
 	EventKey key = {
 		.type = HLD_EVENT_OTHER,
 		.num = HLD_EVENT_OTHER_ANIMATION_END,
@@ -1133,218 +1060,156 @@ AERErrCode AERRegisterAnimationEndListener(
 	};
 	RegisterObjectListener(obj, key, listener, downstream);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERGetNumSteps(uint32_t * numSteps) {
-	Stage(STAGE_ACTION);
-	ArgGuard(numSteps);
+uint32_t AERGetNumSteps(void) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
-	*numSteps = *mre.refs.numSteps;
-
-	return AER_OK;
+	return *mre.refs.numSteps;
 }
 
-AERErrCode AERGetKeysPressed(const bool ** keys) {
-	Stage(STAGE_ACTION);
-	ArgGuard(keys);
+const bool * AERGetKeysPressed(void) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	*keys = *mre.refs.keysPressedTable;
-
-	return AER_OK;
+	return *mre.refs.keysPressedTable;
 }
 
-AERErrCode AERGetKeysHeld(const bool ** keys) {
-	Stage(STAGE_ACTION);
-	ArgGuard(keys);
+const bool * AERGetKeysHeld(void) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	*keys = *mre.refs.keysHeldTable;
-
-	return AER_OK;
+	return *mre.refs.keysHeldTable;
 }
 
-AERErrCode AERGetKeysReleased(const bool ** keys) {
-	Stage(STAGE_ACTION);
-	ArgGuard(keys);
+const bool * AERGetKeysReleased(void) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	*keys = *mre.refs.keysReleasedTable;
-
-	return AER_OK;
+	return *mre.refs.keysReleasedTable;
 }
 
-AERErrCode AERRoomGetCurrent(int32_t * roomIdx) {
-	Stage(STAGE_ACTION);
-	ArgGuard(roomIdx);
+int32_t AERRoomGetCurrent(void) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 
-	*roomIdx = *mre.refs.roomIndexCurrent;
-
-	return AER_OK;
+	return *mre.refs.roomIndexCurrent;
 }
 
-AERErrCode AERObjectGetName(
-		int32_t objIdx,
-		const char ** name
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(name);
+const char * AERObjectGetName(int32_t objIdx) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
-	*name = obj->name;
+	ErrIf(!obj, AER_FAILED_LOOKUP, NULL);
 
-	return AER_OK;
+	return obj->name;
 }
 
-AERErrCode AERObjectGetParent(
-		int32_t objIdx,
-		int32_t * parentIdx
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(parentIdx);
+int32_t AERObjectGetParent(int32_t objIdx) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
-	*parentIdx = obj->parentIndex;
+	ErrIf(!obj, AER_FAILED_LOOKUP, -1);
 
-	return AER_OK;
+	return obj->parentIndex;
 }
 
-AERErrCode AERObjectGetNumInstances(
-		int32_t objIdx,
-		size_t * numInsts
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(numInsts);
-
-	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
-	*numInsts = obj->numInstances;
-
-	return AER_OK;
-}
-
-AERErrCode AERObjectGetInstances(
+size_t AERObjectGetInstances(
 		int32_t objIdx,
 		size_t bufSize,
-		AERInstance ** instBuf,
-		size_t * numInsts
+		AERInstance ** instBuf
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(instBuf);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+	ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP, 0);
 
-	size_t numAvail = obj->numInstances;
-	size_t numToWrite = FoxMin(numAvail, bufSize);
+	size_t numInsts = obj->numInstances;
+	size_t numToWrite = FoxMin(numInsts, bufSize);
 	HLDNodeDLL * node = obj->instanceFirst;
 	for (size_t idx = 0; idx < numToWrite; idx++) {
 		instBuf[idx] = (AERInstance *)node->item;
 		node = node->next;
 	}
 
-	if (numInsts) *numInsts = numAvail;
-	BufSizeGuard(numInsts, bufSize, numToWrite);
-
-	return AER_OK;
+	return numInsts;
 }
 
-AERErrCode AERObjectGetCollisions(
-		int32_t objIdx,
-		bool * collisions
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(collisions);
+bool AERObjectGetCollisions(int32_t objIdx) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, false);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
-	*collisions = obj->flags.collisions;
+	ErrIf(!obj, AER_FAILED_LOOKUP, false);
 
-	return AER_OK;
+	return obj->flags.collisions;
 }
 
-AERErrCode AERObjectSetCollisions(
+void AERObjectSetCollisions(
 		int32_t objIdx,
 		bool collisions
 ) {
-	Stage(STAGE_ACTION);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 
 	HLDObject * obj = ObjectLookup(objIdx);
-	ObjectGuard(obj);
+	ErrIf(!obj, AER_FAILED_LOOKUP);
 	obj->flags.collisions = collisions;
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERGetNumInstances(size_t * numInsts) {
-	Stage(STAGE_ACTION);
-	ArgGuard(numInsts);
-
-	*numInsts = (*mre.refs.roomCurrent)->numInstances;
-
-	return AER_OK;
-}
-
-AERErrCode AERGetInstances(
+size_t AERGetInstances(
 		size_t bufSize,
-		AERInstance ** instBuf,
-		size_t * numInsts
+		AERInstance ** instBuf
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(instBuf);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+	ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
 
 	HLDRoom * room = *mre.refs.roomCurrent;
-	size_t numAvail = room->numInstances;
-	size_t numToWrite = FoxMin(numAvail, bufSize);
+
+	size_t numInsts = room->numInstances;
+	size_t numToWrite = FoxMin(numInsts, bufSize);
 	HLDInstance * inst = room->instanceFirst;
 	for (size_t idx = 0; idx < numToWrite; idx++) {
 		instBuf[idx] = (AERInstance *)inst;
 		inst = inst->instanceNext;
 	}
 
-	if (numInsts) *numInsts = numAvail;
-	BufSizeGuard(numInsts, bufSize, numToWrite);
-
-	return AER_OK;
+	return numInsts;
 }
 
-AERErrCode AERGetInstanceById(
-		int32_t instId,
-		AERInstance ** inst
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+AERInstance * AERGetInstanceById(int32_t instId) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	*inst = (AERInstance *)InstanceLookup(instId);
-	InstanceGuard(*inst);
+	AERInstance * inst = (AERInstance *)InstanceLookup(instId);
+	ErrIf(!inst, AER_FAILED_LOOKUP, NULL);
 
-	return AER_OK;
+	return inst;
 }
 
-AERErrCode AERInstanceCreate(
+AERInstance * AERInstanceCreate(
 		int32_t objIdx,
 		float x,
-		float y,
-		AERInstance ** inst
+		float y
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ObjectGuard(ObjectLookup(objIdx));
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+	ErrIf(!ObjectLookup(objIdx), AER_FAILED_LOOKUP, NULL);
 
-	*inst = (AERInstance *)mre.refs.actionInstanceCreate(objIdx, x, y);
-	MemoryGuard(*inst);
+	AERInstance * inst = (AERInstance *)mre.refs.actionInstanceCreate(
+			objIdx,
+			x,
+			y
+	);
+	ErrIf(!inst, AER_OUT_OF_MEM, NULL);
 
-	return AER_OK;
+	return inst;
 }
 
-AERErrCode AERInstanceChange(
+void AERInstanceChange(
 		AERInstance * inst,
 		int32_t newObjIdx,
 		bool doEvents
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ObjectGuard(ObjectLookup(newObjIdx));
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(!ObjectLookup(newObjIdx), AER_FAILED_LOOKUP);
 
 	mre.refs.actionInstanceChange(
 			(HLDInstance *)inst,
@@ -1352,12 +1217,12 @@ AERErrCode AERInstanceChange(
 			doEvents
 	);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceDestroy(AERInstance * inst) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+void AERInstanceDestroy(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	mre.refs.actionInstanceDestroy(
 			(HLDInstance *)inst,
@@ -1366,12 +1231,12 @@ AERErrCode AERInstanceDestroy(AERInstance * inst) {
 			true
 	);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceDelete(AERInstance * inst) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+void AERInstanceDelete(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	mre.refs.actionInstanceDestroy(
 			(HLDInstance *)inst,
@@ -1380,14 +1245,14 @@ AERErrCode AERInstanceDelete(AERInstance * inst) {
 			false
 	);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceSyncDepth(AERInstance * inst) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+void AERInstanceSyncDepth(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
-	uint32_t unknownDatastructure[4] = {};
+	uint32_t unknownDatastructure[4] = {0};
 	mre.refs.gmlScriptSetdepth(
 			(HLDInstance *)inst,
 			(HLDInstance *)inst,
@@ -1396,376 +1261,316 @@ AERErrCode AERInstanceSyncDepth(AERInstance * inst) {
 			0
 	);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceGetId(
-		AERInstance * inst,
-		int32_t * instId
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(instId);
+int32_t AERInstanceGetId(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+	ErrIf(!inst, AER_NULL_ARG, -1);
 
-	*instId = ((HLDInstance *)inst)->id;
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->id;
 }
 
-AERErrCode AERInstanceGetObject(
-		AERInstance * inst,
-		int32_t * objIdx
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(objIdx);
+int32_t AERInstanceGetObject(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+	ErrIf(!inst, AER_NULL_ARG, -1);
 
-	*objIdx = ((HLDInstance *)inst)->objectIndex;
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->objectIndex;
 }
 
-AERErrCode AERInstanceGetPosition(
-		AERInstance * inst,
-		float * x,
-		float * y
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(x || y);
-
-	if (x) *x = ((HLDInstance *)inst)->pos.x;
-	if (y) *y = ((HLDInstance *)inst)->pos.y;
-
-	return AER_OK;
-}
-
-AERErrCode AERInstanceSetPosition(
-		AERInstance * inst,
-		float x,
-		float y
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-
-	((HLDInstance *)inst)->pos.x = x;
-	((HLDInstance *)inst)->pos.y = y;
-
-	return AER_OK;
-}
-
-AERErrCode AERInstanceGetFriction(
-		AERInstance * inst,
-		float * friction
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(friction);
-
-	*friction = ((HLDInstance *)inst)->friction;
-
-	return AER_OK;
-}
-
-AERErrCode AERInstanceSetFriction(
-		AERInstance * inst,
-		float friction
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-
-	((HLDInstance *)inst)->friction = friction;
-
-	return AER_OK;
-}
-
-AERErrCode AERInstanceGetMotion(
+void AERInstanceGetPosition(
 		AERInstance * inst,
 		float * x,
 		float * y
 ) {
 #define inst ((HLDInstance *)inst)
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(x || y);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(!(x || y), AER_NULL_ARG);
+
+	if (x) *x = inst->pos.x;
+	if (y) *y = inst->pos.y;
+
+	return;
+#undef inst
+}
+
+void AERInstanceSetPosition(
+		AERInstance * inst,
+		float x,
+		float y
+) {
+#define inst ((HLDInstance *)inst)
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+
+	inst->pos.x = x;
+	inst->pos.y = y;
+
+	return;
+#undef inst
+}
+
+float AERInstanceGetFriction(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
+	ErrIf(!inst, AER_NULL_ARG, 0.0f);
+
+	return ((HLDInstance *)inst)->friction;
+}
+
+void AERInstanceSetFriction(
+		AERInstance * inst,
+		float friction
+) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+
+	((HLDInstance *)inst)->friction = friction;
+
+	return;
+}
+
+void AERInstanceGetMotion(
+		AERInstance * inst,
+		float * x,
+		float * y
+) {
+#define inst ((HLDInstance *)inst)
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(!(x || y), AER_NULL_ARG);
 
 	if (x) *x = inst->speedX;
 	if (y) *y = inst->speedY;
 
-	return AER_OK;
+	return;
 #undef inst
 }
 
-AERErrCode AERInstanceSetMotion(
+void AERInstanceSetMotion(
 		AERInstance * inst,
 		float x,
 		float y
 ) {
 #define inst ((HLDInstance *)inst)
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	inst->speedX = x;
 	inst->speedY = y;
 	mre.refs.Instance_setMotionPolarFromCartesian(inst);
 
-	return AER_OK;
+	return;
 #undef inst
 }
 
-AERErrCode AERInstanceAddMotion(
+void AERInstanceAddMotion(
 		AERInstance * inst,
 		float x,
 		float y
 ) {
 #define inst ((HLDInstance *)inst)
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	inst->speedX += x;
 	inst->speedY += y;
 	mre.refs.Instance_setMotionPolarFromCartesian(inst);
 
-	return AER_OK;
+	return;
 #undef inst
 }
 
-AERErrCode AERInstanceGetMask(
-		AERInstance * inst,
-		int32_t * maskIdx
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(maskIdx);
+int32_t AERInstanceGetMask(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+	ErrIf(!inst, AER_NULL_ARG, -1);
 
-	*maskIdx = ((HLDInstance *)inst)->maskIndex;
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->maskIndex;
 }
 
-AERErrCode AERInstanceSetMask(
+void AERInstanceSetMask(
 		AERInstance * inst,
 		int32_t maskIdx
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	mre.refs.Instance_setMaskIndex(
 			(HLDInstance *)inst,
 			maskIdx
 	);
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceGetSprite(
-		AERInstance * inst,
-		int32_t * spriteIdx
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(spriteIdx);
+int32_t AERInstanceGetSprite(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+	ErrIf(!inst, AER_NULL_ARG, -1);
 
-	*spriteIdx = ((HLDInstance *)inst)->spriteIndex;
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->spriteIndex;
 }
 
-AERErrCode AERInstanceSetSprite(
+void AERInstanceSetSprite(
 		AERInstance * inst,
 		int32_t spriteIdx
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	((HLDInstance *)inst)->spriteIndex = spriteIdx;
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceGetSpriteFrame(
-		AERInstance * inst,
-		float * frame
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(frame);
+float AERInstanceGetSpriteFrame(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
+	ErrIf(!inst, AER_NULL_ARG, -1.0f);
 
-	*frame = ((HLDInstance *)inst)->imageIndex;
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->imageIndex;
 }
 
-AERErrCode AERInstanceSetSpriteFrame(
+void AERInstanceSetSpriteFrame(
 		AERInstance * inst,
 		float frame
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	((HLDInstance *)inst)->imageIndex = frame;
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceGetSpriteSpeed(
-		AERInstance * inst,
-		float * speed
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(speed);
+float AERInstanceGetSpriteSpeed(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
+	ErrIf(!inst, AER_NULL_ARG, -1.0f);
 
-	*speed = ((HLDInstance *)inst)->imageSpeed;
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->imageSpeed;
 }
 
-AERErrCode AERInstanceSetSpriteSpeed(
+void AERInstanceSetSpriteSpeed(
 		AERInstance * inst,
 		float speed
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	((HLDInstance *)inst)->imageSpeed = speed;
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceGetSpriteAlpha(
-		AERInstance * inst,
-		float * alpha
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(alpha);
+float AERInstanceGetSpriteAlpha(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
+	ErrIf(!inst, AER_NULL_ARG, -1.0f);
 
-	*alpha = ((HLDInstance *)inst)->imageAlpha;
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->imageAlpha;
 }
 
-AERErrCode AERInstanceSetSpriteAlpha(
+void AERInstanceSetSpriteAlpha(
 		AERInstance * inst,
 		float alpha
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	((HLDInstance *)inst)->imageAlpha = alpha;
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceGetSpriteAngle(
-		AERInstance * inst,
-		float * angle
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(angle);
+float AERInstanceGetSpriteAngle(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
+	ErrIf(!inst, AER_NULL_ARG, 0.0f);
 
-	*angle = ((HLDInstance *)inst)->imageAngle;
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->imageAngle;
 }
 
-AERErrCode AERInstanceSetSpriteAngle(
+void AERInstanceSetSpriteAngle(
 		AERInstance * inst,
 		float angle
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	((HLDInstance *)inst)->imageAngle = angle;
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceGetSpriteScale(
+void AERInstanceGetSpriteScale(
 		AERInstance * inst,
 		float * x,
 		float * y
 ) {
 #define inst ((HLDInstance *)inst)
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(x || y);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(!(x || y), AER_NULL_ARG);
 
 	if (x) *x = inst->imageScale.x;
 	if (y) *y = inst->imageScale.y;
 
-	return AER_OK;
+	return;
 #undef inst
 }
 
-AERErrCode AERInstanceSetSpriteScale(
+void AERInstanceSetSpriteScale(
 		AERInstance * inst,
 		float x,
 		float y
 ) {
 #define inst ((HLDInstance *)inst)
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	inst->imageScale.x = x;
 	inst->imageScale.y = y;
 
-	return AER_OK;
+	return;
 #undef inst
 }
 
-AERErrCode AERInstanceGetTangible(
-		AERInstance * inst,
-		bool * tangible
-) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(tangible);
+bool AERInstanceGetTangible(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, false);
+	ErrIf(!inst, AER_NULL_ARG, false);
 
-	*tangible = ((HLDInstance *)inst)->tangible;
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->tangible;
 }
 
-AERErrCode AERInstanceSetTangible(
+void AERInstanceSetTangible(
 		AERInstance * inst,
 		bool tangible
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
 
 	((HLDInstance *)inst)->tangible = tangible;
 
-	return AER_OK;
+	return;
 }
 
-AERErrCode AERInstanceGetAlarm(
+int32_t AERInstanceGetAlarm(
 		AERInstance * inst,
-		uint32_t alarmIdx,
-		int32_t * numSteps
+		uint32_t alarmIdx
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	ArgGuard(numSteps);
-	AlarmGuard(alarmIdx);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+	ErrIf(!inst, AER_NULL_ARG, -1);
+	ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP, -1);
 
-	*numSteps = ((HLDInstance *)inst)->alarms[alarmIdx];
-
-	return AER_OK;
+	return ((HLDInstance *)inst)->alarms[alarmIdx];
 }
 
-AERErrCode AERInstanceSetAlarm(
+void AERInstanceSetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx,
 		int32_t numSteps
 ) {
-	Stage(STAGE_ACTION);
-	ArgGuard(inst);
-	AlarmGuard(alarmIdx);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP);
 
 	((HLDInstance *)inst)->alarms[alarmIdx] = numSteps;
 
-	return AER_OK;
+	return;
 }

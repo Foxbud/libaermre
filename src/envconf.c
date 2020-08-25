@@ -8,6 +8,7 @@
 
 #include "aer/envconf.h"
 #include "internal/envconf.h"
+#include "internal/err.h"
 
 
 
@@ -39,28 +40,28 @@ static void CacheEntryInit(
 		CacheEntry * entry,
 		const char * envVarStr
 ) {
-			/* Initialize strings. */
-			size_t strSize = strlen(envVarStr) + 1;
-			/*
-			 * origStr and tokStr could technically be part of the same allocation
-			 * to save a little bit of time, but I felt that hurts readablity too
-			 * much. Regardless, these functions are only meant to be called during
-			 * initialization.
-			 */
-			char * origStr = malloc(strSize);
-			char * tokStr = malloc(strSize);
-			assert(origStr);
-			assert(tokStr);
-			entry->origStr = memcpy(origStr, envVarStr, strSize);
-			entry->tokStr = memcpy(tokStr, envVarStr, strSize);
+	/* Initialize strings. */
+	size_t strSize = strlen(envVarStr) + 1;
+	/*
+	 * origStr and tokStr could technically be part of the same allocation
+	 * to save a little bit of time, but I felt that hurts readablity too
+	 * much. Regardless, these functions are only meant to be called during
+	 * initialization.
+	 */
+	char * origStr = malloc(strSize);
+	char * tokStr = malloc(strSize);
+	assert(origStr);
+	assert(tokStr);
+	entry->origStr = memcpy(origStr, envVarStr, strSize);
+	entry->tokStr = memcpy(tokStr, envVarStr, strSize);
 
-			/* Tokenize string. */
-			FoxArrayMInit(const char *, &entry->tokens);
-			const char * tok = strtok(tokStr, TOKEN_DELIMS);
-			while (tok) {
-				*FoxArrayMPush(const char *, &entry->tokens) = tok;
-				tok = strtok(NULL, TOKEN_DELIMS);
-			}
+	/* Tokenize string. */
+	FoxArrayMInit(const char *, &entry->tokens);
+	const char * tok = strtok(tokStr, TOKEN_DELIMS);
+	while (tok) {
+		*FoxArrayMPush(const char *, &entry->tokens) = tok;
+		tok = strtok(NULL, TOKEN_DELIMS);
+	}
 
 	return;
 }
@@ -123,41 +124,31 @@ void EnvConfDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AEREnvConfErrCode AEREnvConfString(
-		const char * name,
-		const char ** str
-) {
-	if (!name) return AER_ENVCONF_NULL_ARG;
-	if (!str) return AER_ENVCONF_NULL_ARG;
+const char * AEREnvConfGetString(const char * name) {
+	ErrIf(!name, AER_NULL_ARG, NULL);
 
 	CacheEntry * entry = GetCacheEntry(name);
-	if (!entry) return AER_ENVCONF_NO_SUCH_VAR;
+	ErrIf(!entry, AER_FAILED_LOOKUP, NULL);
 
-	*str = entry->origStr;
-
-	return AER_ENVCONF_OK;
+	return entry->origStr;
 }
 
-AEREnvConfErrCode AEREnvConfStringList(
+size_t AEREnvConfGetStrings(
 		const char * name,
 		size_t bufSize,
-		const char ** strBuf,
-		size_t * numStrs
+		const char ** strBuf
 ) {
-	if (!name) return AER_ENVCONF_NULL_ARG;
-	if (!strBuf) return AER_ENVCONF_NULL_ARG;
-	if (!numStrs) return AER_ENVCONF_NULL_ARG;
+	ErrIf(!name, AER_NULL_ARG, 0);
+	ErrIf(!strBuf, AER_NULL_ARG, 0);
 
 	CacheEntry * entry = GetCacheEntry(name);
-	if (!entry) return AER_ENVCONF_NO_SUCH_VAR;
+	ErrIf(!entry, AER_FAILED_LOOKUP, 0);
 
-	size_t numToWrite = FoxMin(
-			bufSize,
-			(*numStrs = FoxArrayMSize(const char *, &entry->tokens))
-	);
+	size_t numToks = FoxArrayMSize(const char *, &entry->tokens);
+	size_t numToWrite = FoxMin(bufSize, numToks);
 	for (unsigned int idx = 0; idx < numToWrite; idx++) {
 		strBuf[idx] = *FoxArrayMIndex(const char *, &entry->tokens, idx);
 	}
 
-	return AER_ENVCONF_OK;
+	return numToks;
 }
