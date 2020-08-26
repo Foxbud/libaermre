@@ -8,6 +8,18 @@
 
 
 
+/* ----- PRIVATE MACROS ----- */
+
+#define FillMsgBufFromVA(fmt, lastArg) \
+	do { \
+		va_list FillMsgBufFromVA_va; \
+		va_start(FillMsgBufFromVA_va, lastArg); \
+		vsnprintf(msgBuf, MSG_BUF_SIZE, (fmt), FillMsgBufFromVA_va); \
+		va_end(FillMsgBufFromVA_va); \
+	} while (0)
+
+
+
 /* ----- PRIVATE TYPES ----- */
 
 typedef enum AERLogLvl {
@@ -29,6 +41,8 @@ static const char * LVL_STRS[3] = {
 };
 
 static const size_t MSG_BUF_SIZE = 1024;
+
+static const char * INTERNAL_MOD_NAME = "MRE";
 
 
 
@@ -81,6 +95,46 @@ static void Log(
 
 
 
+/* ----- INTERNAL FUNCTIONS ----- */
+
+void LogInfo(const char * fmt, ...) {
+	assert(fmt);
+
+	/* Construct message string. */
+	FillMsgBufFromVA(fmt, fmt);
+
+	/* Call common log function. */
+	Log(stdout, AER_LOG_INFO, INTERNAL_MOD_NAME, msgBuf);
+
+	return;
+}
+
+void LogWarn(const char * fmt, ...) {
+	assert(fmt);
+
+	/* Construct message string. */
+	FillMsgBufFromVA(fmt, fmt);
+
+	/* Call common log function. */
+	Log(stderr, AER_LOG_WARN, INTERNAL_MOD_NAME, msgBuf);
+
+	return;
+}
+
+void LogErr(const char * fmt, ...) {
+	assert(fmt);
+
+	/* Construct message string. */
+	FillMsgBufFromVA(fmt, fmt);
+
+	/* Call common log function. */
+	Log(stderr, AER_LOG_ERR, INTERNAL_MOD_NAME, msgBuf);
+
+	return;
+}
+
+
+
 /* ----- PUBLIC FUNCTIONS ----- */
 
 void AERLogInfo(const char * moduleName, const char * fmt, ...) {
@@ -88,10 +142,7 @@ void AERLogInfo(const char * moduleName, const char * fmt, ...) {
 	assert(fmt != NULL);
 
 	/* Construct message string. */
-	va_list va;
-	va_start(va, fmt);
-	vsnprintf(msgBuf, MSG_BUF_SIZE, fmt, va);
-	va_end(va);
+	FillMsgBufFromVA(fmt, fmt);
 
 	/* Call common log function. */
 	Log(stdout, AER_LOG_INFO, moduleName, msgBuf);
@@ -104,10 +155,7 @@ void AERLogWarn(const char * moduleName, const char * fmt, ...) {
 	assert(fmt != NULL);
 
 	/* Construct message string. */
-	va_list va;
-	va_start(va, fmt);
-	vsnprintf(msgBuf, MSG_BUF_SIZE, fmt, va);
-	va_end(va);
+	FillMsgBufFromVA(fmt, fmt);
 
 	/* Call common log function. */
 	Log(stderr, AER_LOG_WARN, moduleName, msgBuf);
@@ -120,10 +168,7 @@ void AERLogErr(const char * moduleName, const char * fmt, ...) {
 	assert(fmt != NULL);
 
 	/* Construct message string. */
-	va_list va;
-	va_start(va, fmt);
-	vsnprintf(msgBuf, MSG_BUF_SIZE, fmt, va);
-	va_end(va);
+	FillMsgBufFromVA(fmt, fmt);
 
 	/* Call common log function. */
 	Log(stderr, AER_LOG_ERR, moduleName, msgBuf);
