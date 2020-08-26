@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -35,6 +36,51 @@ static FoxMap cache = {0};
 
 
 /* ----- PRIVATE FUNCTIONS ----- */
+
+static bool StringToBool(const char * str, bool * success) {
+	bool result = false;
+
+	switch (str[0]) {
+		case '0':
+		case 'f':
+		case 'F':
+		case 'n':
+		case 'N':
+			result = false;
+			if (success) *success = true;
+			break;
+
+		case '1':
+		case 't':
+		case 'T':
+		case 'y':
+		case 'Y':
+			result = true;
+			if (success) *success = true;
+			break;
+
+		default:
+			if (success) *success = false;
+	}
+
+	return result;
+}
+
+static int32_t StringToInt(const char * str, bool * success) {
+	int32_t result = 0;
+	int32_t numParsed = sscanf(str, "%i", &result);
+	if (success) *success = (numParsed > 0);
+
+	return result;
+}
+
+static float StringToFloat(const char * str, bool * success) {
+	float result = 0;
+	int32_t numParsed = sscanf(str, "%f", &result);
+	if (success) *success = (numParsed > 0);
+
+	return result;
+}
 
 static void CacheEntryInit(
 		CacheEntry * entry,
@@ -123,6 +169,129 @@ void EnvConfDestructor(void) {
 
 
 /* ----- PUBLIC FUNCTIONS ----- */
+
+bool AEREnvConfGetBool(const char * name) {
+	ErrIf(!name, AER_NULL_ARG, false);
+
+	CacheEntry * entry = GetCacheEntry(name);
+	ErrIf(!entry, AER_FAILED_LOOKUP, false);
+
+	bool success;
+	bool result = StringToBool(
+			*FoxArrayMIndex(const char *, &entry->tokens, 0),
+			&success
+	);
+	ErrIf(!success, AER_FAILED_PARSE, false);
+
+	return result;
+}
+
+size_t AEREnvConfGetBools(
+		const char * name,
+		size_t bufSize,
+		bool * boolBuf
+) {
+	ErrIf(!name, AER_NULL_ARG, 0);
+	ErrIf(!boolBuf, AER_NULL_ARG, 0);
+
+	CacheEntry * entry = GetCacheEntry(name);
+	ErrIf(!entry, AER_FAILED_LOOKUP, 0);
+
+	size_t numToks = FoxArrayMSize(const char *, &entry->tokens);
+	size_t numToWrite = FoxMin(bufSize, numToks);
+	for (unsigned int idx = 0; idx < numToWrite; idx++) {
+		bool success;
+		boolBuf[idx] = StringToBool(
+				*FoxArrayMIndex(const char *, &entry->tokens, idx),
+				&success
+		);
+		ErrIf(!success, AER_FAILED_PARSE, 0);
+	}
+
+	return numToks;
+}
+
+int32_t AEREnvConfGetInt(const char * name) {
+	ErrIf(!name, AER_NULL_ARG, false);
+
+	CacheEntry * entry = GetCacheEntry(name);
+	ErrIf(!entry, AER_FAILED_LOOKUP, false);
+
+	bool success;
+	int32_t result = StringToInt(
+			*FoxArrayMIndex(const char *, &entry->tokens, 0),
+			&success
+	);
+	ErrIf(!success, AER_FAILED_PARSE, false);
+
+	return result;
+}
+
+size_t AEREnvConfGetInts(
+		const char * name,
+		size_t bufSize,
+		int32_t * intBuf
+) {
+	ErrIf(!name, AER_NULL_ARG, 0);
+	ErrIf(!intBuf, AER_NULL_ARG, 0);
+
+	CacheEntry * entry = GetCacheEntry(name);
+	ErrIf(!entry, AER_FAILED_LOOKUP, 0);
+
+	size_t numToks = FoxArrayMSize(const char *, &entry->tokens);
+	size_t numToWrite = FoxMin(bufSize, numToks);
+	for (unsigned int idx = 0; idx < numToWrite; idx++) {
+		bool success;
+		intBuf[idx] = StringToInt(
+				*FoxArrayMIndex(const char *, &entry->tokens, idx),
+				&success
+		);
+		ErrIf(!success, AER_FAILED_PARSE, 0);
+	}
+
+	return numToks;
+}
+
+float AEREnvConfGetFloat(const char * name) {
+	ErrIf(!name, AER_NULL_ARG, false);
+
+	CacheEntry * entry = GetCacheEntry(name);
+	ErrIf(!entry, AER_FAILED_LOOKUP, false);
+
+	bool success;
+	float result = StringToFloat(
+			*FoxArrayMIndex(const char *, &entry->tokens, 0),
+			&success
+	);
+	ErrIf(!success, AER_FAILED_PARSE, false);
+
+	return result;
+}
+
+size_t AEREnvConfGetFloats(
+		const char * name,
+		size_t bufSize,
+		float * floatBuf
+) {
+	ErrIf(!name, AER_NULL_ARG, 0);
+	ErrIf(!floatBuf, AER_NULL_ARG, 0);
+
+	CacheEntry * entry = GetCacheEntry(name);
+	ErrIf(!entry, AER_FAILED_LOOKUP, 0);
+
+	size_t numToks = FoxArrayMSize(const char *, &entry->tokens);
+	size_t numToWrite = FoxMin(bufSize, numToks);
+	for (unsigned int idx = 0; idx < numToWrite; idx++) {
+		bool success;
+		floatBuf[idx] = StringToFloat(
+				*FoxArrayMIndex(const char *, &entry->tokens, idx),
+				&success
+		);
+		ErrIf(!success, AER_FAILED_PARSE, 0);
+	}
+
+	return numToks;
+}
 
 const char * AEREnvConfGetString(const char * name) {
 	ErrIf(!name, AER_NULL_ARG, NULL);
