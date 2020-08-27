@@ -8,11 +8,11 @@
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-void AERLogInfo(const char * moduleName, const char * fmt, ...);
+void AERLogInfo(const char * fmt, ...);
 
-void AERLogWarn(const char * moduleName, const char * fmt, ...);
+void AERLogWarn(const char * fmt, ...);
 
-void AERLogErr(const char * moduleName, const char * fmt, ...);
+void AERLogErr(const char * fmt, ...);
 
 
 

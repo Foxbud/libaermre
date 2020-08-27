@@ -192,7 +192,7 @@ size_t AEREnvConfGetBools(
 		bool * boolBuf
 ) {
 	ErrIf(!name, AER_NULL_ARG, 0);
-	ErrIf(!boolBuf, AER_NULL_ARG, 0);
+	ErrIf(!boolBuf && bufSize > 0, AER_NULL_ARG, 0);
 
 	CacheEntry * entry = GetCacheEntry(name);
 	ErrIf(!entry, AER_FAILED_LOOKUP, 0);
@@ -233,7 +233,7 @@ size_t AEREnvConfGetInts(
 		int32_t * intBuf
 ) {
 	ErrIf(!name, AER_NULL_ARG, 0);
-	ErrIf(!intBuf, AER_NULL_ARG, 0);
+	ErrIf(!intBuf && bufSize > 0, AER_NULL_ARG, 0);
 
 	CacheEntry * entry = GetCacheEntry(name);
 	ErrIf(!entry, AER_FAILED_LOOKUP, 0);
@@ -274,7 +274,7 @@ size_t AEREnvConfGetFloats(
 		float * floatBuf
 ) {
 	ErrIf(!name, AER_NULL_ARG, 0);
-	ErrIf(!floatBuf, AER_NULL_ARG, 0);
+	ErrIf(!floatBuf && bufSize > 0, AER_NULL_ARG, 0);
 
 	CacheEntry * entry = GetCacheEntry(name);
 	ErrIf(!entry, AER_FAILED_LOOKUP, 0);
@@ -308,7 +308,7 @@ size_t AEREnvConfGetStrings(
 		const char ** strBuf
 ) {
 	ErrIf(!name, AER_NULL_ARG, 0);
-	ErrIf(!strBuf, AER_NULL_ARG, 0);
+	ErrIf(!strBuf && bufSize > 0, AER_NULL_ARG, 0);
 
 	CacheEntry * entry = GetCacheEntry(name);
 	ErrIf(!entry, AER_FAILED_LOOKUP, 0);

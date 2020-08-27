@@ -4,7 +4,10 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "foxutils/arraymacs.h"
+
 #include "aer/log.h"
+#include "internal/modman.h"
 
 
 
@@ -137,41 +140,53 @@ void LogErr(const char * fmt, ...) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-void AERLogInfo(const char * moduleName, const char * fmt, ...) {
-	assert(moduleName != NULL);
-	assert(fmt != NULL);
+void AERLogInfo(const char * fmt, ...) {
+	assert(fmt);
 
 	/* Construct message string. */
 	FillMsgBufFromVA(fmt, fmt);
 
 	/* Call common log function. */
-	Log(stdout, AER_LOG_INFO, moduleName, msgBuf);
+	Log(
+			stdout,
+			AER_LOG_INFO,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name,
+			msgBuf
+	);
 
 	return;
 }
 
-void AERLogWarn(const char * moduleName, const char * fmt, ...) {
-	assert(moduleName != NULL);
-	assert(fmt != NULL);
+void AERLogWarn(const char * fmt, ...) {
+	assert(fmt);
 
 	/* Construct message string. */
 	FillMsgBufFromVA(fmt, fmt);
 
 	/* Call common log function. */
-	Log(stderr, AER_LOG_WARN, moduleName, msgBuf);
+	Log(
+			stdout,
+			AER_LOG_WARN,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name,
+			msgBuf
+	);
 
 	return;
 }
 
-void AERLogErr(const char * moduleName, const char * fmt, ...) {
-	assert(moduleName != NULL);
-	assert(fmt != NULL);
+void AERLogErr(const char * fmt, ...) {
+	assert(fmt);
 
 	/* Construct message string. */
 	FillMsgBufFromVA(fmt, fmt);
 
 	/* Call common log function. */
-	Log(stderr, AER_LOG_ERR, moduleName, msgBuf);
+	Log(
+			stdout,
+			AER_LOG_ERR,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name,
+			msgBuf
+	);
 
 	return;
 }

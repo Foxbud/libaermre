@@ -4,6 +4,7 @@
 #include "foxutils/array.h"
 
 #include "internal/hld.h"
+#include "internal/modman.h"
 
 
 
@@ -36,12 +37,12 @@ void EventTrapDeinit(EventTrap * trap);
 
 void EventTrapAddUpstream(
 		EventTrap * trap,
-		void * listener
+		ModListener listener
 );
 
 void EventTrapAddDownstream(
 		EventTrap * trap,
-		void * listener
+		ModListener listener
 );
 
 void EventTrapExecute(

@@ -1,43 +1,60 @@
 #ifndef INTERNAL_MODMAN_H
 #define INTERNAL_MODMAN_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "foxutils/array.h"
+
+#include "aer/mre.h"
+#include "internal/hld.h"
+
 
 
 /* ----- INTERNAL TYPES ----- */
 
-typedef enum ModManErrCode {
-	MOD_MAN_OK,
-	MOD_MAN_NO_SUCH_MOD,
-	MOD_MAN_NAME_NOT_FOUND,
-	MOD_MAN_VERSION_NOT_FOUND
-} ModManErrCode;
-
-typedef void (* RoomStepListener)(void);
-
-typedef void (* RoomChangeListener)(int32_t, int32_t);
-
-typedef struct AERMod {
-	/* Technical. */
+typedef struct Mod {
 	void * libHandle;
-	/* General. */
 	const char * name;
-	const char * version;
-	/* Registration. */
-	void (* registerSprites)(void);
-	void (* registerObjects)(void);
-	void (* registerListeners)(void);
-	/* Event. */
-	RoomStepListener roomStepListener;
-	RoomChangeListener roomChangeListener;
-} AERMod;
+	char * slug;
+	void (* regSprites)(void);
+	void (* regObjects)(void);
+	void (* regObjListeners)(void);
+} Mod;
+
+typedef struct ModListener {
+	union {
+		bool (* hldObj)(HLDInstance *);
+		bool (* hldObjPair)(HLDInstance *, HLDInstance *);
+		bool (* aerObj)(AERInstance *);
+		bool (* aerObjPair)(AERInstance *, AERInstance *);
+		/* Pseudoevents. */
+		void (* roomStep)(void);
+		void (* roomChange)(int32_t, int32_t);
+	} func;
+	Mod * mod;
+} ModListener;
+
+typedef struct ModMan {
+	FoxArray mods;
+	FoxArray context;
+	FoxArray roomStepListeners;
+	FoxArray roomChangeListeners;
+} ModMan;
+
+
+
+/* ----- INTERNAL GLOBALS ----- */
+
+extern ModMan modman;
 
 
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-ModManErrCode ModManLoad(const char * modLib, AERMod * mod);
+void ModManConstructor(void);
 
-ModManErrCode ModManUnload(AERMod * mod);
+void ModManDestructor(void);
 
 
 

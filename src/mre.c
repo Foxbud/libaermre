@@ -8,13 +8,13 @@
 #include "foxutils/mapmacs.h"
 #include "foxutils/math.h"
 
-#include "aer/log.h"
 #include "aer/mre.h"
 #include "internal/envconf.h"
 #include "internal/err.h"
 #include "internal/eventkey.h"
 #include "internal/eventtrap.h"
 #include "internal/hld.h"
+#include "internal/log.h"
 #include "internal/modman.h"
 #include "internal/objtree.h"
 #include "internal/rand.h"
@@ -129,17 +129,6 @@ typedef struct AERMRE {
 	/* Inheritance tree of all objects (including mod-registered). */
 	ObjTree * objTree;
 	/*
-	 * Mod currently performing registration. Has no meaning after the
-	 * registration stage.
-	 */
-	AERMod * regActiveMod;
-	/* Array of all loaded mods. */
-	FoxArray * mods;
-	/* Array of registered listeners for the room step pseudo-event. */
-	FoxArray * roomStepListeners;
-	/* Array of registered listeners for the room change pseudo-event. */
-	FoxArray * roomChangeListeners;
-	/*
 	 * Hash table of all events that have been entrapped during the mod
 	 * event listener registration stage.
 	 */
@@ -178,12 +167,6 @@ typedef struct SubscriptionContext {
 
 
 /* ----- PRIVATE CONSTANTS ----- */
-
-static const char * NAME = "MRE";
-
-static const char * VERSION = "0.1.0dev";
-
-static const char * MOD_NAME_FMT = "libaermod%u.so";
 
 static const char * ASSET_PATH_FMT = "assets/mod/%s/%s";
 
@@ -328,13 +311,12 @@ static EventTrap EntrapEvent(
 			break;
 
 		default:
-			AERLogErr(
-					NAME,
+			LogErr(
 					"\"%s\" called with unsupported event type %u.",
 					__func__,
 					eventType
 			);
-			exit(1);
+			abort();
 	}
 	newArr = ReallocEventArr(oldArr, numSubEvents);
 
@@ -374,7 +356,7 @@ static EventTrap EntrapEvent(
 static void RegisterObjectListener(
 		HLDObject * obj,
 		EventKey key,
-		void * listener,
+		ModListener listener,
 		bool downstream
 ) {
 	EventTrap * trap = FoxMapMIndex(
@@ -453,13 +435,12 @@ static void RegisterEventSubscriber(EventKey key) {
 			break;
 
 		default:
-			AERLogErr(
-					NAME,
+			LogErr(
 					"\"%s\" called with unsupported event type %u.",
 					__func__,
 					key.type
 			);
-			exit(1);
+			abort();
 	}
 
 	if (!FoxMapMIndex(EventKey, uint8_t, mre.eventSubscribers, key)) {
@@ -506,15 +487,11 @@ static void MaskEventSubscribers(
 }
 
 static void InitMRE(HLDRefs refs) {
-	AERLogInfo(NAME, "Initializing mod runtime environment...");
+	LogInfo("Initializing mod runtime environment...");
 	mre = (AERMRE){
 		.refs = refs,
 		.roomIndexPrevious = 0,
 		.objTree = ObjTreeNew(),
-		.regActiveMod = NULL,
-		.mods = FoxArrayMNew(AERMod),
-		.roomStepListeners = FoxArrayMNew(RoomStepListener),
-		.roomChangeListeners = FoxArrayMNew(RoomChangeListener),
 		.eventTraps = FoxMapMNewExt(
 				EventKey,
 				EventTrap,
@@ -539,107 +516,39 @@ static void InitMRE(HLDRefs refs) {
 
 	EnvConfConstructor();
 	RandConstructor();
-	AERLogInfo(NAME, "Done.");
-
-	return;
-}
-
-static void LoadMods(void) {
-	AERLogInfo(NAME, "Loading mods...");
-	size_t modIdx = 0;
-	while (true) {
-		/* Load mod. */
-		AERMod mod;
-		char nameBuf[16];
-		snprintf(nameBuf, 16, MOD_NAME_FMT, modIdx);
-		ModManErrCode err = ModManLoad(nameBuf, &mod);
-
-		/* Valid mod. */
-		if (err == MOD_MAN_OK) {
-			*FoxArrayMPush(AERMod, mre.mods) = mod;
-			if (mod.roomStepListener) {
-				*FoxArrayMPush(
-						RoomStepListener,
-						mre.roomStepListeners
-				) = mod.roomStepListener;
-			}
-			if (mod.roomChangeListener) {
-				*FoxArrayMPush(
-						RoomChangeListener,
-						mre.roomChangeListeners
-				) = mod.roomChangeListener;
-			}
-			AERLogInfo(NAME, "Loaded mod \"%s\" v%s.", mod.name, mod.version);
-		}
-
-		/* No more mods. */
-		else if (err == MOD_MAN_NO_SUCH_MOD) {
-			break;
-		}
-
-		/* Error while loading. */
-		else {
-			switch (err) {
-				case MOD_MAN_NAME_NOT_FOUND:
-					AERLogErr(
-							NAME,
-							"Could not find symbol \"MOD_NAME\" in mod %u.",
-							modIdx
-					);
-					break;
-				case MOD_MAN_VERSION_NOT_FOUND:
-					AERLogErr(
-							NAME,
-							"Could not find symbol \"MOD_VERSION\" in mod %u.",
-							modIdx
-					);
-					break;
-				default:
-					AERLogErr(
-							NAME,
-							"Unknown error while loading mod %u.",
-							modIdx
-					);
-					break;
-			}
-			exit(1);
-		}
-
-		modIdx++;
-	}
-	AERLogInfo(NAME, "Done. Loaded %u mod(s).", FoxArrayMSize(AERMod, mre.mods));
+	LogInfo("Done.");
 
 	return;
 }
 
 static void InitMods(void) {
-	size_t numMods = FoxArrayMSize(AERMod, mre.mods);
+	size_t numMods = FoxArrayMSize(Mod, &modman.mods);
 
 	/* Register sprites. */
 	mre.stage = STAGE_SPRITE_REG;
-	AERLogInfo(NAME, "Registering mod sprites...");
+	LogInfo("Registering mod sprites...");
 	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-		AERMod * mod = FoxArrayMIndex(AERMod, mre.mods, modIdx);
-		mre.regActiveMod = mod;
-		if (mod->registerSprites) {
-			mod->registerSprites();
-			AERLogInfo(NAME, "Registred sprites for mod \"%s.\"", mod->name);
+		Mod * mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
+		if (mod->regSprites) {
+			*FoxArrayMPush(Mod *, &modman.context) = mod;
+			mod->regSprites();
+			FoxArrayMPop(Mod *, &modman.context);
 		}
 	}
-	AERLogInfo(NAME, "Done.");
+	LogInfo("Done.");
 
 	/* Register objects. */
 	mre.stage = STAGE_OBJECT_REG;
-	AERLogInfo(NAME, "Registering mod objects...");
+	LogInfo("Registering mod objects...");
 	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-		AERMod * mod = FoxArrayMIndex(AERMod, mre.mods, modIdx);
-		mre.regActiveMod = mod;
-		if (mod->registerObjects) {
-			mod->registerObjects();
-			AERLogInfo(NAME, "Registred objects for mod \"%s.\"", mod->name);
+		Mod * mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
+		if (mod->regObjects) {
+			*FoxArrayMPush(Mod *, &modman.context) = mod;
+			mod->regObjects();
+			FoxArrayMPop(Mod *, &modman.context);
 		}
 	}
-	AERLogInfo(NAME, "Done.");
+	LogInfo("Done.");
 
 	/* Build object inheritance tree and mask event subscribers. */
 	BuildObjTree();
@@ -658,22 +567,17 @@ static void InitMods(void) {
 
 	/* Register listeners. */
 	mre.stage = STAGE_LISTENER_REG;
-	AERLogInfo(NAME, "Registering mod event listeners...");
+	LogInfo("Registering mod event listeners...");
 	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-		AERMod * mod = FoxArrayMIndex(AERMod, mre.mods, modIdx);
-		mre.regActiveMod = mod;
-		if (mod->registerListeners) {
-			mod->registerListeners();
-			AERLogInfo(
-					NAME,
-					"Registred event listeners for mod \"%s.\"",
-					mod->name
-			);
+		Mod * mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
+		if (mod->regObjListeners) {
+			*FoxArrayMPush(Mod *, &modman.context) = mod;
+			mod->regObjListeners();
+			FoxArrayMPop(Mod *, &modman.context);
 		}
 	}
-	AERLogInfo(NAME, "Done.");
+	LogInfo("Done.");
 
-	mre.regActiveMod = NULL;
 	mre.stage = STAGE_ACTION;
 
 	return;
@@ -685,7 +589,7 @@ static void InitMods(void) {
 
 __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 	InitMRE(refs);
-	LoadMods();
+	ModManConstructor();
 	InitMods();
 
 	return;
@@ -697,25 +601,36 @@ __attribute__((cdecl)) void AERHookStep(void) {
 	if (roomIndexCurrent != mre.roomIndexPrevious) {
 		/* Call room change listeners. */
 		size_t numListeners = FoxArrayMSize(
-				RoomChangeListener,
-				mre.roomChangeListeners
+				ModListener,
+				&modman.roomChangeListeners
 		);
 		for (uint32_t idx = 0; idx < numListeners; idx++) {
-			(*FoxArrayMIndex(RoomChangeListener, mre.roomChangeListeners, idx))(
-					roomIndexCurrent,
-					mre.roomIndexPrevious
+			ModListener * listener = FoxArrayMIndex(
+					ModListener,
+					&modman.roomChangeListeners,
+					idx
 			);
+			*FoxArrayMPush(Mod *, &modman.context) = listener->mod;
+			listener->func.roomChange(roomIndexCurrent, mre.roomIndexPrevious);
+			FoxArrayMPop(Mod *, &modman.context);
 		}
 		mre.roomIndexPrevious = roomIndexCurrent;
 	}
 
 	/* Call room step listeners. */
 	size_t numListeners = FoxArrayMSize(
-			RoomStepListener,
-			mre.roomStepListeners
+			ModListener,
+			&modman.roomStepListeners
 	);
 	for (uint32_t idx = 0; idx < numListeners; idx++) {
-		(*FoxArrayMIndex(RoomStepListener, mre.roomStepListeners, idx))();
+		ModListener * listener = FoxArrayMIndex(
+				ModListener,
+				&modman.roomStepListeners,
+				idx
+		);
+		*FoxArrayMPush(Mod *, &modman.context) = listener->mod;
+		listener->func.roomStep();
+		FoxArrayMPop(Mod *, &modman.context);
 	}
 
 	return;
@@ -740,46 +655,15 @@ __attribute__((cdecl)) void AERHookEvent(
 /* ----- LIBRARY MANAGEMENT ----- */
 
 __attribute__((constructor)) void AERConstructor(void) {
-	AERLogInfo(
-			NAME,
-			"Action-Event-Response (AER) Mod Runtime Environment (MRE) v%s",
-			VERSION
-	);
+	LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
 
 	return;
 }
 
 __attribute__((destructor)) void AERDestructor(void) {
-	AERLogInfo(NAME, "Unloading mods...");
-	size_t initNumMods = FoxArrayMSize(AERMod, mre.mods);
-	size_t numUnloaded = 0;
-	while (FoxArrayMSize(AERMod, mre.mods) > 0) {
-		AERMod mod = FoxArrayMPop(AERMod, mre.mods);
-		const char * modName = mod.name;
+	ModManDestructor();
 
-		/* Unload mod. */
-		if (ModManUnload(&mod) == MOD_MAN_OK) {
-			numUnloaded++;
-			AERLogInfo(NAME, "Unloaded mod \"%s.\"", modName);
-		}
-
-		/* Failure. */
-		else {
-			AERLogWarn(
-					NAME,
-					"Something went wrong while unloading mod \"%s.\"",
-					modName
-			);
-		}
-	}
-	AERLogInfo(
-			NAME,
-			"Done. Unloaded %u of %u mod(s).",
-			numUnloaded,
-			initNumMods
-	);
-
-	AERLogInfo(NAME, "Deinitializing mod runtime environment...");
+	LogInfo("Deinitializing mod runtime environment...");
 	for (uint32_t idx = 0; idx < 12; idx++) {
 		HLDEventSubscribers * subArr = *mre.refs.alarmEventSubscribers + idx;
 		if (subArr->objects) {
@@ -805,15 +689,11 @@ __attribute__((destructor)) void AERDestructor(void) {
 	);
 	FoxMapMFree(EventKey, EventTrap, mre.eventTraps);
 
-	FoxArrayMFree(RoomChangeListener, mre.roomChangeListeners);
-	FoxArrayMFree(RoomStepListener, mre.roomStepListeners);
-	FoxArrayMFree(AERMod, mre.mods);
-
 	ObjTreeFree(mre.objTree);
 
 	EnvConfDestructor();
 	RandDestructor();
-	AERLogInfo(NAME, "Done.");
+	LogInfo("Done.");
 
 	return;
 }
@@ -828,12 +708,24 @@ int32_t AERRegisterSprite(
 		uint32_t origX,
 		uint32_t origY
 ) {
+	LogInfo(
+			"Registering sprite \"%s\" for mod \"%s\"...",
+			filename,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, -1);
 	ErrIf(!filename, AER_NULL_ARG, -1);
 
 	/* Construct asset path. */
 	char pathBuf[256];
-	snprintf(pathBuf, 256, ASSET_PATH_FMT, mre.regActiveMod->name, filename);
+	snprintf(
+			pathBuf,
+			256,
+			ASSET_PATH_FMT,
+			(*FoxArrayMPeek(Mod *, &modman.context))->slug,
+			filename
+	);
 
 	int32_t spriteIdx = mre.refs.actionSpriteAdd(
 			pathBuf,
@@ -847,6 +739,7 @@ int32_t AERRegisterSprite(
 	);
 	ErrIf(spriteIdx < 0, AER_BAD_FILE, -1);
 
+	LogInfo("Successfully registered sprite to index %i.", spriteIdx);
 	return spriteIdx;
 }
 
@@ -860,14 +753,20 @@ int32_t AERRegisterObject(
 		bool collisions,
 		bool persistent
 ) {
+	LogInfo(
+			"Registering object \"%s\" for mod \"%s\"...",
+			name,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_OBJECT_REG, AER_SEQ_BREAK, -1);
 	ErrIf(!name, AER_NULL_ARG, -1);
 
 	HLDObject * parent = ObjectLookup(parentIdx);
 	ErrIf(!parent, AER_FAILED_LOOKUP, -1);
 
-	int32_t idx = mre.refs.actionObjectAdd();
-	HLDObject * obj = ObjectLookup(idx);
+	int32_t objIdx = mre.refs.actionObjectAdd();
+	HLDObject * obj = ObjectLookup(objIdx);
 	ErrIf(!obj, AER_OUT_OF_MEM, -1);
 
 	/* The engine expects a freeable (dynamically allocated) string for name. */
@@ -884,7 +783,8 @@ int32_t AERRegisterObject(
 	obj->flags.collisions = collisions;
 	obj->flags.persistent = persistent;
 
-	return idx;
+	LogInfo("Successfully registered object to index %i.", objIdx);
+	return objIdx;
 }
 
 void AERRegisterCreateListener(
@@ -892,6 +792,12 @@ void AERRegisterCreateListener(
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
+	LogInfo(
+			"Registering create listener on object %i for mod \"%s\"...",
+			objIdx,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
@@ -903,8 +809,17 @@ void AERRegisterCreateListener(
 		.num = 0,
 		.objIdx = objIdx
 	};
-	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterObjectListener(
+			obj,
+			key,
+			(ModListener){
+				.mod = *FoxArrayMPeek(Mod *, &modman.context),
+				.func.aerObj = listener
+			},
+			downstream
+	);
 
+	LogInfo("Successfully registered create listener.");
 	return;
 }
 
@@ -913,6 +828,12 @@ void AERRegisterDestroyListener(
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
+	LogInfo(
+			"Registering destroy listener on object %i for mod \"%s\"...",
+			objIdx,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
@@ -924,8 +845,17 @@ void AERRegisterDestroyListener(
 		.num = 0,
 		.objIdx = objIdx
 	};
-	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterObjectListener(
+			obj,
+			key,
+			(ModListener){
+				.mod = *FoxArrayMPeek(Mod *, &modman.context),
+				.func.aerObj = listener
+			},
+			downstream
+	);
 
+	LogInfo("Successfully registered destroy listener.");
 	return;
 }
 
@@ -935,6 +865,13 @@ void AERRegisterAlarmListener(
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
+	LogInfo(
+			"Registering alarm %u listener on object %i for mod \"%s\"...",
+			alarmIdx,
+			objIdx,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 	ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP);
@@ -947,9 +884,18 @@ void AERRegisterAlarmListener(
 		.num = alarmIdx,
 		.objIdx = objIdx
 	};
-	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterObjectListener(
+			obj,
+			key,
+			(ModListener){
+				.mod = *FoxArrayMPeek(Mod *, &modman.context),
+				.func.aerObj = listener
+			},
+			downstream
+	);
 	RegisterEventSubscriber(key);
 
+	LogInfo("Successfully registered alarm %u listener.", alarmIdx);
 	return;
 }
 
@@ -958,6 +904,12 @@ void AERRegisterStepListener(
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
+	LogInfo(
+			"Registering step listener on object %i for mod \"%s\"...",
+			objIdx,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
@@ -969,9 +921,18 @@ void AERRegisterStepListener(
 		.num = HLD_EVENT_STEP_INLINE,
 		.objIdx = objIdx
 	};
-	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterObjectListener(
+			obj,
+			key,
+			(ModListener){
+				.mod = *FoxArrayMPeek(Mod *, &modman.context),
+				.func.aerObj = listener
+			},
+			downstream
+	);
 	RegisterEventSubscriber(key);
 
+	LogInfo("Successfully registered step listener.");
 	return;
 }
 
@@ -980,6 +941,12 @@ void AERRegisterPreStepListener(
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
+	LogInfo(
+			"Registering pre-step listener on object %i for mod \"%s\"...",
+			objIdx,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
@@ -991,9 +958,18 @@ void AERRegisterPreStepListener(
 		.num = HLD_EVENT_STEP_PRE,
 		.objIdx = objIdx
 	};
-	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterObjectListener(
+			obj,
+			key,
+			(ModListener){
+				.mod = *FoxArrayMPeek(Mod *, &modman.context),
+				.func.aerObj = listener
+			},
+			downstream
+	);
 	RegisterEventSubscriber(key);
 
+	LogInfo("Successfully registered pre-step listener.");
 	return;
 }
 
@@ -1002,6 +978,12 @@ void AERRegisterPostStepListener(
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
+	LogInfo(
+			"Registering post-step listener on object %i for mod \"%s\"...",
+			objIdx,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
@@ -1013,9 +995,18 @@ void AERRegisterPostStepListener(
 		.num = HLD_EVENT_STEP_POST,
 		.objIdx = objIdx
 	};
-	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterObjectListener(
+			obj,
+			key,
+			(ModListener){
+				.mod = *FoxArrayMPeek(Mod *, &modman.context),
+				.func.aerObj = listener
+			},
+			downstream
+	);
 	RegisterEventSubscriber(key);
 
+	LogInfo("Successfully registered post-step listener.");
 	return;
 }
 
@@ -1025,6 +1016,13 @@ void AERRegisterCollisionListener(
 		bool (* listener)(AERInstance * target, AERInstance * other),
 		bool downstream
 ) {
+	LogInfo(
+			"Registering %i collision listener on object %i for mod \"%s\"...",
+			otherObjIdx,
+			targetObjIdx,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 	ErrIf(!ObjectLookup(otherObjIdx), AER_FAILED_LOOKUP);
@@ -1037,8 +1035,17 @@ void AERRegisterCollisionListener(
 		.num = otherObjIdx,
 		.objIdx = targetObjIdx
 	};
-	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterObjectListener(
+			obj,
+			key,
+			(ModListener){
+				.mod = *FoxArrayMPeek(Mod *, &modman.context),
+				.func.aerObjPair = listener
+			},
+			downstream
+	);
 
+	LogInfo("Successfully registered %i collision listener.", otherObjIdx);
 	return;
 }
 
@@ -1047,6 +1054,12 @@ void AERRegisterAnimationEndListener(
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 ) {
+	LogInfo(
+			"Registering animation end listener on object %i for mod \"%s\"...",
+			objIdx,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name
+	);
+
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
@@ -1058,8 +1071,17 @@ void AERRegisterAnimationEndListener(
 		.num = HLD_EVENT_OTHER_ANIMATION_END,
 		.objIdx = objIdx
 	};
-	RegisterObjectListener(obj, key, listener, downstream);
+	RegisterObjectListener(
+			obj,
+			key,
+			(ModListener){
+				.mod = *FoxArrayMPeek(Mod *, &modman.context),
+				.func.aerObj = listener
+			},
+			downstream
+	);
 
+	LogInfo("Successfully registered animation end listener.");
 	return;
 }
 
