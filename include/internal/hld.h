@@ -7,6 +7,16 @@
 
 
 
+/* ----- INTERNAL MACROS ----- */
+
+#define HLDObjectLookup(objIdx) \
+	((HLDObject *)HLDHashTableLookup(*hldvars.objectTableHandle, (objIdx)))
+
+#define HLDInstanceLookup(instId) \
+	((HLDInstance *)HLDHashTableLookup(hldvars.instanceTable, (instId)))
+
+
+
 /* ----- INTERNAL TYPES ----- */
 
 typedef enum HLDEventType {
@@ -378,6 +388,117 @@ typedef struct HLDSprite {
 	uint32_t field_80;
 	uint32_t field_84;
 } HLDSprite;
+
+/*
+ * This struct holds pointers to global variables in the Game Maker
+ * engine. These pointers are passed into the MRE from the hooks injected
+ * into the game's executable.
+ */
+typedef struct HLDVariables {
+	/* Number of steps since start of the game. */
+	int32_t * numSteps;
+	/* Tables of booleans where each index represents a key code. */
+	bool (* keysPressedTable)[0x100];
+	bool (* keysHeldTable)[0x100];
+	bool (* keysReleasedTable)[0x100];
+	/* Array of all registered rooms. */
+	HLDArrayPreSize * roomTable;
+	/* Index of currently active room. */
+	int32_t * roomIndexCurrent;
+	/* Actual room object of currently active room. */
+	HLDRoom ** roomCurrent;
+	/* Array of all registered sprites. */
+	HLDSprite *** spriteTable;
+	/* Hash table of all registered objects. */
+	HLDHashTable ** objectTableHandle;
+	/* Hash table of all in-game instances. */
+	HLDHashTable * instanceTable;
+	/*
+	 * As an optimization, the engine only checks for alarm events on objects
+	 * listed (or "subscribed") in these arrays.
+	 */
+	size_t (* alarmEventSubscriberCounts)[12];
+	HLDEventSubscribers (* alarmEventSubscribers)[12];
+	/* Same as above, but for step events. */
+	size_t (* stepEventSubscriberCounts)[3];
+	HLDEventSubscribers (* stepEventSubscribers)[3];
+} HLDVariables;
+
+/*
+ * This struct holds pointers to functions in the Game Maker
+ * engine. These pointers are passed into the MRE from the hooks injected
+ * into the game's executable.
+ */
+typedef struct HLDFunctions {
+	/* Register a new sprite. */
+	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
+			const char * fname,
+			size_t imgNum,
+			int32_t unknown0,
+			int32_t unknown1,
+			int32_t unknown2,
+			int32_t unknown3,
+			uint32_t origX,
+			uint32_t origY
+	);
+	/* Register a new object. */
+	__attribute__((cdecl)) int32_t (* actionObjectAdd)(void);
+	/* Trigger an event as if it occurred "naturally." */
+	__attribute__((cdecl)) int32_t (* actionEventPerform)(
+			HLDInstance * target,
+			HLDInstance * other,
+			int32_t targetObjIdx,
+			uint32_t eventType,
+			int32_t eventNum
+	);
+	/*
+	 * Custom Heart Machine function that sets an instance's draw depth based
+	 * on its y position and the current room's height.
+	 */
+	__attribute__((cdecl)) HLDInstance * (* gmlScriptSetdepth)(
+			HLDInstance * target,
+			HLDInstance * other,
+			void * unknown0,
+			uint32_t unknown1,
+			uint32_t unknown2
+	);
+	/* Spawn a new instance of an object. */
+	__attribute__((cdecl)) HLDInstance * (* actionInstanceCreate)(
+			int32_t objIdx,
+			float posX,
+			float posY
+	);
+	/*  */
+	__attribute__((cdecl)) void (* actionInstanceChange)(
+			HLDInstance * inst,
+			int32_t newObjIdx,
+			bool doEvents
+	);
+	/* Destroy an instance. */
+	__attribute__((cdecl)) void (* actionInstanceDestroy)(
+			HLDInstance * inst0,
+			HLDInstance * inst1,
+			int32_t objIdx,
+			bool doEvent
+	);
+	/* Set instance's mask index. */
+	__attribute__((cdecl)) void (* Instance_setMaskIndex)(
+			HLDInstance * inst,
+			int32_t maskIndex
+	);
+	/* Set an instance's direction and speed based on its motion vector. */
+	__attribute__((cdecl)) void (* Instance_setMotionPolarFromCartesian)(
+			HLDInstance * inst
+	);
+} HLDFunctions;
+
+
+
+/* ----- INTERNAL GLOBALS ----- */
+
+extern HLDVariables hldvars;
+
+extern HLDFunctions hldfuncs;
 
 
 

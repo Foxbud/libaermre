@@ -5,6 +5,14 @@
 
 
 
+/* ----- INTERNAL GLOBALS ----- */
+
+HLDVariables hldvars = {0};
+
+HLDFunctions hldfuncs = {0};
+
+
+
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void * HLDHashTableLookup(HLDHashTable * table, int32_t key) {

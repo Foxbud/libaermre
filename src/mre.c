@@ -23,104 +23,8 @@
 
 /* ----- PRIVATE TYPES ----- */
 
-/*
- * This struct holds pointers to raw values and functions in the Game Maker
- * engine. These pointers are passed into the MRE from the hooks injected
- * into the game's executable.
- */
-typedef struct HLDRefs {
-	/* Number of steps since start of the game. */
-	int32_t * numSteps;
-	/* Tables of booleans where each index represents a key code. */
-	bool (* keysPressedTable)[0x100];
-	bool (* keysHeldTable)[0x100];
-	bool (* keysReleasedTable)[0x100];
-	/* Array of all registered rooms. */
-	HLDArrayPreSize * roomTable;
-	/* Index of currently active room. */
-	int32_t * roomIndexCurrent;
-	/* Actual room object of currently active room. */
-	HLDRoom ** roomCurrent;
-	/* Array of all registered sprites. */
-	HLDSprite *** spriteTable;
-	/* Hash table of all registered objects. */
-	HLDHashTable ** objectTableHandle;
-	/* Hash table of all in-game instances. */
-	HLDHashTable * instanceTable;
-	/*
-	 * As an optimization, the engine only checks for alarm events on objects
-	 * listed (or "subscribed") in these arrays.
-	 */
-	size_t (* alarmEventSubscriberCounts)[12];
-	HLDEventSubscribers (* alarmEventSubscribers)[12];
-	size_t (* stepEventSubscriberCounts)[3];
-	HLDEventSubscribers (* stepEventSubscribers)[3];
-	/* Register a new sprite. */
-	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
-			const char * fname,
-			size_t imgNum,
-			int32_t unknown0,
-			int32_t unknown1,
-			int32_t unknown2,
-			int32_t unknown3,
-			uint32_t origX,
-			uint32_t origY
-	);
-	/* Register a new object. */
-	__attribute__((cdecl)) int32_t (* actionObjectAdd)(void);
-	/* Trigger an event as if it occurred "naturally." */
-	__attribute__((cdecl)) int32_t (* actionEventPerform)(
-			HLDInstance * target,
-			HLDInstance * other,
-			int32_t targetObjIdx,
-			uint32_t eventType,
-			int32_t eventNum
-	);
-	/*
-	 * Custom Heart Machine function that sets an instance's draw depth based
-	 * on its y position and the current room's height.
-	 */
-	__attribute__((cdecl)) HLDInstance * (* gmlScriptSetdepth)(
-			HLDInstance * target,
-			HLDInstance * other,
-			void * unknown0,
-			uint32_t unknown1,
-			uint32_t unknown2
-	);
-	/* Spawn a new instance of an object. */
-	__attribute__((cdecl)) HLDInstance * (* actionInstanceCreate)(
-			int32_t objIdx,
-			float posX,
-			float posY
-	);
-	/*  */
-	__attribute__((cdecl)) void (* actionInstanceChange)(
-			HLDInstance * inst,
-			int32_t newObjIdx,
-			bool doEvents
-	);
-	/* Destroy an instance. */
-	__attribute__((cdecl)) void (* actionInstanceDestroy)(
-			HLDInstance * inst0,
-			HLDInstance * inst1,
-			int32_t objIdx,
-			bool doEvent
-	);
-	/* Set instance's mask index. */
-	__attribute__((cdecl)) void (* Instance_setMaskIndex)(
-			HLDInstance * inst,
-			int32_t maskIndex
-	);
-	/* Set an instance's direction and speed based on its motion vector. */
-	__attribute__((cdecl)) void (* Instance_setMotionPolarFromCartesian)(
-			HLDInstance * inst
-	);
-} HLDRefs;
-
 /* This struct represents the current state of the mod runtime environment. */
 typedef struct AERMRE {
-	/* Raw engine pointers passed in by the hooks. */
-	HLDRefs refs;
 	/*
 	 * Index of active room during previous game step. Solely for detecting
 	 * room changes.
@@ -182,20 +86,6 @@ static AERMRE mre;
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static HLDObject * ObjectLookup(int32_t key) {
-	return HLDHashTableLookup(
-			*mre.refs.objectTableHandle,
-			key
-	);
-}
-
-static HLDInstance * InstanceLookup(int32_t key) {
-	return HLDHashTableLookup(
-			mre.refs.instanceTable,
-			key
-	);
-}
-
 static bool EventTrapDeinitCallback(EventTrap * trap, void * ctx) {
 	(void)ctx;
 
@@ -208,13 +98,13 @@ static void PerformParentEvent(
 		HLDInstance * target,
 		HLDInstance * other
 ) {
-	HLDObject * obj = ObjectLookup(mre.currentEvent.objIdx);
+	HLDObject * obj = HLDObjectLookup(mre.currentEvent.objIdx);
 	int32_t parentObjIdx = obj->parentIndex;
 	if (
 			parentObjIdx >= 0
-			&& (uint32_t)parentObjIdx < (*mre.refs.objectTableHandle)->numItems
+			&& (uint32_t)parentObjIdx < (*hldvars.objectTableHandle)->numItems
 	) {
-		mre.refs.actionEventPerform(
+		hldfuncs.actionEventPerform(
 				target,
 				other,
 				parentObjIdx,
@@ -275,7 +165,7 @@ static EventTrap EntrapEvent(
 		HLDEventType eventType,
 		uint32_t eventNum
 ) {
-	size_t numObjs = (*mre.refs.objectTableHandle)->numItems;
+	size_t numObjs = (*hldvars.objectTableHandle)->numItems;
 	HLDArrayPreSize oldArr, newArr;
 
 	/* Get original event array. */
@@ -385,9 +275,9 @@ static void RegisterObjectListener(
 }
 
 static void BuildObjTree(void) {
-	size_t numObjs = (*mre.refs.objectTableHandle)->numItems;
+	size_t numObjs = (*hldvars.objectTableHandle)->numItems;
 	for (uint32_t idx = 0; idx < numObjs; idx++) {
-		HLDObject * obj = ObjectLookup(idx);
+		HLDObject * obj = HLDObjectLookup(idx);
 		assert(obj);
 		ObjTreeInsert(
 				mre.objTree,
@@ -425,13 +315,13 @@ static void RegisterEventSubscriber(EventKey key) {
 	ctx.eventNum = key.num;
 	switch (key.type) {
 		case HLD_EVENT_ALARM:
-			ctx.subCountsArr = *mre.refs.alarmEventSubscriberCounts;
-			ctx.subArrs = *mre.refs.alarmEventSubscribers;
+			ctx.subCountsArr = *hldvars.alarmEventSubscriberCounts;
+			ctx.subArrs = *hldvars.alarmEventSubscribers;
 			break;
 
 		case HLD_EVENT_STEP:
-			ctx.subCountsArr = *mre.refs.stepEventSubscriberCounts;
-			ctx.subArrs = *mre.refs.stepEventSubscribers;
+			ctx.subCountsArr = *hldvars.stepEventSubscriberCounts;
+			ctx.subArrs = *hldvars.stepEventSubscribers;
 			break;
 
 		default:
@@ -462,7 +352,7 @@ static void MaskEventSubscribers(
 		size_t * subCountsArr,
 		HLDEventSubscribers * subArrs
 ) {
-	size_t numObjs = (*mre.refs.objectTableHandle)->numItems;
+	size_t numObjs = (*hldvars.objectTableHandle)->numItems;
 
 	for (uint32_t eventNum = 0; eventNum < numEvents; eventNum++) {
 		size_t oldSubCount = subCountsArr[eventNum];
@@ -486,10 +376,15 @@ static void MaskEventSubscribers(
 	return;
 }
 
-static void InitMRE(HLDRefs refs) {
+static void InitMRE(
+		HLDVariables varRefs,
+		HLDFunctions funcRefs
+) {
 	LogInfo("Initializing mod runtime environment...");
+	hldvars = varRefs;
+	hldfuncs = funcRefs;
+
 	mre = (AERMRE){
-		.refs = refs,
 		.roomIndexPrevious = 0,
 		.objTree = ObjTreeNew(),
 		.eventTraps = FoxMapMNewExt(
@@ -555,14 +450,14 @@ static void InitMods(void) {
 	MaskEventSubscribers(
 			HLD_EVENT_ALARM,
 			12,
-			*mre.refs.alarmEventSubscriberCounts,
-			*mre.refs.alarmEventSubscribers
+			*hldvars.alarmEventSubscriberCounts,
+			*hldvars.alarmEventSubscribers
 	);
 	MaskEventSubscribers(
 			HLD_EVENT_STEP,
 			3,
-			*mre.refs.stepEventSubscriberCounts,
-			*mre.refs.stepEventSubscribers
+			*hldvars.stepEventSubscriberCounts,
+			*hldvars.stepEventSubscribers
 	);
 
 	/* Register listeners. */
@@ -587,8 +482,11 @@ static void InitMods(void) {
 
 /* ----- UNLISTED FUNCTIONS ----- */
 
-__attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
-	InitMRE(refs);
+__attribute__((cdecl)) void AERHookInit(
+		HLDVariables varRefs,
+		HLDFunctions funcRefs
+) {
+	InitMRE(varRefs, funcRefs);
 	ModManConstructor();
 	InitMods();
 
@@ -597,7 +495,7 @@ __attribute__((cdecl)) void AERHookInit(HLDRefs refs) {
 
 __attribute__((cdecl)) void AERHookStep(void) {
 	/* Check if room changed. */
-	int32_t roomIndexCurrent = *mre.refs.roomIndexCurrent;
+	int32_t roomIndexCurrent = *hldvars.roomIndexCurrent;
 	if (roomIndexCurrent != mre.roomIndexPrevious) {
 		/* Call room change listeners. */
 		size_t numListeners = FoxArrayMSize(
@@ -665,14 +563,14 @@ __attribute__((destructor)) void AERDestructor(void) {
 
 	LogInfo("Deinitializing mod runtime environment...");
 	for (uint32_t idx = 0; idx < 12; idx++) {
-		HLDEventSubscribers * subArr = *mre.refs.alarmEventSubscribers + idx;
+		HLDEventSubscribers * subArr = *hldvars.alarmEventSubscribers + idx;
 		if (subArr->objects) {
 			free(subArr->objects);
 			subArr->objects = NULL;
 		}
 	}
 	for (uint32_t idx = 0; idx < 3; idx++) {
-		HLDEventSubscribers * subArr = *mre.refs.stepEventSubscribers + idx;
+		HLDEventSubscribers * subArr = *hldvars.stepEventSubscribers + idx;
 		if (subArr->objects) {
 			free(subArr->objects);
 			subArr->objects = NULL;
@@ -727,7 +625,7 @@ int32_t AERRegisterSprite(
 			filename
 	);
 
-	int32_t spriteIdx = mre.refs.actionSpriteAdd(
+	int32_t spriteIdx = hldfuncs.actionSpriteAdd(
 			pathBuf,
 			numFrames,
 			0,
@@ -762,11 +660,11 @@ int32_t AERRegisterObject(
 	ErrIf(mre.stage != STAGE_OBJECT_REG, AER_SEQ_BREAK, -1);
 	ErrIf(!name, AER_NULL_ARG, -1);
 
-	HLDObject * parent = ObjectLookup(parentIdx);
+	HLDObject * parent = HLDObjectLookup(parentIdx);
 	ErrIf(!parent, AER_FAILED_LOOKUP, -1);
 
-	int32_t objIdx = mre.refs.actionObjectAdd();
-	HLDObject * obj = ObjectLookup(objIdx);
+	int32_t objIdx = hldfuncs.actionObjectAdd();
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_OUT_OF_MEM, -1);
 
 	/* The engine expects a freeable (dynamically allocated) string for name. */
@@ -801,7 +699,7 @@ void AERRegisterCreateListener(
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP);
 
 	EventKey key = (EventKey){
@@ -837,7 +735,7 @@ void AERRegisterDestroyListener(
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP);
 
 	EventKey key = {
@@ -876,7 +774,7 @@ void AERRegisterAlarmListener(
 	ErrIf(!listener, AER_NULL_ARG);
 	ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP);
 
 	EventKey key = {
@@ -913,7 +811,7 @@ void AERRegisterStepListener(
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP);
 
 	EventKey key = {
@@ -950,7 +848,7 @@ void AERRegisterPreStepListener(
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP);
 
 	EventKey key = {
@@ -987,7 +885,7 @@ void AERRegisterPostStepListener(
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP);
 
 	EventKey key = {
@@ -1025,9 +923,9 @@ void AERRegisterCollisionListener(
 
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
-	ErrIf(!ObjectLookup(otherObjIdx), AER_FAILED_LOOKUP);
+	ErrIf(!HLDObjectLookup(otherObjIdx), AER_FAILED_LOOKUP);
 
-	HLDObject * obj = ObjectLookup(targetObjIdx);
+	HLDObject * obj = HLDObjectLookup(targetObjIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP);
 
 	EventKey key = {
@@ -1063,7 +961,7 @@ void AERRegisterAnimationEndListener(
 	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
 	ErrIf(!listener, AER_NULL_ARG);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP);
 
 	EventKey key = {
@@ -1088,37 +986,37 @@ void AERRegisterAnimationEndListener(
 uint32_t AERGetNumSteps(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
-	return *mre.refs.numSteps;
+	return *hldvars.numSteps;
 }
 
 const bool * AERGetKeysPressed(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	return *mre.refs.keysPressedTable;
+	return *hldvars.keysPressedTable;
 }
 
 const bool * AERGetKeysHeld(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	return *mre.refs.keysHeldTable;
+	return *hldvars.keysHeldTable;
 }
 
 const bool * AERGetKeysReleased(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	return *mre.refs.keysReleasedTable;
+	return *hldvars.keysReleasedTable;
 }
 
 int32_t AERRoomGetCurrent(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 
-	return *mre.refs.roomIndexCurrent;
+	return *hldvars.roomIndexCurrent;
 }
 
 const char * AERObjectGetName(int32_t objIdx) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP, NULL);
 
 	return obj->name;
@@ -1127,7 +1025,7 @@ const char * AERObjectGetName(int32_t objIdx) {
 int32_t AERObjectGetParent(int32_t objIdx) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP, -1);
 
 	return obj->parentIndex;
@@ -1141,7 +1039,7 @@ size_t AERObjectGetInstances(
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 	ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP, 0);
 
 	size_t numInsts = obj->numInstances;
@@ -1158,7 +1056,7 @@ size_t AERObjectGetInstances(
 bool AERObjectGetCollisions(int32_t objIdx) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, false);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP, false);
 
 	return obj->flags.collisions;
@@ -1170,7 +1068,7 @@ void AERObjectSetCollisions(
 ) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 
-	HLDObject * obj = ObjectLookup(objIdx);
+	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_FAILED_LOOKUP);
 	obj->flags.collisions = collisions;
 
@@ -1184,7 +1082,7 @@ size_t AERGetInstances(
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 	ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
 
-	HLDRoom * room = *mre.refs.roomCurrent;
+	HLDRoom * room = *hldvars.roomCurrent;
 
 	size_t numInsts = room->numInstances;
 	size_t numToWrite = FoxMin(numInsts, bufSize);
@@ -1200,7 +1098,7 @@ size_t AERGetInstances(
 AERInstance * AERGetInstanceById(int32_t instId) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	AERInstance * inst = (AERInstance *)InstanceLookup(instId);
+	AERInstance * inst = (AERInstance *)HLDInstanceLookup(instId);
 	ErrIf(!inst, AER_FAILED_LOOKUP, NULL);
 
 	return inst;
@@ -1212,9 +1110,9 @@ AERInstance * AERInstanceCreate(
 		float y
 ) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
-	ErrIf(!ObjectLookup(objIdx), AER_FAILED_LOOKUP, NULL);
+	ErrIf(!HLDObjectLookup(objIdx), AER_FAILED_LOOKUP, NULL);
 
-	AERInstance * inst = (AERInstance *)mre.refs.actionInstanceCreate(
+	AERInstance * inst = (AERInstance *)hldfuncs.actionInstanceCreate(
 			objIdx,
 			x,
 			y
@@ -1231,9 +1129,9 @@ void AERInstanceChange(
 ) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
-	ErrIf(!ObjectLookup(newObjIdx), AER_FAILED_LOOKUP);
+	ErrIf(!HLDObjectLookup(newObjIdx), AER_FAILED_LOOKUP);
 
-	mre.refs.actionInstanceChange(
+	hldfuncs.actionInstanceChange(
 			(HLDInstance *)inst,
 			newObjIdx,
 			doEvents
@@ -1246,7 +1144,7 @@ void AERInstanceDestroy(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
 
-	mre.refs.actionInstanceDestroy(
+	hldfuncs.actionInstanceDestroy(
 			(HLDInstance *)inst,
 			(HLDInstance *)inst,
 			-1,
@@ -1260,7 +1158,7 @@ void AERInstanceDelete(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
 
-	mre.refs.actionInstanceDestroy(
+	hldfuncs.actionInstanceDestroy(
 			(HLDInstance *)inst,
 			(HLDInstance *)inst,
 			-1,
@@ -1275,7 +1173,7 @@ void AERInstanceSyncDepth(AERInstance * inst) {
 	ErrIf(!inst, AER_NULL_ARG);
 
 	uint32_t unknownDatastructure[4] = {0};
-	mre.refs.gmlScriptSetdepth(
+	hldfuncs.gmlScriptSetdepth(
 			(HLDInstance *)inst,
 			(HLDInstance *)inst,
 			&unknownDatastructure,
@@ -1380,7 +1278,7 @@ void AERInstanceSetMotion(
 
 	inst->speedX = x;
 	inst->speedY = y;
-	mre.refs.Instance_setMotionPolarFromCartesian(inst);
+	hldfuncs.Instance_setMotionPolarFromCartesian(inst);
 
 	return;
 #undef inst
@@ -1397,7 +1295,7 @@ void AERInstanceAddMotion(
 
 	inst->speedX += x;
 	inst->speedY += y;
-	mre.refs.Instance_setMotionPolarFromCartesian(inst);
+	hldfuncs.Instance_setMotionPolarFromCartesian(inst);
 
 	return;
 #undef inst
@@ -1417,7 +1315,7 @@ void AERInstanceSetMask(
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
 
-	mre.refs.Instance_setMaskIndex(
+	hldfuncs.Instance_setMaskIndex(
 			(HLDInstance *)inst,
 			maskIdx
 	);
