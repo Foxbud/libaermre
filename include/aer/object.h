@@ -1,20 +1,18 @@
 /**
  * @file
  */
-#ifndef AER_OBJECTS_H
-#define AER_OBJECTS_H
+#ifndef AER_OBJECT_H
+#define AER_OBJECT_H
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include "aer/instance.h"
 
 
 
-/**
- * @defgroup objtypes Object Types
- *
- * This module enumerates all vanilla objects in the game.
- *
- * @sa aer/objects.h
- *
- * @{
- */
+/* ----- PUBLIC TYPES ----- */
 
 typedef enum AERObjectType {
 	AER_OBJECT_MASTERCLASS = 0x0,
@@ -533,10 +531,88 @@ typedef enum AERObjectType {
 	AER_OBJECT_OBJCTTVIDEOPLAYER = 0x1fd
 } AERObjectType;
 
-/**
- * @}
- */
+
+
+/* ----- PUBLIC FUNCTIONS ----- */
+
+int32_t AERObjectRegister(
+		const char * name,
+		int32_t parentIdx,
+		int32_t spriteIdx,
+		int32_t maskIdx,
+		int32_t depth,
+		bool visible,
+		bool collisions,
+		bool persistent
+);
+
+const char * AERObjectGetName(int32_t objIdx);
+
+int32_t AERObjectGetParent(int32_t objIdx);
+
+size_t AERObjectGetInstances(
+		int32_t objIdx,
+		size_t bufSize,
+		AERInstance ** instBuf
+);
+
+bool AERObjectGetCollisions(int32_t objIdx);
+
+void AERObjectSetCollisions(
+		int32_t objIdx,
+		bool collisions
+);
+
+void AERObjectAttachCreateListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+void AERObjectAttachDestroyListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+void AERObjectAttachAlarmListener(
+		int32_t objIdx,
+		uint32_t alarmIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+void AERObjectAttachStepListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+void AERObjectAttachPreStepListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+void AERObjectAttachPostStepListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
+
+void AERObjectAttachCollisionListener(
+		int32_t targetObjIdx,
+		int32_t otherObjIdx,
+		bool (* listener)(AERInstance * target, AERInstance * other),
+		bool downstream
+);
+
+void AERObjectAttachAnimationEndListener(
+		int32_t objIdx,
+		bool (* listener)(AERInstance * inst),
+		bool downstream
+);
 
 
 
-#endif /* AER_OBJECTS_H */
+#endif /* AER_OBJECT_H */

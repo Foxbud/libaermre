@@ -1,61 +1,23 @@
 #include <assert.h>
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "foxutils/arraymacs.h"
 #include "foxutils/mapmacs.h"
-#include "foxutils/math.h"
 
 #include "aer/mre.h"
 #include "internal/envconf.h"
 #include "internal/err.h"
-#include "internal/eventkey.h"
 #include "internal/eventtrap.h"
-#include "internal/hld.h"
 #include "internal/log.h"
 #include "internal/modman.h"
-#include "internal/objtree.h"
+#include "internal/mre.h"
 #include "internal/rand.h"
 
 
 
 /* ----- PRIVATE TYPES ----- */
-
-/* This struct represents the current state of the mod runtime environment. */
-typedef struct AERMRE {
-	/*
-	 * Index of active room during previous game step. Solely for detecting
-	 * room changes.
-	 */
-	int32_t roomIndexPrevious;
-	/* Inheritance tree of all objects (including mod-registered). */
-	ObjTree * objTree;
-	/*
-	 * Hash table of all events that have been entrapped during the mod
-	 * event listener registration stage.
-	 */
-	FoxMap * eventTraps;
-	/* Key of currently active event. */
-	EventKey currentEvent;
-	/* 
-	 * Because C lacks enclosures, all entrapped events point to this common
-	 * event handler which then looks up and executes the trap for the
-	 * current event.
-	 */
-	HLDNamedFunction eventHandler;
-	/* Internal record of all subscriptions to subscribable events. */
-	FoxMap * eventSubscribers;
-	/* Current stage of the MRE. */
-	enum {
-		STAGE_INIT,
-		STAGE_SPRITE_REG,
-		STAGE_OBJECT_REG,
-		STAGE_LISTENER_REG,
-		STAGE_ACTION
-	} stage;
-} AERMRE;
 
 /*
  * This struct holds context information about the target event when
@@ -72,15 +34,19 @@ typedef struct SubscriptionContext {
 
 /* ----- PRIVATE CONSTANTS ----- */
 
-static const char * ASSET_PATH_FMT = "assets/mod/%s/%s";
-
 static const size_t MAX_OBJ_TREE_DEPTH = 64;
 
 
 
-/* ----- PRIVATE GLOBALS ----- */
+/* ----- INTERNAL CONSTANTS ----- */
 
-static AERMRE mre;
+const char * MRE_ASSET_PATH_FMT = "assets/mod/%s/%s";
+
+
+
+/* ----- INTERNAL GLOBALS ----- */
+
+AERMRE mre;
 
 
 
@@ -241,37 +207,6 @@ static EventTrap EntrapEvent(
 	);
 	
 	return trap;
-}
-
-static void RegisterObjectListener(
-		HLDObject * obj,
-		EventKey key,
-		ModListener listener,
-		bool downstream
-) {
-	EventTrap * trap = FoxMapMIndex(
-			EventKey,
-			EventTrap,
-			mre.eventTraps,
-			key
-	);
-	if (!trap) {
-		trap = FoxMapMInsert(
-				EventKey,
-				EventTrap,
-				mre.eventTraps,
-				key
-		);
-		*trap = EntrapEvent(obj, key.type, key.num);
-	}
-
-	if (downstream) {
-		EventTrapAddDownstream(trap, listener);
-	} else {
-		EventTrapAddUpstream(trap, listener);
-	}
-
-	return;
 }
 
 static void BuildObjTree(void) {
@@ -480,6 +415,52 @@ static void InitMods(void) {
 
 
 
+/* ----- INTERNAL FUNCTIONS ----- */
+
+void MRERegisterEventListener(
+		HLDObject * obj,
+		EventKey key,
+		ModListener listener,
+		bool downstream
+) {
+	/* Register subscription if subscribable event. */
+	switch (key.type) {
+		case HLD_EVENT_ALARM:
+		case HLD_EVENT_STEP:
+			RegisterEventSubscriber(key);
+			break;
+
+		default:
+			break;
+	}
+
+	EventTrap * trap = FoxMapMIndex(
+			EventKey,
+			EventTrap,
+			mre.eventTraps,
+			key
+	);
+	if (!trap) {
+		trap = FoxMapMInsert(
+				EventKey,
+				EventTrap,
+				mre.eventTraps,
+				key
+		);
+		*trap = EntrapEvent(obj, key.type, key.num);
+	}
+
+	if (downstream) {
+		EventTrapAddDownstream(trap, listener);
+	} else {
+		EventTrapAddUpstream(trap, listener);
+	}
+
+	return;
+}
+
+
+
 /* ----- UNLISTED FUNCTIONS ----- */
 
 __attribute__((cdecl)) void AERHookInit(
@@ -600,389 +581,6 @@ __attribute__((destructor)) void AERDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-int32_t AERRegisterSprite(
-		const char * filename,
-		size_t numFrames,
-		uint32_t origX,
-		uint32_t origY
-) {
-	LogInfo(
-			"Registering sprite \"%s\" for mod \"%s\"...",
-			filename,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, -1);
-	ErrIf(!filename, AER_NULL_ARG, -1);
-
-	/* Construct asset path. */
-	char pathBuf[256];
-	snprintf(
-			pathBuf,
-			256,
-			ASSET_PATH_FMT,
-			(*FoxArrayMPeek(Mod *, &modman.context))->slug,
-			filename
-	);
-
-	int32_t spriteIdx = hldfuncs.actionSpriteAdd(
-			pathBuf,
-			numFrames,
-			0,
-			0,
-			0,
-			0,
-			origX,
-			origY
-	);
-	ErrIf(spriteIdx < 0, AER_BAD_FILE, -1);
-
-	LogInfo("Successfully registered sprite to index %i.", spriteIdx);
-	return spriteIdx;
-}
-
-int32_t AERRegisterObject(
-		const char * name,
-		int32_t parentIdx,
-		int32_t spriteIdx,
-		int32_t maskIdx,
-		int32_t depth,
-		bool visible,
-		bool collisions,
-		bool persistent
-) {
-	LogInfo(
-			"Registering object \"%s\" for mod \"%s\"...",
-			name,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_OBJECT_REG, AER_SEQ_BREAK, -1);
-	ErrIf(!name, AER_NULL_ARG, -1);
-
-	HLDObject * parent = HLDObjectLookup(parentIdx);
-	ErrIf(!parent, AER_FAILED_LOOKUP, -1);
-
-	int32_t objIdx = hldfuncs.actionObjectAdd();
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_OUT_OF_MEM, -1);
-
-	/* The engine expects a freeable (dynamically allocated) string for name. */
-	char * tmpName = malloc(strlen(name) + 1);
-	ErrIf(!tmpName, AER_OUT_OF_MEM, -1);
-	obj->name = strcpy(tmpName, name);
-
-	obj->parentIndex = parentIdx;
-	obj->parent = parent;
-	obj->spriteIndex = spriteIdx;
-	obj->maskIndex = maskIdx;
-	obj->depth = depth;
-	obj->flags.visible = visible;
-	obj->flags.collisions = collisions;
-	obj->flags.persistent = persistent;
-
-	LogInfo("Successfully registered object to index %i.", objIdx);
-	return objIdx;
-}
-
-void AERRegisterCreateListener(
-		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
-) {
-	LogInfo(
-			"Registering create listener on object %i for mod \"%s\"...",
-			objIdx,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-	ErrIf(!listener, AER_NULL_ARG);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP);
-
-	EventKey key = (EventKey){
-		.type = HLD_EVENT_CREATE,
-		.num = 0,
-		.objIdx = objIdx
-	};
-	RegisterObjectListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
-
-	LogInfo("Successfully registered create listener.");
-	return;
-}
-
-void AERRegisterDestroyListener(
-		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
-) {
-	LogInfo(
-			"Registering destroy listener on object %i for mod \"%s\"...",
-			objIdx,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-	ErrIf(!listener, AER_NULL_ARG);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP);
-
-	EventKey key = {
-		.type = HLD_EVENT_DESTROY,
-		.num = 0,
-		.objIdx = objIdx
-	};
-	RegisterObjectListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
-
-	LogInfo("Successfully registered destroy listener.");
-	return;
-}
-
-void AERRegisterAlarmListener(
-		int32_t objIdx,
-		uint32_t alarmIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
-) {
-	LogInfo(
-			"Registering alarm %u listener on object %i for mod \"%s\"...",
-			alarmIdx,
-			objIdx,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-	ErrIf(!listener, AER_NULL_ARG);
-	ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP);
-
-	EventKey key = {
-		.type = HLD_EVENT_ALARM,
-		.num = alarmIdx,
-		.objIdx = objIdx
-	};
-	RegisterObjectListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
-	RegisterEventSubscriber(key);
-
-	LogInfo("Successfully registered alarm %u listener.", alarmIdx);
-	return;
-}
-
-void AERRegisterStepListener(
-		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
-) {
-	LogInfo(
-			"Registering step listener on object %i for mod \"%s\"...",
-			objIdx,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-	ErrIf(!listener, AER_NULL_ARG);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP);
-
-	EventKey key = {
-		.type = HLD_EVENT_STEP,
-		.num = HLD_EVENT_STEP_INLINE,
-		.objIdx = objIdx
-	};
-	RegisterObjectListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
-	RegisterEventSubscriber(key);
-
-	LogInfo("Successfully registered step listener.");
-	return;
-}
-
-void AERRegisterPreStepListener(
-		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
-) {
-	LogInfo(
-			"Registering pre-step listener on object %i for mod \"%s\"...",
-			objIdx,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-	ErrIf(!listener, AER_NULL_ARG);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP);
-
-	EventKey key = {
-		.type = HLD_EVENT_STEP,
-		.num = HLD_EVENT_STEP_PRE,
-		.objIdx = objIdx
-	};
-	RegisterObjectListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
-	RegisterEventSubscriber(key);
-
-	LogInfo("Successfully registered pre-step listener.");
-	return;
-}
-
-void AERRegisterPostStepListener(
-		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
-) {
-	LogInfo(
-			"Registering post-step listener on object %i for mod \"%s\"...",
-			objIdx,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-	ErrIf(!listener, AER_NULL_ARG);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP);
-
-	EventKey key = {
-		.type = HLD_EVENT_STEP,
-		.num = HLD_EVENT_STEP_POST,
-		.objIdx = objIdx
-	};
-	RegisterObjectListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
-	RegisterEventSubscriber(key);
-
-	LogInfo("Successfully registered post-step listener.");
-	return;
-}
-
-void AERRegisterCollisionListener(
-		int32_t targetObjIdx,
-		int32_t otherObjIdx,
-		bool (* listener)(AERInstance * target, AERInstance * other),
-		bool downstream
-) {
-	LogInfo(
-			"Registering %i collision listener on object %i for mod \"%s\"...",
-			otherObjIdx,
-			targetObjIdx,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-	ErrIf(!listener, AER_NULL_ARG);
-	ErrIf(!HLDObjectLookup(otherObjIdx), AER_FAILED_LOOKUP);
-
-	HLDObject * obj = HLDObjectLookup(targetObjIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP);
-
-	EventKey key = {
-		.type = HLD_EVENT_COLLISION,
-		.num = otherObjIdx,
-		.objIdx = targetObjIdx
-	};
-	RegisterObjectListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObjPair = listener
-			},
-			downstream
-	);
-
-	LogInfo("Successfully registered %i collision listener.", otherObjIdx);
-	return;
-}
-
-void AERRegisterAnimationEndListener(
-		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
-) {
-	LogInfo(
-			"Registering animation end listener on object %i for mod \"%s\"...",
-			objIdx,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-
-	ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-	ErrIf(!listener, AER_NULL_ARG);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP);
-
-	EventKey key = {
-		.type = HLD_EVENT_OTHER,
-		.num = HLD_EVENT_OTHER_ANIMATION_END,
-		.objIdx = objIdx
-	};
-	RegisterObjectListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
-
-	LogInfo("Successfully registered animation end listener.");
-	return;
-}
-
 uint32_t AERGetNumSteps(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
@@ -1005,492 +603,4 @@ const bool * AERGetKeysReleased(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.keysReleasedTable;
-}
-
-int32_t AERRoomGetCurrent(void) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-
-	return *hldvars.roomIndexCurrent;
-}
-
-const char * AERObjectGetName(int32_t objIdx) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP, NULL);
-
-	return obj->name;
-}
-
-int32_t AERObjectGetParent(int32_t objIdx) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP, -1);
-
-	return obj->parentIndex;
-}
-
-size_t AERObjectGetInstances(
-		int32_t objIdx,
-		size_t bufSize,
-		AERInstance ** instBuf
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
-	ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP, 0);
-
-	size_t numInsts = obj->numInstances;
-	size_t numToWrite = FoxMin(numInsts, bufSize);
-	HLDNodeDLL * node = obj->instanceFirst;
-	for (size_t idx = 0; idx < numToWrite; idx++) {
-		instBuf[idx] = (AERInstance *)node->item;
-		node = node->next;
-	}
-
-	return numInsts;
-}
-
-bool AERObjectGetCollisions(int32_t objIdx) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, false);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP, false);
-
-	return obj->flags.collisions;
-}
-
-void AERObjectSetCollisions(
-		int32_t objIdx,
-		bool collisions
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-
-	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP);
-	obj->flags.collisions = collisions;
-
-	return;
-}
-
-size_t AERGetInstances(
-		size_t bufSize,
-		AERInstance ** instBuf
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
-	ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
-
-	HLDRoom * room = *hldvars.roomCurrent;
-
-	size_t numInsts = room->numInstances;
-	size_t numToWrite = FoxMin(numInsts, bufSize);
-	HLDInstance * inst = room->instanceFirst;
-	for (size_t idx = 0; idx < numToWrite; idx++) {
-		instBuf[idx] = (AERInstance *)inst;
-		inst = inst->instanceNext;
-	}
-
-	return numInsts;
-}
-
-AERInstance * AERGetInstanceById(int32_t instId) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
-
-	AERInstance * inst = (AERInstance *)HLDInstanceLookup(instId);
-	ErrIf(!inst, AER_FAILED_LOOKUP, NULL);
-
-	return inst;
-}
-
-AERInstance * AERInstanceCreate(
-		int32_t objIdx,
-		float x,
-		float y
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
-	ErrIf(!HLDObjectLookup(objIdx), AER_FAILED_LOOKUP, NULL);
-
-	AERInstance * inst = (AERInstance *)hldfuncs.actionInstanceCreate(
-			objIdx,
-			x,
-			y
-	);
-	ErrIf(!inst, AER_OUT_OF_MEM, NULL);
-
-	return inst;
-}
-
-void AERInstanceChange(
-		AERInstance * inst,
-		int32_t newObjIdx,
-		bool doEvents
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-	ErrIf(!HLDObjectLookup(newObjIdx), AER_FAILED_LOOKUP);
-
-	hldfuncs.actionInstanceChange(
-			(HLDInstance *)inst,
-			newObjIdx,
-			doEvents
-	);
-
-	return;
-}
-
-void AERInstanceDestroy(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	hldfuncs.actionInstanceDestroy(
-			(HLDInstance *)inst,
-			(HLDInstance *)inst,
-			-1,
-			true
-	);
-
-	return;
-}
-
-void AERInstanceDelete(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	hldfuncs.actionInstanceDestroy(
-			(HLDInstance *)inst,
-			(HLDInstance *)inst,
-			-1,
-			false
-	);
-
-	return;
-}
-
-void AERInstanceSyncDepth(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	uint32_t unknownDatastructure[4] = {0};
-	hldfuncs.gmlScriptSetdepth(
-			(HLDInstance *)inst,
-			(HLDInstance *)inst,
-			&unknownDatastructure,
-			0,
-			0
-	);
-
-	return;
-}
-
-int32_t AERInstanceGetId(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-	ErrIf(!inst, AER_NULL_ARG, -1);
-
-	return ((HLDInstance *)inst)->id;
-}
-
-int32_t AERInstanceGetObject(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-	ErrIf(!inst, AER_NULL_ARG, -1);
-
-	return ((HLDInstance *)inst)->objectIndex;
-}
-
-void AERInstanceGetPosition(
-		AERInstance * inst,
-		float * x,
-		float * y
-) {
-#define inst ((HLDInstance *)inst)
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-	ErrIf(!(x || y), AER_NULL_ARG);
-
-	if (x) *x = inst->pos.x;
-	if (y) *y = inst->pos.y;
-
-	return;
-#undef inst
-}
-
-void AERInstanceSetPosition(
-		AERInstance * inst,
-		float x,
-		float y
-) {
-#define inst ((HLDInstance *)inst)
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	inst->pos.x = x;
-	inst->pos.y = y;
-
-	return;
-#undef inst
-}
-
-float AERInstanceGetFriction(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
-	ErrIf(!inst, AER_NULL_ARG, 0.0f);
-
-	return ((HLDInstance *)inst)->friction;
-}
-
-void AERInstanceSetFriction(
-		AERInstance * inst,
-		float friction
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	((HLDInstance *)inst)->friction = friction;
-
-	return;
-}
-
-void AERInstanceGetMotion(
-		AERInstance * inst,
-		float * x,
-		float * y
-) {
-#define inst ((HLDInstance *)inst)
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-	ErrIf(!(x || y), AER_NULL_ARG);
-
-	if (x) *x = inst->speedX;
-	if (y) *y = inst->speedY;
-
-	return;
-#undef inst
-}
-
-void AERInstanceSetMotion(
-		AERInstance * inst,
-		float x,
-		float y
-) {
-#define inst ((HLDInstance *)inst)
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	inst->speedX = x;
-	inst->speedY = y;
-	hldfuncs.Instance_setMotionPolarFromCartesian(inst);
-
-	return;
-#undef inst
-}
-
-void AERInstanceAddMotion(
-		AERInstance * inst,
-		float x,
-		float y
-) {
-#define inst ((HLDInstance *)inst)
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	inst->speedX += x;
-	inst->speedY += y;
-	hldfuncs.Instance_setMotionPolarFromCartesian(inst);
-
-	return;
-#undef inst
-}
-
-int32_t AERInstanceGetMask(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-	ErrIf(!inst, AER_NULL_ARG, -1);
-
-	return ((HLDInstance *)inst)->maskIndex;
-}
-
-void AERInstanceSetMask(
-		AERInstance * inst,
-		int32_t maskIdx
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	hldfuncs.Instance_setMaskIndex(
-			(HLDInstance *)inst,
-			maskIdx
-	);
-
-	return;
-}
-
-int32_t AERInstanceGetSprite(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-	ErrIf(!inst, AER_NULL_ARG, -1);
-
-	return ((HLDInstance *)inst)->spriteIndex;
-}
-
-void AERInstanceSetSprite(
-		AERInstance * inst,
-		int32_t spriteIdx
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	((HLDInstance *)inst)->spriteIndex = spriteIdx;
-
-	return;
-}
-
-float AERInstanceGetSpriteFrame(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
-	ErrIf(!inst, AER_NULL_ARG, -1.0f);
-
-	return ((HLDInstance *)inst)->imageIndex;
-}
-
-void AERInstanceSetSpriteFrame(
-		AERInstance * inst,
-		float frame
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	((HLDInstance *)inst)->imageIndex = frame;
-
-	return;
-}
-
-float AERInstanceGetSpriteSpeed(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
-	ErrIf(!inst, AER_NULL_ARG, -1.0f);
-
-	return ((HLDInstance *)inst)->imageSpeed;
-}
-
-void AERInstanceSetSpriteSpeed(
-		AERInstance * inst,
-		float speed
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	((HLDInstance *)inst)->imageSpeed = speed;
-
-	return;
-}
-
-float AERInstanceGetSpriteAlpha(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
-	ErrIf(!inst, AER_NULL_ARG, -1.0f);
-
-	return ((HLDInstance *)inst)->imageAlpha;
-}
-
-void AERInstanceSetSpriteAlpha(
-		AERInstance * inst,
-		float alpha
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	((HLDInstance *)inst)->imageAlpha = alpha;
-
-	return;
-}
-
-float AERInstanceGetSpriteAngle(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
-	ErrIf(!inst, AER_NULL_ARG, 0.0f);
-
-	return ((HLDInstance *)inst)->imageAngle;
-}
-
-void AERInstanceSetSpriteAngle(
-		AERInstance * inst,
-		float angle
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	((HLDInstance *)inst)->imageAngle = angle;
-
-	return;
-}
-
-void AERInstanceGetSpriteScale(
-		AERInstance * inst,
-		float * x,
-		float * y
-) {
-#define inst ((HLDInstance *)inst)
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-	ErrIf(!(x || y), AER_NULL_ARG);
-
-	if (x) *x = inst->imageScale.x;
-	if (y) *y = inst->imageScale.y;
-
-	return;
-#undef inst
-}
-
-void AERInstanceSetSpriteScale(
-		AERInstance * inst,
-		float x,
-		float y
-) {
-#define inst ((HLDInstance *)inst)
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	inst->imageScale.x = x;
-	inst->imageScale.y = y;
-
-	return;
-#undef inst
-}
-
-bool AERInstanceGetTangible(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, false);
-	ErrIf(!inst, AER_NULL_ARG, false);
-
-	return ((HLDInstance *)inst)->tangible;
-}
-
-void AERInstanceSetTangible(
-		AERInstance * inst,
-		bool tangible
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-
-	((HLDInstance *)inst)->tangible = tangible;
-
-	return;
-}
-
-int32_t AERInstanceGetAlarm(
-		AERInstance * inst,
-		uint32_t alarmIdx
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-	ErrIf(!inst, AER_NULL_ARG, -1);
-	ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP, -1);
-
-	return ((HLDInstance *)inst)->alarms[alarmIdx];
-}
-
-void AERInstanceSetAlarm(
-		AERInstance * inst,
-		uint32_t alarmIdx,
-		int32_t numSteps
-) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-	ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP);
-
-	((HLDInstance *)inst)->alarms[alarmIdx] = numSteps;
-
-	return;
 }

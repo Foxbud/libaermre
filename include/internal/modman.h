@@ -6,7 +6,7 @@
 
 #include "foxutils/array.h"
 
-#include "aer/mre.h"
+#include "aer/instance.h"
 #include "internal/hld.h"
 
 

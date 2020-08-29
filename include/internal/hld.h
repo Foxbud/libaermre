@@ -394,7 +394,7 @@ typedef struct HLDSprite {
  * engine. These pointers are passed into the MRE from the hooks injected
  * into the game's executable.
  */
-typedef struct HLDVariables {
+typedef struct __attribute__((packed)) HLDVariables {
 	/* Number of steps since start of the game. */
 	int32_t * numSteps;
 	/* Tables of booleans where each index represents a key code. */
@@ -429,7 +429,7 @@ typedef struct HLDVariables {
  * engine. These pointers are passed into the MRE from the hooks injected
  * into the game's executable.
  */
-typedef struct HLDFunctions {
+typedef struct __attribute__((packed)) HLDFunctions {
 	/* Register a new sprite. */
 	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
 			const char * fname,
