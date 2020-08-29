@@ -15,6 +15,16 @@ HLDFunctions hldfuncs = {0};
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
+HLDSprite * HLDSpriteLookup(int32_t spriteIdx) {
+	HLDSprite * result = NULL;
+
+	if (spriteIdx >= 0 && (uint32_t)spriteIdx < hldvars.spriteTable->size) {
+		result = ((HLDSprite **)hldvars.spriteTable->elements)[spriteIdx];
+	}
+
+	return result;
+}
+
 void * HLDHashTableLookup(HLDHashTable * table, int32_t key) {
 	assert(table != NULL);
 	void * result = NULL;

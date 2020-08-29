@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,19 +35,21 @@ typedef struct SubscriptionContext {
 
 /* ----- PRIVATE CONSTANTS ----- */
 
+static const char * ABS_ASSET_PATH_FMT = "assets/mod/%s/%s";
+
 static const size_t MAX_OBJ_TREE_DEPTH = 64;
 
 
 
-/* ----- INTERNAL CONSTANTS ----- */
+/* ----- PRIVATE GLOBALS ----- */
 
-const char * MRE_ASSET_PATH_FMT = "assets/mod/%s/%s";
+static char assetPathBuf[1024];
 
 
 
 /* ----- INTERNAL GLOBALS ----- */
 
-AERMRE mre;
+AERMRE mre = {0};
 
 
 
@@ -357,7 +360,11 @@ static void InitMods(void) {
 	/* Register sprites. */
 	mre.stage = STAGE_SPRITE_REG;
 	LogInfo("Registering mod sprites...");
-	for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+	/*
+	 * Reverse order so that higher-priority mods' sprite replacements take
+	 * precedence over those of lower-priority mods.
+	 */
+	for (int32_t modIdx = numMods - 1; modIdx >= 0; modIdx--) {
 		Mod * mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
 		if (mod->regSprites) {
 			*FoxArrayMPush(Mod *, &modman.context) = mod;
@@ -416,6 +423,21 @@ static void InitMods(void) {
 
 
 /* ----- INTERNAL FUNCTIONS ----- */
+
+const char * MREGetAbsAssetPath(const char * relAssetPath) {
+	assert(relAssetPath);
+	assert(!FoxArrayMEmpty(Mod *, &modman.context));
+
+	snprintf(
+			assetPathBuf,
+			sizeof(assetPathBuf),
+			ABS_ASSET_PATH_FMT,
+			(*FoxArrayMPeek(Mod *, &modman.context))->slug,
+			relAssetPath
+	);
+
+	return assetPathBuf;
+}
 
 void MRERegisterEventListener(
 		HLDObject * obj,

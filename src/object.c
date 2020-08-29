@@ -26,14 +26,13 @@ int32_t AERObjectRegister(
 		bool collisions,
 		bool persistent
 ) {
+	ErrIf(!name, AER_NULL_ARG, -1);
 	LogInfo(
 			"Registering object \"%s\" for mod \"%s\"...",
 			name,
 			(*FoxArrayMPeek(Mod *, &modman.context))->name
 	);
-
 	ErrIf(mre.stage != STAGE_OBJECT_REG, AER_SEQ_BREAK, -1);
-	ErrIf(!name, AER_NULL_ARG, -1);
 
 	HLDObject * parent = HLDObjectLookup(parentIdx);
 	ErrIf(!parent, AER_FAILED_LOOKUP, -1);
@@ -58,6 +57,12 @@ int32_t AERObjectRegister(
 
 	LogInfo("Successfully registered object to index %i.", objIdx);
 	return objIdx;
+}
+
+size_t AERObjectGetNumRegistered(void) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+
+	return (*hldvars.objectTableHandle)->numItems;
 }
 
 const char * AERObjectGetName(int32_t objIdx) {

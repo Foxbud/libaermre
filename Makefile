@@ -32,7 +32,7 @@ obj = $(src:.c=.o)
 lib = $(builddir)/$(libnamev3)
 
 # Program and flag defaults.
-CFLAGS = -Wall -Wextra -O3
+CFLAGS = -Wall -Wextra -Werror -O3
 ALL_CFLAGS = -m32 -I$(incdir) $(CFLAGS)
 LD = $(CC)
 LDFLAGS = -rdynamic -ldl -l:libfoxutils.a

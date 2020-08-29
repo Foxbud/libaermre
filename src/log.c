@@ -21,6 +21,13 @@
 		va_end(FillMsgBufFromVA_va); \
 	} while (0)
 
+#define GetCurrentModName() \
+	( \
+		(FoxArrayMEmpty(Mod *, &modman.context)) ? \
+		"?" \
+		: (*FoxArrayMPeek(Mod *, &modman.context))->name \
+	)
+
 
 
 /* ----- PRIVATE TYPES ----- */
@@ -150,7 +157,7 @@ void AERLogInfo(const char * fmt, ...) {
 	Log(
 			stdout,
 			AER_LOG_INFO,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name,
+			GetCurrentModName(),
 			msgBuf
 	);
 
@@ -167,7 +174,7 @@ void AERLogWarn(const char * fmt, ...) {
 	Log(
 			stdout,
 			AER_LOG_WARN,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name,
+			GetCurrentModName(),
 			msgBuf
 	);
 
@@ -184,7 +191,7 @@ void AERLogErr(const char * fmt, ...) {
 	Log(
 			stdout,
 			AER_LOG_ERR,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name,
+			GetCurrentModName(),
 			msgBuf
 	);
 

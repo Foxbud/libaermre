@@ -75,6 +75,11 @@ typedef struct HLDArrayPreSize {
 	void * elements;
 } HLDArrayPreSize;
 
+typedef struct HLDArrayPostSize {
+	void * elements;
+	size_t size;
+} HLDArrayPostSize;
+
 typedef struct HLDEventSubscribers {
 	int32_t * objects;
 	uint32_t field_4;
@@ -408,7 +413,9 @@ typedef struct __attribute__((packed)) HLDVariables {
 	/* Actual room object of currently active room. */
 	HLDRoom ** roomCurrent;
 	/* Array of all registered sprites. */
-	HLDSprite *** spriteTable;
+	HLDArrayPreSize * spriteTable;
+	/* Array of the names of all registered sprites. */
+	HLDArrayPostSize * spriteNameTable;
 	/* Hash table of all registered objects. */
 	HLDHashTable ** objectTableHandle;
 	/* Hash table of all in-game instances. */
@@ -441,6 +448,18 @@ typedef struct __attribute__((packed)) HLDFunctions {
 			uint32_t origX,
 			uint32_t origY
 	);
+	/* Overwrite an existing sprite with a new one. */
+	__attribute__((cdecl)) void (* actionSpriteReplace)(
+			int32_t spriteIdx,
+			const char * fname,
+			size_t imgNum,
+			int32_t unknown0,
+			int32_t unknown1,
+			int32_t unknown2,
+			int32_t unknown3,
+			uint32_t origX,
+			uint32_t origY
+	);
 	/* Register a new object. */
 	__attribute__((cdecl)) int32_t (* actionObjectAdd)(void);
 	/* Trigger an event as if it occurred "naturally." */
@@ -451,24 +470,13 @@ typedef struct __attribute__((packed)) HLDFunctions {
 			uint32_t eventType,
 			int32_t eventNum
 	);
-	/*
-	 * Custom Heart Machine function that sets an instance's draw depth based
-	 * on its y position and the current room's height.
-	 */
-	__attribute__((cdecl)) HLDInstance * (* gmlScriptSetdepth)(
-			HLDInstance * target,
-			HLDInstance * other,
-			void * unknown0,
-			uint32_t unknown1,
-			uint32_t unknown2
-	);
 	/* Spawn a new instance of an object. */
 	__attribute__((cdecl)) HLDInstance * (* actionInstanceCreate)(
 			int32_t objIdx,
 			float posX,
 			float posY
 	);
-	/*  */
+	/* Change the object type of an instance. */
 	__attribute__((cdecl)) void (* actionInstanceChange)(
 			HLDInstance * inst,
 			int32_t newObjIdx,
@@ -490,6 +498,17 @@ typedef struct __attribute__((packed)) HLDFunctions {
 	__attribute__((cdecl)) void (* Instance_setMotionPolarFromCartesian)(
 			HLDInstance * inst
 	);
+	/*
+	 * Custom Heart Machine function that sets an instance's draw depth based
+	 * on its y position and the current room's height.
+	 */
+	__attribute__((cdecl)) HLDInstance * (* gmlScriptSetdepth)(
+			HLDInstance * target,
+			HLDInstance * other,
+			void * unknown0,
+			uint32_t unknown1,
+			uint32_t unknown2
+	);
 } HLDFunctions;
 
 
@@ -503,6 +522,8 @@ extern HLDFunctions hldfuncs;
 
 
 /* ----- INTERNAL FUNCTIONS ----- */
+
+HLDSprite * HLDSpriteLookup(int32_t spriteIdx);
 
 void * HLDHashTableLookup(HLDHashTable * table, int32_t key);
 

@@ -51,12 +51,6 @@ typedef struct AERMRE {
 
 
 
-/* ----- INTERNAL CONSTANTS ----- */
-
-extern const char * MRE_ASSET_PATH_FMT;
-
-
-
 /* ----- INTERNAL GLOBALS ----- */
 
 extern AERMRE mre;
@@ -65,6 +59,7 @@ extern AERMRE mre;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
+const char * MREGetAbsAssetPath(const char * relAssetPath);
 
 void MRERegisterEventListener(
 		HLDObject * obj,

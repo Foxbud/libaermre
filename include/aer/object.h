@@ -546,6 +546,8 @@ int32_t AERObjectRegister(
 		bool persistent
 );
 
+size_t AERObjectGetNumRegistered(void);
+
 const char * AERObjectGetName(int32_t objIdx);
 
 int32_t AERObjectGetParent(int32_t objIdx);
