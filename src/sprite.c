@@ -47,7 +47,6 @@ int32_t AERSpriteRegister(
 	char * tmpName = malloc(strlen(name) + 1);
 	ErrIf(!tmpName, AER_OUT_OF_MEM, -1);
 	sprite->name = strcpy(tmpName, name);
-	((const char **)hldvars.spriteNameTable->elements)[spriteIdx] = tmpName;
 
 	LogInfo("Successfully registered sprite to index %i.", spriteIdx);
 

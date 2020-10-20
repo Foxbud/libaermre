@@ -414,8 +414,6 @@ typedef struct __attribute__((packed)) HLDVariables {
 	HLDRoom ** roomCurrent;
 	/* Array of all registered sprites. */
 	HLDArrayPreSize * spriteTable;
-	/* Array of the names of all registered sprites. */
-	HLDArrayPostSize * spriteNameTable;
 	/* Hash table of all registered objects. */
 	HLDHashTable ** objectTableHandle;
 	/* Hash table of all in-game instances. */
