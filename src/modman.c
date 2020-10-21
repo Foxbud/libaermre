@@ -103,7 +103,7 @@ static void ModInit(Mod * mod, const char * name) {
 		if (defMod) break;
 	}
 	if (!defMod) {
-		/* TODO Created dedicated string concatenation function. */
+		/* TODO Create dedicated string concatenation function. */
 		/* Efficiently concatenate all valid def mod function names. */
 		char defModNamesBuf[256];
 		uint32_t charIdxOut = 0;

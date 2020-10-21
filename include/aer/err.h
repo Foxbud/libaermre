@@ -11,7 +11,7 @@
 /* ----- PUBLIC TYPES ----- */
 
 /**
- * Possible values of ::aererr.
+ * @brief Possible values of ::aererr.
  */
 typedef enum AERErrCode {
 	AER_OK, /**< Function did not report an error. */
