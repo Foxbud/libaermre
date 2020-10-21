@@ -332,7 +332,7 @@ static void InitMRE(
 				&EventKeyHash,
 				&EventKeyCompare
 		),
-		.currentEvent = (EventKey){},
+		.currentEvent = (EventKey){0},
 		.eventHandler = (HLDNamedFunction){
 			.name = "AEREventHandler",
 			.function = &CommonEventListener
