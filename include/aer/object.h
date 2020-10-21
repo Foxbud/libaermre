@@ -1,5 +1,7 @@
 /**
  * @file
+ *
+ * @brief Utilities for querying and manipulating game objects.
  */
 #ifndef AER_OBJECT_H
 #define AER_OBJECT_H
@@ -535,6 +537,9 @@ typedef enum AERObjectType {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+/**
+ * @brief Register a custom object.
+ */
 int32_t AERObjectRegister(
 		const char * name,
 		int32_t parentIdx,

@@ -43,8 +43,8 @@ typedef struct AERModDef {
  *
  * @note May be `NULL` if mod does not register/replace any sprites.
  *
- * @relates AERSpriteRegister()
- * @relates AERSpriteReplace()
+ * @sa AERSpriteRegister()
+ * @sa AERSpriteReplace()
  *
  * @memberof AERModDef
  */
@@ -56,7 +56,7 @@ typedef struct AERModDef {
  *
  * @note May be `NULL` if mod does not register any objects.
  *
- * @relates AERObjectRegister()
+ * @sa AERObjectRegister()
  *
  * @memberof AERModDef
  */
@@ -68,14 +68,14 @@ typedef struct AERModDef {
  *
  * @note May be `NULL` if mod does not register any object event listeners.
  *
- * @relates AERObjectAttachCreateListener()
- * @relates AERObjectAttachDestroyListener()
- * @relates AERObjectAttachAlarmListener()
- * @relates AERObjectAttachStepListener()
- * @relates AERObjectAttachPreStepListener()
- * @relates AERObjectAttachPostStepListener()
- * @relates AERObjectAttachCollisionListener()
- * @relates AERObjectAttachAnimationEndListener()
+ * @sa AERObjectAttachCreateListener()
+ * @sa AERObjectAttachDestroyListener()
+ * @sa AERObjectAttachAlarmListener()
+ * @sa AERObjectAttachStepListener()
+ * @sa AERObjectAttachPreStepListener()
+ * @sa AERObjectAttachPostStepListener()
+ * @sa AERObjectAttachCollisionListener()
+ * @sa AERObjectAttachAnimationEndListener()
  *
  * @memberof AERModDef
  */

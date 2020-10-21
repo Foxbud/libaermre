@@ -14,7 +14,8 @@
 /* ----- PUBLIC FUNCTIONS ----- */
 
 /**
- * Query the number of steps (ticks) elapsed since the start of the game.
+ * @brief Query the number of steps (ticks) elapsed since the start
+ * of the game.
  *
  * @return Number of steps.
  *
@@ -23,7 +24,7 @@
 uint32_t AERGetNumSteps(void);
 
 /**
- * Query the keyboard key(s) that the user just pressed this step.
+ * @brief Query the keyboard key(s) that the user just pressed this step.
  *
  * @return Lookup table mapping extended ASCII key-codes to pressed state.
  *
@@ -32,7 +33,7 @@ uint32_t AERGetNumSteps(void);
 const bool * AERGetKeysPressed(void);
 
 /**
- * Query the keyboard key(s) that the user has held this step.
+ * @brief Query the keyboard key(s) that the user has held this step.
  *
  * @return Lookup table mapping extended ASCII key-codes to held state.
  *
@@ -41,7 +42,7 @@ const bool * AERGetKeysPressed(void);
 const bool * AERGetKeysHeld(void);
 
 /**
- * Query the keyboard key(s) that the user just released this step.
+ * @brief Query the keyboard key(s) that the user just released this step.
  *
  * @return Lookup table mapping extended ASCII key-codes to released state.
  *
