@@ -25,6 +25,16 @@ HLDSprite * HLDSpriteLookup(int32_t spriteIdx) {
 	return result;
 }
 
+HLDRoom * HLDRoomLookup(int32_t roomIdx) {
+	HLDRoom * result = NULL;
+
+	if (roomIdx >= 0 && (uint32_t)roomIdx < hldvars.roomTable->size) {
+		result = ((HLDRoom **)hldvars.roomTable->elements)[roomIdx];
+	}
+
+	return result;
+}
+
 void * HLDHashTableLookup(HLDHashTable * table, int32_t key) {
 	assert(table != NULL);
 	void * result = NULL;

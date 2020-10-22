@@ -435,6 +435,11 @@ typedef struct __attribute__((packed)) HLDVariables {
  * into the game's executable.
  */
 typedef struct __attribute__((packed)) HLDFunctions {
+	/* Go to room. */
+	__attribute__((cdecl)) void (* actionRoomGoto)(
+			int32_t roomIdx,
+			int32_t unknown0
+	);
 	/* Register a new sprite. */
 	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
 			const char * fname,
@@ -522,6 +527,8 @@ extern HLDFunctions hldfuncs;
 /* ----- INTERNAL FUNCTIONS ----- */
 
 HLDSprite * HLDSpriteLookup(int32_t spriteIdx);
+
+HLDRoom * HLDRoomLookup(int32_t roomIdx);
 
 void * HLDHashTableLookup(HLDHashTable * table, int32_t key);
 

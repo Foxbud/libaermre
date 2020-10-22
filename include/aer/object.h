@@ -16,6 +16,9 @@
 
 /* ----- PUBLIC TYPES ----- */
 
+/**
+ * @brief Vanilla objects.
+ */
 typedef enum AERObjectType {
 	AER_OBJECT_MASTERCLASS = 0x0,
 	AER_OBJECT_DOORSTOVISIT = 0x1,
@@ -539,6 +542,15 @@ typedef enum AERObjectType {
 
 /**
  * @brief Register a custom object.
+ *
+ * @param[in] name Name of new object.
+ * @param[in] parentIdx Index of object to inherit from.
+ * @param[in] spriteIdx Default sprite for instances of this object.
+ * @param[in] maskIdx
+ * @param[in] depth
+ * @param[in] visible
+ * @param[in] collisions
+ * @param[in] persistent
  */
 int32_t AERObjectRegister(
 		const char * name,

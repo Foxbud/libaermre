@@ -12,3 +12,12 @@ int32_t AERRoomGetCurrent(void) {
 
 	return *hldvars.roomIndexCurrent;
 }
+
+void AERRoomGoto(int32_t roomIdx) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!HLDRoomLookup(roomIdx), AER_FAILED_LOOKUP);
+
+	hldfuncs.actionRoomGoto(roomIdx, 0);
+
+	return;
+}

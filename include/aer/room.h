@@ -15,6 +15,8 @@
 
 int32_t AERRoomGetCurrent(void);
 
+void AERRoomGoto(int32_t roomIdx);
+
 
 
 #endif /* AER_ROOM_H */
