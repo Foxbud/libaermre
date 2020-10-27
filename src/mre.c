@@ -8,6 +8,7 @@
 #include "foxutils/mapmacs.h"
 
 #include "aer/mre.h"
+#include "internal/confvars.h"
 #include "internal/envconf.h"
 #include "internal/err.h"
 #include "internal/eventtrap.h"
@@ -120,7 +121,7 @@ static HLDArrayPreSize ReallocEventArr(
 					oldArr.elements,
 					oldArr.size * sizeof(HLDEventWrapper *)
 			);
-			/* TODO Figured out how to safely free oldArr.elements. */
+			/* TODO Figure out how to safely free oldArr.elements. */
 		}
 	} else {
 		newArr = oldArr;
@@ -348,6 +349,7 @@ static void InitMRE(
 	};
 
 	EnvConfConstructor();
+	ConfVarsConstructor();
 	RandConstructor();
 	LogInfo("Done.");
 
@@ -592,8 +594,9 @@ __attribute__((destructor)) void AERDestructor(void) {
 
 	ObjTreeFree(mre.objTree);
 
-	EnvConfDestructor();
 	RandDestructor();
+	ConfVarsDestructor();
+	EnvConfDestructor();
 	LogInfo("Done.");
 
 	return;

@@ -177,46 +177,20 @@ static void ModDeinit(Mod * mod) {
 void ModManConstructor(void) {
 	LogInfo("Loading mods...");
 
-	/* Get names of mods to load. */
-	aererr = AER_OK;
-	size_t numMods = AEREnvConfGetStrings(CONF_MODS, 0, NULL);
-	switch (aererr) {
-		case AER_OK:
-			break;
-
-		case AER_FAILED_LOOKUP:
-			LogErr("Environment variable \"%s\" is undefined.", CONF_MODS);
-			abort();
-			break;
-
-		default:
-			LogErr(
-					"Unknown error while trying to read environment variable \"%s.\"",
-					CONF_MODS
-			);
-			abort();
-	}
-	const char ** modNames = malloc(numMods * sizeof(const char *));
-	assert(modNames);
-	AEREnvConfGetStrings(CONF_MODS, numMods, modNames);
-
 	/* Initialize mod manager. */
 	/* Prevent arrays from having initial capacity of zero. */
-	size_t initArrCap = numMods + (numMods == 0);
+	size_t initArrCap = confNumModNames + (confNumModNames == 0);
 	FoxArrayMInitExt(Mod, &modman.mods, initArrCap);
 	FoxArrayMInit(Mod *, &modman.context);
 	FoxArrayMInitExt(ModListener, &modman.roomStepListeners, initArrCap);
 	FoxArrayMInitExt(ModListener, &modman.roomChangeListeners, initArrCap);
 
 	/* Load mod libraries. */
-	for (uint32_t idx = 0; idx < numMods; idx++) {
-		ModInit(FoxArrayMPush(Mod, &modman.mods), modNames[idx]);
+	for (uint32_t idx = 0; idx < confNumModNames; idx++) {
+		ModInit(FoxArrayMPush(Mod, &modman.mods), confModNames[idx]);
 	}
 
-	/* Cleanup. */
-	free(modNames);
-
-	LogInfo("Done. Loaded %zu mod(s).", numMods);
+	LogInfo("Done. Loaded %zu mod(s).", confNumModNames);
 	return;
 }
 
