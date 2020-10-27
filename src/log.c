@@ -7,6 +7,7 @@
 #include "foxutils/arraymacs.h"
 
 #include "aer/log.h"
+#include "internal/log.h"
 #include "internal/modman.h"
 
 
@@ -32,17 +33,17 @@
 
 /* ----- PRIVATE TYPES ----- */
 
-typedef enum AERLogLvl {
-	AER_LOG_INFO,
-	AER_LOG_WARN,
-	AER_LOG_ERR
-} AERLogLvl;
+typedef enum LogLevel {
+	LOG_INFO,
+	LOG_WARN,
+	LOG_ERR
+} LogLevel;
 
 
 
 /* ----- PRIVATE CONSTANTS ----- */
 
-static const char * MSG_FMT = "[%s][AER][%s] %s %s\n";
+static const char * MSG_FMT = "[%s][AER][%s] (%s) %s\n";
 
 static const char * LVL_STRS[3] = {
 	"INFO",
@@ -64,7 +65,7 @@ static char msgBuf[1024];
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static void LogFmtCurTime(char buf[9]) {
+static void FmtCurTime(char buf[9]) {
 	assert(buf != NULL);
 
 	time_t rawtime;
@@ -77,18 +78,18 @@ static void LogFmtCurTime(char buf[9]) {
 
 static void Log(
 		FILE * fp,
-		AERLogLvl logLvl,
+		LogLevel logLvl,
 		const char * moduleName,
 		const char * msg
 ) {
 	assert(fp != NULL);
-	assert(logLvl <= AER_LOG_ERR);
+	assert(logLvl <= LOG_ERR);
 	assert(moduleName != NULL);
 	assert(msg != NULL);
 
 	/* Get current time. */
 	char timeBuf[9];
-	LogFmtCurTime(timeBuf);
+	FmtCurTime(timeBuf);
 
 	/* Print formatted message. */
 	fprintf(
@@ -114,7 +115,7 @@ void LogInfo(const char * fmt, ...) {
 	FillMsgBufFromVA(fmt, fmt);
 
 	/* Call common log function. */
-	Log(stdout, AER_LOG_INFO, INTERNAL_MOD_NAME, msgBuf);
+	Log(stdout, LOG_INFO, INTERNAL_MOD_NAME, msgBuf);
 
 	return;
 }
@@ -126,7 +127,7 @@ void LogWarn(const char * fmt, ...) {
 	FillMsgBufFromVA(fmt, fmt);
 
 	/* Call common log function. */
-	Log(stderr, AER_LOG_WARN, INTERNAL_MOD_NAME, msgBuf);
+	Log(stderr, LOG_WARN, INTERNAL_MOD_NAME, msgBuf);
 
 	return;
 }
@@ -138,7 +139,7 @@ void LogErr(const char * fmt, ...) {
 	FillMsgBufFromVA(fmt, fmt);
 
 	/* Call common log function. */
-	Log(stderr, AER_LOG_ERR, INTERNAL_MOD_NAME, msgBuf);
+	Log(stderr, LOG_ERR, INTERNAL_MOD_NAME, msgBuf);
 
 	return;
 }
@@ -156,7 +157,7 @@ void AERLogInfo(const char * fmt, ...) {
 	/* Call common log function. */
 	Log(
 			stdout,
-			AER_LOG_INFO,
+			LOG_INFO,
 			GetCurrentModName(),
 			msgBuf
 	);
@@ -173,7 +174,7 @@ void AERLogWarn(const char * fmt, ...) {
 	/* Call common log function. */
 	Log(
 			stdout,
-			AER_LOG_WARN,
+			LOG_WARN,
 			GetCurrentModName(),
 			msgBuf
 	);
@@ -190,7 +191,7 @@ void AERLogErr(const char * fmt, ...) {
 	/* Call common log function. */
 	Log(
 			stdout,
-			AER_LOG_ERR,
+			LOG_ERR,
 			GetCurrentModName(),
 			msgBuf
 	);
