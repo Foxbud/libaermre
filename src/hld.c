@@ -35,19 +35,43 @@ HLDRoom * HLDRoomLookup(int32_t roomIdx) {
 	return result;
 }
 
-void * HLDHashTableLookup(HLDHashTable * table, int32_t key) {
+void * HLDOHashTableLookup(HLDOHashTable * table, int32_t key) {
 	assert(table != NULL);
 	void * result = NULL;
 
 	if (key >= 0) {
-		uint32_t hash = key & table->keyMask;
-		HLDHashItem * item = table->slots[hash].first;
+		uint32_t idx = key & table->keyMask;
+		HLDOHashItem * item = table->slots[idx].first;
 		while (item) {
 			if (item->key == key) {
 				result = item->value;
-				item = NULL;
+				break;
 			} else {
 				item = item->next;
+			}
+		}
+	}
+
+	return result;
+}
+
+void * HLDCHashTableLookup(HLDCHashTable * table, int32_t key) {
+	assert(table != NULL);
+	void * result = NULL;
+	uint32_t keyMask = table->keyMask;
+
+	if (key >= 0) {
+		uint32_t origIdx = key & keyMask;
+		uint32_t idx = origIdx;
+		HLDCHashSlot * slot = table->slots + idx;
+		while (slot->keyNext) {
+			if (slot->key == key) {
+				result = slot->value;
+				break;
+			} else {
+				idx = (idx + 1) & keyMask;
+				if (idx == origIdx) break;
+				slot = table->slots + idx;
 			}
 		}
 	}
@@ -58,10 +82,12 @@ void * HLDHashTableLookup(HLDHashTable * table, int32_t key) {
 HLDEvent * HLDEventNew(HLDNamedFunction * handler) {
 	assert(handler);
 
+	/* TODO Refactor this address to patch file. */
 	uint32_t unknownAddr = 0x09518c19;
 	HLDEvent * event = malloc(sizeof(HLDEvent));
 	assert(event);
 
+	/* TODO Refactor this address to patch file. */
 	event->classDef = (void *)0x0948781c;
 	event->eventNext = NULL;
 	event->field_8 = 1;
@@ -101,10 +127,12 @@ HLDEvent * HLDEventNew(HLDNamedFunction * handler) {
 HLDEventWrapper * HLDEventWrapperNew(HLDEvent * event) {
 	assert(event);
 
+	/* TODO Refactor this address to patch file. */
 	uint32_t unknownAddr = 0x09518c19;
 	HLDEventWrapper * wrapper = malloc(sizeof(HLDEventWrapper));
 	assert(wrapper);
 
+	/* TODO Refactor this address to patch file. */
 	wrapper->classDef = (void *)0x094a47d8;
 	wrapper->event = event;
 	wrapper->field_08 = unknownAddr;

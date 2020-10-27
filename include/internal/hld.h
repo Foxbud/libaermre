@@ -10,10 +10,10 @@
 /* ----- INTERNAL MACROS ----- */
 
 #define HLDObjectLookup(objIdx) \
-	((HLDObject *)HLDHashTableLookup(*hldvars.objectTableHandle, (objIdx)))
+	((HLDObject *)HLDOHashTableLookup(*hldvars.objectTableHandle, (objIdx)))
 
 #define HLDInstanceLookup(instId) \
-	((HLDInstance *)HLDHashTableLookup(hldvars.instanceTable, (instId)))
+	((HLDInstance *)HLDOHashTableLookup(hldvars.instanceTable, (instId)))
 
 
 
@@ -47,23 +47,44 @@ typedef enum HLDEventOtherType {
 	HLD_EVENT_OTHER_ANIMATION_END = 7
 } HLDEventOtherType;
 
-typedef struct HLDHashItem {
-	struct HLDHashItem * prev;
-	struct HLDHashItem * next;
+typedef struct HLDOHashItem {
+	struct HLDOHashItem * prev;
+	struct HLDOHashItem * next;
 	int32_t key;
 	void * value;
-} HLDHashItem;
+} HLDOHashItem;
 
-typedef struct HLDHashSlot {
-	struct HLDHashItem * first;
-	struct HLDHashItem * last;
-} HLDHashSlot;
+typedef struct HLDOHashSlot {
+	struct HLDOHashItem * first;
+	struct HLDOHashItem * last;
+} HLDOHashSlot;
 
-typedef struct HLDHashTable {
-	struct HLDHashSlot * slots;
-	size_t keyMask;
+typedef struct HLDOHashTable {
+	struct HLDOHashSlot * slots;
+	uint32_t keyMask;
 	size_t numItems;
-} HLDHashTable;
+} HLDOHashTable;
+
+typedef struct HLDCHashSlot {
+	int32_t key;
+	void * value;
+	int32_t keyNext;
+} HLDCHashSlot;
+
+typedef struct HLDCHashTable {
+	size_t numSlots;
+	size_t numItems;
+	uint32_t keyMask;
+	uint32_t field_C;
+	struct HLDCHashSlot * slots;
+} HLDCHashTable;
+
+typedef struct HLDLookupTable {
+	size_t size;
+	uint32_t field_4;
+	uint32_t field_8;
+	void * elements;
+} HLDLookupTable;
 
 typedef struct HLDVecReal {
 	float x;
@@ -415,9 +436,11 @@ typedef struct __attribute__((packed)) HLDVariables {
 	/* Array of all registered sprites. */
 	HLDArrayPreSize * spriteTable;
 	/* Hash table of all registered objects. */
-	HLDHashTable ** objectTableHandle;
+	HLDOHashTable ** objectTableHandle;
 	/* Hash table of all in-game instances. */
-	HLDHashTable * instanceTable;
+	HLDOHashTable * instanceTable;
+	/* Lookup table of all instance local variable names. */
+	HLDLookupTable * instanceLocalTable;
 	/*
 	 * As an optimization, the engine only checks for alarm events on objects
 	 * listed (or "subscribed") in these arrays.
@@ -530,7 +553,9 @@ HLDSprite * HLDSpriteLookup(int32_t spriteIdx);
 
 HLDRoom * HLDRoomLookup(int32_t roomIdx);
 
-void * HLDHashTableLookup(HLDHashTable * table, int32_t key);
+void * HLDOHashTableLookup(HLDOHashTable * table, int32_t key);
+
+void * HLDCHashTableLookup(HLDCHashTable * table, int32_t key);
 
 HLDEvent * HLDEventNew(HLDNamedFunction * handler);
 
