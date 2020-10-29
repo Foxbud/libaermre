@@ -28,10 +28,14 @@ includedir = $(prefix)/include
 # Build files.
 src = $(wildcard $(srcdir)/*.c)
 pubinc = $(wildcard $(pubincdir)/*.h)
+dep = $(src:.c=.d)
 obj = $(src:.c=.o)
 lib = $(builddir)/$(libnamev3)
 
 # Program and flag defaults.
+DEP = $(CC)
+DEPFLAGS = -M
+ALL_DEPFLAGS = -m32 -I$(incdir) $(DEPFLAGS)
 CFLAGS = -Wall -Wextra -Werror -O3
 ALL_CFLAGS = -m32 -I$(incdir) $(CFLAGS)
 LD = $(CC)
@@ -49,6 +53,11 @@ $(lib): $(obj)
 	mkdir -p $(builddir)
 	$(LD) -o $@ $(obj) $(ALL_LDFLAGS)
 
+%.d: %.c
+	$(DEP) $(ALL_DEPFLAGS) -MT $(@:.d=.o) -MF $@ $<
+
+include $(dep)
+
 %.o: %.c
 	$(CC) -c $(ALL_CFLAGS) -o $@ $<
 
@@ -63,7 +72,7 @@ docs: $(docdir)
 
 .PHONY: clean
 clean:
-	rm -rf $(obj) $(builddir) $(docdir)
+	rm -rf $(dep) $(obj) $(builddir) $(docdir)
 
 .PHONY: install
 install: install-symlinks install-headers
