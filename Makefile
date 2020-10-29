@@ -37,7 +37,7 @@ DEP = $(CC)
 DEPFLAGS = -M
 ALL_DEPFLAGS = -m32 -I$(incdir) $(DEPFLAGS)
 CFLAGS = -Wall -Wextra -Werror -O3
-ALL_CFLAGS = -m32 -I$(incdir) $(CFLAGS)
+ALL_CFLAGS = -c -m32 -I$(incdir) $(CFLAGS)
 LD = $(CC)
 LDFLAGS = -rdynamic -ldl -l:libfoxutils.a
 ALL_LDFLAGS = -m32 -shared -Wl,-soname,$(libnamev1) $(LDFLAGS)
@@ -58,8 +58,8 @@ $(lib): $(obj)
 
 include $(dep)
 
-%.o: %.c
-	$(CC) -c $(ALL_CFLAGS) -o $@ $<
+%.o: %.c %.d
+	$(CC) $(ALL_CFLAGS) -o $@ $<
 
 $(docdir): $(pubinc)
 	$(DOC) $(DOCFLAGS)
