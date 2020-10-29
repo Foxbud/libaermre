@@ -1,6 +1,6 @@
 SHELL = /bin/sh
 .SUFFIXES:
-.SUFFIXES: .c .h .o .so
+.SUFFIXES: .c .h .d .o .so
 
 
 
