@@ -82,17 +82,14 @@ void * HLDCHashTableLookup(HLDCHashTable * table, int32_t key) {
 HLDEvent * HLDEventNew(HLDNamedFunction * handler) {
 	assert(handler);
 
-	/* TODO Refactor this address to patch file. */
-	uint32_t unknownAddr = 0x09518c19;
 	HLDEvent * event = malloc(sizeof(HLDEvent));
 	assert(event);
 
-	/* TODO Refactor this address to patch file. */
-	event->classDef = (void *)0x0948781c;
+	event->classDef = hldvars.eventClass;
 	event->eventNext = NULL;
 	event->field_8 = 1;
 	event->field_C = 1;
-	event->field_10 = unknownAddr;
+	event->field_10 = hldvars.unknownEventAddress;
 	event->field_14 = 0;
 	event->field_18 = 0;
 	event->field_1C = 0;
@@ -110,7 +107,7 @@ HLDEvent * HLDEventNew(HLDNamedFunction * handler) {
 	event->field_4C = 0;
 	event->field_50 = 0;
 	event->field_54 = 0;
-	event->field_58 = unknownAddr;
+	event->field_58 = hldvars.unknownEventAddress;
 	event->name = handler->name;
 	event->handlerIndex = 0;
 	event->handler = handler;
@@ -127,15 +124,12 @@ HLDEvent * HLDEventNew(HLDNamedFunction * handler) {
 HLDEventWrapper * HLDEventWrapperNew(HLDEvent * event) {
 	assert(event);
 
-	/* TODO Refactor this address to patch file. */
-	uint32_t unknownAddr = 0x09518c19;
 	HLDEventWrapper * wrapper = malloc(sizeof(HLDEventWrapper));
 	assert(wrapper);
 
-	/* TODO Refactor this address to patch file. */
-	wrapper->classDef = (void *)0x094a47d8;
+	wrapper->classDef = hldvars.eventWrapperClass;
 	wrapper->event = event;
-	wrapper->field_08 = unknownAddr;
+	wrapper->field_08 = hldvars.unknownEventAddress;
 	wrapper->field_0C = 0x81;
 
 	return wrapper;

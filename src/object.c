@@ -97,7 +97,7 @@ size_t AERObjectGetInstances(
 	size_t numInsts = obj->numInstances;
 	size_t numToWrite = FoxMin(numInsts, bufSize);
 	HLDNodeDLL * node = obj->instanceFirst;
-	for (size_t idx = 0; idx < numToWrite; idx++) {
+	for (uint32_t idx = 0; idx < numToWrite; idx++) {
 		instBuf[idx] = (AERInstance *)node->item;
 		node = node->next;
 	}

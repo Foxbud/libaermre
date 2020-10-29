@@ -129,7 +129,7 @@ typedef struct HLDEvent {
 	struct HLDEvent * eventNext;
 	uint32_t field_8;
 	uint32_t field_C;
-	uint32_t field_10;
+	void * field_10;
 	uint32_t field_14;
 	uint32_t field_18;
 	uint32_t field_1C;
@@ -147,7 +147,7 @@ typedef struct HLDEvent {
 	uint32_t field_4C;
 	uint32_t field_50;
 	uint32_t field_54;
-	uint32_t field_58;
+	void * field_58;
 	const char * name;
 	uint32_t handlerIndex;
 	struct HLDNamedFunction * handler;
@@ -162,7 +162,7 @@ typedef struct HLDEvent {
 typedef struct HLDEventWrapper {
 	void * classDef;
 	struct HLDEvent * event;
-	uint32_t field_08;
+	void * field_08;
 	uint32_t field_0C;
 } HLDEventWrapper;
 
@@ -222,7 +222,7 @@ typedef struct HLDInstance {
 	uint32_t tangible;
 	uint32_t field_2C;
 	uint32_t field_30;
-	uint32_t field_34;
+	HLDCHashTable * locals;
 	uint8_t field_38;
 	bool visible;
 	bool solid;
@@ -450,6 +450,13 @@ typedef struct __attribute__((packed)) HLDVariables {
 	/* Same as above, but for step events. */
 	size_t (* stepEventSubscriberCounts)[3];
 	HLDEventSubscribers (* stepEventSubscribers)[3];
+	/* Addresses necessary for creating new events. */
+	void * eventClass;
+	void * eventWrapperClass;
+	void * unknownEventAddress; /* Not certain what this address even
+																 references, but the custom events won't
+																 work unless some of their fields point
+																 to this address. */
 } HLDVariables;
 
 /*

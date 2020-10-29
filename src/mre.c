@@ -6,6 +6,7 @@
 
 #include "foxutils/arraymacs.h"
 #include "foxutils/mapmacs.h"
+#include "foxutils/stringmapmacs.h"
 
 #include "aer/mre.h"
 #include "internal/confvars.h"
@@ -213,6 +214,16 @@ static EventTrap EntrapEvent(
 	return trap;
 }
 
+static void BuildInstanceLocals(void) {
+	size_t numLocals = hldvars.instanceLocalTable->size;
+	const char ** names = hldvars.instanceLocalTable->elements;
+	for (uint32_t idx = 0; idx < numLocals; idx++) {
+		*FoxMapMInsert(const char *, int32_t, mre.instLocals, names[idx]) = idx;
+	}
+
+	return;
+}
+
 static void BuildObjTree(void) {
 	size_t numObjs = (*hldvars.objectTableHandle)->numItems;
 	for (uint32_t idx = 0; idx < numObjs; idx++) {
@@ -326,6 +337,7 @@ static void InitMRE(
 	mre = (AERMRE){
 		.roomIndexPrevious = 0,
 		.objTree = ObjTreeNew(),
+		.instLocals = FoxStringMapMNew(int32_t),
 		.eventTraps = FoxMapMNewExt(
 				EventKey,
 				EventTrap,
@@ -347,6 +359,8 @@ static void InitMRE(
 		),
 		.stage = STAGE_INIT
 	};
+
+	BuildInstanceLocals();
 
 	EnvConfConstructor();
 	ConfVarsConstructor();
@@ -582,6 +596,7 @@ __attribute__((destructor)) void AERDestructor(void) {
 		}
 	}
 	FoxMapMFree(EventKey, uint8_t, mre.eventSubscribers);
+	mre.eventSubscribers = NULL;
 
 	FoxMapMForEachElement(
 			EventKey,
@@ -591,8 +606,13 @@ __attribute__((destructor)) void AERDestructor(void) {
 			NULL
 	);
 	FoxMapMFree(EventKey, EventTrap, mre.eventTraps);
+	mre.eventTraps = NULL;
+
+	FoxMapMFree(const char *, int32_t, mre.instLocals);
+	mre.instLocals = NULL;
 
 	ObjTreeFree(mre.objTree);
+	mre.objTree = NULL;
 
 	RandDestructor();
 	ConfVarsDestructor();

@@ -156,6 +156,17 @@ void AERInstanceSetAlarm(
 		int32_t numSteps
 );
 
+size_t AERInstanceGetLocals(
+		AERInstance * inst,
+		size_t bufSize,
+		const char ** nameBuf
+);
+
+void * AERInstanceGetLocal(
+		AERInstance * inst,
+		const char * name
+);
+
 
 
 #endif /* AER_INSTANCE_H */

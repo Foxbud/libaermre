@@ -1,3 +1,4 @@
+#include "foxutils/mapmacs.h"
 #include "foxutils/math.h"
 
 #include "aer/instance.h"
@@ -21,7 +22,7 @@ size_t AERInstanceGetAll(
 	size_t numInsts = room->numInstances;
 	size_t numToWrite = FoxMin(numInsts, bufSize);
 	HLDInstance * inst = room->instanceFirst;
-	for (size_t idx = 0; idx < numToWrite; idx++) {
+	for (uint32_t idx = 0; idx < numToWrite; idx++) {
 		instBuf[idx] = (AERInstance *)inst;
 		inst = inst->instanceNext;
 	}
@@ -427,4 +428,57 @@ void AERInstanceSetAlarm(
 	((HLDInstance *)inst)->alarms[alarmIdx] = numSteps;
 
 	return;
+}
+
+size_t AERInstanceGetLocals(
+		AERInstance * inst,
+		size_t bufSize,
+		const char ** nameBuf
+) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+	ErrIf(!inst, AER_NULL_ARG, 0);
+	ErrIf(!nameBuf && bufSize > 0, AER_NULL_ARG, 0);
+
+	const char ** names = hldvars.instanceLocalTable->elements;
+	HLDCHashTable * locals = ((HLDInstance *)inst)->locals;
+	HLDCHashSlot * slots = locals->slots;
+
+	size_t numLocals = locals->numItems;
+	size_t numToWrite = FoxMin(numLocals, bufSize);
+	size_t numSlots = locals->numSlots;
+	uint32_t bufIdx = 0;
+	for (uint32_t slotIdx = 0; slotIdx < numSlots; slotIdx++) {
+		if (bufIdx == numToWrite) break;
+		HLDCHashSlot * slot = slots + slotIdx;
+		if (slot->keyNext) {
+			nameBuf[bufIdx++] = names[slot->key];
+		}
+	}
+
+	return numLocals;
+}
+
+void * AERInstanceGetLocal(
+		AERInstance * inst,
+		const char * name
+) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+	ErrIf(!inst, AER_NULL_ARG, NULL);
+	ErrIf(!name, AER_NULL_ARG, NULL);
+
+	int32_t * localIdx = FoxMapMIndex(
+			const char *,
+			int32_t,
+			mre.instLocals,
+			name
+	);
+	ErrIf(!localIdx, AER_FAILED_LOOKUP, NULL);
+
+	void * local = HLDCHashTableLookup(
+			((HLDInstance *)inst)->locals,
+			*localIdx
+	);
+	ErrIf(!local, AER_FAILED_LOOKUP, NULL);
+
+	return local;
 }

@@ -24,6 +24,8 @@ typedef struct AERMRE {
 	int32_t roomIndexPrevious;
 	/* Inheritance tree of all objects (including mod-registered). */
 	ObjTree * objTree;
+	/* Hash table mapping instance local names to indicies. */
+	FoxMap * instLocals;
 	/*
 	 * Hash table of all events that have been entrapped during the mod
 	 * event listener registration stage.
