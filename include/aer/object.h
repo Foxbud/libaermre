@@ -2,6 +2,30 @@
  * @file
  *
  * @brief Utilities for querying and manipulating game objects.
+ *
+ * @section ObjListeners Object Event Listeners
+ *
+ * The AER framework allows mods to attach an arbitrary number of
+ * listeners to the same event on the same object. This is accomplished
+ * by wrapping vanilla event listeners in "event traps."
+ *
+ * Whenever a mod attaches an event listener to an object, it is added to
+ * that event trap's "stream"; either "upstream" or "downstream" (which
+ * one is controlled by the attachment function's `downstream` parameter).
+ * Then whenever that event is triggered during gameplay, the event trap
+ * first executes all the upstream listeners according to mod priority.
+ * Next, it executes the vanilla listener for that event (or the parent
+ * object's corresponding event listener if undefined by the HLD developers).
+ * Finally, it executes all of the downstream listeners according to
+ * inverted mod priority (lowest priority mod listeners get executed first).
+ *
+ * This flow from upstream to vanilla to downstream may, however, be
+ * interrupted. Each mod event listener returns a boolean value. If	`true`,
+ * then execution continues on to the next listener in the stream. If
+ * `false`, however, then all listeners downstream of the current listener
+ * are bypassed (including the vanilla listener). By attaching an upstream
+ * listener that always returns `false`, vanilla events can effectively be
+ * "disabled," but this may break mod compatibility.
  */
 #ifndef AER_OBJECT_H
 #define AER_OBJECT_H
@@ -544,13 +568,23 @@ typedef enum AERObjectType {
  * @brief Register a custom object.
  *
  * @param[in] name Name of new object.
- * @param[in] parentIdx Index of object to inherit from.
+ * @param[in] parentIdx Object from which to inherit.
  * @param[in] spriteIdx Default sprite for instances of this object.
- * @param[in] maskIdx
- * @param[in] depth
- * @param[in] visible
- * @param[in] collisions
- * @param[in] persistent
+ * @param[in] maskIdx Default collision mask for instances of this object.
+ * @param[in] depth Default render depth for instances of this object.
+ * @param[in] visible Default visibility for instances of this object.
+ * @param[in] collisions Whether or not collision checking is enabled for all
+ * instances of this object.
+ * @param[in] persistent Default persistence for instances of this object.
+ *
+ * @return Index of new object or `-1` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside object registration stage.
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `parentIdx` is an invalid object.
+ * @throw ::AER_OUT_OF_MEM if space for new object could not be allocated.
+ *
+ * @sa AERModDef::regObjects
  */
 int32_t AERObjectRegister(
 		const char * name,
@@ -563,37 +597,177 @@ int32_t AERObjectRegister(
 		bool persistent
 );
 
+/**
+ * @brief Query the total number of vanilla and mod objects registered.
+ *
+ * @return Number of objects.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ */
 size_t AERObjectGetNumRegistered(void);
 
+/**
+ * @brief Query the name of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ *
+ * @return Name of object.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ */
 const char * AERObjectGetName(int32_t objIdx);
 
+/**
+ * @brief Query the parent of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ *
+ * @return Parent object's index.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ */
 int32_t AERObjectGetParent(int32_t objIdx);
 
+/**
+ * @brief Query all instances of an object in the current room.
+ *
+ * @warning Does **not** include instances of child objects.
+ * @warning Argument `instBuf` must be large enough to hold at least
+ * `bufSize` elements.
+ *
+ * @note Argument `bufSize` may be `0` in which case argument `instBuf` may
+ * be `NULL`. This may be used to efficiently query the total number of
+ * instances of an object in the current room.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] bufSize Maximum number of elements to write to argument
+ * `instBuf`.
+ * @param[out] instBuf Buffer to write instances to.
+ *
+ * @return Total number of instances of object in current room.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `instBuf` is `NULL` and argument
+ * `bufSize` is greater than `0`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ */
 size_t AERObjectGetInstances(
 		int32_t objIdx,
 		size_t bufSize,
 		AERInstance ** instBuf
 );
 
+/**
+ * @brief Query whether or not an object has collision checking enabled.
+ *
+ * @param[in] objIdx Object of interest.
+ *
+ * @return Whether object has collision checking enabled.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ */
 bool AERObjectGetCollisions(int32_t objIdx);
 
+/**
+ * @brief Set whether or not an object has collision checking enabled.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] collisions Whether or not to enable collision checking.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ */
 void AERObjectSetCollisions(
 		int32_t objIdx,
 		bool collisions
 );
 
+/**
+ * @brief Attach a creation event listener to an object.
+ *
+ * This event listener is called whenever an instance of the object
+ * is created.
+ *
+ * @note There are certain conditions under which an instance may be
+ * created without triggering a creation event.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs.
+ * For more information see @ref ObjListeners.
+ * @param[in] downstream If `true`, the listener is called *after* the
+ * vanilla listener for the target event. Otherwise it is called before.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @sa AERModDef::regObjListeners
+ * @sa AERInstanceCreate
+ */
 void AERObjectAttachCreateListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 );
 
+/**
+ * @brief Attach a destruction event listener to an object.
+ *
+ * This event listener is called whenever an instance of the object
+ * is destroyed.
+ *
+ * @note There are certain conditions under which an instance may be
+ * destroyed without triggering a destruction event.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs.
+ * For more information see @ref ObjListeners.
+ * @param[in] downstream If `true`, the listener is called *after* the
+ * vanilla listener for the target event. Otherwise it is called before.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @sa AERModDef::regObjListeners
+ * @sa AERInstanceDestroy
+ * @sa AERInstanceDelete
+ */
 void AERObjectAttachDestroyListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 );
 
+/**
+ * @brief Attach an alarm event listener to an object.
+ *
+ * This event listener is called whenever the target alarm of an
+ * instance of the object reaches `0` (after which the alarm will be set to
+ * `-1`, disabling it until manually set again).
+ *
+ * @note It is considered good practice to make the argument `alarmIdx`
+ * user-configurable using envconf.h.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] alarmIdx Alarm to watch.
+ * @param[in] listener Callback function executed when target event occurs.
+ * For more information see @ref ObjListeners.
+ * @param[in] downstream If `true`, the listener is called *after* the
+ * vanilla listener for the target event. Otherwise it is called before.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object or if
+ * argument `alarmIdx` is not on the interval [0, 11].
+ *
+ * @sa AERModDef::regObjListeners
+ * @sa AERInstanceGetAlarm
+ * @sa AERInstanceSetAlarm
+ */
 void AERObjectAttachAlarmListener(
 		int32_t objIdx,
 		uint32_t alarmIdx,
@@ -601,24 +775,105 @@ void AERObjectAttachAlarmListener(
 		bool downstream
 );
 
+/**
+ * @brief Attach a step event listener to an object.
+ *
+ * This event listener is called once in the middle of every step
+ * for each instance of the object.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs.
+ * For more information see @ref ObjListeners.
+ * @param[in] downstream If `true`, the listener is called *after* the
+ * vanilla listener for the target event. Otherwise it is called before.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @sa AERModDef::regObjListeners
+ */
 void AERObjectAttachStepListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 );
 
+/**
+ * @brief Attach a pre-step event listener to an object.
+ *
+ * This event listener is called once at the start of every step
+ * for each instance of the object.
+ *
+ * @note The listener is called *after* AERModDef::roomStepListener.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs.
+ * For more information see @ref ObjListeners.
+ * @param[in] downstream If `true`, the listener is called *after* the
+ * vanilla listener for the target event. Otherwise it is called before.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @sa AERModDef::regObjListeners
+ */
 void AERObjectAttachPreStepListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 );
 
+/**
+ * @brief Attach a post-step event listener to an object.
+ *
+ * This event listener is called once at the end of every step
+ * for each instance of the object.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs.
+ * For more information see @ref ObjListeners.
+ * @param[in] downstream If `true`, the listener is called *after* the
+ * vanilla listener for the target event. Otherwise it is called before.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @sa AERModDef::regObjListeners
+ */
 void AERObjectAttachPostStepListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
 		bool downstream
 );
 
+/**
+ * @brief Attach a collision event listener to an object.
+ *
+ * This event listener is called when a collision occurs between 
+ * instances of the target object and the other object.
+ *
+ * @note In order for the listener to be called, **both** the target object and
+ * the other object must have collisions enabled.
+ *
+ * @param[in] targetObjIdx Object of interest.
+ * @param[in] otherObjIdx Other object.
+ * @param[in] listener Callback function executed when target event occurs.
+ * For more information see @ref ObjListeners.
+ * @param[in] downstream If `true`, the listener is called *after* the
+ * vanilla listener for the target event. Otherwise it is called before.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `targetObjIdx` or `otherObjIdx`
+ * are invalid objects.
+ *
+ * @sa AERModDef::regObjListeners
+ * @sa AERObjectGetCollisions
+ * @sa AERObjectSetCollisions
+ */
 void AERObjectAttachCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
@@ -626,6 +881,28 @@ void AERObjectAttachCollisionListener(
 		bool downstream
 );
 
+/**
+ * @brief Attach an animation-end event listener to an object.
+ *
+ * This event listener is called whenever the animation frame of an instance
+ * of the object loops back to `0`.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs.
+ * For more information see @ref ObjListeners.
+ * @param[in] downstream If `true`, the listener is called *after* the
+ * vanilla listener for the target event. Otherwise it is called before.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @sa AERModDef::regObjListeners
+ * @sa AERInstanceGetSpriteFrame
+ * @sa AERInstanceSetSpriteFrame
+ * @sa AERInstanceGetSpriteSpeed
+ * @sa AERInstanceSetSpriteSpeed
+ */
 void AERObjectAttachAnimationEndListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),

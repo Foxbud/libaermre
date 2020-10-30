@@ -9,10 +9,10 @@
  *
  * In an attempt to accommodate varied naming conventions, this function may
  * be named any of the following:
- *	- `define_mod`
- *	- `definemod`
- *	- `defineMod`
- *	- `DefineMod`
+ *  - `define_mod`
+ *  - `definemod`
+ *  - `defineMod`
+ *  - `DefineMod`
  */
 #ifndef AER_MODMAN_H
 #define AER_MODMAN_H
