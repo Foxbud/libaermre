@@ -1,14 +1,13 @@
 SHELL = /bin/sh
 .SUFFIXES:
-.SUFFIXES: .c .h .d .o .so
 
 
 
 # Names.
 libname = aermre
 libnamev0 = lib$(libname).so
-libnamev1 = $(libnamev0).1
-libnamev3 = $(libnamev1).0.0dev
+libnamev1 = $(libnamev0).0
+libnamev3 = $(libnamev1).1.0
 pubincname = aer
 
 # Build directories.

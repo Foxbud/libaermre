@@ -10,6 +10,7 @@
 #include "aer/envconf.h"
 #include "internal/envconf.h"
 #include "internal/err.h"
+#include "internal/log.h"
 
 
 
