@@ -362,10 +362,7 @@ static void InitMRE(
 
 	BuildInstanceLocals();
 
-	EnvConfConstructor();
-	ConfVarsConstructor();
-	RandConstructor();
-	LogInfo("Done.");
+	LogInfo("Done initializing mod runtime environment.");
 
 	return;
 }
@@ -574,6 +571,10 @@ __attribute__((cdecl)) void AERHookEvent(
 __attribute__((constructor)) void AERConstructor(void) {
 	LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
 
+	EnvConfConstructor();
+	ConfVarsConstructor();
+	RandConstructor();
+
 	return;
 }
 
@@ -581,6 +582,7 @@ __attribute__((destructor)) void AERDestructor(void) {
 	ModManDestructor();
 
 	LogInfo("Deinitializing mod runtime environment...");
+
 	for (uint32_t idx = 0; idx < 12; idx++) {
 		HLDEventSubscribers * subArr = *hldvars.alarmEventSubscribers + idx;
 		if (subArr->objects) {
@@ -614,10 +616,11 @@ __attribute__((destructor)) void AERDestructor(void) {
 	ObjTreeFree(mre.objTree);
 	mre.objTree = NULL;
 
+	LogInfo("Done deinitializing mod runtime environment.");
+
 	RandDestructor();
 	ConfVarsDestructor();
 	EnvConfDestructor();
-	LogInfo("Done.");
 
 	return;
 }

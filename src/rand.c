@@ -4,6 +4,7 @@
 #include "foxutils/xoshiro256ss.h"
 
 #include "aer/rand.h"
+#include "internal/log.h"
 #include "internal/rand.h"
 
 
@@ -17,13 +18,21 @@ static FoxXoshiro256SS randPRNG = {0};
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void RandConstructor(void) {
+	LogInfo("Initializing random module...");
+
 	FoxXoshiro256SSInit(&randPRNG, time(NULL));
+
+	LogInfo("Done initializing random module.");
 
 	return;
 }
 
 void RandDestructor(void) {
+	LogInfo("Deinitializing random module...");
+
 	FoxXoshiro256SSDeinit(&randPRNG);
+
+	LogInfo("Done deinitializing random module.");
 
 	return;
 }

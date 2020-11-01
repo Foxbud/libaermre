@@ -149,12 +149,18 @@ static CacheEntry * GetCacheEntry(const char * name) {
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void EnvConfConstructor(void) {
+	LogInfo("Initializing environment configuration module...");
+
 	FoxStringMapMInit(CacheEntry, &cache);
+
+	LogInfo("Done initializing environment configuration module.");
 
 	return;
 }
 
 void EnvConfDestructor(void) {
+	LogInfo("Deinitializing environment configuration module...");
+
 	FoxMapMForEachElement(
 			const char *,
 			CacheEntry,
@@ -163,6 +169,8 @@ void EnvConfDestructor(void) {
 			NULL
 	);
 	FoxMapMDeinit(const char *, CacheEntry, &cache);
+
+	LogInfo("Done deinitializing environment configuration module.");
 
 	return;
 }
