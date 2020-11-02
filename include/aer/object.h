@@ -3,7 +3,7 @@
  *
  * @brief Utilities for querying and manipulating game objects.
  *
- * @section ObjListeners Object Event Listeners
+ * @subsubsection ObjListeners Object Event Listeners
  *
  * The AER framework allows mods to attach an arbitrary number of
  * listeners to the same event on the same object. This is accomplished
