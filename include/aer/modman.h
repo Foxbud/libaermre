@@ -13,6 +13,8 @@
  *  - `definemod`
  *  - `defineMod`
  *  - `DefineMod`
+ *
+ * @since 1.0.0
  */
 #ifndef AER_MODMAN_H
 #define AER_MODMAN_H
@@ -25,6 +27,8 @@
 
 /**
  * @brief Definition of a mod.
+ *
+ * @since 1.0.0
  */
 typedef struct AERModDef {
 	/* Registration callbacks. */
@@ -43,6 +47,8 @@ typedef struct AERModDef {
  *
  * @note May be `NULL` if mod does not register/replace any sprites.
  *
+ * @since 1.0.0
+ *
  * @sa AERSpriteRegister()
  * @sa AERSpriteReplace()
  *
@@ -56,6 +62,8 @@ typedef struct AERModDef {
  *
  * @note May be `NULL` if mod does not register any objects.
  *
+ * @since 1.0.0
+ *
  * @sa AERObjectRegister()
  *
  * @memberof AERModDef
@@ -67,6 +75,8 @@ typedef struct AERModDef {
  * @brief Callback function which registers a mod's object event listeners.
  *
  * @note May be `NULL` if mod does not register any object event listeners.
+ *
+ * @since 1.0.0
  *
  * @sa AERObjectAttachCreateListener()
  * @sa AERObjectAttachDestroyListener()
@@ -95,6 +105,8 @@ typedef struct AERModDef {
  *
  * @note May be `NULL`.
  *
+ * @since 1.0.0
+ *
  * @memberof AERModDef
  */
 
@@ -116,6 +128,8 @@ typedef struct AERModDef {
  *
  * @param[in] newRoomIdx Index of new (current) room.
  * @param[in] prevRoomIdx Index of previous room.
+ *
+ * @since 1.0.0
  *
  * @memberof AERModDef
  */

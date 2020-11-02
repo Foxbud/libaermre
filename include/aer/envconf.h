@@ -24,6 +24,8 @@
  *  - `N`
  * 
  * then the string is parsed as `false`. Otherwise a parse error occurs.
+ *
+ * @since 1.0.0
  */
 #ifndef AER_ENVCONF_H
 #define AER_ENVCONF_H
@@ -52,6 +54,8 @@
  * variable.
  * @throw ::AER_FAILED_PARSE if environment variable could not be
  * interpreted as a boolean.
+ *
+ * @since 1.0.0
  *
  * @sa AEREnvConfGetBools
  */
@@ -84,6 +88,8 @@ bool AEREnvConfGetBool(const char * name);
  * variable.
  * @throw ::AER_FAILED_PARSE if environment variable could not be
  * interpreted as booleans.
+ *
+ * @since 1.0.0
  *
  * @sa AEREnvConfGetBool
  */

@@ -2,6 +2,8 @@
  * @file
  *
  * @brief Logging utilities.
+ *
+ * @since 1.0.0
  */
 #ifndef AER_LOG_H
 #define AER_LOG_H
@@ -15,6 +17,8 @@
  *
  * @param[in] fmt `printf` style format string.
  * @param[in] ... Variadic arguments to substitute into format string.
+ *
+ * @since 1.0.0
  */
 void AERLogInfo(const char * fmt, ...);
 
@@ -23,6 +27,8 @@ void AERLogInfo(const char * fmt, ...);
  *
  * @param[in] fmt `printf` style format string.
  * @param[in] ... Variadic arguments to substitute into format string.
+ *
+ * @since 1.0.0
  */
 void AERLogWarn(const char * fmt, ...);
 
@@ -33,6 +39,8 @@ void AERLogWarn(const char * fmt, ...);
  *
  * @param[in] fmt `printf` style format string.
  * @param[in] ... Variadic arguments to substitute into format string.
+ *
+ * @since 1.0.0
  */
 void AERLogErr(const char * fmt, ...);
 

@@ -4,6 +4,7 @@
 #include "foxutils/xoshiro256ss.h"
 
 #include "aer/rand.h"
+#include "internal/err.h"
 #include "internal/log.h"
 #include "internal/rand.h"
 
@@ -46,6 +47,8 @@ uint64_t AERRandUInt(void) {
 }
 
 uint64_t AERRandUIntRange(uint64_t min, uint64_t max) {
+	ErrIf(min >= max, AER_BAD_VAL, 0);
+
 	return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
@@ -54,6 +57,8 @@ int64_t AERRandInt(void) {
 }
 
 int64_t AERRandIntRange(int64_t min, int64_t max) {
+	ErrIf(min >= max, AER_BAD_VAL, 0);
+
 	return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
@@ -62,6 +67,8 @@ float AERRandFloat(void) {
 }
 
 float AERRandFloatRange(float min, float max) {
+	ErrIf(min >= max, AER_BAD_VAL, 0.0f);
+
 	return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
 }
 
@@ -70,6 +77,8 @@ double AERRandDouble(void) {
 }
 
 double AERRandDoubleRange(double min, double max) {
+	ErrIf(min >= max, AER_BAD_VAL, 0.0);
+
 	return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
 }
 

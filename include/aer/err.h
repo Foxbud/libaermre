@@ -2,6 +2,8 @@
  * @file
  *
  * @brief Global error state of the MRE.
+ *
+ * @since 1.0.0
  */
 #ifndef AER_ERR_H
 #define AER_ERR_H
@@ -12,6 +14,8 @@
 
 /**
  * @brief Possible values of ::aererr.
+ *
+ * @since 1.0.0
  */
 typedef enum AERErrCode {
 	AER_OK, /**< Function did not report an error. */
@@ -22,7 +26,9 @@ typedef enum AERErrCode {
 										for proper execution. */
 	AER_FAILED_LOOKUP, /**< Function called with invalid index, ID or key. */
 	AER_FAILED_PARSE, /**< Function unable to parse resource. */
-	AER_BAD_FILE /**< Function unable to read file. */
+	AER_BAD_FILE, /**< Function unable to read file. */
+	AER_BAD_VAL /**< Function encountered an invalid value or combination
+								of values. */
 } AERErrCode;
 
 
@@ -34,6 +40,8 @@ typedef enum AERErrCode {
  *
  * @note Always reset this global to ::AER_OK before calling the
  * function to be error-checked.
+ *
+ * @since 1.0.0
  */
 extern AERErrCode aererr;
 

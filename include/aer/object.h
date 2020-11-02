@@ -26,6 +26,8 @@
  * are bypassed (including the vanilla listener). By attaching an upstream
  * listener that always returns `false`, vanilla events can effectively be
  * "disabled," but this may break mod compatibility.
+ *
+ * @since 1.0.0
  */
 #ifndef AER_OBJECT_H
 #define AER_OBJECT_H
@@ -42,6 +44,8 @@
 
 /**
  * @brief Vanilla objects.
+ *
+ * @since 1.0.0
  */
 typedef enum AERObjectType {
 	AER_OBJECT_MASTERCLASS = 0x0,
@@ -584,6 +588,8 @@ typedef enum AERObjectType {
  * @throw ::AER_FAILED_LOOKUP if argument `parentIdx` is an invalid object.
  * @throw ::AER_OUT_OF_MEM if space for new object could not be allocated.
  *
+ * @since 1.0.0
+ *
  * @sa AERModDef::regObjects
  */
 int32_t AERObjectRegister(
@@ -603,6 +609,8 @@ int32_t AERObjectRegister(
  * @return Number of objects.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.0.0
  */
 size_t AERObjectGetNumRegistered(void);
 
@@ -615,6 +623,8 @@ size_t AERObjectGetNumRegistered(void);
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
  */
 const char * AERObjectGetName(int32_t objIdx);
 
@@ -627,6 +637,8 @@ const char * AERObjectGetName(int32_t objIdx);
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
  */
 int32_t AERObjectGetParent(int32_t objIdx);
 
@@ -652,6 +664,8 @@ int32_t AERObjectGetParent(int32_t objIdx);
  * @throw ::AER_NULL_ARG if argument `instBuf` is `NULL` and argument
  * `bufSize` is greater than `0`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
  */
 size_t AERObjectGetInstances(
 		int32_t objIdx,
@@ -668,6 +682,8 @@ size_t AERObjectGetInstances(
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
  */
 bool AERObjectGetCollisions(int32_t objIdx);
 
@@ -679,6 +695,8 @@ bool AERObjectGetCollisions(int32_t objIdx);
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
  */
 void AERObjectSetCollisions(
 		int32_t objIdx,
@@ -703,6 +721,8 @@ void AERObjectSetCollisions(
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
  *
  * @sa AERModDef::regObjListeners
  * @sa AERInstanceCreate
@@ -731,6 +751,8 @@ void AERObjectAttachCreateListener(
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
  *
  * @sa AERModDef::regObjListeners
  * @sa AERInstanceDestroy
@@ -764,6 +786,8 @@ void AERObjectAttachDestroyListener(
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object or if
  * argument `alarmIdx` is not on the interval [0, 11].
  *
+ * @since 1.0.0
+ *
  * @sa AERModDef::regObjListeners
  * @sa AERInstanceGetAlarm
  * @sa AERInstanceSetAlarm
@@ -791,6 +815,8 @@ void AERObjectAttachAlarmListener(
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
+ * @since 1.0.0
+ *
  * @sa AERModDef::regObjListeners
  */
 void AERObjectAttachStepListener(
@@ -817,6 +843,8 @@ void AERObjectAttachStepListener(
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
+ * @since 1.0.0
+ *
  * @sa AERModDef::regObjListeners
  */
 void AERObjectAttachPreStepListener(
@@ -840,6 +868,8 @@ void AERObjectAttachPreStepListener(
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
  *
  * @sa AERModDef::regObjListeners
  */
@@ -870,6 +900,8 @@ void AERObjectAttachPostStepListener(
  * @throw ::AER_FAILED_LOOKUP if argument `targetObjIdx` or `otherObjIdx`
  * are invalid objects.
  *
+ * @since 1.0.0
+ *
  * @sa AERModDef::regObjListeners
  * @sa AERObjectGetCollisions
  * @sa AERObjectSetCollisions
@@ -896,6 +928,8 @@ void AERObjectAttachCollisionListener(
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
  *
  * @sa AERModDef::regObjListeners
  * @sa AERInstanceGetSpriteFrame

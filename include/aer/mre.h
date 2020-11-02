@@ -2,6 +2,8 @@
  * @file
  *
  * @brief Uncategorized functions for querying and manipulating game state.
+ *
+ * @since 1.0.0
  */
 #ifndef AER_MRE_H
 #define AER_MRE_H
@@ -20,6 +22,8 @@
  * @return Number of steps.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.0.0
  */
 uint32_t AERGetNumSteps(void);
 
@@ -29,6 +33,8 @@ uint32_t AERGetNumSteps(void);
  * @return Lookup table mapping extended ASCII key-codes to pressed state.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.0.0
  */
 const bool * AERGetKeysPressed(void);
 
@@ -38,6 +44,8 @@ const bool * AERGetKeysPressed(void);
  * @return Lookup table mapping extended ASCII key-codes to held state.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.0.0
  */
 const bool * AERGetKeysHeld(void);
 
@@ -47,6 +55,8 @@ const bool * AERGetKeysHeld(void);
  * @return Lookup table mapping extended ASCII key-codes to released state.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.0.0
  */
 const bool * AERGetKeysReleased(void);
 
