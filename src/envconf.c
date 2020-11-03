@@ -221,17 +221,17 @@ size_t AEREnvConfGetBools(
 }
 
 int32_t AEREnvConfGetInt(const char * name) {
-	ErrIf(!name, AER_NULL_ARG, false);
+	ErrIf(!name, AER_NULL_ARG, 0);
 
 	CacheEntry * entry = GetCacheEntry(name);
-	ErrIf(!entry, AER_FAILED_LOOKUP, false);
+	ErrIf(!entry, AER_FAILED_LOOKUP, 0);
 
 	bool success;
 	int32_t result = StringToInt(
 			*FoxArrayMIndex(const char *, &entry->tokens, 0),
 			&success
 	);
-	ErrIf(!success, AER_FAILED_PARSE, false);
+	ErrIf(!success, AER_FAILED_PARSE, 0);
 
 	return result;
 }
@@ -262,17 +262,17 @@ size_t AEREnvConfGetInts(
 }
 
 float AEREnvConfGetFloat(const char * name) {
-	ErrIf(!name, AER_NULL_ARG, false);
+	ErrIf(!name, AER_NULL_ARG, 0.0f);
 
 	CacheEntry * entry = GetCacheEntry(name);
-	ErrIf(!entry, AER_FAILED_LOOKUP, false);
+	ErrIf(!entry, AER_FAILED_LOOKUP, 0.0f);
 
 	bool success;
 	float result = StringToFloat(
 			*FoxArrayMIndex(const char *, &entry->tokens, 0),
 			&success
 	);
-	ErrIf(!success, AER_FAILED_PARSE, false);
+	ErrIf(!success, AER_FAILED_PARSE, 0.0f);
 
 	return result;
 }
