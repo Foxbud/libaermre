@@ -99,24 +99,160 @@ size_t AEREnvConfGetBools(
 		bool * boolBuf
 );
 
+/**
+ * @brief Parse an integer value from an environment variable.
+ *
+ * @param[in] name Name of environment variable.
+ *
+ * @return Value of environment variable interpreted as an integer
+ * or `0` if error.
+ *
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * variable.
+ * @throw ::AER_FAILED_PARSE if environment variable could not be
+ * interpreted as an integer.
+ *
+ * @since 1.0.0
+ *
+ * @sa AEREnvConfGetInts
+ */
 int32_t AEREnvConfGetInt(const char * name);
 
+/**
+ * @brief Parse multiple whitespace-delimited integer values from an
+ * environment variable.
+ *
+ * @warning Argument `intBuf` must be large enough to hold at least
+ * `bufSize` elements.
+ *
+ * @note Argument `bufSize` may be `0` in which case argument `intBuf` may
+ * be `NULL`. This may be used to efficiently query the total number of
+ * potential integers contained in an environment variable.
+ *
+ * @param[in] name Name of environment variable.
+ * @param[in] bufSize Maximum number of elements to write to argument
+ * `intBuf`.
+ * @param[out] intBuf Buffer to write integers to.
+ *
+ * @return Total number of integers contained in environment variable.
+ *
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL` or argument `intBuf`
+ * is `NULL` and argument `bufSize` is greater than `0`.
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * variable.
+ * @throw ::AER_FAILED_PARSE if environment variable could not be
+ * interpreted as integers.
+ *
+ * @since 1.0.0
+ *
+ * @sa AEREnvConfGetInt
+ */
 size_t AEREnvConfGetInts(
 		const char * name,
 		size_t bufSize,
 		int32_t * intBuf
 );
 
+/**
+ * @brief Parse a float value from an environment variable.
+ *
+ * @param[in] name Name of environment variable.
+ *
+ * @return Value of environment variable interpreted as a float
+ * or `0.0f` if error.
+ *
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * variable.
+ * @throw ::AER_FAILED_PARSE if environment variable could not be
+ * interpreted as a float.
+ *
+ * @since 1.0.0
+ *
+ * @sa AEREnvConfGetFloats
+ */
 float AEREnvConfGetFloat(const char * name);
 
+/**
+ * @brief Parse multiple whitespace-delimited float values from an
+ * environment variable.
+ *
+ * @warning Argument `floatBuf` must be large enough to hold at least
+ * `bufSize` elements.
+ *
+ * @note Argument `bufSize` may be `0` in which case argument `floatBuf` may
+ * be `NULL`. This may be used to efficiently query the total number of
+ * potential floats contained in an environment variable.
+ *
+ * @param[in] name Name of environment variable.
+ * @param[in] bufSize Maximum number of elements to write to argument
+ * `floatBuf`.
+ * @param[out] floatBuf Buffer to write floats to.
+ *
+ * @return Total number of floats contained in environment variable.
+ *
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL` or argument `floatBuf`
+ * is `NULL` and argument `bufSize` is greater than `0`.
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * variable.
+ * @throw ::AER_FAILED_PARSE if environment variable could not be
+ * interpreted as floats.
+ *
+ * @since 1.0.0
+ *
+ * @sa AEREnvConfGetFloat
+ */
 size_t AEREnvConfGetFloats(
 		const char * name,
 		size_t bufSize,
 		float * floatBuf
 );
 
+/**
+ * @brief Read a string from an environment variable.
+ *
+ * @param[in] name Name of environment variable.
+ *
+ * @return Content of environment variable or `NULL` if error.
+ *
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * variable.
+ *
+ * @since 1.0.0
+ *
+ * @sa AEREnvConfGetStrings
+ */
 const char * AEREnvConfGetString(const char * name);
 
+/**
+ * @brief Read multiple whitespace-delimited strings from an
+ * environment variable.
+ *
+ * @warning Argument `strBuf` must be large enough to hold at least
+ * `bufSize` elements.
+ *
+ * @note Argument `bufSize` may be `0` in which case argument `strBuf` may
+ * be `NULL`. This may be used to efficiently query the total number of
+ * potential strings contained in an environment variable.
+ *
+ * @param[in] name Name of environment variable.
+ * @param[in] bufSize Maximum number of elements to write to argument
+ * `strBuf`.
+ * @param[out] strBuf Buffer to write strings to.
+ *
+ * @return Total number of strings contained in environment variable.
+ *
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL` or argument `strBuf`
+ * is `NULL` and argument `bufSize` is greater than `0`.
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * variable.
+ *
+ * @since 1.0.0
+ *
+ * @sa AEREnvConfGetString
+ */
 size_t AEREnvConfGetStrings(
 		const char * name,
 		size_t bufSize,
