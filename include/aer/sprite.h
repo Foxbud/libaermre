@@ -11,7 +11,7 @@
 
 /* ----- PUBLIC TYPES ----- */
 
-typedef enum AERSpriteType {
+typedef enum AERSpriteIndex {
 	AER_SPRITE_CRAZYBGCOLORS = 0x0,
 	AER_SPRITE_POINT = 0x1,
 	AER_SPRITE_PINKBLOCK = 0x2,
@@ -3383,7 +3383,7 @@ typedef enum AERSpriteType {
 	AER_SPRITE_SPRITE3368 = 0xd28,
 	AER_SPRITE_SPRITE3369 = 0xd29,
 	AER_SPRITE_SPRITE3370 = 0xd2a
-} AERSpriteType;
+} AERSpriteIndex;
 
 
 

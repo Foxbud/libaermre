@@ -47,7 +47,7 @@
  *
  * @since 1.0.0
  */
-typedef enum AERObjectType {
+typedef enum AERObjectIndex {
 	AER_OBJECT_MASTERCLASS = 0x0,
 	AER_OBJECT_DOORSTOVISIT = 0x1,
 	AER_OBJECT_PAUSEDELAYOBJ = 0x2,
@@ -562,7 +562,7 @@ typedef enum AERObjectType {
 	AER_OBJECT_FIREONGROUND = 0x1fb,
 	AER_OBJECT_EXECUTEDELAYEDOBJ = 0x1fc,
 	AER_OBJECT_OBJCTTVIDEOPLAYER = 0x1fd
-} AERObjectType;
+} AERObjectIndex;
 
 
 
