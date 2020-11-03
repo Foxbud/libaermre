@@ -1,5 +1,9 @@
 /**
  * @file
+ *
+ * @brief Utilities for querying and manipulating game rooms.
+ *
+ * @since 1.0.0
  */
 #ifndef AER_ROOM_H
 #define AER_ROOM_H
@@ -13,6 +17,11 @@
 
 /* ----- PUBLIC TYPES ----- */
 
+/**
+ * @brief Vanilla rooms.
+ *
+ * @since 1.0.0
+ */
 typedef enum AERRoomIndex {
 	AER_ROOM__INIT = 0,
 	AER_ROOM_FOLDER_MENU = 0x1,
@@ -296,8 +305,27 @@ typedef enum AERRoomIndex {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+/**
+ * @brief Query the currently active room.
+ *
+ * @return Index of current room.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.0.0
+ */
 int32_t AERRoomGetCurrent(void);
 
+/**
+ * @brief Change the currently active room to a new one.
+ *
+ * @param[in] roomIdx Index of new room.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `roomIdx` is an invalid room.
+ *
+ * @since 1.0.0
+ */
 void AERRoomGoto(int32_t roomIdx);
 
 
