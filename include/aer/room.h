@@ -23,7 +23,7 @@
  * @since 1.0.0
  */
 typedef enum AERRoomIndex {
-	AER_ROOM__INIT = 0,
+	AER_ROOM__INIT = 0x0,
 	AER_ROOM_FOLDER_MENU = 0x1,
 	AER_ROOM_AUTOSAVEMESSAGE = 0x2,
 	AER_ROOM_CONTROLLER = 0x3,

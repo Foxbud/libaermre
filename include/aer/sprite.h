@@ -1,5 +1,9 @@
 /**
  * @file
+ *
+ * @brief Utilities for querying and manipulating sprites.
+ *
+ * @since 1.0.0
  */
 #ifndef AER_SPRITE_H
 #define AER_SPRITE_H
@@ -11,6 +15,11 @@
 
 /* ----- PUBLIC TYPES ----- */
 
+/**
+ * @brief Vanilla sprites.
+ *
+ * @since 1.0.0
+ */
 typedef enum AERSpriteIndex {
 	AER_SPRITE_CRAZYBGCOLORS = 0x0,
 	AER_SPRITE_POINT = 0x1,
@@ -3405,6 +3414,15 @@ void AERSpriteReplace(
 		uint32_t origY
 );
 
+/**
+ * @brief Query the total number of vanilla and mod sprites registered.
+ *
+ * @return Number of sprites.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.0.0
+ */
 size_t AERSpriteGetNumRegistered(void);
 
 const char * AERSpriteGetName(int32_t spriteIdx);
