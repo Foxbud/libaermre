@@ -502,6 +502,7 @@ __attribute__((cdecl)) void AERHookInit(
 		HLDVariables varRefs,
 		HLDFunctions funcRefs
 ) {
+	HLDVariablesCheck(&varRefs);
 	InitMRE(varRefs, funcRefs);
 	ModManConstructor();
 	InitMods();

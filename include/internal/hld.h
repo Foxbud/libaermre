@@ -568,6 +568,8 @@ HLDEvent * HLDEventNew(HLDNamedFunction * handler);
 
 HLDEventWrapper * HLDEventWrapperNew(HLDEvent * event);
 
+void HLDVariablesCheck(HLDVariables * hldvars);
+
 
 
 #endif /* INTERNAL_HLD_H */

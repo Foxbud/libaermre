@@ -134,3 +134,50 @@ HLDEventWrapper * HLDEventWrapperNew(HLDEvent * event) {
 
 	return wrapper;
 }
+
+/* Sanity check to make sure all engine variables are as expected. */
+void HLDVariablesCheck(HLDVariables * hldvars) {
+	assert(hldvars->numSteps);
+
+	assert(hldvars->keysPressedTable);
+	assert(hldvars->keysHeldTable);
+	assert(hldvars->keysReleasedTable);
+
+	assert(hldvars->roomTable);
+	assert(hldvars->roomTable->elements);
+	assert(hldvars->roomTable->size == 0x114);
+
+	assert(hldvars->roomIndexCurrent);
+
+	assert(hldvars->roomCurrent);
+	assert(*hldvars->roomCurrent);
+
+	assert(hldvars->spriteTable);
+	assert(hldvars->spriteTable->elements);
+	assert(hldvars->spriteTable->size == 0xd2b);
+
+	assert(hldvars->objectTableHandle);
+	assert(*hldvars->objectTableHandle);
+	assert((*hldvars->objectTableHandle)->slots);
+	assert((*hldvars->objectTableHandle)->numItems == 0x1fe);
+	assert((*hldvars->objectTableHandle)->keyMask == 0x1ff);
+
+	assert(hldvars->instanceTable);
+	assert(hldvars->instanceTable->slots);
+
+	assert(hldvars->instanceLocalTable);
+	assert(hldvars->instanceLocalTable->elements);
+	assert(hldvars->instanceLocalTable->size == 0xdf4);
+
+	assert(hldvars->alarmEventSubscriberCounts);
+	assert(hldvars->alarmEventSubscribers);
+
+	assert(hldvars->stepEventSubscriberCounts);
+	assert(hldvars->stepEventSubscribers);
+
+	assert(hldvars->eventClass);
+	assert(hldvars->eventWrapperClass);
+	assert(hldvars->unknownEventAddress);
+
+	return;
+}
