@@ -55,8 +55,6 @@ static void CheckErrors(const char * envVar) {
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void ConfVarsConstructor(void) {
-	LogInfo("Initializing configuration variables...");
-
 	/* Mod names. */
 	aererr = AER_OK;
 	confNumModNames = AEREnvConfGetStrings(MOD_NAMES_VAR, 0, NULL);
@@ -66,20 +64,14 @@ void ConfVarsConstructor(void) {
 	AEREnvConfGetStrings(MOD_NAMES_VAR, confNumModNames, confModNames);
 	CheckErrors(MOD_NAMES_VAR);
 
-	LogInfo("Done initializing configuration variables.");
-
 	return;
 }
 
 void ConfVarsDestructor(void) {
-	LogInfo("Deinitializing configuration variables...");
-
 	/* Mod names. */
 	free(confModNames);
 	confModNames = NULL;
 	confNumModNames = 0;
-
-	LogInfo("Done deinitializing configuration variables.");
 
 	return;
 }

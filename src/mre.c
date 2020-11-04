@@ -502,7 +502,10 @@ __attribute__((cdecl)) void AERHookInit(
 		HLDVariables varRefs,
 		HLDFunctions funcRefs
 ) {
+	LogInfo("Checking engine variables...");
 	HLDVariablesCheck(&varRefs);
+	LogInfo("Done checking engine variables.");
+
 	InitMRE(varRefs, funcRefs);
 	ModManConstructor();
 	InitMods();
@@ -572,9 +575,17 @@ __attribute__((cdecl)) void AERHookEvent(
 __attribute__((constructor)) void AERConstructor(void) {
 	LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
 
+	LogInfo("Initializing environment configuration module...");
 	EnvConfConstructor();
+	LogInfo("Done initializing environment configuration module.");
+
+	LogInfo("Initializing configuration variables...");
 	ConfVarsConstructor();
+	LogInfo("Done initializing configuration variables.");
+
+	LogInfo("Initializing random module...");
 	RandConstructor();
+	LogInfo("Done initializing random module.");
 
 	return;
 }
@@ -619,9 +630,17 @@ __attribute__((destructor)) void AERDestructor(void) {
 
 	LogInfo("Done deinitializing mod runtime environment.");
 
+	LogInfo("Deinitializing random module...");
 	RandDestructor();
+	LogInfo("Done deinitializing random module.");
+
+	LogInfo("Deinitializing configuration variables...");
 	ConfVarsDestructor();
+	LogInfo("Done deinitializing configuration variables.");
+
+	LogInfo("Deinitializing environment configuration module...");
 	EnvConfDestructor();
+	LogInfo("Done deinitializing environment configuration module.");
 
 	return;
 }
