@@ -1,5 +1,2 @@
-build/
-docs/
+build*/
 *.swp
-*.o
-*.d
