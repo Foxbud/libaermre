@@ -3398,6 +3398,28 @@ typedef enum AERSpriteIndex {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+/**
+ * @brief Register a custom sprite.
+ *
+ * @param[in] name Name to assign to sprite.
+ * @param[in] filename Path to sprite file relative to asset directory.
+ * @param[in] numFrames If animated sprite, number of animation frames.
+ * If not animated, use `1`.
+ * @param[in] origX Horizontal origin (center) of sprite.
+ * @param[in] origY Vertical origin (center) of sprite.
+ *
+ * @return Index of new sprite or `-1` if unsuccessful.
+ *
+ * @throw ::AER_NULL_ARG if argument `name` or argument `filename` is
+ * `NULL`.
+ * @throw ::AER_SEQ_BREAK if called outside sprite registration stage.
+ * @throw ::AER_BAD_FILE if argument `filename` does not point to valid file.
+ * @throw ::AER_OUT_OF_MEM if space for new sprite could not be allocated.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERSpriteReplace
+ */
 int32_t AERSpriteRegister(
 		const char * name,
 		const char * filename,
