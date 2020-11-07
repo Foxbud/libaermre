@@ -3428,6 +3428,24 @@ int32_t AERSpriteRegister(
 		uint32_t origY
 );
 
+/**
+ * @brief Override a vanilla sprite a custom sprite.
+ *
+ * @param[in] spriteIdx Index of vanilla sprite to override.
+ * @param[in] filename Path to sprite file relative to asset directory.
+ * @param[in] numFrames If animated sprite, number of animation frames.
+ * If not animated, use `1`.
+ * @param[in] origX Horizontal origin (center) of sprite.
+ * @param[in] origY Vertical origin (center) of sprite.
+ *
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is invalid sprite.
+ * @throw ::AER_SEQ_BREAK if called outside sprite registration stage.
+ * @throw ::AER_NULL_ARG if argument `filename` is `NULL`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERSpriteRegister
+ */
 void AERSpriteReplace(
 		int32_t spriteIdx,
 		const char * filename,
