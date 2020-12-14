@@ -427,6 +427,13 @@ typedef struct __attribute__((packed)) HLDVariables {
 	bool (* keysPressedTable)[0x100];
 	bool (* keysHeldTable)[0x100];
 	bool (* keysReleasedTable)[0x100];
+	/* Tables of booleans where each index represents a mouse button. */
+	bool (* mouseButtonsPressedTable)[0x3];
+	bool (* mouseButtonsHeldTable)[0x3];
+	bool (* mouseButtonsReleasedTable)[0x3];
+	/* Mouse cursor position in pixels. */
+	uint32_t * mousePosX;
+	uint32_t * mousePosY;
 	/* Array of all registered rooms. */
 	HLDArrayPreSize * roomTable;
 	/* Index of currently active room. */

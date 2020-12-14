@@ -672,3 +672,34 @@ const bool * AERGetKeysReleased(void) {
 
 	return *hldvars.keysReleasedTable;
 }
+
+const bool * AERGetMouseButtonsPressed(void) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+
+	return *hldvars.mouseButtonsPressedTable;
+}
+
+const bool * AERGetMouseButtonsHeld(void) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+
+	return *hldvars.mouseButtonsHeldTable;
+}
+
+const bool * AERGetMouseButtonsReleased(void) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+
+	return *hldvars.mouseButtonsReleasedTable;
+}
+
+void AERGetMousePosition(
+		uint32_t * x,
+		uint32_t * y
+) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!(x || y), AER_NULL_ARG);
+
+	if (x) *x = *hldvars.mousePosX;
+	if (y) *y = *hldvars.mousePosY;
+
+	return;
+}

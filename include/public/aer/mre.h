@@ -60,6 +60,17 @@ const bool * AERGetKeysHeld(void);
  */
 const bool * AERGetKeysReleased(void);
 
+const bool * AERGetMouseButtonsPressed(void);
+
+const bool * AERGetMouseButtonsHeld(void);
+
+const bool * AERGetMouseButtonsReleased(void);
+
+void AERGetMousePosition(
+		uint32_t * x,
+		uint32_t * y
+);
+
 
 
 #endif /* AER_MRE_H */
