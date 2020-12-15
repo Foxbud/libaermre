@@ -633,7 +633,7 @@ size_t AERObjectGetNumRegistered(void);
  *
  * @param[in] objIdx Object of interest.
  *
- * @return Name of object.
+ * @return Name of object of `NULL` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.

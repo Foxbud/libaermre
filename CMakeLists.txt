@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.18)
 # Copyright 2020 the libaermre authors
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,7 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-cmake_minimum_required(VERSION 3.18)
 
 project(AERMRE
 	VERSION 1.0.0
