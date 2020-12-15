@@ -158,6 +158,13 @@ void HLDVariablesCheck(HLDVariables * hldvars) {
 	assert(hldvars->keysHeldTable);
 	assert(hldvars->keysReleasedTable);
 
+	assert(hldvars->mouseButtonsPressedTable);
+	assert(hldvars->mouseButtonsHeldTable);
+	assert(hldvars->mouseButtonsReleasedTable);
+
+	assert(hldvars->mousePosX);
+	assert(hldvars->mousePosY);
+
 	assert(hldvars->roomTable);
 	assert(hldvars->roomTable->elements);
 	assert(hldvars->roomTable->size == 0x114);
