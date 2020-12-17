@@ -303,7 +303,7 @@ typedef struct HLDInstance {
 	uint8_t field_14B;
 	struct HLDInstance * instanceNext;
 	struct HLDInstance * instancePrev;
-	uint32_t field_154;
+	float depth;
 	uint32_t field_158;
 	uint32_t lastUpdate;
 	uint32_t field_160;

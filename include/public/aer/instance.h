@@ -103,15 +103,66 @@ AERInstance * AERInstanceCreate(
 		float y
 );
 
+/**
+ * @brief Convert an instance of one object into an instance of another
+ * object in-place.
+ *
+ * @warning Once this function has been called on and instance, no further
+ * queries or actions should be performed on this instance until the next
+ * in-game step.
+ *
+ * Under the hood, this function creates a new instance of the new object,
+ * copies various properties such as position from the old instance to the
+ * new instance, and then finally destroys the old instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] newObjIdx Object to convert argument `inst` into.
+ * @param[in] doEvents If `true`, then the engine will call the destroy
+ * event of the old instance and the create event of the new instance.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is NULL.
+ * @throw ::AER_FAILED_LOOKUP if argument `newObjIdx` is an invalid object.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceChange(
 		AERInstance * inst,
 		int32_t newObjIdx,
 		bool doEvents
 );
 
+/**
+ * @brief Destroy an instance and call its destroy event.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is NULL.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceDelete()
+ */
 void AERInstanceDestroy(AERInstance * inst);
 
+/**
+ * @brief Destroy an instance but do **not** call its destroy event.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is NULL.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceDestroy()
+ */
 void AERInstanceDelete(AERInstance * inst);
+
+float AERInstanceGetDepth(AERInstance * inst);
+
+void AERInstanceSetDepth(AERInstance * inst, float depth);
 
 void AERInstanceSyncDepth(AERInstance * inst);
 

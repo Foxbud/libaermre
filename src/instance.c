@@ -118,6 +118,22 @@ void AERInstanceDelete(AERInstance * inst) {
 	return;
 }
 
+float AERInstanceGetDepth(AERInstance * inst) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
+	ErrIf(!inst, AER_NULL_ARG, 0.0f);
+
+	return ((HLDInstance *)inst)->depth;
+}
+
+void AERInstanceSetDepth(AERInstance * inst, float depth) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+
+	((HLDInstance *)inst)->depth = depth;
+
+	return;
+}
+
 void AERInstanceSyncDepth(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
