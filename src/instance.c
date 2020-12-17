@@ -280,6 +280,7 @@ void AERInstanceSetMask(
 ) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(!(maskIdx == -1 || HLDSpriteLookup(maskIdx)), AER_FAILED_LOOKUP);
 
 	hldfuncs.Instance_setMaskIndex(
 			(HLDInstance *)inst,
@@ -302,6 +303,7 @@ void AERInstanceSetSprite(
 ) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(!(spriteIdx == -1 || HLDSpriteLookup(spriteIdx)), AER_FAILED_LOOKUP);
 
 	((HLDInstance *)inst)->spriteIndex = spriteIdx;
 
@@ -340,6 +342,7 @@ void AERInstanceSetSpriteSpeed(
 ) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(speed < 0.0f, AER_BAD_VAL);
 
 	((HLDInstance *)inst)->imageSpeed = speed;
 
@@ -359,6 +362,7 @@ void AERInstanceSetSpriteAlpha(
 ) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(alpha < 0.0f || alpha > 1.0f, AER_BAD_VAL);
 
 	((HLDInstance *)inst)->imageAlpha = alpha;
 

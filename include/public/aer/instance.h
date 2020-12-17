@@ -79,6 +79,8 @@ size_t AERInstanceGetAll(
  * @throw ::AER_FAILED_LOOKUP if argument `instId` is an invalid instance.
  *
  * @since 1.0.0
+ *
+ * @sa AERInstanceGetId
  */
 AERInstance * AERInstanceGetById(int32_t instId);
 
@@ -96,6 +98,8 @@ AERInstance * AERInstanceGetById(int32_t instId);
  * @throw ::AER_OUT_OF_MEM if space for new instance could not be allocated.
  *
  * @since 1.0.0
+ *
+ * @sa AERObjectAttachCreateListener
  */
 AERInstance * AERInstanceCreate(
 		int32_t objIdx,
@@ -121,10 +125,13 @@ AERInstance * AERInstanceCreate(
  * event of the old instance and the create event of the new instance.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
- * @throw ::AER_NULL_ARG if argument `inst` is NULL.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `newObjIdx` is an invalid object.
  *
  * @since 1.0.0
+ *
+ * @sa AERObjectAttachCreateListener
+ * @sa AERObjectAttachDestroyListener
  */
 void AERInstanceChange(
 		AERInstance * inst,
@@ -138,11 +145,12 @@ void AERInstanceChange(
  * @param[in] inst Instance of interest.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
- * @throw ::AER_NULL_ARG if argument `inst` is NULL.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
  *
  * @since 1.0.0
  *
- * @sa AERInstanceDelete()
+ * @sa AERInstanceDelete
+ * @sa AERObjectAttachDestroyListener
  */
 void AERInstanceDestroy(AERInstance * inst);
 
@@ -152,139 +160,607 @@ void AERInstanceDestroy(AERInstance * inst);
  * @param[in] inst Instance of interest.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
- * @throw ::AER_NULL_ARG if argument `inst` is NULL.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
  *
  * @since 1.0.0
  *
- * @sa AERInstanceDestroy()
+ * @sa AERInstanceDestroy
+ * @sa AERObjectAttachDestroyListener
  */
 void AERInstanceDelete(AERInstance * inst);
 
+/**
+ * @brief Query the render depth of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Render depth.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 float AERInstanceGetDepth(AERInstance * inst);
 
+/**
+ * @brief Set the render depth of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] depth Render depth.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSetDepth(AERInstance * inst, float depth);
 
+/**
+ * @brief Set the render depth of an instance based on its position in the
+ * current room.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSyncDepth(AERInstance * inst);
 
+/**
+ * @brief Query the ID of an instance.
+ *
+ * @note A valid reference to an ::AERInstance one step may become invalid
+ * in a future step. To keep track of a specific instance across steps,
+ * use its ID.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Instance ID.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceGetById
+ */
 int32_t AERInstanceGetId(AERInstance * inst);
 
+/**
+ * @brief Query the object of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Object index.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 int32_t AERInstanceGetObject(AERInstance * inst);
 
+/**
+ * @brief Query the position of an instance in the current room.
+ *
+ * If only one component of the position is needed, then the argument for the
+ * unneeded component may be `NULL`.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[out] x Horizontal position.
+ * @param[out] y Vertical position.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL` or both arguments
+ * `x` and `y` are `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceGetPosition(
 		AERInstance * inst,
 		float * x,
 		float * y
 );
 
+/**
+ * @brief Set the position of an instance in the current room.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] x Horizontal position.
+ * @param[in] y Vertical position.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSetPosition(
 		AERInstance * inst,
 		float x,
 		float y
 );
 
+/**
+ * @brief Query the friction of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Friction.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 float AERInstanceGetFriction(AERInstance * inst);
 
+/**
+ * @brief Set the friction of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] friction Friction.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSetFriction(
 		AERInstance * inst,
 		float friction
 );
 
+/**
+ * @brief Query the motion of an instance.
+ *
+ * If only one component of the motion is needed, then the argument for the
+ * unneeded component may be `NULL`.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[out] x Horizontal motion.
+ * @param[out] y Vertical motion.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL` or both arguments
+ * `x` and `y` are `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceGetMotion(
 		AERInstance * inst,
 		float * x,
 		float * y
 );
 
+/**
+ * @brief Set the motion of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] x Horizontal motion.
+ * @param[in] y Vertical motion.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceAddMotion
+ */
 void AERInstanceSetMotion(
 		AERInstance * inst,
 		float x,
 		float y
 );
 
+/**
+ * @brief Add to the existing motion of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] x Horizontal motion.
+ * @param[in] y Vertical motion.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceSetMotion
+ */
 void AERInstanceAddMotion(
 		AERInstance * inst,
 		float x,
 		float y
 );
 
+/**
+ * @brief Query the collision mask of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Collision mask index.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 int32_t AERInstanceGetMask(AERInstance * inst);
 
+/**
+ * @brief Set the collision mask of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] maskIdx Collision mask index.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `maskIdx` is an invalid sprite.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSetMask(
 		AERInstance * inst,
 		int32_t maskIdx
 );
 
+/**
+ * @brief Query the sprite of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Sprite index.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 int32_t AERInstanceGetSprite(AERInstance * inst);
 
+/**
+ * @brief Set the sprite of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] spriteIdx Sprite index.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSetSprite(
 		AERInstance * inst,
 		int32_t spriteIdx
 );
 
+/**
+ * @brief Query the current frame of sprite animation of an instance.
+ *
+ * @subsubsection SpriteFrame Sprite Animation Frame
+ *
+ * The current sprite animation frame of an instance is stored as a
+ * floating-point value rather than an integer because it also encodes
+ * progress to the next frame.
+ *
+ * The integer portion of this value represents the current frame. The
+ * fractional portion represents progress towards the next frame.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Frame of sprite animation.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERObjectAttachAnimationEndListener
+ */
 float AERInstanceGetSpriteFrame(AERInstance * inst);
 
+/**
+ * @brief Set the current frame of sprite animation of an instance.
+ *
+ * For more information about the meaning of the sprite frame, see
+ * @ref SpriteFrame.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] frame Frame of sprite animation.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERObjectAttachAnimationEndListener
+ */
 void AERInstanceSetSpriteFrame(
 		AERInstance * inst,
 		float frame
 );
 
+/**
+ * @brief Query the sprite animation speed of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Sprite animation speed.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERObjectAttachAnimationEndListener
+ */
 float AERInstanceGetSpriteSpeed(AERInstance * inst);
 
+/**
+ * @brief Set the sprite animation speed of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] speed Sprite animation speed.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ * @throw ::AER_BAD_VAL if argument `speed` is less than `0.0f`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERObjectAttachAnimationEndListener
+ */
 void AERInstanceSetSpriteSpeed(
 		AERInstance * inst,
 		float speed
 );
 
+/**
+ * @brief Query the sprite alpha (transparency) of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Sprite alpha.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 float AERInstanceGetSpriteAlpha(AERInstance * inst);
 
+/**
+ * @brief Set the sprite alpha (transparency) of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] alpha Sprite alpha.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ * @throw ::AER_BAD_VAL if argument `alpha` is less than `0.0f` or greater
+ * than `1.0f`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSetSpriteAlpha(
 		AERInstance * inst,
 		float alpha
 );
 
+/**
+ * @brief Query the sprite offset angle of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Sprite offset angle in degrees.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 float AERInstanceGetSpriteAngle(AERInstance * inst);
 
+/**
+ * @brief Set the sprite offset angle of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] angle Sprite offset angle in degrees.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSetSpriteAngle(
 		AERInstance * inst,
 		float angle
 );
 
+/**
+ * @brief Query the sprite scale of an instance.
+ *
+ * If only one component of the scale is needed, then the argument for the
+ * unneeded component may be `NULL`.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[out] x Horizontal scale.
+ * @param[out] y Vertical scale.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL` or both arguments
+ * `x` and `y` are `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceGetSpriteScale(
 		AERInstance * inst,
 		float * x,
 		float * y
 );
 
+/**
+ * @brief Set the sprite scale of an instance.
+ *
+ * @note The components of the scale may be negative to mirror the sprite
+ * about an axis.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] x Horizontal scale.
+ * @param[in] y Vertical scale.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSetSpriteScale(
 		AERInstance * inst,
 		float x,
 		float y
 );
 
+/**
+ * @brief Query the tangibility of an instance.
+ *
+ * @subsubsection Tangibility Instance Tangibility
+ *
+ * The tangibility of an instance represents whether or not the player can
+ * collide with it. This property is only meaningful for instances of
+ * ::AER_OBJECT_PATHFINDOBSTACLE and its children.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Tangibility.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 bool AERInstanceGetTangible(AERInstance * inst);
 
+/**
+ * @brief Set the tangibility of an instance.
+ *
+ * For more information about instance tangibility, see @ref Tangibility.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] tangible Tangibility.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.0.0
+ */
 void AERInstanceSetTangible(
 		AERInstance * inst,
 		bool tangible
 );
 
+/**
+ * @brief Query the state of an alarm of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] alarmIdx Alarm index.
+ *
+ * @return Number of alarm steps.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `alarmIdx` is greater than `11`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERObjectAttachAlarmListener
+ */
 int32_t AERInstanceGetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx
 );
 
+/**
+ * @brief Set the state of an alarm of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] alarmIdx Alarm index.
+ * @param[in] numSteps Number of alarm steps. Set to `-1` to disable the
+ * alarm without triggering the corresponding alarm event.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `alarmIdx` is greater than `11`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERObjectAttachAlarmListener
+ */
 void AERInstanceSetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx,
 		int32_t numSteps
 );
 
+/**
+ * @brief Query the names of all locals of an instance.
+ *
+ * @warning Argument `nameBuf` must be large enough to hold at least
+ * `bufSize` elements.
+ *
+ * @note Argument `bufSize` may be `0` in which case argument `nameBuf` may
+ * be `NULL`. This may be used to efficiently query the total number of
+ * locals that an instance has.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] bufSize Maximum number of elements to write to argument
+ * `nameBuf`.
+ * @param[out] nameBuf Buffer to write names to.
+ *
+ * @return Total number of locals that the instance has.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL` or argument
+ * `instBuf` is `NULL` and argument `bufSize` is greater than `0`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceGetLocal
+ */
 size_t AERInstanceGetLocals(
 		AERInstance * inst,
 		size_t bufSize,
 		const char ** nameBuf
 );
 
+/**
+ * @brief Get a reference to a specific local of an instance.
+ *
+ * @note Because this function returns a reference to the local rather
+ * than the value of the local, it acts as both a "getter" and a "setter".
+ *
+ * The local could be one of several different types including but not
+ * limited to `int`, `double` and `char *`. As a result, this function
+ * simply returns a `void` pointer to the local. It is the caller's
+ * responsibility to cast this pointer to the correct type before
+ * dereferencing it.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] name Local name.
+ *
+ * @return Reference to local or `NULL` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if either argument `inst` or `name` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if instance does not have local with name
+ * given by argument `name`.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceGetLocals
+ */
 void * AERInstanceGetLocal(
 		AERInstance * inst,
 		const char * name

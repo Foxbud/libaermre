@@ -52,6 +52,17 @@ int32_t AERObjectRegister(
 	HLDObject * parent = HLDObjectLookup(parentIdx);
 	ErrIf(!parent, AER_FAILED_LOOKUP, -1);
 
+	ErrIf(
+			!(spriteIdx == -1 || HLDSpriteLookup(spriteIdx)),
+			AER_FAILED_LOOKUP,
+			-1
+	);
+	ErrIf(
+			!(maskIdx == -1 || HLDSpriteLookup(maskIdx)),
+			AER_FAILED_LOOKUP,
+			-1
+	);
+
 	int32_t objIdx = hldfuncs.actionObjectAdd();
 	HLDObject * obj = HLDObjectLookup(objIdx);
 	ErrIf(!obj, AER_OUT_OF_MEM, -1);

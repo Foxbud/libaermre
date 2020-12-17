@@ -599,7 +599,8 @@ typedef enum AERObjectIndex {
  *
  * @throw ::AER_SEQ_BREAK if called outside object registration stage.
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
- * @throw ::AER_FAILED_LOOKUP if argument `parentIdx` is an invalid object.
+ * @throw ::AER_FAILED_LOOKUP if argument `parentIdx` is an invalid object
+ * or either argument `spriteIdx` or `maskIdx` is an invalid sprite.
  * @throw ::AER_OUT_OF_MEM if space for new object could not be allocated.
  *
  * @since 1.0.0
@@ -931,7 +932,7 @@ void AERObjectAttachCollisionListener(
  * @brief Attach an animation-end event listener to an object.
  *
  * This event listener is called whenever the animation frame of an instance
- * of the object loops back to `0`.
+ * of the object loops back to `0.0f`.
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.

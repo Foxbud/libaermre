@@ -3,17 +3,6 @@
  *
  * @brief Uncategorized functions for querying and manipulating game state.
  *
- * @subsubsection MouseButtonStates Mouse Button States
- *
- * For functions that query information about the state of the mouse buttons,
- * the following table shows how array indexes map to buttons.
- *
- * Array Index | Mouse Button
- * ----------: | ------------
- * 0           | Left
- * 1           | Right
- * 2           | Middle
- *
  * @since 1.0.0
  *
  * @copyright 2020 the libaermre authors
@@ -88,8 +77,17 @@ const bool * AERGetKeysReleased(void);
 /**
  * @brief Query the mouse button(s) that the user just pressed this step.
  *
- * @return Array of mouse button pressed states. See @ref MouseButtonStates
- * for more information.
+ * @subsubsection MouseButtonStates Mouse Button States
+ *
+ * The array returned by this function has the following values.
+ *
+ * Array Index | Mouse Button
+ * ----------: | ------------
+ * `0`         | Left
+ * `1`         | Right
+ * `2`         | Middle
+ *
+ * @return Array of mouse button pressed states.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -100,8 +98,9 @@ const bool * AERGetMouseButtonsPressed(void);
 /**
  * @brief Query the mouse button(s) that the user had held this step.
  *
- * @return Array of mouse button held states. See @ref MouseButtonStates
- * for more information.
+ * For more information about the mouse buttons, see @ref MouseButtonStates.
+ *
+ * @return Array of mouse button held states.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -112,8 +111,9 @@ const bool * AERGetMouseButtonsHeld(void);
 /**
  * @brief Query the mouse button(s) that the user just released this step.
  *
- * @return Array of mouse button released states. See @ref MouseButtonStates
- * for more information.
+ * For more information about the mouse buttons, see @ref MouseButtonStates.
+ *
+ * @return Array of mouse button released states.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
