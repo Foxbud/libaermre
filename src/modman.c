@@ -171,6 +171,10 @@ static void ModInit(Mod * mod, const char * name) {
 		listener->func.roomChange = def.roomChangeListener;
 	}
 
+	/* Record mod library management callbacks. */
+	mod->constructor = def.constructor;
+	mod->destructor = def.destructor;
+
 	LogInfo("Successfully loaded mod \"%s.\"", name);
 	return;
 }
@@ -181,7 +185,18 @@ static void ModDeinit(Mod * mod) {
 	free(mod->slug);
 	dlclose(mod->libHandle);
 
-	LogInfo("Successfully unloaded mod \"%s.\"", mod->name);
+	const char * name = mod->name;
+
+	mod->libHandle = NULL;
+	mod->name = NULL;
+	mod->slug = NULL;
+	mod->constructor = NULL;
+	mod->destructor = NULL;
+	mod->regSprites = NULL;
+	mod->regObjects = NULL;
+	mod->regObjListeners = NULL;
+
+	LogInfo("Successfully unloaded mod \"%s.\"", name);
 	return;
 }
 
@@ -202,7 +217,13 @@ void ModManConstructor(void) {
 
 	/* Load mod libraries. */
 	for (uint32_t idx = 0; idx < confNumModNames; idx++) {
-		ModInit(FoxArrayMPush(Mod, &modman.mods), confModNames[idx]);
+		Mod * mod = FoxArrayMPush(Mod, &modman.mods);
+		ModInit(mod, confModNames[idx]);
+		if (mod->constructor) {
+			*FoxArrayMPush(Mod *, &modman.context) = mod;
+			mod->constructor();
+			FoxArrayMPop(Mod *, &modman.context);
+		}
 	}
 
 	LogInfo("Done. Loaded %zu mod(s).", confNumModNames);
@@ -214,8 +235,14 @@ void ModManDestructor(void) {
 	LogInfo("Unloading mods...");
 	size_t numMods = FoxArrayMSize(Mod, &modman.mods);
 	for (uint32_t idx = 0; idx < numMods; idx++) {
-		Mod mod = FoxArrayMPop(Mod, &modman.mods);
-		ModDeinit(&mod);
+		Mod * mod = FoxArrayMPeek(Mod, &modman.mods);
+		if (mod->destructor) {
+			*FoxArrayMPush(Mod *, &modman.context) = mod;
+			mod->destructor();
+			FoxArrayMPop(Mod *, &modman.context);
+		}
+		ModDeinit(mod);
+		FoxArrayMPop(Mod, &modman.mods);
 	}
 	LogInfo("Done. Unloaded %zu mod(s).", numMods);
 

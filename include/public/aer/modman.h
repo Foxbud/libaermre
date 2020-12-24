@@ -45,6 +45,9 @@
  * @since 1.0.0
  */
 typedef struct AERModDef {
+	/* Mod library management callbacks. */
+	void (* constructor)(void);
+	void (* destructor)(void);
 	/* Registration callbacks. */
 	void (* regSprites)(void);
 	void (* regObjects)(void);
@@ -55,6 +58,32 @@ typedef struct AERModDef {
 } AERModDef;
 
 /**
+ * @var constructor
+ *
+ * @brief Callback function which constructs a mod.
+ *
+ * @note Prefer using this over `__attribute__((constructor))`.
+ * @note May be `NULL` if mod does not need construction.
+ *
+ * @since 1.0.0
+ *
+ * @memberof AERModDef
+ */
+
+/**
+ * @var destructor
+ *
+ * @brief Callback function which destructs a mod.
+ *
+ * @note Prefer using this over `__attribute__((destructor))`.
+ * @note May be `NULL` if mod does not need destruction.
+ *
+ * @since 1.0.0
+ *
+ * @memberof AERModDef
+ */
+
+/**
  * @var regSprites
  *
  * @brief Callback function which registers a mod's sprites.
@@ -63,8 +92,8 @@ typedef struct AERModDef {
  *
  * @since 1.0.0
  *
- * @sa AERSpriteRegister()
- * @sa AERSpriteReplace()
+ * @sa AERSpriteRegister
+ * @sa AERSpriteReplace
  *
  * @memberof AERModDef
  */
@@ -78,7 +107,7 @@ typedef struct AERModDef {
  *
  * @since 1.0.0
  *
- * @sa AERObjectRegister()
+ * @sa AERObjectRegister
  *
  * @memberof AERModDef
  */
@@ -92,14 +121,14 @@ typedef struct AERModDef {
  *
  * @since 1.0.0
  *
- * @sa AERObjectAttachCreateListener()
- * @sa AERObjectAttachDestroyListener()
- * @sa AERObjectAttachAlarmListener()
- * @sa AERObjectAttachStepListener()
- * @sa AERObjectAttachPreStepListener()
- * @sa AERObjectAttachPostStepListener()
- * @sa AERObjectAttachCollisionListener()
- * @sa AERObjectAttachAnimationEndListener()
+ * @sa AERObjectAttachCreateListener
+ * @sa AERObjectAttachDestroyListener
+ * @sa AERObjectAttachAlarmListener
+ * @sa AERObjectAttachStepListener
+ * @sa AERObjectAttachPreStepListener
+ * @sa AERObjectAttachPostStepListener
+ * @sa AERObjectAttachCollisionListener
+ * @sa AERObjectAttachAnimationEndListener
  *
  * @memberof AERModDef
  */
