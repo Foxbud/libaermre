@@ -25,6 +25,7 @@
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+__attribute__((visibility("default")))
 size_t AERInstanceGetAll(
 		size_t bufSize,
 		AERInstance ** instBuf
@@ -45,6 +46,7 @@ size_t AERInstanceGetAll(
 	return numInsts;
 }
 
+__attribute__((visibility("default")))
 AERInstance * AERInstanceGetById(int32_t instId) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
@@ -54,6 +56,7 @@ AERInstance * AERInstanceGetById(int32_t instId) {
 	return inst;
 }
 
+__attribute__((visibility("default")))
 AERInstance * AERInstanceCreate(
 		int32_t objIdx,
 		float x,
@@ -72,6 +75,7 @@ AERInstance * AERInstanceCreate(
 	return inst;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceChange(
 		AERInstance * inst,
 		int32_t newObjIdx,
@@ -90,6 +94,7 @@ void AERInstanceChange(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceDestroy(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
@@ -104,6 +109,7 @@ void AERInstanceDestroy(AERInstance * inst) {
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceDelete(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
@@ -118,6 +124,7 @@ void AERInstanceDelete(AERInstance * inst) {
 	return;
 }
 
+__attribute__((visibility("default")))
 float AERInstanceGetDepth(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
 	ErrIf(!inst, AER_NULL_ARG, 0.0f);
@@ -125,6 +132,7 @@ float AERInstanceGetDepth(AERInstance * inst) {
 	return ((HLDInstance *)inst)->depth;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetDepth(AERInstance * inst, float depth) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
@@ -134,6 +142,7 @@ void AERInstanceSetDepth(AERInstance * inst, float depth) {
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSyncDepth(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
@@ -150,6 +159,7 @@ void AERInstanceSyncDepth(AERInstance * inst) {
 	return;
 }
 
+__attribute__((visibility("default")))
 int32_t AERInstanceGetId(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 	ErrIf(!inst, AER_NULL_ARG, -1);
@@ -157,6 +167,7 @@ int32_t AERInstanceGetId(AERInstance * inst) {
 	return ((HLDInstance *)inst)->id;
 }
 
+__attribute__((visibility("default")))
 int32_t AERInstanceGetObject(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 	ErrIf(!inst, AER_NULL_ARG, -1);
@@ -164,6 +175,7 @@ int32_t AERInstanceGetObject(AERInstance * inst) {
 	return ((HLDInstance *)inst)->objectIndex;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceGetPosition(
 		AERInstance * inst,
 		float * x,
@@ -181,6 +193,7 @@ void AERInstanceGetPosition(
 #undef inst
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetPosition(
 		AERInstance * inst,
 		float x,
@@ -197,6 +210,7 @@ void AERInstanceSetPosition(
 #undef inst
 }
 
+__attribute__((visibility("default")))
 float AERInstanceGetFriction(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
 	ErrIf(!inst, AER_NULL_ARG, 0.0f);
@@ -204,6 +218,7 @@ float AERInstanceGetFriction(AERInstance * inst) {
 	return ((HLDInstance *)inst)->friction;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetFriction(
 		AERInstance * inst,
 		float friction
@@ -216,6 +231,7 @@ void AERInstanceSetFriction(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceGetMotion(
 		AERInstance * inst,
 		float * x,
@@ -233,6 +249,7 @@ void AERInstanceGetMotion(
 #undef inst
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetMotion(
 		AERInstance * inst,
 		float x,
@@ -250,6 +267,7 @@ void AERInstanceSetMotion(
 #undef inst
 }
 
+__attribute__((visibility("default")))
 void AERInstanceAddMotion(
 		AERInstance * inst,
 		float x,
@@ -267,6 +285,7 @@ void AERInstanceAddMotion(
 #undef inst
 }
 
+__attribute__((visibility("default")))
 int32_t AERInstanceGetMask(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 	ErrIf(!inst, AER_NULL_ARG, -1);
@@ -274,6 +293,7 @@ int32_t AERInstanceGetMask(AERInstance * inst) {
 	return ((HLDInstance *)inst)->maskIndex;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetMask(
 		AERInstance * inst,
 		int32_t maskIdx
@@ -290,6 +310,7 @@ void AERInstanceSetMask(
 	return;
 }
 
+__attribute__((visibility("default")))
 int32_t AERInstanceGetSprite(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 	ErrIf(!inst, AER_NULL_ARG, -1);
@@ -297,6 +318,7 @@ int32_t AERInstanceGetSprite(AERInstance * inst) {
 	return ((HLDInstance *)inst)->spriteIndex;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetSprite(
 		AERInstance * inst,
 		int32_t spriteIdx
@@ -310,6 +332,7 @@ void AERInstanceSetSprite(
 	return;
 }
 
+__attribute__((visibility("default")))
 float AERInstanceGetSpriteFrame(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
 	ErrIf(!inst, AER_NULL_ARG, -1.0f);
@@ -317,6 +340,7 @@ float AERInstanceGetSpriteFrame(AERInstance * inst) {
 	return ((HLDInstance *)inst)->imageIndex;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetSpriteFrame(
 		AERInstance * inst,
 		float frame
@@ -329,6 +353,7 @@ void AERInstanceSetSpriteFrame(
 	return;
 }
 
+__attribute__((visibility("default")))
 float AERInstanceGetSpriteSpeed(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
 	ErrIf(!inst, AER_NULL_ARG, -1.0f);
@@ -336,6 +361,7 @@ float AERInstanceGetSpriteSpeed(AERInstance * inst) {
 	return ((HLDInstance *)inst)->imageSpeed;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetSpriteSpeed(
 		AERInstance * inst,
 		float speed
@@ -349,6 +375,7 @@ void AERInstanceSetSpriteSpeed(
 	return;
 }
 
+__attribute__((visibility("default")))
 float AERInstanceGetSpriteAlpha(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
 	ErrIf(!inst, AER_NULL_ARG, -1.0f);
@@ -356,6 +383,7 @@ float AERInstanceGetSpriteAlpha(AERInstance * inst) {
 	return ((HLDInstance *)inst)->imageAlpha;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetSpriteAlpha(
 		AERInstance * inst,
 		float alpha
@@ -369,6 +397,7 @@ void AERInstanceSetSpriteAlpha(
 	return;
 }
 
+__attribute__((visibility("default")))
 float AERInstanceGetSpriteAngle(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
 	ErrIf(!inst, AER_NULL_ARG, 0.0f);
@@ -376,6 +405,7 @@ float AERInstanceGetSpriteAngle(AERInstance * inst) {
 	return ((HLDInstance *)inst)->imageAngle;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetSpriteAngle(
 		AERInstance * inst,
 		float angle
@@ -388,6 +418,7 @@ void AERInstanceSetSpriteAngle(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceGetSpriteScale(
 		AERInstance * inst,
 		float * x,
@@ -405,6 +436,7 @@ void AERInstanceGetSpriteScale(
 #undef inst
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetSpriteScale(
 		AERInstance * inst,
 		float x,
@@ -421,6 +453,7 @@ void AERInstanceSetSpriteScale(
 #undef inst
 }
 
+__attribute__((visibility("default")))
 bool AERInstanceGetTangible(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, false);
 	ErrIf(!inst, AER_NULL_ARG, false);
@@ -428,6 +461,7 @@ bool AERInstanceGetTangible(AERInstance * inst) {
 	return ((HLDInstance *)inst)->tangible;
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetTangible(
 		AERInstance * inst,
 		bool tangible
@@ -440,6 +474,7 @@ void AERInstanceSetTangible(
 	return;
 }
 
+__attribute__((visibility("default")))
 int32_t AERInstanceGetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx
@@ -451,6 +486,7 @@ int32_t AERInstanceGetAlarm(
 	return ((HLDInstance *)inst)->alarms[alarmIdx];
 }
 
+__attribute__((visibility("default")))
 void AERInstanceSetAlarm(
 		AERInstance * inst,
 		uint32_t alarmIdx,
@@ -465,6 +501,7 @@ void AERInstanceSetAlarm(
 	return;
 }
 
+__attribute__((visibility("default")))
 size_t AERInstanceGetLocals(
 		AERInstance * inst,
 		size_t bufSize,
@@ -493,6 +530,7 @@ size_t AERInstanceGetLocals(
 	return numLocals;
 }
 
+__attribute__((visibility("default")))
 void * AERInstanceGetLocal(
 		AERInstance * inst,
 		const char * name

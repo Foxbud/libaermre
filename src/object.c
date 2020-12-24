@@ -31,6 +31,7 @@
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+__attribute__((visibility("default")))
 int32_t AERObjectRegister(
 		const char * name,
 		int32_t parentIdx,
@@ -85,12 +86,14 @@ int32_t AERObjectRegister(
 	return objIdx;
 }
 
+__attribute__((visibility("default")))
 size_t AERObjectGetNumRegistered(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
 	return (*hldvars.objectTableHandle)->numItems;
 }
 
+__attribute__((visibility("default")))
 const char * AERObjectGetName(int32_t objIdx) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
@@ -100,6 +103,7 @@ const char * AERObjectGetName(int32_t objIdx) {
 	return obj->name;
 }
 
+__attribute__((visibility("default")))
 int32_t AERObjectGetParent(int32_t objIdx) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 
@@ -109,6 +113,7 @@ int32_t AERObjectGetParent(int32_t objIdx) {
 	return obj->parentIndex;
 }
 
+__attribute__((visibility("default")))
 size_t AERObjectGetInstances(
 		int32_t objIdx,
 		size_t bufSize,
@@ -131,6 +136,7 @@ size_t AERObjectGetInstances(
 	return numInsts;
 }
 
+__attribute__((visibility("default")))
 bool AERObjectGetCollisions(int32_t objIdx) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, false);
 
@@ -140,6 +146,7 @@ bool AERObjectGetCollisions(int32_t objIdx) {
 	return obj->flags.collisions;
 }
 
+__attribute__((visibility("default")))
 void AERObjectSetCollisions(
 		int32_t objIdx,
 		bool collisions
@@ -153,6 +160,7 @@ void AERObjectSetCollisions(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERObjectAttachCreateListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
@@ -189,6 +197,7 @@ void AERObjectAttachCreateListener(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERObjectAttachDestroyListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
@@ -225,6 +234,7 @@ void AERObjectAttachDestroyListener(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERObjectAttachAlarmListener(
 		int32_t objIdx,
 		uint32_t alarmIdx,
@@ -264,6 +274,7 @@ void AERObjectAttachAlarmListener(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERObjectAttachStepListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
@@ -300,6 +311,7 @@ void AERObjectAttachStepListener(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERObjectAttachPreStepListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
@@ -336,6 +348,7 @@ void AERObjectAttachPreStepListener(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERObjectAttachPostStepListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),
@@ -372,6 +385,7 @@ void AERObjectAttachPostStepListener(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERObjectAttachCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
@@ -411,6 +425,7 @@ void AERObjectAttachCollisionListener(
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERObjectAttachAnimationEndListener(
 		int32_t objIdx,
 		bool (* listener)(AERInstance * inst),

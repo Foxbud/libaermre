@@ -19,4 +19,5 @@
 
 /* ----- PUBLIC GLOBALS ----- */
 
+__attribute__((visibility("default")))
 AERErrCode aererr = AER_OK;

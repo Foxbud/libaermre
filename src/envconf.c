@@ -185,6 +185,7 @@ void EnvConfDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+__attribute__((visibility("default")))
 bool AEREnvConfGetBool(const char * name) {
 	ErrIf(!name, AER_NULL_ARG, false);
 
@@ -201,6 +202,7 @@ bool AEREnvConfGetBool(const char * name) {
 	return result;
 }
 
+__attribute__((visibility("default")))
 size_t AEREnvConfGetBools(
 		const char * name,
 		size_t bufSize,
@@ -226,6 +228,7 @@ size_t AEREnvConfGetBools(
 	return numToks;
 }
 
+__attribute__((visibility("default")))
 int32_t AEREnvConfGetInt(const char * name) {
 	ErrIf(!name, AER_NULL_ARG, 0);
 
@@ -242,6 +245,7 @@ int32_t AEREnvConfGetInt(const char * name) {
 	return result;
 }
 
+__attribute__((visibility("default")))
 size_t AEREnvConfGetInts(
 		const char * name,
 		size_t bufSize,
@@ -267,6 +271,7 @@ size_t AEREnvConfGetInts(
 	return numToks;
 }
 
+__attribute__((visibility("default")))
 float AEREnvConfGetFloat(const char * name) {
 	ErrIf(!name, AER_NULL_ARG, 0.0f);
 
@@ -283,6 +288,7 @@ float AEREnvConfGetFloat(const char * name) {
 	return result;
 }
 
+__attribute__((visibility("default")))
 size_t AEREnvConfGetFloats(
 		const char * name,
 		size_t bufSize,
@@ -308,6 +314,7 @@ size_t AEREnvConfGetFloats(
 	return numToks;
 }
 
+__attribute__((visibility("default")))
 const char * AEREnvConfGetString(const char * name) {
 	ErrIf(!name, AER_NULL_ARG, NULL);
 
@@ -317,6 +324,7 @@ const char * AEREnvConfGetString(const char * name) {
 	return entry->origStr;
 }
 
+__attribute__((visibility("default")))
 size_t AEREnvConfGetStrings(
 		const char * name,
 		size_t bufSize,

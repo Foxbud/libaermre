@@ -163,6 +163,7 @@ void LogErr(const char * fmt, ...) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+__attribute__((visibility("default")))
 void AERLogInfo(const char * fmt, ...) {
 	assert(fmt);
 
@@ -180,6 +181,7 @@ void AERLogInfo(const char * fmt, ...) {
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERLogWarn(const char * fmt, ...) {
 	assert(fmt);
 
@@ -197,6 +199,7 @@ void AERLogWarn(const char * fmt, ...) {
 	return;
 }
 
+__attribute__((visibility("default")))
 void AERLogErr(const char * fmt, ...) {
 	assert(fmt);
 

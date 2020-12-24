@@ -488,12 +488,12 @@ typedef struct __attribute__((packed)) HLDVariables {
  */
 typedef struct __attribute__((packed)) HLDFunctions {
 	/* Go to room. */
-	__attribute__((cdecl)) void (* actionRoomGoto)(
+	void (* actionRoomGoto)(
 			int32_t roomIdx,
 			int32_t unknown0
 	);
 	/* Register a new sprite. */
-	__attribute__((cdecl)) int32_t (* actionSpriteAdd)(
+	int32_t (* actionSpriteAdd)(
 			const char * fname,
 			size_t imgNum,
 			int32_t unknown0,
@@ -504,7 +504,7 @@ typedef struct __attribute__((packed)) HLDFunctions {
 			uint32_t origY
 	);
 	/* Overwrite an existing sprite with a new one. */
-	__attribute__((cdecl)) void (* actionSpriteReplace)(
+	void (* actionSpriteReplace)(
 			int32_t spriteIdx,
 			const char * fname,
 			size_t imgNum,
@@ -516,9 +516,9 @@ typedef struct __attribute__((packed)) HLDFunctions {
 			uint32_t origY
 	);
 	/* Register a new object. */
-	__attribute__((cdecl)) int32_t (* actionObjectAdd)(void);
+	int32_t (* actionObjectAdd)(void);
 	/* Trigger an event as if it occurred "naturally." */
-	__attribute__((cdecl)) int32_t (* actionEventPerform)(
+	int32_t (* actionEventPerform)(
 			HLDInstance * target,
 			HLDInstance * other,
 			int32_t targetObjIdx,
@@ -526,38 +526,38 @@ typedef struct __attribute__((packed)) HLDFunctions {
 			int32_t eventNum
 	);
 	/* Spawn a new instance of an object. */
-	__attribute__((cdecl)) HLDInstance * (* actionInstanceCreate)(
+	HLDInstance * (* actionInstanceCreate)(
 			int32_t objIdx,
 			float posX,
 			float posY
 	);
 	/* Change the object type of an instance. */
-	__attribute__((cdecl)) void (* actionInstanceChange)(
+	void (* actionInstanceChange)(
 			HLDInstance * inst,
 			int32_t newObjIdx,
 			bool doEvents
 	);
 	/* Destroy an instance. */
-	__attribute__((cdecl)) void (* actionInstanceDestroy)(
+	void (* actionInstanceDestroy)(
 			HLDInstance * inst0,
 			HLDInstance * inst1,
 			int32_t objIdx,
 			bool doEvent
 	);
 	/* Set instance's mask index. */
-	__attribute__((cdecl)) void (* Instance_setMaskIndex)(
+	void (* Instance_setMaskIndex)(
 			HLDInstance * inst,
 			int32_t maskIndex
 	);
 	/* Set an instance's direction and speed based on its motion vector. */
-	__attribute__((cdecl)) void (* Instance_setMotionPolarFromCartesian)(
+	void (* Instance_setMotionPolarFromCartesian)(
 			HLDInstance * inst
 	);
 	/*
 	 * Custom Heart Machine function that sets an instance's draw depth based
 	 * on its y position and the current room's height.
 	 */
-	__attribute__((cdecl)) HLDInstance * (* gmlScriptSetdepth)(
+	HLDInstance * (* gmlScriptSetdepth)(
 			HLDInstance * target,
 			HLDInstance * other,
 			void * unknown0,

@@ -28,7 +28,7 @@
 typedef struct EventTrap {
 	FoxArray upstreamListeners;
 	FoxArray downstreamListeners;
-	__attribute__((cdecl)) void (* origListener)(
+	void (* origListener)(
 			HLDInstance * target,
 			HLDInstance * other
 	);
@@ -42,7 +42,7 @@ typedef struct EventTrap {
 void EventTrapInit(
 		EventTrap * trap,
 		HLDEventType eventType,
-		__attribute__((cdecl)) void (* origListener)(
+		void (* origListener)(
 			HLDInstance * target,
 			HLDInstance * other
 		)

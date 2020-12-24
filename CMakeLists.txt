@@ -51,6 +51,8 @@ target_link_options(aermre
 	PRIVATE -m32
 	PRIVATE -rdynamic)
 target_link_libraries(aermre Foxutils::foxutils)
+set_target_properties(aermre PROPERTIES
+	C_VISIBILITY_PRESET hidden)
 
 if(DOXYGEN_FOUND)
 	set(DOXYGEN_HAVE_DOT FALSE)

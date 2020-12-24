@@ -102,7 +102,7 @@ static void PerformParentEvent(
 	return;
 }
 
-static __attribute__((cdecl)) void CommonEventListener(
+static void CommonEventListener(
 		HLDInstance * target,
 		HLDInstance * other
 ) {
@@ -513,7 +513,8 @@ void MRERegisterEventListener(
 
 /* ----- UNLISTED FUNCTIONS ----- */
 
-__attribute__((cdecl)) void AERHookInit(
+__attribute__((visibility("default")))
+void AERHookInit(
 		HLDVariables varRefs,
 		HLDFunctions funcRefs
 ) {
@@ -528,7 +529,8 @@ __attribute__((cdecl)) void AERHookInit(
 	return;
 }
 
-__attribute__((cdecl)) void AERHookStep(void) {
+__attribute__((visibility("default")))
+void AERHookStep(void) {
 	/* Check if room changed. */
 	int32_t roomIndexCurrent = *hldvars.roomIndexCurrent;
 	if (roomIndexCurrent != mre.roomIndexPrevious) {
@@ -569,7 +571,8 @@ __attribute__((cdecl)) void AERHookStep(void) {
 	return;
 }
 
-__attribute__((cdecl)) void AERHookEvent(
+__attribute__((visibility("default")))
+void AERHookEvent(
 		HLDObject * targetObject,
 		HLDEventType eventType,
 		int32_t eventNum
@@ -587,7 +590,8 @@ __attribute__((cdecl)) void AERHookEvent(
 
 /* ----- LIBRARY MANAGEMENT ----- */
 
-__attribute__((constructor)) void AERConstructor(void) {
+__attribute__((constructor))
+void AERConstructor(void) {
 	LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
 
 	LogInfo("Initializing environment configuration module...");
@@ -605,7 +609,8 @@ __attribute__((constructor)) void AERConstructor(void) {
 	return;
 }
 
-__attribute__((destructor)) void AERDestructor(void) {
+__attribute__((destructor))
+void AERDestructor(void) {
 	ModManDestructor();
 
 	LogInfo("Deinitializing mod runtime environment...");
@@ -664,48 +669,56 @@ __attribute__((destructor)) void AERDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+__attribute__((visibility("default")))
 uint32_t AERGetNumSteps(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
 	return *hldvars.numSteps;
 }
 
+__attribute__((visibility("default")))
 const bool * AERGetKeysPressed(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.keysPressedTable;
 }
 
+__attribute__((visibility("default")))
 const bool * AERGetKeysHeld(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.keysHeldTable;
 }
 
+__attribute__((visibility("default")))
 const bool * AERGetKeysReleased(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.keysReleasedTable;
 }
 
+__attribute__((visibility("default")))
 const bool * AERGetMouseButtonsPressed(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.mouseButtonsPressedTable;
 }
 
+__attribute__((visibility("default")))
 const bool * AERGetMouseButtonsHeld(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.mouseButtonsHeldTable;
 }
 
+__attribute__((visibility("default")))
 const bool * AERGetMouseButtonsReleased(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.mouseButtonsReleasedTable;
 }
 
+__attribute__((visibility("default")))
 void AERGetMousePosition(
 		uint32_t * x,
 		uint32_t * y
