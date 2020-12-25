@@ -28,6 +28,7 @@
 #include "internal/envconf.h"
 #include "internal/err.h"
 #include "internal/eventtrap.h"
+#include "internal/export.h"
 #include "internal/log.h"
 #include "internal/modman.h"
 #include "internal/mre.h"
@@ -513,8 +514,7 @@ void MRERegisterEventListener(
 
 /* ----- UNLISTED FUNCTIONS ----- */
 
-__attribute__((visibility("default")))
-void AERHookInit(
+AER_EXPORT void AERHookInit(
 		HLDVariables varRefs,
 		HLDFunctions funcRefs
 ) {
@@ -529,8 +529,7 @@ void AERHookInit(
 	return;
 }
 
-__attribute__((visibility("default")))
-void AERHookStep(void) {
+AER_EXPORT void AERHookStep(void) {
 	/* Check if room changed. */
 	int32_t roomIndexCurrent = *hldvars.roomIndexCurrent;
 	if (roomIndexCurrent != mre.roomIndexPrevious) {
@@ -571,8 +570,7 @@ void AERHookStep(void) {
 	return;
 }
 
-__attribute__((visibility("default")))
-void AERHookEvent(
+AER_EXPORT void AERHookEvent(
 		HLDObject * targetObject,
 		HLDEventType eventType,
 		int32_t eventNum
@@ -669,57 +667,49 @@ void AERDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-__attribute__((visibility("default")))
-uint32_t AERGetNumSteps(void) {
+AER_EXPORT uint32_t AERGetNumSteps(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
 	return *hldvars.numSteps;
 }
 
-__attribute__((visibility("default")))
-const bool * AERGetKeysPressed(void) {
+AER_EXPORT const bool * AERGetKeysPressed(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.keysPressedTable;
 }
 
-__attribute__((visibility("default")))
-const bool * AERGetKeysHeld(void) {
+AER_EXPORT const bool * AERGetKeysHeld(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.keysHeldTable;
 }
 
-__attribute__((visibility("default")))
-const bool * AERGetKeysReleased(void) {
+AER_EXPORT const bool * AERGetKeysReleased(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.keysReleasedTable;
 }
 
-__attribute__((visibility("default")))
-const bool * AERGetMouseButtonsPressed(void) {
+AER_EXPORT const bool * AERGetMouseButtonsPressed(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.mouseButtonsPressedTable;
 }
 
-__attribute__((visibility("default")))
-const bool * AERGetMouseButtonsHeld(void) {
+AER_EXPORT const bool * AERGetMouseButtonsHeld(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.mouseButtonsHeldTable;
 }
 
-__attribute__((visibility("default")))
-const bool * AERGetMouseButtonsReleased(void) {
+AER_EXPORT const bool * AERGetMouseButtonsReleased(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	return *hldvars.mouseButtonsReleasedTable;
 }
 
-__attribute__((visibility("default")))
-void AERGetMousePosition(
+AER_EXPORT void AERGetMousePosition(
 		uint32_t * x,
 		uint32_t * y
 ) {

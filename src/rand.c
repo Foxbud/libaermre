@@ -20,6 +20,7 @@
 
 #include "aer/rand.h"
 #include "internal/err.h"
+#include "internal/export.h"
 #include "internal/rand.h"
 
 
@@ -48,55 +49,46 @@ void RandDestructor(void) {
 
 /* ------ PUBLIC FUNCTIONS ----- */
 
-__attribute__((visibility("default")))
-uint64_t AERRandUInt(void) {
+AER_EXPORT uint64_t AERRandUInt(void) {
 	return FoxRandUInt((FoxPRNG *)&randPRNG);
 }
 
-__attribute__((visibility("default")))
-uint64_t AERRandUIntRange(uint64_t min, uint64_t max) {
+AER_EXPORT uint64_t AERRandUIntRange(uint64_t min, uint64_t max) {
 	ErrIf(min >= max, AER_BAD_VAL, 0);
 
 	return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
-__attribute__((visibility("default")))
-int64_t AERRandInt(void) {
+AER_EXPORT int64_t AERRandInt(void) {
 	return FoxRandInt((FoxPRNG *)&randPRNG);
 }
 
-__attribute__((visibility("default")))
-int64_t AERRandIntRange(int64_t min, int64_t max) {
+AER_EXPORT int64_t AERRandIntRange(int64_t min, int64_t max) {
 	ErrIf(min >= max, AER_BAD_VAL, 0);
 
 	return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
-__attribute__((visibility("default")))
-float AERRandFloat(void) {
+AER_EXPORT float AERRandFloat(void) {
 	return FoxRandFloat((FoxPRNG *)&randPRNG);
 }
 
-__attribute__((visibility("default")))
-float AERRandFloatRange(float min, float max) {
+AER_EXPORT float AERRandFloatRange(float min, float max) {
 	ErrIf(min >= max, AER_BAD_VAL, 0.0f);
 
 	return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
 }
 
-__attribute__((visibility("default")))
-double AERRandDouble(void) {
+AER_EXPORT double AERRandDouble(void) {
 	return FoxRandDouble((FoxPRNG *)&randPRNG);
 }
 
-__attribute__((visibility("default")))
-double AERRandDoubleRange(double min, double max) {
+AER_EXPORT double AERRandDoubleRange(double min, double max) {
 	ErrIf(min >= max, AER_BAD_VAL, 0.0);
 
 	return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
 }
 
-__attribute__((visibility("default")))
-bool AERRandBool(void) {
+AER_EXPORT bool AERRandBool(void) {
 	return FoxRandBool((FoxPRNG *)&randPRNG);
 }

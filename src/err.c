@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 #include "aer/err.h"
+#include "internal/export.h"
 
 
 
 /* ----- PUBLIC GLOBALS ----- */
 
-__attribute__((visibility("default")))
-AERErrCode aererr = AER_OK;
+AER_EXPORT AERErrCode aererr = AER_OK;

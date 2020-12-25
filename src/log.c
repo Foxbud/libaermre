@@ -22,6 +22,7 @@
 #include "foxutils/arraymacs.h"
 
 #include "aer/log.h"
+#include "internal/export.h"
 #include "internal/log.h"
 #include "internal/modman.h"
 
@@ -163,8 +164,7 @@ void LogErr(const char * fmt, ...) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-__attribute__((visibility("default")))
-void AERLogInfo(const char * fmt, ...) {
+AER_EXPORT void AERLogInfo(const char * fmt, ...) {
 	assert(fmt);
 
 	/* Construct message string. */
@@ -181,8 +181,7 @@ void AERLogInfo(const char * fmt, ...) {
 	return;
 }
 
-__attribute__((visibility("default")))
-void AERLogWarn(const char * fmt, ...) {
+AER_EXPORT void AERLogWarn(const char * fmt, ...) {
 	assert(fmt);
 
 	/* Construct message string. */
@@ -199,8 +198,7 @@ void AERLogWarn(const char * fmt, ...) {
 	return;
 }
 
-__attribute__((visibility("default")))
-void AERLogErr(const char * fmt, ...) {
+AER_EXPORT void AERLogErr(const char * fmt, ...) {
 	assert(fmt);
 
 	/* Construct message string. */

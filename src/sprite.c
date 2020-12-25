@@ -20,6 +20,7 @@
 
 #include "aer/sprite.h"
 #include "internal/err.h"
+#include "internal/export.h"
 #include "internal/hld.h"
 #include "internal/log.h"
 #include "internal/modman.h"
@@ -29,8 +30,7 @@
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-__attribute__((visibility("default")))
-int32_t AERSpriteRegister(
+AER_EXPORT int32_t AERSpriteRegister(
 		const char * name,
 		const char * filename,
 		size_t numFrames,
@@ -69,8 +69,7 @@ int32_t AERSpriteRegister(
 	return spriteIdx;
 }
 
-__attribute__((visibility("default")))
-void AERSpriteReplace(
+AER_EXPORT void AERSpriteReplace(
 		int32_t spriteIdx,
 		const char * filename,
 		size_t numFrames,
@@ -105,15 +104,13 @@ void AERSpriteReplace(
 	return;
 }
 
-__attribute__((visibility("default")))
-size_t AERSpriteGetNumRegistered(void) {
+AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
 	return hldvars.spriteTable->size;
 }
 
-__attribute__((visibility("default")))
-const char * AERSpriteGetName(int32_t spriteIdx) {
+AER_EXPORT const char * AERSpriteGetName(int32_t spriteIdx) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
 	HLDSprite * sprite = HLDSpriteLookup(spriteIdx);

@@ -20,6 +20,8 @@ project(AERMRE
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake)
 
+include(GenerateExportHeader)
+
 find_package(Foxutils REQUIRED)
 find_package(Doxygen)
 
@@ -39,8 +41,16 @@ add_library(aermre SHARED
 	src/rand.c
 	src/room.c
 	src/sprite.c)
-target_include_directories(aermre PRIVATE include/private)
-target_include_directories(aermre PUBLIC include/public)
+generate_export_header(aermre
+	BASE_NAME AER
+	EXPORT_FILE_NAME include/private/internal/export.h)
+set_target_properties(aermre PROPERTIES
+	C_VISIBILITY_PRESET hidden
+	CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
+target_include_directories(aermre
+	PRIVATE include/private
+	PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/include/private"
+	PUBLIC include/public)
 target_compile_options(aermre 
 	PRIVATE -m32
 	PRIVATE -Wall
@@ -51,8 +61,6 @@ target_link_options(aermre
 	PRIVATE -m32
 	PRIVATE -rdynamic)
 target_link_libraries(aermre Foxutils::foxutils)
-set_target_properties(aermre PROPERTIES
-	C_VISIBILITY_PRESET hidden)
 
 if(DOXYGEN_FOUND)
 	set(DOXYGEN_HAVE_DOT FALSE)

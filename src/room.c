@@ -15,6 +15,7 @@
  */
 #include "aer/room.h"
 #include "internal/err.h"
+#include "internal/export.h"
 #include "internal/hld.h"
 #include "internal/mre.h"
 
@@ -22,15 +23,13 @@
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-__attribute__((visibility("default")))
-int32_t AERRoomGetCurrent(void) {
+AER_EXPORT int32_t AERRoomGetCurrent(void) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
 
 	return *hldvars.roomIndexCurrent;
 }
 
-__attribute__((visibility("default")))
-void AERRoomGoto(int32_t roomIdx) {
+AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!HLDRoomLookup(roomIdx), AER_FAILED_LOOKUP);
 
