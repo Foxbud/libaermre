@@ -18,9 +18,19 @@ project(AERMRE
 	DESCRIPTION "AER modding framework for Hyper Light Drifter"
 	LANGUAGES C)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake)
+# Include CPack.
+set(CPACK_PACKAGE_FILE_NAME "libaermre-${CMAKE_PROJECT_VERSION}")
+include(CPack)
 
+# Include GenerateExportHeader.
 include(GenerateExportHeader)
+
+# Set cmake defaults.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake)
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+	set(CMAKE_INSTALL_PREFIX "libaermre-${CMAKE_PROJECT_VERSION}"
+		CACHE PATH "..." FORCE)
+endif()
 
 find_package(Foxutils REQUIRED)
 find_package(Doxygen)
@@ -60,6 +70,15 @@ target_link_options(aermre
 	PRIVATE -m32
 	PRIVATE -rdynamic)
 target_link_libraries(aermre Foxutils::foxutils)
+
+# Add installation target.
+install(TARGETS aermre LIBRARY)
+install(FILES LICENSE
+	DESTINATION ".")
+install(FILES AUTHORS
+	DESTINATION ".")
+install(DIRECTORY ACKNOWLEDGMENTS
+	DESTINATION ".")
 
 if(DOXYGEN_FOUND)
 	set(DOXYGEN_HAVE_DOT FALSE)
