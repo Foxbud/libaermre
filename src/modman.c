@@ -33,8 +33,8 @@
 
 /* ----- PRIVATE MACROS ----- */
 
-#define FormatLibname(slug, bufSize, buf) \
-	snprintf(buf, bufSize, MOD_LIBNAME_FMT, slug)
+#define FormatLibname(name, bufSize, buf) \
+	snprintf((buf), (bufSize), MOD_LIBNAME_FMT, (name))
 
 
 
@@ -59,45 +59,15 @@ ModMan modman = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static void Slugify(char * str) {
-	uint32_t charIdx = 0;
-	char charCur = str[charIdx];
-	while (charCur != '\0') {
-		/* Replace uppercase with lowercase. */
-		if (charCur >= 'A' && charCur <= 'Z') {
-			str[charIdx] = charCur + ('a' - 'A');
-		}
-
-		/* Replace non-alphanumeric with underscore. */
-		else if (
-				(charCur < 'a' || charCur > 'z')
-				&& (charCur < '0' || charCur > '9')
-		) {
-			str[charIdx] = '_';
-		}
-
-		charCur = str[++charIdx];
-	}
-
-	return;
-}
-
 static void ModInit(Mod * mod, const char * name) {
 	LogInfo("Loading mod \"%s\"...", name);
 
 	/* Set name. */
 	mod->name = name;
 
-	/* Get slug. */
-	size_t nameSize = strlen(name) + 1;
-	char * slug = malloc(nameSize);
-	assert(slug);
-	memcpy(slug, name, nameSize);
-	Slugify((mod->slug = slug));
-
 	/* Load library. */
 	char libname[128];
-	FormatLibname(slug, 128, libname);
+	FormatLibname(name, 128, libname);
 	void * libHandle = dlopen(libname, RTLD_NOW);
 	if (!(mod->libHandle = libHandle)) {
 		LogErr(
@@ -182,14 +152,12 @@ static void ModInit(Mod * mod, const char * name) {
 static void ModDeinit(Mod * mod) {
 	LogInfo("Unloading mod \"%s\"...", mod->name);
 
-	free(mod->slug);
 	dlclose(mod->libHandle);
 
 	const char * name = mod->name;
 
 	mod->libHandle = NULL;
 	mod->name = NULL;
-	mod->slug = NULL;
 	mod->constructor = NULL;
 	mod->destructor = NULL;
 	mod->regSprites = NULL;

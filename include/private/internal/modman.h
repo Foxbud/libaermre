@@ -31,7 +31,6 @@
 typedef struct Mod {
 	void * libHandle;
 	const char * name;
-	char * slug;
 	void (* constructor)(void);
 	void (* destructor)(void);
 	void (* regSprites)(void);

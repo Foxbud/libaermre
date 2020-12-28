@@ -55,8 +55,7 @@ target_compile_options(aermre
 	PRIVATE -m32
 	PRIVATE -Wall
 	PRIVATE -Wextra
-	PRIVATE -Werror
-	PRIVATE -O3)
+	PRIVATE -Werror)
 target_link_options(aermre
 	PRIVATE -m32
 	PRIVATE -rdynamic)

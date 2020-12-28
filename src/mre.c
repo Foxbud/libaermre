@@ -461,7 +461,7 @@ const char * MREGetAbsAssetPath(const char * relAssetPath) {
 			assetPathBuf,
 			sizeof(assetPathBuf),
 			ABS_ASSET_PATH_FMT,
-			(*FoxArrayMPeek(Mod *, &modman.context))->slug,
+			(*FoxArrayMPeek(Mod *, &modman.context))->name,
 			relAssetPath
 	);
 
