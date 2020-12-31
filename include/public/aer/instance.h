@@ -149,10 +149,31 @@ void AERInstanceChange(
  *
  * @since 1.0.0
  *
+ * @se AERInstanceCancelDestruction
  * @sa AERInstanceDelete
  * @sa AERObjectAttachDestroyListener
  */
 void AERInstanceDestroy(AERInstance * inst);
+
+/**
+ * @brief Prevent an instance that is marked for destruction from being
+ * destroyed.
+ *
+ * @note This function should typically only be called from an upstream
+ * object destroy listener.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ * @throw ::AER_BAD_VAL if argument `inst` is not marked for destruction.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceDestroy
+ * @sa AERObjectAttachDestroyListener
+ */
+void AERInstanceCancelDestruction(AERInstance * inst);
 
 /**
  * @brief Destroy an instance but do **not** call its destroy event.
@@ -281,6 +302,35 @@ void AERInstanceSetPosition(
 		AERInstance * inst,
 		float x,
 		float y
+);
+
+/**
+ * @brief Query the axis-aligned bounding box of an instance.
+ *
+ * The bounding box of an instance describes the bounding volume of an
+ * instance's sprite or mask. It is relative to the room's origin.
+ *
+ * If not all four of the components of the bounding box are needed, then the
+ * arguments for the unneeded components may be `NULL`.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[out] left X-intercept of the left side of the bounding box.
+ * @param[out] top Y-intercept of the top side of the bounding box.
+ * @param[out] right X-intercept of the right side of the bounding box.
+ * @param[out] bottom Y-intercept of the bottom side of the bounding box.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL` or all four arguments
+ * `left`, `top`, `right` and `bottom` are `NULL`.
+ *
+ * @since 1.0.0
+ */
+void AERInstanceGetBoundingBox(
+		AERInstance * inst,
+		float * left,
+		float * top,
+		float * right,
+		float * bottom
 );
 
 /**

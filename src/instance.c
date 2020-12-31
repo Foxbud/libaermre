@@ -105,6 +105,18 @@ AER_EXPORT void AERInstanceDestroy(AERInstance * inst) {
 	return;
 }
 
+AER_EXPORT void AERInstanceCancelDestruction(AERInstance * inst) {
+#define inst ((HLDInstance *)inst)
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(!inst->marked, AER_BAD_VAL);
+
+	inst->marked = false;
+
+	return;
+#undef inst
+}
+
 AER_EXPORT void AERInstanceDelete(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
@@ -193,6 +205,27 @@ AER_EXPORT void AERInstanceSetPosition(
 
 	inst->pos.x = x;
 	inst->pos.y = y;
+
+	return;
+#undef inst
+}
+
+void AERInstanceGetBoundingBox(
+		AERInstance * inst,
+		float * left,
+		float * top,
+		float * right,
+		float * bottom
+) {
+#define inst ((HLDInstance *)inst)
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+	ErrIf(!inst, AER_NULL_ARG);
+	ErrIf(!(left || top || right || bottom), AER_NULL_ARG);
+
+	if (left) *left = (float)inst->bbox.left;
+	if (top) *top = (float)inst->bbox.top;
+	if (right) *right = (float)inst->bbox.right;
+	if (bottom) *bottom = (float)inst->bbox.bottom;
 
 	return;
 #undef inst
