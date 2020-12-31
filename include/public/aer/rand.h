@@ -30,7 +30,7 @@
 /* ----- PUBLIC FUNCTIONS ----- */
 
 /**
- * Get a pseudorandom unsigned integer on the interval [0, 2^64).
+ * @brief Get a pseudorandom unsigned integer on the interval [0, 2^64).
  *
  * @return Pseudorandom unsigned integer.
  *
@@ -39,7 +39,7 @@
 uint64_t AERRandUInt(void);
 
 /**
- * Get a pseudorandom unsigned integer on the interval [min, max).
+ * @brief Get a pseudorandom unsigned integer on the interval [min, max).
  *
  * This function has been carefully designed to avoid introducing any
  * distribution-related bias. For faster but potentially biased generation,
@@ -58,7 +58,7 @@ uint64_t AERRandUInt(void);
 uint64_t AERRandUIntRange(uint64_t min, uint64_t max);
 
 /**
- * Get a pseudorandom signed integer on the interval [-2^32, 2^32).
+ * @brief Get a pseudorandom signed integer on the interval [-2^32, 2^32).
  *
  * @return Pseudorandom signed integer.
  *
@@ -67,7 +67,7 @@ uint64_t AERRandUIntRange(uint64_t min, uint64_t max);
 int64_t AERRandInt(void);
 
 /**
- * Get a pseudorandom signed integer on the interval [min, max).
+ * @brief Get a pseudorandom signed integer on the interval [min, max).
  *
  * This function has been carefully designed to avoid introducing any
  * distribution-related bias. For faster but potentially biased generation,
@@ -86,7 +86,7 @@ int64_t AERRandInt(void);
 int64_t AERRandIntRange(int64_t min, int64_t max);
 
 /**
- * Get a pseudorandom floating-point value on the interval [0.0f, 1.0f).
+ * @brief Get a pseudorandom floating-point value on the interval [0.0f, 1.0f).
  *
  * @return pseudorandom floating-point value
  *
@@ -95,7 +95,7 @@ int64_t AERRandIntRange(int64_t min, int64_t max);
 float AERRandFloat(void);
 
 /**
- * Get a pseudorandom floating-point value on the interval [min, max).
+ * @brief Get a pseudorandom floating-point value on the interval [min, max).
  *
  * @param[in] min Minimum possible value (inclusive).
  * @param[in] max Maximum possible value (exclusive).
@@ -110,7 +110,7 @@ float AERRandFloat(void);
 float AERRandFloatRange(float min, float max);
 
 /**
- * Get a pseudorandom double floating-point value on the interval [0.0, 1.0).
+ * @brief Get a pseudorandom double floating-point value on the interval [0.0, 1.0).
  *
  * @return Pseudorandom double floating-point value.
  *
@@ -119,7 +119,7 @@ float AERRandFloatRange(float min, float max);
 double AERRandDouble(void);
 
 /**
- * Get a pseudorandom double floating-point value on the interval [min, max).
+ * @brief Get a pseudorandom double floating-point value on the interval [min, max).
  *
  * @param[in] min Minimum possible value (inclusive).
  * @param[in] max Maximum possible value (exclusive).
@@ -134,7 +134,7 @@ double AERRandDouble(void);
 double AERRandDoubleRange(double min, double max);
 
 /**
- * Get a pseudorandom boolean.
+ * @brief Get a pseudorandom boolean.
  *
  * @return Pseudorandom boolean.
  *

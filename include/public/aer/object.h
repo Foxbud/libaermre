@@ -786,9 +786,6 @@ void AERObjectAttachDestroyListener(
  * instance of the object reaches `0` (after which the alarm will be set to
  * `-1`, disabling it until manually set again).
  *
- * @note It is considered good practice to make the argument `alarmIdx`
- * user-configurable using envconf.h.
- *
  * @param[in] objIdx Object of interest.
  * @param[in] alarmIdx Alarm to watch.
  * @param[in] listener Callback function executed when target event occurs.
