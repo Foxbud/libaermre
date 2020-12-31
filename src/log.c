@@ -59,7 +59,7 @@ typedef enum LogLevel {
 
 /* ----- PRIVATE CONSTANTS ----- */
 
-static const char * MSG_FMT = "[%s][AER][%s] (%s) %s\n";
+static const char * MSG_FMT = "[%s][aer][%s] (%s) %s\n";
 
 static const char * LVL_STRS[3] = {
 	"INFO",
@@ -69,7 +69,7 @@ static const char * LVL_STRS[3] = {
 
 static const size_t MSG_BUF_SIZE = 1024;
 
-static const char * INTERNAL_MOD_NAME = "MRE";
+static const char * INTERNAL_MOD_NAME = "mre";
 
 
 
