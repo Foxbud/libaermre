@@ -658,37 +658,6 @@ const char * AERObjectGetName(int32_t objIdx);
 int32_t AERObjectGetParent(int32_t objIdx);
 
 /**
- * @brief Query all instances of an object in the current room.
- *
- * @warning Does **not** include instances of child objects.
- * @warning Argument `instBuf` must be large enough to hold at least
- * `bufSize` elements.
- *
- * @note Argument `bufSize` may be `0` in which case argument `instBuf` may
- * be `NULL`. This may be used to efficiently query the total number of
- * instances of an object in the current room.
- *
- * @param[in] objIdx Object of interest.
- * @param[in] bufSize Maximum number of elements to write to argument
- * `instBuf`.
- * @param[out] instBuf Buffer to write instances to.
- *
- * @return Total number of instances of object in current room.
- *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
- * @throw ::AER_NULL_ARG if argument `instBuf` is `NULL` and argument
- * `bufSize` is greater than `0`.
- * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
- *
- * @since 1.0.0
- */
-size_t AERObjectGetInstances(
-		int32_t objIdx,
-		size_t bufSize,
-		AERInstance ** instBuf
-);
-
-/**
  * @brief Query whether or not an object has collision checking enabled.
  *
  * @param[in] objIdx Object of interest.

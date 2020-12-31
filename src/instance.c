@@ -46,6 +46,28 @@ AER_EXPORT size_t AERInstanceGetAll(
 	return numInsts;
 }
 
+AER_EXPORT size_t AERInstanceGetByObject(
+		int32_t objIdx,
+		size_t bufSize,
+		AERInstance ** instBuf
+) {
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+	ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
+
+	HLDObject * obj = HLDObjectLookup(objIdx);
+	ErrIf(!obj, AER_FAILED_LOOKUP, 0);
+
+	size_t numInsts = obj->numInstances;
+	size_t numToWrite = FoxMin(numInsts, bufSize);
+	HLDNodeDLL * node = obj->instanceFirst;
+	for (uint32_t idx = 0; idx < numToWrite; idx++) {
+		instBuf[idx] = (AERInstance *)node->item;
+		node = node->next;
+	}
+
+	return numInsts;
+}
+
 AER_EXPORT AERInstance * AERInstanceGetById(int32_t instId) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
