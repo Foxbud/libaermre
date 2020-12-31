@@ -232,7 +232,7 @@ AER_EXPORT void AERInstanceSetPosition(
 #undef inst
 }
 
-void AERInstanceGetBoundingBox(
+AER_EXPORT void AERInstanceGetBoundingBox(
 		AERInstance * inst,
 		float * left,
 		float * top,
