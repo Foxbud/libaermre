@@ -62,6 +62,8 @@
  * @since 1.0.0
  */
 typedef enum AERObjectIndex {
+	AER_OBJECT_NULL = -1, /**< Flag which represents either no object or an
+													invalid object depending on context. */
 	AER_OBJECT_MASTERCLASS = 0x0,
 	AER_OBJECT_DOORSTOVISIT = 0x1,
 	AER_OBJECT_PAUSEDELAYOBJ = 0x2,
@@ -595,7 +597,7 @@ typedef enum AERObjectIndex {
  * instances of this object.
  * @param[in] persistent Default persistence for instances of this object.
  *
- * @return Index of new object or `-1` if unsuccessful.
+ * @return Index of new object or @ref ::AER_OBJECT_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside object registration stage.
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
@@ -621,7 +623,7 @@ int32_t AERObjectRegister(
 /**
  * @brief Query the total number of vanilla and mod objects registered.
  *
- * @return Number of objects.
+ * @return Number of objects or `0` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -648,7 +650,7 @@ const char * AERObjectGetName(int32_t objIdx);
  *
  * @param[in] objIdx Object of interest.
  *
- * @return Parent object's index.
+ * @return Parent object's index or @ref ::AER_OBJECT_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
@@ -662,7 +664,8 @@ int32_t AERObjectGetParent(int32_t objIdx);
  *
  * @param[in] objIdx Object of interest.
  *
- * @return Whether object has collision checking enabled.
+ * @return Whether object has collision checking enabled or `false` if
+ * unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.

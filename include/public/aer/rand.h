@@ -48,7 +48,7 @@ uint64_t AERRandUInt(void);
  * @param[in] min Minimum possible value (inclusive).
  * @param[in] max Maximum possible value (exclusive).
  *
- * @return Pseudorandom unsigned integer.
+ * @return Pseudorandom unsigned integer or `0` if unsuccessful.
  *
  * @throw ::AER_BAD_VAL if argument `min` is greater than or equal to
  * argument `max`.
@@ -76,7 +76,7 @@ int64_t AERRandInt(void);
  * @param[in] min Minimum possible value (inclusive).
  * @param[in] max Maximum possible value (exclusive).
  *
- * @return Pseudorandom signed integer.
+ * @return Pseudorandom signed integer or `0` if unsuccessful.
  *
  * @throw ::AER_BAD_VAL if argument `min` is greater than or equal to
  * argument `max`.
@@ -88,7 +88,7 @@ int64_t AERRandIntRange(int64_t min, int64_t max);
 /**
  * @brief Get a pseudorandom floating-point value on the interval [0.0f, 1.0f).
  *
- * @return pseudorandom floating-point value
+ * @return Pseudorandom floating-point value.
  *
  * @since 1.0.0
  */
@@ -100,7 +100,7 @@ float AERRandFloat(void);
  * @param[in] min Minimum possible value (inclusive).
  * @param[in] max Maximum possible value (exclusive).
  *
- * @return Pseudorandom floating-point value.
+ * @return Pseudorandom floating-point value or `0.0f` if unsuccessful.
  *
  * @throw ::AER_BAD_VAL if argument `min` is greater than or equal to
  * argument `max`.
@@ -110,7 +110,8 @@ float AERRandFloat(void);
 float AERRandFloatRange(float min, float max);
 
 /**
- * @brief Get a pseudorandom double floating-point value on the interval [0.0, 1.0).
+ * @brief Get a pseudorandom double floating-point value on the interval
+ * [0.0, 1.0).
  *
  * @return Pseudorandom double floating-point value.
  *
@@ -119,12 +120,13 @@ float AERRandFloatRange(float min, float max);
 double AERRandDouble(void);
 
 /**
- * @brief Get a pseudorandom double floating-point value on the interval [min, max).
+ * @brief Get a pseudorandom double floating-point value on the interval
+ * [min, max).
  *
  * @param[in] min Minimum possible value (inclusive).
  * @param[in] max Maximum possible value (exclusive).
  *
- * @return pseudorandom double floating-point value
+ * @return Pseudorandom double floating-point value or `0.0` if unsuccessful.
  *
  * @throw ::AER_BAD_VAL if argument `min` is greater than or equal to
  * argument `max`.

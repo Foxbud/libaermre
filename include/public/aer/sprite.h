@@ -35,6 +35,8 @@
  * @since 1.0.0
  */
 typedef enum AERSpriteIndex {
+	AER_SPRITE_NULL = -1, /**< Flag which represents either no sprite or an
+													invalid sprite depending on context. */
 	AER_SPRITE_CRAZYBGCOLORS = 0x0,
 	AER_SPRITE_POINT = 0x1,
 	AER_SPRITE_PINKBLOCK = 0x2,
@@ -3422,7 +3424,7 @@ typedef enum AERSpriteIndex {
  * @param[in] origX Horizontal origin (center) of sprite.
  * @param[in] origY Vertical origin (center) of sprite.
  *
- * @return Index of new sprite or `-1` if unsuccessful.
+ * @return Index of new sprite or @ref ::AER_SPRITE_NULL if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` or argument `filename` is
  * `NULL`.
@@ -3452,7 +3454,7 @@ int32_t AERSpriteRegister(
  * @param[in] origX Horizontal origin (center) of sprite.
  * @param[in] origY Vertical origin (center) of sprite.
  *
- * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is invalid sprite.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
  * @throw ::AER_SEQ_BREAK if called outside sprite registration stage.
  * @throw ::AER_NULL_ARG if argument `filename` is `NULL`.
  *
@@ -3471,7 +3473,7 @@ void AERSpriteReplace(
 /**
  * @brief Query the total number of vanilla and mod sprites registered.
  *
- * @return Number of sprites.
+ * @return Number of sprites or `0` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -3479,6 +3481,18 @@ void AERSpriteReplace(
  */
 size_t AERSpriteGetNumRegistered(void);
 
+/**
+ * @brief Query the name of a sprite.
+ *
+ * @param[in] spriteIdx Sprite of interest.
+ *
+ * @return Name of sprite or `NULL` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since 1.0.0
+ */
 const char * AERSpriteGetName(int32_t spriteIdx);
 
 

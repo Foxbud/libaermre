@@ -43,8 +43,8 @@ AER_EXPORT int32_t AERSpriteRegister(
 			name,
 			(*FoxArrayMPeek(Mod *, &modman.context))->name
 	);
-	ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, -1);
-	ErrIf(!filename, AER_NULL_ARG, -1);
+	ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, AER_SPRITE_NULL);
+	ErrIf(!filename, AER_NULL_ARG, AER_SPRITE_NULL);
 
 	int32_t spriteIdx = hldfuncs.actionSpriteAdd(
 			MREGetAbsAssetPath(filename),
@@ -57,11 +57,11 @@ AER_EXPORT int32_t AERSpriteRegister(
 			origY
 	);
 	HLDSprite * sprite = HLDSpriteLookup(spriteIdx);
-	ErrIf(!sprite, AER_BAD_FILE, -1);
+	ErrIf(!sprite, AER_BAD_FILE, AER_SPRITE_NULL);
 
 	/* The engine expects a freeable (dynamically allocated) string for name. */
 	char * tmpName = malloc(strlen(name) + 1);
-	ErrIf(!tmpName, AER_OUT_OF_MEM, -1);
+	ErrIf(!tmpName, AER_OUT_OF_MEM, AER_SPRITE_NULL);
 	sprite->name = strcpy(tmpName, name);
 
 	LogInfo("Successfully registered sprite to index %i.", spriteIdx);

@@ -55,7 +55,7 @@ typedef void AERInstance;
  * `instBuf`.
  * @param[out] instBuf Buffer to write instances to.
  *
- * @return Total number of instances in current room.
+ * @return Total number of instances in current room or `0` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `instBuf` is `NULL` and argument
@@ -84,7 +84,8 @@ size_t AERInstanceGetAll(
  * `instBuf`.
  * @param[out] instBuf Buffer to write instances to.
  *
- * @return Total number of instances of object in current room.
+ * @return Total number of instances of object in current room or `0` if
+ * unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `instBuf` is `NULL` and argument
@@ -226,7 +227,7 @@ void AERInstanceDelete(AERInstance * inst);
  *
  * @param[in] inst Instance of interest.
  *
- * @return Render depth.
+ * @return Render depth or `0.0f` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -270,7 +271,7 @@ void AERInstanceSyncDepth(AERInstance * inst);
  *
  * @param[in] inst Instance of interest.
  *
- * @return Instance ID.
+ * @return Instance ID or `-1` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -286,7 +287,7 @@ int32_t AERInstanceGetId(AERInstance * inst);
  *
  * @param[in] inst Instance of interest.
  *
- * @return Object index.
+ * @return Object index or @ref ::AER_OBJECT_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -367,9 +368,13 @@ void AERInstanceGetBoundingBox(
 /**
  * @brief Query the friction of an instance.
  *
+ * @subsubsection InstFriction Instance Friction
+ *
+ * The friction of an instance determines how much it decelerates by each step.
+ *
  * @param[in] inst Instance of interest.
  *
- * @return Friction.
+ * @return Friction or `0.0f` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -380,6 +385,8 @@ float AERInstanceGetFriction(AERInstance * inst);
 
 /**
  * @brief Set the friction of an instance.
+ *
+ * For more information about friction, see @ref InstFriction.
  *
  * @param[in] inst Instance of interest.
  * @param[in] friction Friction.
@@ -461,7 +468,7 @@ void AERInstanceAddMotion(
  *
  * @param[in] inst Instance of interest.
  *
- * @return Collision mask index.
+ * @return Collision mask index or @ref ::AER_SPRITE_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -472,6 +479,9 @@ int32_t AERInstanceGetMask(AERInstance * inst);
 
 /**
  * @brief Set the collision mask of an instance.
+ *
+ * By default, an instance will use its sprite as its collision mask.
+ * In this case, the instance's mask should be set to @ref ::AER_SPRITE_NULL.
  *
  * @param[in] inst Instance of interest.
  * @param[in] maskIdx Collision mask index.
@@ -492,7 +502,7 @@ void AERInstanceSetMask(
  *
  * @param[in] inst Instance of interest.
  *
- * @return Sprite index.
+ * @return Sprite index or @ref ::AER_SPRITE_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -532,7 +542,7 @@ void AERInstanceSetSprite(
  *
  * @param[in] inst Instance of interest.
  *
- * @return Frame of sprite animation.
+ * @return Frame of sprite animation or `-1.0f` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -569,7 +579,7 @@ void AERInstanceSetSpriteFrame(
  *
  * @param[in] inst Instance of interest.
  *
- * @return Sprite animation speed.
+ * @return Sprite animation speed or `-1.0f` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -604,7 +614,7 @@ void AERInstanceSetSpriteSpeed(
  *
  * @param[in] inst Instance of interest.
  *
- * @return Sprite alpha.
+ * @return Sprite alpha or `-1.0f` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -636,7 +646,7 @@ void AERInstanceSetSpriteAlpha(
  *
  * @param[in] inst Instance of interest.
  *
- * @return Sprite offset angle in degrees.
+ * @return Sprite offset angle in degrees or `0.0f` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -715,7 +725,7 @@ void AERInstanceSetSpriteScale(
  *
  * @param[in] inst Instance of interest.
  *
- * @return Tangibility.
+ * @return Tangibility or `false` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -748,7 +758,7 @@ void AERInstanceSetTangible(
  * @param[in] inst Instance of interest.
  * @param[in] alarmIdx Alarm index.
  *
- * @return Number of alarm steps.
+ * @return Number of alarm steps or `-1` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -800,7 +810,7 @@ void AERInstanceSetAlarm(
  * `nameBuf`.
  * @param[out] nameBuf Buffer to write names to.
  *
- * @return Total number of locals that the instance has.
+ * @return Total number of locals that the instance has or `0` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL` or argument

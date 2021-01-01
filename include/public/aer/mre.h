@@ -33,7 +33,7 @@
  * @brief Query the number of steps (ticks) elapsed since the start
  * of the game.
  *
- * @return Number of steps.
+ * @return Number of steps or `0` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -44,7 +44,8 @@ uint32_t AERGetNumSteps(void);
 /**
  * @brief Query the keyboard key(s) that the user just pressed this step.
  *
- * @return Lookup table mapping extended ASCII key-codes to pressed state.
+ * @return Lookup table mapping extended ASCII key-codes to pressed state
+ * or `NULL` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -55,7 +56,8 @@ const bool * AERGetKeysPressed(void);
 /**
  * @brief Query the keyboard key(s) that the user has held this step.
  *
- * @return Lookup table mapping extended ASCII key-codes to held state.
+ * @return Lookup table mapping extended ASCII key-codes to held state or
+ * `NULL` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -66,7 +68,8 @@ const bool * AERGetKeysHeld(void);
 /**
  * @brief Query the keyboard key(s) that the user just released this step.
  *
- * @return Lookup table mapping extended ASCII key-codes to released state.
+ * @return Lookup table mapping extended ASCII key-codes to released state
+ * or `NULL` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -87,7 +90,7 @@ const bool * AERGetKeysReleased(void);
  * `1`         | Right
  * `2`         | Middle
  *
- * @return Array of mouse button pressed states.
+ * @return Array of mouse button pressed states or `NULL` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -100,7 +103,7 @@ const bool * AERGetMouseButtonsPressed(void);
  *
  * For more information about the mouse buttons, see @ref MouseButtonStates.
  *
- * @return Array of mouse button held states.
+ * @return Array of mouse button held states or `NULL` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
@@ -113,7 +116,7 @@ const bool * AERGetMouseButtonsHeld(void);
  *
  * For more information about the mouse buttons, see @ref MouseButtonStates.
  *
- * @return Array of mouse button released states.
+ * @return Array of mouse button released states or `NULL` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *

@@ -17,6 +17,8 @@
 #include "foxutils/math.h"
 
 #include "aer/instance.h"
+#include "aer/object.h"
+#include "aer/sprite.h"
 #include "internal/err.h"
 #include "internal/export.h"
 #include "internal/hld.h"
@@ -193,8 +195,8 @@ AER_EXPORT int32_t AERInstanceGetId(AERInstance * inst) {
 }
 
 AER_EXPORT int32_t AERInstanceGetObject(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-	ErrIf(!inst, AER_NULL_ARG, -1);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, AER_OBJECT_NULL);
+	ErrIf(!inst, AER_NULL_ARG, AER_OBJECT_NULL);
 
 	return ((HLDInstance *)inst)->objectIndex;
 }
@@ -324,8 +326,8 @@ AER_EXPORT void AERInstanceAddMotion(
 }
 
 AER_EXPORT int32_t AERInstanceGetMask(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-	ErrIf(!inst, AER_NULL_ARG, -1);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, AER_SPRITE_NULL);
+	ErrIf(!inst, AER_NULL_ARG, AER_SPRITE_NULL);
 
 	return ((HLDInstance *)inst)->maskIndex;
 }
@@ -347,8 +349,8 @@ AER_EXPORT void AERInstanceSetMask(
 }
 
 AER_EXPORT int32_t AERInstanceGetSprite(AERInstance * inst) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
-	ErrIf(!inst, AER_NULL_ARG, -1);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, AER_SPRITE_NULL);
+	ErrIf(!inst, AER_NULL_ARG, AER_SPRITE_NULL);
 
 	return ((HLDInstance *)inst)->spriteIndex;
 }

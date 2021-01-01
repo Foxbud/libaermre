@@ -48,29 +48,29 @@ AER_EXPORT int32_t AERObjectRegister(
 			name,
 			(*FoxArrayMPeek(Mod *, &modman.context))->name
 	);
-	ErrIf(mre.stage != STAGE_OBJECT_REG, AER_SEQ_BREAK, -1);
+	ErrIf(mre.stage != STAGE_OBJECT_REG, AER_SEQ_BREAK, AER_OBJECT_NULL);
 
 	HLDObject * parent = HLDObjectLookup(parentIdx);
-	ErrIf(!parent, AER_FAILED_LOOKUP, -1);
+	ErrIf(!parent, AER_FAILED_LOOKUP, AER_OBJECT_NULL);
 
 	ErrIf(
 			!(spriteIdx == -1 || HLDSpriteLookup(spriteIdx)),
 			AER_FAILED_LOOKUP,
-			-1
+			AER_OBJECT_NULL
 	);
 	ErrIf(
 			!(maskIdx == -1 || HLDSpriteLookup(maskIdx)),
 			AER_FAILED_LOOKUP,
-			-1
+			AER_OBJECT_NULL
 	);
 
 	int32_t objIdx = hldfuncs.actionObjectAdd();
 	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_OUT_OF_MEM, -1);
+	ErrIf(!obj, AER_OUT_OF_MEM, AER_OBJECT_NULL);
 
 	/* The engine expects a freeable (dynamically allocated) string for name. */
 	char * tmpName = malloc(strlen(name) + 1);
-	ErrIf(!tmpName, AER_OUT_OF_MEM, -1);
+	ErrIf(!tmpName, AER_OUT_OF_MEM, AER_OBJECT_NULL);
 	obj->name = strcpy(tmpName, name);
 
 	obj->parentIndex = parentIdx;
@@ -102,10 +102,10 @@ AER_EXPORT const char * AERObjectGetName(int32_t objIdx) {
 }
 
 AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, AER_OBJECT_NULL);
 
 	HLDObject * obj = HLDObjectLookup(objIdx);
-	ErrIf(!obj, AER_FAILED_LOOKUP, -1);
+	ErrIf(!obj, AER_FAILED_LOOKUP, AER_OBJECT_NULL);
 
 	return obj->parentIndex;
 }

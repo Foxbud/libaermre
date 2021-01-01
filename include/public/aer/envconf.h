@@ -4,27 +4,6 @@
  * @brief Utilities for parsing configuration data from environment
  * variables.
  *
- * @subsubsection ParsingBools Parsing Booleans
- *
- * The functions AEREnvConfGetBool() and AEREnvConfGetBools() parse booleans
- * from strings using the first character of the string, ignoring the rest.
- * If that character is any of:
- *  - `1`
- *  - `t`
- *  - `T`
- *  - `y`
- *  - `Y`
- * 
- * then the string is parsed as `true`. On the other hand, if the first
- * character is any of:
- *  - `0`
- *  - `f`
- *  - `F`
- *  - `n`
- *  - `N`
- * 
- * then the string is parsed as `false`. Otherwise a parse error occurs.
- *
  * @since 1.0.0
  *
  * @copyright 2020 the libaermre authors
@@ -55,16 +34,34 @@
 /**
  * @brief Parse a boolean value from an environment variable.
  *
- * For information about how this function parses boolean values, see
- * @ref ParsingBools.
+ * @subsubsection ParsingBools Parsing Booleans
+ *
+ * The functions AEREnvConfGetBool() and AEREnvConfGetBools() parse booleans
+ * from strings using the first character of the string, ignoring the rest.
+ * If that character is any of:
+ *  - `1`
+ *  - `t`
+ *  - `T`
+ *  - `y`
+ *  - `Y`
+ * 
+ * then the string is parsed as `true`. On the other hand, if the first
+ * character is any of:
+ *  - `0`
+ *  - `f`
+ *  - `F`
+ *  - `n`
+ *  - `N`
+ * 
+ * then the string is parsed as `false`. Otherwise a parse error occurs.
  *
  * @param[in] name Name of environment variable.
  *
  * @return Value of environment variable interpreted as a boolean
- * or `false` if error.
+ * or `false` if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
- * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is an invalid environment
  * variable.
  * @throw ::AER_FAILED_PARSE if environment variable could not be
  * interpreted as a boolean.
@@ -94,11 +91,12 @@ bool AEREnvConfGetBool(const char * name);
  * `boolBuf`.
  * @param[out] boolBuf Buffer to write booleans to.
  *
- * @return Total number of booleans contained in environment variable.
+ * @return Total number of booleans contained in environment variable or `0`
+ * if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` is `NULL` or argument `boolBuf`
  * is `NULL` and argument `bufSize` is greater than `0`.
- * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is an invalid environment
  * variable.
  * @throw ::AER_FAILED_PARSE if environment variable could not be
  * interpreted as booleans.
@@ -119,10 +117,10 @@ size_t AEREnvConfGetBools(
  * @param[in] name Name of environment variable.
  *
  * @return Value of environment variable interpreted as an integer
- * or `0` if error.
+ * or `0` if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
- * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is an invalid environment
  * variable.
  * @throw ::AER_FAILED_PARSE if environment variable could not be
  * interpreted as an integer.
@@ -149,11 +147,12 @@ int32_t AEREnvConfGetInt(const char * name);
  * `intBuf`.
  * @param[out] intBuf Buffer to write integers to.
  *
- * @return Total number of integers contained in environment variable.
+ * @return Total number of integers contained in environment variable or `0`
+ * if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` is `NULL` or argument `intBuf`
  * is `NULL` and argument `bufSize` is greater than `0`.
- * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is an invalid environment
  * variable.
  * @throw ::AER_FAILED_PARSE if environment variable could not be
  * interpreted as integers.
@@ -174,10 +173,10 @@ size_t AEREnvConfGetInts(
  * @param[in] name Name of environment variable.
  *
  * @return Value of environment variable interpreted as a float
- * or `0.0f` if error.
+ * or `0.0f` if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
- * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is an invalid environment
  * variable.
  * @throw ::AER_FAILED_PARSE if environment variable could not be
  * interpreted as a float.
@@ -204,11 +203,12 @@ float AEREnvConfGetFloat(const char * name);
  * `floatBuf`.
  * @param[out] floatBuf Buffer to write floats to.
  *
- * @return Total number of floats contained in environment variable.
+ * @return Total number of floats contained in environment variable or `0`
+ * if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` is `NULL` or argument `floatBuf`
  * is `NULL` and argument `bufSize` is greater than `0`.
- * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is an invalid environment
  * variable.
  * @throw ::AER_FAILED_PARSE if environment variable could not be
  * interpreted as floats.
@@ -228,10 +228,10 @@ size_t AEREnvConfGetFloats(
  *
  * @param[in] name Name of environment variable.
  *
- * @return Content of environment variable or `NULL` if error.
+ * @return Content of environment variable or `NULL` if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
- * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is an invalid environment
  * variable.
  *
  * @since 1.0.0
@@ -256,11 +256,12 @@ const char * AEREnvConfGetString(const char * name);
  * `strBuf`.
  * @param[out] strBuf Buffer to write strings to.
  *
- * @return Total number of strings contained in environment variable.
+ * @return Total number of strings contained in environment variable or `0`
+ * if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` is `NULL` or argument `strBuf`
  * is `NULL` and argument `bufSize` is greater than `0`.
- * @throw ::AER_FAILED_LOOKUP if argument `name` is invalid environment
+ * @throw ::AER_FAILED_LOOKUP if argument `name` is an invalid environment
  * variable.
  *
  * @since 1.0.0

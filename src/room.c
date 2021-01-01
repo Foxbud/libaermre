@@ -24,7 +24,7 @@
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT int32_t AERRoomGetCurrent(void) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, AER_ROOM_NULL);
 
 	return *hldvars.roomIndexCurrent;
 }
