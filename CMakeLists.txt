@@ -15,7 +15,7 @@ cmake_minimum_required(VERSION 3.18)
 
 project(AERMRE
 	VERSION 1.0.0
-	DESCRIPTION "AER modding framework for Hyper Light Drifter"
+	DESCRIPTION "AER modding framework for Hyper Light Drifter."
 	LANGUAGES C)
 
 # Include CPack.
@@ -58,9 +58,12 @@ set_target_properties(aermre PROPERTIES
 	C_VISIBILITY_PRESET hidden
 	CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 target_include_directories(aermre
-	PRIVATE include/private
-	PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/include/private"
-	PUBLIC include/public)
+	PRIVATE 
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/private"
+	"${CMAKE_CURRENT_BINARY_DIR}/include/private"
+	PUBLIC
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/public>"
+	"$<INSTALL_INTERFACE:include>")
 target_compile_options(aermre 
 	PRIVATE -m32
 	PRIVATE -Wall
@@ -72,13 +75,22 @@ target_link_options(aermre
 target_link_libraries(aermre Foxutils::foxutils)
 
 # Add installation target.
-install(TARGETS aermre LIBRARY)
-install(FILES LICENSE
-	DESTINATION ".")
-install(FILES AUTHORS
+install(TARGETS aermre
+	EXPORT AERMRETargets
+	LIBRARY DESTINATION lib
+	INCLUDES DESTINATION include)
+install(EXPORT AERMRETargets
+	FILE AERMRETargets.cmake
+	NAMESPACE AERMRE::
+	DESTINATION lib/cmake)
+install(FILES
+	LICENSE
+	AUTHORS
 	DESTINATION ".")
 install(DIRECTORY ACKNOWLEDGMENTS
 	DESTINATION ".")
+install(DIRECTORY include/public/aer
+	DESTINATION include)
 
 if(DOXYGEN_FOUND)
 	set(DOXYGEN_HAVE_DOT FALSE)
