@@ -38,7 +38,7 @@ typedef enum AERErrCode {
 									 execution. */
 	AER_OUT_OF_MEM, /**< Function unable to allocate necessary memory required
 										for proper execution. */
-	AER_FAILED_LOOKUP, /**< Function called with invalid index, ID or key. */
+	AER_FAILED_LOOKUP, /**< Function called with an invalid index, ID or key. */
 	AER_FAILED_PARSE, /**< Function unable to parse resource. */
 	AER_BAD_FILE, /**< Function unable to read file. */
 	AER_BAD_VAL /**< Function encountered an invalid value or combination
