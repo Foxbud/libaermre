@@ -148,4 +148,15 @@ void AERGetMousePosition(
 
 
 
+/* ----- DOCUMENTATION PAGES ----- */
+
+/**
+ * @mainpage
+ *
+ * Welcome to the public API documentation for the Action-Event-Response (AER)
+ * Mod Runtime Environment (MRE)!
+ */
+
+
+
 #endif /* AER_MRE_H */
