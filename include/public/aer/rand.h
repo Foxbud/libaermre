@@ -58,7 +58,7 @@ uint64_t AERRandUInt(void);
 uint64_t AERRandUIntRange(uint64_t min, uint64_t max);
 
 /**
- * @brief Get a pseudorandom signed integer on the interval [-2^32, 2^32).
+ * @brief Get a pseudorandom signed integer on the interval [-2^63, 2^63).
  *
  * @return Pseudorandom signed integer.
  *
