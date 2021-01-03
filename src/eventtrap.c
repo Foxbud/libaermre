@@ -25,54 +25,6 @@
 
 
 
-/* ----- PRIVATE FUNCTIONS ----- */
-
-static bool ExecuteListeners(
-		FoxArray * listeners,
-		HLDEventType eventType,
-		HLDInstance * target,
-		HLDInstance * other,
-		bool reverse
-) {
-	bool doNext = true;
-
-	size_t numListeners = FoxArrayMSize(ModListener, listeners);
-	uint32_t lastIdx = numListeners - 1;
-	switch (eventType) {
-		case HLD_EVENT_COLLISION:
-			for (uint32_t idx = 0; idx < numListeners; idx++) {
-				ModListener * listener = FoxArrayMIndex(
-						ModListener,
-						listeners,
-						(reverse) ? lastIdx - idx : idx
-				);
-				*FoxArrayMPush(Mod *, &modman.context) = listener->mod;
-				doNext = listener->func.hldObjPair(target, other);
-				FoxArrayMPop(Mod *, &modman.context);
-				if (!doNext) break;
-			}
-			break;
-
-		default:
-			for (uint32_t idx = 0; idx < numListeners; idx++) {
-				ModListener * listener = FoxArrayMIndex(
-						ModListener,
-						listeners,
-						(reverse) ? lastIdx - idx : idx
-				);
-				*FoxArrayMPush(Mod *, &modman.context) = listener->mod;
-				doNext = listener->func.hldObj(target);
-				FoxArrayMPop(Mod *, &modman.context);
-				if (!doNext) break;
-			}
-			break;
-	}
-
-	return doNext;
-}
-
-
-
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void EventTrapInit(
@@ -85,8 +37,7 @@ void EventTrapInit(
 
 	trap->eventType = eventType;
 	trap->origListener = origListener;
-	FoxArrayMInitExt(ModListener, &trap->upstreamListeners, 2);
-	FoxArrayMInitExt(ModListener, &trap->downstreamListeners, 2);
+	FoxArrayMInitExt(ModListener, &trap->modListeners, 2);
 
 	return;
 }
@@ -96,58 +47,76 @@ void EventTrapDeinit(EventTrap * trap) {
 
 	trap->eventType = 0;
 	trap->origListener = NULL;
-	FoxArrayMDeinit(ModListener, &trap->upstreamListeners);
-	FoxArrayMDeinit(ModListener, &trap->downstreamListeners);
+	FoxArrayMDeinit(ModListener, &trap->modListeners);
 
 	return;
 }
 
-void EventTrapAddUpstream(
+void EventTrapAddListener(
 		EventTrap * trap,
 		ModListener listener
 ) {
 	assert(trap);
 
-	*FoxArrayMPush(ModListener, &trap->upstreamListeners) = listener;
+	*FoxArrayMPush(ModListener, &trap->modListeners) = listener;
 
 	return;
 }
 
-void EventTrapAddDownstream(
-		EventTrap * trap,
-		ModListener listener
+void EventTrapIterInit(
+		EventTrapIter * iter,
+		EventTrap * trap
 ) {
+	assert(iter);
 	assert(trap);
 
-	*FoxArrayMPush(ModListener, &trap->downstreamListeners) = listener;
+	iter->base.next = (
+			(bool (*)(AEREventTrapIter *, AERInstance *, AERInstance *))
+			EventTrapIterNext
+	);
+	iter->trap = trap;
+	iter->nextIdx = 0;
 
 	return;
 }
 
-void EventTrapExecute(
-		EventTrap * trap,
+void EventTrapIterDeinit(EventTrapIter * iter) {
+	assert(iter);
+
+	iter->base.next = NULL;
+	iter->trap = NULL;
+	iter->nextIdx = 0;
+
+	return;
+}
+
+bool EventTrapIterNext(
+		EventTrapIter * iter,
 		HLDInstance * target,
 		HLDInstance * other
 ) {
-	bool doNext = ExecuteListeners(
-			&trap->upstreamListeners,
-			trap->eventType,
-			target,
-			other,
-			false
-	);
+	assert(iter);
+	assert(target);
+	assert(other);
+	bool result = true;
 
-	if (doNext) {
-		trap->origListener(target, other);
-
-		ExecuteListeners(
-				&trap->downstreamListeners,
-				trap->eventType,
-				target,
-				other,
-				true
+	EventTrap * trap = iter->trap;
+	FoxArray * modListeners = &trap->modListeners;
+	if (iter->nextIdx < FoxArrayMSize(ModListener, modListeners)) {
+		ModListener * listener = FoxArrayMIndex(
+				ModListener,
+				modListeners,
+				iter->nextIdx++
 		);
+		*FoxArrayMPush(Mod *, &modman.context) = listener->mod;
+		result = (
+				(bool (*)(EventTrapIter *, HLDInstance *, HLDInstance *))
+				listener->func
+		)(iter,target,other);
+		FoxArrayMPop(Mod *, &modman.context);
+	} else {
+		trap->origListener(target, other);
 	}
 
-	return;
+	return result;
 }

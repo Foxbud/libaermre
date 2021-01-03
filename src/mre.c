@@ -107,15 +107,31 @@ static void CommonEventListener(
 		HLDInstance * target,
 		HLDInstance * other
 ) {
+	EventKey currentEvent = mre.currentEvent;
 	EventTrap * trap = FoxMapMIndex(
 			EventKey,
 			EventTrap,
 			mre.eventTraps,
-			mre.currentEvent
+			currentEvent
 	);
 	assert(trap);
 
-	EventTrapExecute(trap, target, other);
+	EventTrapIter iter;
+	EventTrapIterInit(&iter, trap);
+
+	/* Execute listeners and check if event was canceled. */
+	if (!EventTrapIterNext(&iter, target, other)) {
+		switch (currentEvent.type) {
+			case HLD_EVENT_CREATE:
+				hldfuncs.actionInstanceDestroy(target, other, -1, false);
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	EventTrapIterDeinit(&iter);
 
 	return;
 }
@@ -471,8 +487,7 @@ const char * MREGetAbsAssetPath(const char * relAssetPath) {
 void MRERegisterEventListener(
 		HLDObject * obj,
 		EventKey key,
-		ModListener listener,
-		bool downstream
+		bool (* listener)(AEREventTrapIter *, AERInstance *, AERInstance *)
 ) {
 	/* Register subscription if subscribable event. */
 	switch (key.type) {
@@ -501,11 +516,13 @@ void MRERegisterEventListener(
 		*trap = EntrapEvent(obj, key.type, key.num);
 	}
 
-	if (downstream) {
-		EventTrapAddDownstream(trap, listener);
-	} else {
-		EventTrapAddUpstream(trap, listener);
-	}
+	EventTrapAddListener(
+			trap,
+			(ModListener){
+				.mod = *FoxArrayMPeek(Mod *, &modman.context),
+				.func = (void (*)(void))listener
+			}
+	);
 
 	return;
 }
@@ -545,7 +562,10 @@ AER_EXPORT void AERHookStep(void) {
 					idx
 			);
 			*FoxArrayMPush(Mod *, &modman.context) = listener->mod;
-			listener->func.roomChange(roomIndexCurrent, mre.roomIndexPrevious);
+			(
+			 (void (*)(int32_t, int32_t))
+			 listener->func
+			)(roomIndexCurrent, mre.roomIndexPrevious);
 			FoxArrayMPop(Mod *, &modman.context);
 		}
 		mre.roomIndexPrevious = roomIndexCurrent;
@@ -563,7 +583,7 @@ AER_EXPORT void AERHookStep(void) {
 				idx
 		);
 		*FoxArrayMPush(Mod *, &modman.context) = listener->mod;
-		listener->func.roomStep();
+		listener->func();
 		FoxArrayMPop(Mod *, &modman.context);
 	}
 

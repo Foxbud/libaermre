@@ -181,31 +181,10 @@ void AERInstanceChange(
  *
  * @since 1.0.0
  *
- * @se AERInstanceCancelDestruction
  * @sa AERInstanceDelete
  * @sa AERObjectAttachDestroyListener
  */
 void AERInstanceDestroy(AERInstance * inst);
-
-/**
- * @brief Prevent an instance that is marked for destruction from being
- * destroyed.
- *
- * @note This function should typically only be called from an upstream
- * object destroy listener.
- *
- * @param[in] inst Instance of interest.
- *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
- * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
- * @throw ::AER_BAD_VAL if argument `inst` is not marked for destruction.
- *
- * @since 1.0.0
- *
- * @sa AERInstanceDestroy
- * @sa AERObjectAttachDestroyListener
- */
-void AERInstanceCancelDestruction(AERInstance * inst);
 
 /**
  * @brief Destroy an instance but do **not** call its destroy event.

@@ -134,8 +134,11 @@ AER_EXPORT void AERObjectSetCollisions(
 
 AER_EXPORT void AERObjectAttachCreateListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 ) {
 	LogInfo(
 			"Attaching create listener to object %i for mod \"%s\"...",
@@ -154,15 +157,7 @@ AER_EXPORT void AERObjectAttachCreateListener(
 		.num = 0,
 		.objIdx = objIdx
 	};
-	MRERegisterEventListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
+	MRERegisterEventListener(obj, key, listener);
 
 	LogInfo("Successfully attached create listener.");
 	return;
@@ -170,8 +165,11 @@ AER_EXPORT void AERObjectAttachCreateListener(
 
 AER_EXPORT void AERObjectAttachDestroyListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 ) {
 	LogInfo(
 			"Attaching destroy listener to object %i for mod \"%s\"...",
@@ -190,15 +188,7 @@ AER_EXPORT void AERObjectAttachDestroyListener(
 		.num = 0,
 		.objIdx = objIdx
 	};
-	MRERegisterEventListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
+	MRERegisterEventListener(obj, key, listener);
 
 	LogInfo("Successfully attached destroy listener.");
 	return;
@@ -207,8 +197,11 @@ AER_EXPORT void AERObjectAttachDestroyListener(
 AER_EXPORT void AERObjectAttachAlarmListener(
 		int32_t objIdx,
 		uint32_t alarmIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 ) {
 	LogInfo(
 			"Attaching alarm %u listener to object %i for mod \"%s\"...",
@@ -229,15 +222,7 @@ AER_EXPORT void AERObjectAttachAlarmListener(
 		.num = alarmIdx,
 		.objIdx = objIdx
 	};
-	MRERegisterEventListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
+	MRERegisterEventListener(obj, key, listener);
 
 	LogInfo("Successfully attached alarm %u listener.", alarmIdx);
 	return;
@@ -245,8 +230,11 @@ AER_EXPORT void AERObjectAttachAlarmListener(
 
 AER_EXPORT void AERObjectAttachStepListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 ) {
 	LogInfo(
 			"Attaching step listener to object %i for mod \"%s\"...",
@@ -265,15 +253,7 @@ AER_EXPORT void AERObjectAttachStepListener(
 		.num = HLD_EVENT_STEP_INLINE,
 		.objIdx = objIdx
 	};
-	MRERegisterEventListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
+	MRERegisterEventListener(obj, key, listener);
 
 	LogInfo("Successfully attached step listener.");
 	return;
@@ -281,8 +261,11 @@ AER_EXPORT void AERObjectAttachStepListener(
 
 AER_EXPORT void AERObjectAttachPreStepListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 ) {
 	LogInfo(
 			"Attaching pre-step listener to object %i for mod \"%s\"...",
@@ -301,15 +284,7 @@ AER_EXPORT void AERObjectAttachPreStepListener(
 		.num = HLD_EVENT_STEP_PRE,
 		.objIdx = objIdx
 	};
-	MRERegisterEventListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
+	MRERegisterEventListener(obj, key, listener);
 
 	LogInfo("Successfully attached pre-step listener.");
 	return;
@@ -317,8 +292,11 @@ AER_EXPORT void AERObjectAttachPreStepListener(
 
 AER_EXPORT void AERObjectAttachPostStepListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 ) {
 	LogInfo(
 			"Attaching post-step listener to object %i for mod \"%s\"...",
@@ -337,15 +315,7 @@ AER_EXPORT void AERObjectAttachPostStepListener(
 		.num = HLD_EVENT_STEP_POST,
 		.objIdx = objIdx
 	};
-	MRERegisterEventListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
+	MRERegisterEventListener(obj, key, listener);
 
 	LogInfo("Successfully attached post-step listener.");
 	return;
@@ -354,8 +324,11 @@ AER_EXPORT void AERObjectAttachPostStepListener(
 AER_EXPORT void AERObjectAttachCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
-		bool (* listener)(AERInstance * target, AERInstance * other),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 ) {
 	LogInfo(
 			"Attaching %i collision listener to object %i for mod \"%s\"...",
@@ -376,15 +349,7 @@ AER_EXPORT void AERObjectAttachCollisionListener(
 		.num = otherObjIdx,
 		.objIdx = targetObjIdx
 	};
-	MRERegisterEventListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObjPair = listener
-			},
-			downstream
-	);
+	MRERegisterEventListener(obj, key, listener);
 
 	LogInfo("Successfully attached %i collision listener.", otherObjIdx);
 	return;
@@ -392,8 +357,11 @@ AER_EXPORT void AERObjectAttachCollisionListener(
 
 AER_EXPORT void AERObjectAttachAnimationEndListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 ) {
 	LogInfo(
 			"Attaching animation end listener to object %i for mod \"%s\"...",
@@ -412,15 +380,7 @@ AER_EXPORT void AERObjectAttachAnimationEndListener(
 		.num = HLD_EVENT_OTHER_ANIMATION_END,
 		.objIdx = objIdx
 	};
-	MRERegisterEventListener(
-			obj,
-			key,
-			(ModListener){
-				.mod = *FoxArrayMPeek(Mod *, &modman.context),
-				.func.aerObj = listener
-			},
-			downstream
-	);
+	MRERegisterEventListener(obj, key, listener);
 
 	LogInfo("Successfully attached animation end listener.");
 	return;

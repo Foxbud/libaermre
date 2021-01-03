@@ -21,9 +21,9 @@
 #include "foxutils/array.h"
 #include "foxutils/map.h"
 
+#include "aer/object.h"
 #include "internal/eventkey.h"
 #include "internal/hld.h"
-#include "internal/modman.h"
 #include "internal/objtree.h"
 
 
@@ -81,8 +81,7 @@ const char * MREGetAbsAssetPath(const char * relAssetPath);
 void MRERegisterEventListener(
 		HLDObject * obj,
 		EventKey key,
-		ModListener listener,
-		bool downstream
+		bool (* listener)(AEREventTrapIter *, AERInstance *, AERInstance *)
 );
 
 

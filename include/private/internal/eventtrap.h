@@ -18,6 +18,7 @@
 
 #include "foxutils/array.h"
 
+#include "aer/eventtrap.h"
 #include "internal/hld.h"
 #include "internal/modman.h"
 
@@ -26,14 +27,19 @@
 /* ----- INTERNAL TYPES ----- */
 
 typedef struct EventTrap {
-	FoxArray upstreamListeners;
-	FoxArray downstreamListeners;
+	FoxArray modListeners;
 	void (* origListener)(
 			HLDInstance * target,
 			HLDInstance * other
 	);
 	HLDEventType eventType;
 } EventTrap;
+
+typedef struct EventTrapIter {
+	AEREventTrapIter base;
+	EventTrap * trap;
+	uint32_t nextIdx;
+} EventTrapIter;
 
 
 
@@ -50,18 +56,20 @@ void EventTrapInit(
 
 void EventTrapDeinit(EventTrap * trap);
 
-void EventTrapAddUpstream(
+void EventTrapAddListener(
 		EventTrap * trap,
 		ModListener listener
 );
 
-void EventTrapAddDownstream(
-		EventTrap * trap,
-		ModListener listener
+void EventTrapIterInit(
+		EventTrapIter * iter,
+		EventTrap * trap
 );
 
-void EventTrapExecute(
-		EventTrap * trap,
+void EventTrapIterDeinit(EventTrapIter * iter);
+
+bool EventTrapIterNext(
+		EventTrapIter * iter,
 		HLDInstance * target,
 		HLDInstance * other
 );

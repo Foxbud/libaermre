@@ -16,6 +16,7 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -130,7 +131,7 @@ static void ModInit(Mod * mod, const char * name) {
 				&modman.roomStepListeners
 		);
 		listener->mod = mod;
-		listener->func.roomStep = def.roomStepListener;
+		listener->func = def.roomStepListener;
 	}
 	if (def.roomChangeListener) {
 		ModListener * listener = FoxArrayMPush(
@@ -138,7 +139,7 @@ static void ModInit(Mod * mod, const char * name) {
 				&modman.roomChangeListeners
 		);
 		listener->mod = mod;
-		listener->func.roomChange = def.roomChangeListener;
+		listener->func = (void (*)(void))def.roomChangeListener;
 	}
 
 	/* Record mod library management callbacks. */

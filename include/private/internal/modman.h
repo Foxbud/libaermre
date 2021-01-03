@@ -16,12 +16,8 @@
 #ifndef INTERNAL_MODMAN_H
 #define INTERNAL_MODMAN_H
 
-#include <stdbool.h>
-#include <stdint.h>
-
 #include "foxutils/array.h"
 
-#include "aer/instance.h"
 #include "internal/hld.h"
 
 
@@ -39,15 +35,7 @@ typedef struct Mod {
 } Mod;
 
 typedef struct ModListener {
-	union {
-		bool (* hldObj)(HLDInstance *);
-		bool (* hldObjPair)(HLDInstance *, HLDInstance *);
-		bool (* aerObj)(AERInstance *);
-		bool (* aerObjPair)(AERInstance *, AERInstance *);
-		/* Pseudoevents. */
-		void (* roomStep)(void);
-		void (* roomChange)(int32_t, int32_t);
-	} func;
+	void (* func)(void);
 	Mod * mod;
 } ModListener;
 

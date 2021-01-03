@@ -5,27 +5,7 @@
  *
  * @subsubsection ObjListeners Object Event Listeners
  *
- * The AER framework allows mods to attach an arbitrary number of
- * listeners to the same event on the same object. This is accomplished
- * by wrapping vanilla event listeners in "event traps."
- *
- * Whenever a mod attaches an event listener to an object, it is added to
- * that event trap's "stream"; either "upstream" or "downstream" (which
- * one is controlled by the attachment function's `downstream` parameter).
- * Then whenever that event is triggered during gameplay, the event trap
- * first executes all the upstream listeners according to mod priority.
- * Next, it executes the vanilla listener for that event (or the parent
- * object's corresponding event listener if undefined by the HLD developers).
- * Finally, it executes all of the downstream listeners according to
- * inverted mod priority (lowest priority mod listeners get executed first).
- *
- * This flow from upstream to vanilla to downstream may, however, be
- * interrupted. Each mod event listener returns a boolean value. If	`true`,
- * then execution continues on to the next listener in the stream. If
- * `false`, however, then all listeners downstream of the current listener
- * are bypassed (including the vanilla listener). By attaching an upstream
- * listener that always returns `false`, vanilla events can effectively be
- * "disabled," but this may break mod compatibility.
+ * TODO
  *
  * @since 1.0.0
  *
@@ -50,6 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "aer/eventtrap.h"
 #include "aer/instance.h"
 
 
@@ -701,9 +682,7 @@ void AERObjectSetCollisions(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref ObjListeners.
- * @param[in] downstream If `true`, the listener is called *after* the
- * vanilla listener for the target event. Otherwise it is called before.
+ * For more information see @ref AEREventTrapIter::next.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -716,8 +695,11 @@ void AERObjectSetCollisions(
  */
 void AERObjectAttachCreateListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 );
 
 /**
@@ -731,9 +713,7 @@ void AERObjectAttachCreateListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref ObjListeners.
- * @param[in] downstream If `true`, the listener is called *after* the
- * vanilla listener for the target event. Otherwise it is called before.
+ * For more information see @ref AEREventTrapIter::next.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -747,8 +727,11 @@ void AERObjectAttachCreateListener(
  */
 void AERObjectAttachDestroyListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 );
 
 /**
@@ -761,9 +744,7 @@ void AERObjectAttachDestroyListener(
  * @param[in] objIdx Object of interest.
  * @param[in] alarmIdx Alarm to watch.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref ObjListeners.
- * @param[in] downstream If `true`, the listener is called *after* the
- * vanilla listener for the target event. Otherwise it is called before.
+ * For more information see @ref AEREventTrapIter::next.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -779,8 +760,11 @@ void AERObjectAttachDestroyListener(
 void AERObjectAttachAlarmListener(
 		int32_t objIdx,
 		uint32_t alarmIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 );
 
 /**
@@ -791,9 +775,7 @@ void AERObjectAttachAlarmListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref ObjListeners.
- * @param[in] downstream If `true`, the listener is called *after* the
- * vanilla listener for the target event. Otherwise it is called before.
+ * For more information see @ref AEREventTrapIter::next.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -805,8 +787,11 @@ void AERObjectAttachAlarmListener(
  */
 void AERObjectAttachStepListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 );
 
 /**
@@ -819,9 +804,7 @@ void AERObjectAttachStepListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref ObjListeners.
- * @param[in] downstream If `true`, the listener is called *after* the
- * vanilla listener for the target event. Otherwise it is called before.
+ * For more information see @ref AEREventTrapIter::next.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -833,8 +816,11 @@ void AERObjectAttachStepListener(
  */
 void AERObjectAttachPreStepListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 );
 
 /**
@@ -845,9 +831,7 @@ void AERObjectAttachPreStepListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref ObjListeners.
- * @param[in] downstream If `true`, the listener is called *after* the
- * vanilla listener for the target event. Otherwise it is called before.
+ * For more information see @ref AEREventTrapIter::next.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -859,8 +843,11 @@ void AERObjectAttachPreStepListener(
  */
 void AERObjectAttachPostStepListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 );
 
 /**
@@ -875,9 +862,7 @@ void AERObjectAttachPostStepListener(
  * @param[in] targetObjIdx Object of interest.
  * @param[in] otherObjIdx Other object.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref ObjListeners.
- * @param[in] downstream If `true`, the listener is called *after* the
- * vanilla listener for the target event. Otherwise it is called before.
+ * For more information see @ref AEREventTrapIter::next.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -893,8 +878,11 @@ void AERObjectAttachPostStepListener(
 void AERObjectAttachCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
-		bool (* listener)(AERInstance * target, AERInstance * other),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 );
 
 /**
@@ -905,9 +893,7 @@ void AERObjectAttachCollisionListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref ObjListeners.
- * @param[in] downstream If `true`, the listener is called *after* the
- * vanilla listener for the target event. Otherwise it is called before.
+ * For more information see @ref AEREventTrapIter::next.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -923,8 +909,11 @@ void AERObjectAttachCollisionListener(
  */
 void AERObjectAttachAnimationEndListener(
 		int32_t objIdx,
-		bool (* listener)(AERInstance * inst),
-		bool downstream
+		bool (* listener)(
+			AEREventTrapIter * event,
+			AERInstance * target,
+			AERInstance * other
+		)
 );
 
 

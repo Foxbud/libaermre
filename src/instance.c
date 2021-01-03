@@ -129,18 +129,6 @@ AER_EXPORT void AERInstanceDestroy(AERInstance * inst) {
 	return;
 }
 
-AER_EXPORT void AERInstanceCancelDestruction(AERInstance * inst) {
-#define inst ((HLDInstance *)inst)
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!inst, AER_NULL_ARG);
-	ErrIf(!inst->marked, AER_BAD_VAL);
-
-	inst->marked = false;
-
-	return;
-#undef inst
-}
-
 AER_EXPORT void AERInstanceDelete(AERInstance * inst) {
 	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
 	ErrIf(!inst, AER_NULL_ARG);
