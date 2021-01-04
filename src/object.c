@@ -135,7 +135,7 @@ AER_EXPORT void AERObjectSetCollisions(
 AER_EXPORT void AERObjectAttachCreateListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -166,7 +166,7 @@ AER_EXPORT void AERObjectAttachCreateListener(
 AER_EXPORT void AERObjectAttachDestroyListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -198,7 +198,7 @@ AER_EXPORT void AERObjectAttachAlarmListener(
 		int32_t objIdx,
 		uint32_t alarmIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -231,7 +231,7 @@ AER_EXPORT void AERObjectAttachAlarmListener(
 AER_EXPORT void AERObjectAttachStepListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -262,7 +262,7 @@ AER_EXPORT void AERObjectAttachStepListener(
 AER_EXPORT void AERObjectAttachPreStepListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -293,7 +293,7 @@ AER_EXPORT void AERObjectAttachPreStepListener(
 AER_EXPORT void AERObjectAttachPostStepListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -325,7 +325,7 @@ AER_EXPORT void AERObjectAttachCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -358,7 +358,7 @@ AER_EXPORT void AERObjectAttachCollisionListener(
 AER_EXPORT void AERObjectAttachAnimationEndListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)

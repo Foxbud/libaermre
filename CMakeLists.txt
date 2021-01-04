@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.19)
 # Copyright 2020 the libaermre authors
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,19 +18,19 @@ project(AERMRE
 	DESCRIPTION "AER modding framework for Hyper Light Drifter."
 	LANGUAGES C)
 
-# Include CPack.
-set(CPACK_PACKAGE_FILE_NAME "libaermre-${CMAKE_PROJECT_VERSION}")
-include(CPack)
-
-# Include GenerateExportHeader.
-include(GenerateExportHeader)
-
 # Set cmake defaults.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	set(CMAKE_INSTALL_PREFIX "libaermre-${CMAKE_PROJECT_VERSION}"
 		CACHE PATH "..." FORCE)
 endif()
+
+# Include CPack.
+set(CPACK_PACKAGE_FILE_NAME "libaermre-${CMAKE_PROJECT_VERSION}")
+include(CPack)
+
+# Include GenerateExportHeader.
+include(GenerateExportHeader)
 
 find_package(Foxutils REQUIRED)
 find_package(Doxygen)
@@ -72,13 +72,13 @@ target_compile_options(aermre
 target_link_options(aermre
 	PRIVATE -m32
 	PRIVATE -rdynamic)
-target_link_libraries(aermre Foxutils::foxutils)
+target_link_libraries(aermre
+	PRIVATE Foxutils::foxutils)
 
 # Add installation target.
 install(TARGETS aermre
 	EXPORT AERMRETargets
-	LIBRARY DESTINATION lib
-	INCLUDES DESTINATION include)
+	LIBRARY DESTINATION lib)
 install(EXPORT AERMRETargets
 	FILE AERMRETargets.cmake
 	NAMESPACE AERMRE::

@@ -126,6 +126,8 @@ static void CommonEventListener(
 				hldfuncs.actionInstanceDestroy(target, other, -1, false);
 				break;
 
+			/* TODO Figure out how to cancel destruction event. */
+
 			default:
 				break;
 		}

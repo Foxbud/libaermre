@@ -682,7 +682,7 @@ void AERObjectSetCollisions(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref AEREventTrapIter::next.
+ * For more information see @ref ObjListeners.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -696,7 +696,7 @@ void AERObjectSetCollisions(
 void AERObjectAttachCreateListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -713,7 +713,7 @@ void AERObjectAttachCreateListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref AEREventTrapIter::next.
+ * For more information see @ref ObjListeners.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -728,7 +728,7 @@ void AERObjectAttachCreateListener(
 void AERObjectAttachDestroyListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -744,7 +744,7 @@ void AERObjectAttachDestroyListener(
  * @param[in] objIdx Object of interest.
  * @param[in] alarmIdx Alarm to watch.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref AEREventTrapIter::next.
+ * For more information see @ref ObjListeners.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -761,7 +761,7 @@ void AERObjectAttachAlarmListener(
 		int32_t objIdx,
 		uint32_t alarmIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -775,7 +775,7 @@ void AERObjectAttachAlarmListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref AEREventTrapIter::next.
+ * For more information see @ref ObjListeners.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -788,7 +788,7 @@ void AERObjectAttachAlarmListener(
 void AERObjectAttachStepListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -804,7 +804,7 @@ void AERObjectAttachStepListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref AEREventTrapIter::next.
+ * For more information see @ref ObjListeners.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -817,7 +817,7 @@ void AERObjectAttachStepListener(
 void AERObjectAttachPreStepListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -831,7 +831,7 @@ void AERObjectAttachPreStepListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref AEREventTrapIter::next.
+ * For more information see @ref ObjListeners.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -844,7 +844,7 @@ void AERObjectAttachPreStepListener(
 void AERObjectAttachPostStepListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -862,7 +862,7 @@ void AERObjectAttachPostStepListener(
  * @param[in] targetObjIdx Object of interest.
  * @param[in] otherObjIdx Other object.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref AEREventTrapIter::next.
+ * For more information see @ref ObjListeners.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -879,7 +879,7 @@ void AERObjectAttachCollisionListener(
 		int32_t targetObjIdx,
 		int32_t otherObjIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
@@ -893,7 +893,7 @@ void AERObjectAttachCollisionListener(
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
- * For more information see @ref AEREventTrapIter::next.
+ * For more information see @ref ObjListeners.
  *
  * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
@@ -910,7 +910,7 @@ void AERObjectAttachCollisionListener(
 void AERObjectAttachAnimationEndListener(
 		int32_t objIdx,
 		bool (* listener)(
-			AEREventTrapIter * event,
+			AEREventTrapIter * ctx,
 			AERInstance * target,
 			AERInstance * other
 		)
