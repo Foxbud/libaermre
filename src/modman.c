@@ -145,7 +145,7 @@ static void ModInit(Mod * mod, const char * name) {
 	mod->constructor = def.constructor;
 	mod->destructor = def.destructor;
 
-	LogInfo("Successfully loaded mod \"%s.\"", name);
+	LogInfo("Successfully loaded mod \"%s\".", name);
 	return;
 }
 
@@ -164,7 +164,7 @@ static void ModDeinit(Mod * mod) {
 	mod->regObjects = NULL;
 	mod->regObjListeners = NULL;
 
-	LogInfo("Successfully unloaded mod \"%s.\"", name);
+	LogInfo("Successfully unloaded mod \"%s\".", name);
 	return;
 }
 
