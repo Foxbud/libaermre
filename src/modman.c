@@ -71,8 +71,8 @@ static void ModInit(Mod * mod, const char * name) {
 	void * libHandle = dlopen(libname, RTLD_NOW);
 	if (!(mod->libHandle = libHandle)) {
 		LogErr(
-				"While loading mod \"%s,\" could not load corresponding library "
-				"\"%s.\" Make sure its directory is in the \"LD_LIBRARY_PATH\" "
+				"While loading mod \"%s\", could not load corresponding library "
+				"\"%s\". Make sure its directory is in the \"LD_LIBRARY_PATH\" "
 				"environment variable.",
 				name,
 				libname
