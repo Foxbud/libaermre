@@ -24,8 +24,8 @@
 #include "foxutils/stringmapmacs.h"
 
 #include "aer/mre.h"
+#include "internal/confman.h"
 #include "internal/confvars.h"
-#include "internal/envconf.h"
 #include "internal/err.h"
 #include "internal/eventtrap.h"
 #include "internal/export.h"
@@ -614,9 +614,9 @@ __attribute__((constructor))
 void AERConstructor(void) {
 	LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
 
-	LogInfo("Initializing environment configuration module...");
-	EnvConfConstructor();
-	LogInfo("Done initializing environment configuration module.");
+	LogInfo("Initializing configuration manager module...");
+	ConfManConstructor();
+	LogInfo("Done initializing configuration manager module.");
 
 	LogInfo("Initializing configuration variables...");
 	ConfVarsConstructor();
@@ -678,9 +678,9 @@ void AERDestructor(void) {
 	ConfVarsDestructor();
 	LogInfo("Done deinitializing configuration variables.");
 
-	LogInfo("Deinitializing environment configuration module...");
-	EnvConfDestructor();
-	LogInfo("Done deinitializing environment configuration module.");
+	LogInfo("Deinitializing configuration manager module...");
+	ConfManDestructor();
+	LogInfo("Done deinitializing configuration manager module.");
 
 	return;
 }

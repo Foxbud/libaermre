@@ -16,7 +16,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "aer/envconf.h"
+#include "aer/confman.h"
 #include "aer/err.h"
 #include "internal/confvars.h"
 #include "internal/log.h"
@@ -25,7 +25,7 @@
 
 /* ----- PRIVATE CONSTANTS ----- */
 
-static const char * MOD_NAMES_VAR = "AER_MODS";
+static const char * MOD_NAMES_KEY = "mods";
 
 
 
@@ -39,25 +39,25 @@ const char ** confModNames = NULL;
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static void CheckErrors(const char * envVar) {
+static void CheckErrors(const char * key) {
 	switch (aererr) {
 		case AER_OK:
 			break;
 
 		case AER_FAILED_LOOKUP:
-			LogErr("Environment variable \"%s\" is undefined.", envVar);
+			LogErr("Configuration key \"%s\" is undefined.", key);
 			abort();
 			break;
 
 		case AER_FAILED_PARSE:
-			LogErr("Could not parse environment variable \"%s.\"", envVar);
+			LogErr("Could not parse configuration key \"%s\".", key);
 			abort();
 			break;
 
 		default:
 			LogErr(
-					"Unknown error while trying to read environment variable \"%s.\"",
-					envVar
+					"Unknown error while trying to read configuration key \"%s\".",
+					key
 			);
 			abort();
 	}
@@ -72,12 +72,12 @@ static void CheckErrors(const char * envVar) {
 void ConfVarsConstructor(void) {
 	/* Mod names. */
 	aererr = AER_OK;
-	confNumModNames = AEREnvConfGetStrings(MOD_NAMES_VAR, 0, NULL);
-	CheckErrors(MOD_NAMES_VAR);
+	confNumModNames = AERConfManGetStrings(MOD_NAMES_KEY, 0, NULL);
+	CheckErrors(MOD_NAMES_KEY);
 	confModNames = malloc(confNumModNames * sizeof(const char *));
 	assert(confModNames);
-	AEREnvConfGetStrings(MOD_NAMES_VAR, confNumModNames, confModNames);
-	CheckErrors(MOD_NAMES_VAR);
+	AERConfManGetStrings(MOD_NAMES_KEY, confNumModNames, confModNames);
+	CheckErrors(MOD_NAMES_KEY);
 
 	return;
 }

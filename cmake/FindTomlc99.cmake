@@ -11,16 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-find_path(FOXUTILS_INCLUDE_DIR
-	NAMES "foxutils/array.h"
+find_path(TOMLC99_INCLUDE_DIR
+	NAMES "toml.h"
 	PATHS
 		"$ENV{HOME}/.local/include"
 		"/usr/local/include"
 		"/usr/include"
 	REQUIRED
 	NO_DEFAULT_PATH)
-find_library(FOXUTILS_LIBRARY
-	NAMES "libfoxutils.a"
+find_library(TOMLC99_LIBRARY
+	NAMES "libtoml.a"
 	PATHS
 		"$ENV{HOME}/.local/lib32"
 		"/usr/local/lib32"
@@ -32,15 +32,15 @@ find_library(FOXUTILS_LIBRARY
 	NO_DEFAULT_PATH)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Foxutils
-	FOUND_VAR FOXUTILS_FOUND
+find_package_handle_standard_args(Tomlc99
+	FOUND_VAR TOMLC99_FOUND
 	REQUIRED_VARS
-		FOXUTILS_INCLUDE_DIR
-		FOXUTILS_LIBRARY)
+		TOMLC99_INCLUDE_DIR
+		TOMLC99_LIBRARY)
 
-if(FOXUTILS_FOUND AND NOT TARGET Foxutils::foxutils)
-	add_library(Foxutils::foxutils STATIC IMPORTED)
-	set_target_properties(Foxutils::foxutils PROPERTIES
-		IMPORTED_LOCATION "${FOXUTILS_LIBRARY}"
-		INTERFACE_INCLUDE_DIRECTORIES "${FOXUTILS_INCLUDE_DIR}")
+if(TOMLC99_FOUND AND NOT TARGET Tomlc99::tomlc99)
+	add_library(Tomlc99::tomlc99 STATIC IMPORTED)
+	set_target_properties(Tomlc99::tomlc99 PROPERTIES
+		IMPORTED_LOCATION "${TOMLC99_LIBRARY}"
+		INTERFACE_INCLUDE_DIRECTORIES "${TOMLC99_INCLUDE_DIR}")
 endif()

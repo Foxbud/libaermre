@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERNAL_ENVCONF_H
-#define INTERNAL_ENVCONF_H
+#ifndef INTERNAL_CONFMAN_H
+#define INTERNAL_CONFMAN_H
 
 
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void EnvConfConstructor(void);
+void ConfManConstructor(void);
 
-void EnvConfDestructor(void);
+void ConfManDestructor(void);
 
 
 
-#endif /* INTERNAL_ENVCONF_H */
+#endif /* INTERNAL_CONFMAN_H */

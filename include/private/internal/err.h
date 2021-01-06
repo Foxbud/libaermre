@@ -33,14 +33,14 @@
 			if (FoxArrayMEmpty(Mod *, &modman.context)) { \
 				LogWarn( \
 						"Potentially recoverable error \"%s\" occurred during internal " \
-						"call to function \"%s.\"", \
+						"call to function \"%s\".", \
 						#err, \
 						__func__ \
 				); \
 			} else { \
 				LogWarn( \
 						"Potentially recoverable error \"%s\" occurred during call to " \
-						"function \"%s\" by mod \"%s.\"", \
+						"function \"%s\" by mod \"%s\".", \
 						#err, \
 						__func__, \
 						(*FoxArrayMPeek(Mod *, &modman.context))->name \

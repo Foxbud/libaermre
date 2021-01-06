@@ -33,11 +33,12 @@ include(CPack)
 include(GenerateExportHeader)
 
 find_package(Foxutils REQUIRED)
+find_package(Tomlc99 REQUIRED)
 find_package(Doxygen)
 
 add_library(aermre SHARED
+	src/confman.c
 	src/confvars.c
-	src/envconf.c
 	src/err.c
 	src/eventkey.c
 	src/eventtrap.c
@@ -73,7 +74,8 @@ target_link_options(aermre
 	PRIVATE -m32
 	PRIVATE -rdynamic)
 target_link_libraries(aermre
-	PRIVATE Foxutils::foxutils)
+	PRIVATE Foxutils::foxutils
+	PRIVATE Tomlc99::tomlc99)
 
 # Add installation target.
 install(TARGETS aermre
@@ -84,8 +86,8 @@ install(EXPORT AERMRETargets
 	NAMESPACE AERMRE::
 	DESTINATION lib/cmake)
 install(FILES
-	LICENSE
-	AUTHORS
+	LICENSE.txt
+	AUTHORS.txt
 	DESTINATION ".")
 install(DIRECTORY ACKNOWLEDGMENTS
 	DESTINATION ".")

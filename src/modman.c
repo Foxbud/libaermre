@@ -23,7 +23,6 @@
 
 #include "foxutils/arraymacs.h"
 
-#include "aer/envconf.h"
 #include "aer/err.h"
 #include "aer/modman.h"
 #include "internal/confvars.h"
