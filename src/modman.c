@@ -104,9 +104,9 @@ static void ModInit(Mod *mod, const char *name) {
   AERModDef def = defMod();
 
   /* Record registration callbacks. */
-  mod->regSprites = def.regSprites;
-  mod->regObjects = def.regObjects;
-  mod->regObjListeners = def.regObjListeners;
+  mod->registerSprites = def.registerSprites;
+  mod->registerObjects = def.registerObjects;
+  mod->registerObjectListeners = def.registerObjectListeners;
 
   /* Record pseudoevent listeners. */
   if (def.roomStepListener) {
@@ -141,9 +141,9 @@ static void ModDeinit(Mod *mod) {
   mod->name = NULL;
   mod->constructor = NULL;
   mod->destructor = NULL;
-  mod->regSprites = NULL;
-  mod->regObjects = NULL;
-  mod->regObjListeners = NULL;
+  mod->registerSprites = NULL;
+  mod->registerObjects = NULL;
+  mod->registerObjectListeners = NULL;
 
   LogInfo("Successfully unloaded mod \"%s\".", name);
   return;

@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @brief TODO.
+ * @brief Utilities for querying and manipulating entrapped object events.
  *
  * @since 1.0.0
  *
@@ -29,29 +29,33 @@
 /* ----- PUBLIC TYPES ----- */
 
 /**
- * @brief TODO.
+ * @brief Context object for object event listener iteration.
+ *
+ * For more information about how to use this object see @ref ObjListeners.
  *
  * @since 1.0.0
  */
 typedef struct AEREventTrapIter {
-  bool (*next)(struct AEREventTrapIter *event, AERInstance *target,
+  /**
+   * @var next
+   *
+   * @brief Call the next event listener attached to the current event.
+   *
+   * @param[in] ctx Context object passed to the currently executing listener.
+   * @param[in] target Target instance passed to the currently executing
+   * listener.
+   * @param[in] other Other instance passed to the currently executing listener.
+   *
+   * @return `true` if the original vanilla listener attached to this event was
+   * called or `false` if any mod listener in this event trap "cancelled" the
+   * event. The vanilla listener will always return `true`.
+   *
+   * @since 1.0.0
+   *
+   * @memberof AEREventTrapIter
+   */
+  bool (*next)(struct AEREventTrapIter *ctx, AERInstance *target,
                AERInstance *other);
 } AEREventTrapIter;
-
-/**
- * @var next
- *
- * @brief TODO.
- *
- * @param[in] event TODO.
- * @param[in] target TODO.
- * @param[in] other TODO.
- *
- * @return TODO.
- *
- * @since 1.0.0
- *
- * @memberof AEREventTrapIter
- */
 
 #endif /* AER_EVENTTRAP_H */

@@ -27,9 +27,9 @@ typedef struct Mod {
   const char *name;
   void (*constructor)(void);
   void (*destructor)(void);
-  void (*regSprites)(void);
-  void (*regObjects)(void);
-  void (*regObjListeners)(void);
+  void (*registerSprites)(void);
+  void (*registerObjects)(void);
+  void (*registerObjectListeners)(void);
 } Mod;
 
 typedef struct ModListener {

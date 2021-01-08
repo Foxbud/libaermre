@@ -327,9 +327,9 @@ static void InitMods(void) {
    */
   for (int32_t modIdx = numMods - 1; modIdx >= 0; modIdx--) {
     Mod *mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
-    if (mod->regSprites) {
+    if (mod->registerSprites) {
       *FoxArrayMPush(Mod *, &modman.context) = mod;
-      mod->regSprites();
+      mod->registerSprites();
       FoxArrayMPop(Mod *, &modman.context);
     }
   }
@@ -340,9 +340,9 @@ static void InitMods(void) {
   LogInfo("Registering mod objects...");
   for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
     Mod *mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
-    if (mod->regObjects) {
+    if (mod->registerObjects) {
       *FoxArrayMPush(Mod *, &modman.context) = mod;
-      mod->regObjects();
+      mod->registerObjects();
       FoxArrayMPop(Mod *, &modman.context);
     }
   }
@@ -360,9 +360,9 @@ static void InitMods(void) {
   LogInfo("Registering mod event listeners...");
   for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
     Mod *mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
-    if (mod->regObjListeners) {
+    if (mod->registerObjectListeners) {
       *FoxArrayMPush(Mod *, &modman.context) = mod;
-      mod->regObjListeners();
+      mod->registerObjectListeners();
       FoxArrayMPop(Mod *, &modman.context);
     }
   }

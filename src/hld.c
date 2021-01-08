@@ -17,6 +17,17 @@
 #include <stdlib.h>
 
 #include "internal/hld.h"
+#include "internal/log.h"
+
+/* ----- PRIVATE MACROS ----- */
+
+#define CheckVar(var)                                                          \
+  do {                                                                         \
+    if (!(var)) {                                                              \
+      LogErr("Engine variable failed consistency check \"%s\".", #var);        \
+      abort();                                                                 \
+    }                                                                          \
+  } while (0)
 
 /* ----- INTERNAL GLOBALS ----- */
 
@@ -149,54 +160,54 @@ HLDEventWrapper *HLDEventWrapperNew(HLDEvent *event) {
 
 /* Sanity check to make sure all engine variables are as expected. */
 void HLDVariablesCheck(HLDVariables *hldvars) {
-  assert(hldvars->numSteps);
+  CheckVar(hldvars->numSteps);
 
-  assert(hldvars->keysPressedTable);
-  assert(hldvars->keysHeldTable);
-  assert(hldvars->keysReleasedTable);
+  CheckVar(hldvars->keysPressedTable);
+  CheckVar(hldvars->keysHeldTable);
+  CheckVar(hldvars->keysReleasedTable);
 
-  assert(hldvars->mouseButtonsPressedTable);
-  assert(hldvars->mouseButtonsHeldTable);
-  assert(hldvars->mouseButtonsReleasedTable);
+  CheckVar(hldvars->mouseButtonsPressedTable);
+  CheckVar(hldvars->mouseButtonsHeldTable);
+  CheckVar(hldvars->mouseButtonsReleasedTable);
 
-  assert(hldvars->mousePosX);
-  assert(hldvars->mousePosY);
+  CheckVar(hldvars->mousePosX);
+  CheckVar(hldvars->mousePosY);
 
-  assert(hldvars->roomTable);
-  assert(hldvars->roomTable->elements);
-  assert(hldvars->roomTable->size == 0x114);
+  CheckVar(hldvars->roomTable);
+  CheckVar(hldvars->roomTable->elements);
+  CheckVar(hldvars->roomTable->size == 0x114);
 
-  assert(hldvars->roomIndexCurrent);
+  CheckVar(hldvars->roomIndexCurrent);
 
-  assert(hldvars->roomCurrent);
-  assert(*hldvars->roomCurrent);
+  CheckVar(hldvars->roomCurrent);
+  CheckVar(*hldvars->roomCurrent);
 
-  assert(hldvars->spriteTable);
-  assert(hldvars->spriteTable->elements);
-  assert(hldvars->spriteTable->size == 0xd2b);
+  CheckVar(hldvars->spriteTable);
+  CheckVar(hldvars->spriteTable->elements);
+  CheckVar(hldvars->spriteTable->size == 0xd2b);
 
-  assert(hldvars->objectTableHandle);
-  assert(*hldvars->objectTableHandle);
-  assert((*hldvars->objectTableHandle)->slots);
-  assert((*hldvars->objectTableHandle)->numItems == 0x1fe);
-  assert((*hldvars->objectTableHandle)->keyMask == 0x1ff);
+  CheckVar(hldvars->objectTableHandle);
+  CheckVar(*hldvars->objectTableHandle);
+  CheckVar((*hldvars->objectTableHandle)->slots);
+  CheckVar((*hldvars->objectTableHandle)->numItems == 0x1fe);
+  CheckVar((*hldvars->objectTableHandle)->keyMask == 0x1ff);
 
-  assert(hldvars->instanceTable);
-  assert(hldvars->instanceTable->slots);
+  CheckVar(hldvars->instanceTable);
+  CheckVar(hldvars->instanceTable->slots);
 
-  assert(hldvars->instanceLocalTable);
-  assert(hldvars->instanceLocalTable->elements);
-  assert(hldvars->instanceLocalTable->size == 0xdf4);
+  CheckVar(hldvars->instanceLocalTable);
+  CheckVar(hldvars->instanceLocalTable->elements);
+  CheckVar(hldvars->instanceLocalTable->size == 0xdf4);
 
-  assert(hldvars->alarmEventSubscriberCounts);
-  assert(hldvars->alarmEventSubscribers);
+  CheckVar(hldvars->alarmEventSubscriberCounts);
+  CheckVar(hldvars->alarmEventSubscribers);
 
-  assert(hldvars->stepEventSubscriberCounts);
-  assert(hldvars->stepEventSubscribers);
+  CheckVar(hldvars->stepEventSubscriberCounts);
+  CheckVar(hldvars->stepEventSubscribers);
 
-  assert(hldvars->eventClass);
-  assert(hldvars->eventWrapperClass);
-  assert(hldvars->unknownEventAddress);
+  CheckVar(hldvars->eventClass);
+  CheckVar(hldvars->eventWrapperClass);
+  CheckVar(hldvars->unknownEventAddress);
 
   return;
 }

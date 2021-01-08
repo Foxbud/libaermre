@@ -596,7 +596,7 @@ typedef enum AERObjectIndex {
  *
  * @since 1.0.0
  *
- * @sa AERModDef::regObjects
+ * @sa AERModDef::registerObjects
  */
 int32_t AERObjectRegister(const char *name, int32_t parentIdx,
                           int32_t spriteIdx, int32_t maskIdx, int32_t depth,
@@ -688,7 +688,7 @@ void AERObjectSetCollisions(int32_t objIdx, bool collisions);
  *
  * @since 1.0.0
  *
- * @sa AERModDef::regObjListeners
+ * @sa AERModDef::registerObjectListeners
  * @sa AERInstanceCreate
  */
 void AERObjectAttachCreateListener(int32_t objIdx,
@@ -715,7 +715,7 @@ void AERObjectAttachCreateListener(int32_t objIdx,
  *
  * @since 1.0.0
  *
- * @sa AERModDef::regObjListeners
+ * @sa AERModDef::registerObjectListeners
  * @sa AERInstanceDestroy
  * @sa AERInstanceDelete
  */
@@ -743,7 +743,7 @@ void AERObjectAttachDestroyListener(int32_t objIdx,
  *
  * @since 1.0.0
  *
- * @sa AERModDef::regObjListeners
+ * @sa AERModDef::registerObjectListeners
  * @sa AERInstanceGetAlarm
  * @sa AERInstanceSetAlarm
  */
@@ -768,7 +768,7 @@ void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
  *
  * @since 1.0.0
  *
- * @sa AERModDef::regObjListeners
+ * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachStepListener(int32_t objIdx,
                                  bool (*listener)(AEREventTrapIter *ctx,
@@ -793,7 +793,7 @@ void AERObjectAttachStepListener(int32_t objIdx,
  *
  * @since 1.0.0
  *
- * @sa AERModDef::regObjListeners
+ * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachPreStepListener(int32_t objIdx,
                                     bool (*listener)(AEREventTrapIter *ctx,
@@ -816,7 +816,7 @@ void AERObjectAttachPreStepListener(int32_t objIdx,
  *
  * @since 1.0.0
  *
- * @sa AERModDef::regObjListeners
+ * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachPostStepListener(int32_t objIdx,
                                      bool (*listener)(AEREventTrapIter *ctx,
@@ -844,7 +844,7 @@ void AERObjectAttachPostStepListener(int32_t objIdx,
  *
  * @since 1.0.0
  *
- * @sa AERModDef::regObjListeners
+ * @sa AERModDef::registerObjectListeners
  * @sa AERObjectGetCollisions
  * @sa AERObjectSetCollisions
  */
@@ -869,7 +869,7 @@ void AERObjectAttachCollisionListener(int32_t targetObjIdx, int32_t otherObjIdx,
  *
  * @since 1.0.0
  *
- * @sa AERModDef::regObjListeners
+ * @sa AERModDef::registerObjectListeners
  * @sa AERInstanceGetSpriteFrame
  * @sa AERInstanceSetSpriteFrame
  * @sa AERInstanceGetSpriteSpeed
