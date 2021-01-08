@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,95 +26,62 @@
 #include "internal/modman.h"
 #include "internal/mre.h"
 
-
-
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AER_EXPORT int32_t AERSpriteRegister(
-		const char * name,
-		const char * filename,
-		size_t numFrames,
-		uint32_t origX,
-		uint32_t origY
-) {
-	ErrIf(!name, AER_NULL_ARG, -1);
-	LogInfo(
-			"Registering sprite \"%s\" for mod \"%s\"...",
-			name,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-	ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, AER_SPRITE_NULL);
-	ErrIf(!filename, AER_NULL_ARG, AER_SPRITE_NULL);
+AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
+                                     size_t numFrames, uint32_t origX,
+                                     uint32_t origY) {
+  ErrIf(!name, AER_NULL_ARG, -1);
+  LogInfo("Registering sprite \"%s\" for mod \"%s\"...", name,
+          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+  ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, AER_SPRITE_NULL);
+  ErrIf(!filename, AER_NULL_ARG, AER_SPRITE_NULL);
 
-	int32_t spriteIdx = hldfuncs.actionSpriteAdd(
-			MREGetAbsAssetPath(filename),
-			numFrames,
-			0,
-			0,
-			0,
-			0,
-			origX,
-			origY
-	);
-	HLDSprite * sprite = HLDSpriteLookup(spriteIdx);
-	ErrIf(!sprite, AER_BAD_FILE, AER_SPRITE_NULL);
+  int32_t spriteIdx = hldfuncs.actionSpriteAdd(
+      MREGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
+  HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
+  ErrIf(!sprite, AER_BAD_FILE, AER_SPRITE_NULL);
 
-	/* The engine expects a freeable (dynamically allocated) string for name. */
-	char * tmpName = malloc(strlen(name) + 1);
-	ErrIf(!tmpName, AER_OUT_OF_MEM, AER_SPRITE_NULL);
-	sprite->name = strcpy(tmpName, name);
+  /* The engine expects a freeable (dynamically allocated) string for name. */
+  char *tmpName = malloc(strlen(name) + 1);
+  ErrIf(!tmpName, AER_OUT_OF_MEM, AER_SPRITE_NULL);
+  sprite->name = strcpy(tmpName, name);
 
-	LogInfo("Successfully registered sprite to index %i.", spriteIdx);
+  LogInfo("Successfully registered sprite to index %i.", spriteIdx);
 
-	return spriteIdx;
+  return spriteIdx;
 }
 
-AER_EXPORT void AERSpriteReplace(
-		int32_t spriteIdx,
-		const char * filename,
-		size_t numFrames,
-		uint32_t origX,
-		uint32_t origY
-) {
-	HLDSprite * oldSprite = HLDSpriteLookup(spriteIdx);
-	ErrIf(!oldSprite, AER_FAILED_LOOKUP);
-	LogInfo(
-			"Replacing sprite \"%s\" for mod \"%s\"...",
-			oldSprite->name,
-			(*FoxArrayMPeek(Mod *, &modman.context))->name
-	);
-	ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK);
-	ErrIf(!filename, AER_NULL_ARG);
+AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
+                                 size_t numFrames, uint32_t origX,
+                                 uint32_t origY) {
+  HLDSprite *oldSprite = HLDSpriteLookup(spriteIdx);
+  ErrIf(!oldSprite, AER_FAILED_LOOKUP);
+  LogInfo("Replacing sprite \"%s\" for mod \"%s\"...", oldSprite->name,
+          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+  ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK);
+  ErrIf(!filename, AER_NULL_ARG);
 
-	hldfuncs.actionSpriteReplace(
-			spriteIdx,
-			MREGetAbsAssetPath(filename),
-			numFrames,
-			0,
-			0,
-			0,
-			0,
-			origX,
-			origY
-	);
-	/* TODO Check if replacement was successful. */
+  hldfuncs.actionSpriteReplace(spriteIdx, MREGetAbsAssetPath(filename),
+                               numFrames, 0, 0, 0, 0, origX, origY);
+  /* TODO Check if replacement was successful. */
 
-	LogInfo("Successfully replaced sprite at index %i.", spriteIdx);
+  LogInfo("Successfully replaced sprite at index %i.", spriteIdx);
 
-	return;
+  return;
 }
 
 AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
-	return hldvars.spriteTable->size;
+  return hldvars.spriteTable->size;
 }
 
-AER_EXPORT const char * AERSpriteGetName(int32_t spriteIdx) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+AER_EXPORT const char *AERSpriteGetName(int32_t spriteIdx) {
+  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-	HLDSprite * sprite = HLDSpriteLookup(spriteIdx);
-	ErrIf(!sprite, AER_FAILED_LOOKUP, NULL);
+  HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
+  ErrIf(!sprite, AER_FAILED_LOOKUP, NULL);
 
-	return sprite->name;
+  return sprite->name;
 }

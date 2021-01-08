@@ -5,7 +5,7 @@
  *
  * @since 1.0.0
  *
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@
 #ifndef AER_ERR_H
 #define AER_ERR_H
 
-
-
 /* ----- PUBLIC TYPES ----- */
 
 /**
@@ -32,20 +30,18 @@
  * @since 1.0.0
  */
 typedef enum AERErrCode {
-	AER_OK, /**< Function did not report an error. */
-	AER_NULL_ARG, /**< Function received `NULL` pointer argument. */
-	AER_SEQ_BREAK, /**< Function called at incorrect stage of runtime
-									 execution. */
-	AER_OUT_OF_MEM, /**< Function unable to allocate necessary memory required
-										for proper execution. */
-	AER_FAILED_LOOKUP, /**< Function called with an invalid index, ID or key. */
-	AER_FAILED_PARSE, /**< Function unable to parse resource. */
-	AER_BAD_FILE, /**< Function unable to read file. */
-	AER_BAD_VAL /**< Function encountered an invalid value or combination
-								of values. */
+  AER_OK,         /**< Function did not report an error. */
+  AER_NULL_ARG,   /**< Function received `NULL` pointer argument. */
+  AER_SEQ_BREAK,  /**< Function called at incorrect stage of runtime execution.
+                   */
+  AER_OUT_OF_MEM, /**< Function unable to allocate necessary memory required for
+                     proper execution. */
+  AER_FAILED_LOOKUP, /**< Function called with an invalid index, ID or key. */
+  AER_FAILED_PARSE,  /**< Function unable to parse resource. */
+  AER_BAD_FILE,      /**< Function unable to read file. */
+  AER_BAD_VAL /**< Function encountered an invalid value or combination of
+                 values. */
 } AERErrCode;
-
-
 
 /* ----- PUBLIC GLOBALS ----- */
 
@@ -58,7 +54,5 @@ typedef enum AERErrCode {
  * @since 1.0.0
  */
 extern AERErrCode aererr;
-
-
 
 #endif /* AER_ERR_H */

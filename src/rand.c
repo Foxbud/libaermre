@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,72 +23,62 @@
 #include "internal/export.h"
 #include "internal/rand.h"
 
-
-
 /* ----- PRIVATE GLOBALS ----- */
 
 static FoxXoshiro256SS randPRNG = {0};
 
-
-
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void RandConstructor(void) {
-	FoxXoshiro256SSInit(&randPRNG, time(NULL));
+  FoxXoshiro256SSInit(&randPRNG, time(NULL));
 
-	return;
+  return;
 }
 
 void RandDestructor(void) {
-	FoxXoshiro256SSDeinit(&randPRNG);
+  FoxXoshiro256SSDeinit(&randPRNG);
 
-	return;
+  return;
 }
-
-
 
 /* ------ PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT uint64_t AERRandUInt(void) {
-	return FoxRandUInt((FoxPRNG *)&randPRNG);
+  return FoxRandUInt((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT uint64_t AERRandUIntRange(uint64_t min, uint64_t max) {
-	ErrIf(min >= max, AER_BAD_VAL, 0);
+  ErrIf(min >= max, AER_BAD_VAL, 0);
 
-	return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
+  return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
-AER_EXPORT int64_t AERRandInt(void) {
-	return FoxRandInt((FoxPRNG *)&randPRNG);
-}
+AER_EXPORT int64_t AERRandInt(void) { return FoxRandInt((FoxPRNG *)&randPRNG); }
 
 AER_EXPORT int64_t AERRandIntRange(int64_t min, int64_t max) {
-	ErrIf(min >= max, AER_BAD_VAL, 0);
+  ErrIf(min >= max, AER_BAD_VAL, 0);
 
-	return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
+  return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT float AERRandFloat(void) {
-	return FoxRandFloat((FoxPRNG *)&randPRNG);
+  return FoxRandFloat((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT float AERRandFloatRange(float min, float max) {
-	ErrIf(min >= max, AER_BAD_VAL, 0.0f);
+  ErrIf(min >= max, AER_BAD_VAL, 0.0f);
 
-	return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
+  return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT double AERRandDouble(void) {
-	return FoxRandDouble((FoxPRNG *)&randPRNG);
+  return FoxRandDouble((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT double AERRandDoubleRange(double min, double max) {
-	ErrIf(min >= max, AER_BAD_VAL, 0.0);
+  ErrIf(min >= max, AER_BAD_VAL, 0.0);
 
-	return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
+  return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
 }
 
-AER_EXPORT bool AERRandBool(void) {
-	return FoxRandBool((FoxPRNG *)&randPRNG);
-}
+AER_EXPORT bool AERRandBool(void) { return FoxRandBool((FoxPRNG *)&randPRNG); }

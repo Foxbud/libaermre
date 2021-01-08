@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,58 +22,35 @@
 #include "internal/hld.h"
 #include "internal/modman.h"
 
-
-
 /* ----- INTERNAL TYPES ----- */
 
 typedef struct EventTrap {
-	FoxArray modListeners;
-	void (* origListener)(
-			HLDInstance * target,
-			HLDInstance * other
-	);
-	HLDEventType eventType;
+  FoxArray modListeners;
+  void (*origListener)(HLDInstance *target, HLDInstance *other);
+  HLDEventType eventType;
 } EventTrap;
 
 typedef struct EventTrapIter {
-	AEREventTrapIter base;
-	EventTrap * trap;
-	uint32_t nextIdx;
+  AEREventTrapIter base;
+  EventTrap *trap;
+  uint32_t nextIdx;
 } EventTrapIter;
-
-
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void EventTrapInit(
-		EventTrap * trap,
-		HLDEventType eventType,
-		void (* origListener)(
-			HLDInstance * target,
-			HLDInstance * other
-		)
-);
+void EventTrapInit(EventTrap *trap, HLDEventType eventType,
+                   void (*origListener)(HLDInstance *target,
+                                        HLDInstance *other));
 
-void EventTrapDeinit(EventTrap * trap);
+void EventTrapDeinit(EventTrap *trap);
 
-void EventTrapAddListener(
-		EventTrap * trap,
-		ModListener listener
-);
+void EventTrapAddListener(EventTrap *trap, ModListener listener);
 
-void EventTrapIterInit(
-		EventTrapIter * iter,
-		EventTrap * trap
-);
+void EventTrapIterInit(EventTrapIter *iter, EventTrap *trap);
 
-void EventTrapIterDeinit(EventTrapIter * iter);
+void EventTrapIterDeinit(EventTrapIter *iter);
 
-bool EventTrapIterNext(
-		EventTrapIter * iter,
-		HLDInstance * target,
-		HLDInstance * other
-);
-
-
+bool EventTrapIterNext(EventTrapIter *iter, HLDInstance *target,
+                       HLDInstance *other);
 
 #endif /* INTERNAL_EVENTTRAP_H */

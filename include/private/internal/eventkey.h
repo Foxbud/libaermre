@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,18 @@
 
 #include "internal/hld.h"
 
-
-
 /* ----- INTERNAL TYPES ----- */
 
 typedef struct EventKey {
-	HLDEventType type;
-	int32_t num;
-	int32_t objIdx;
+  HLDEventType type;
+  int32_t num;
+  int32_t objIdx;
 } EventKey;
-
-
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-uint32_t EventKeyHash(const EventKey * key);
+uint32_t EventKeyHash(const EventKey *key);
 
-int32_t EventKeyCompare(const EventKey * keyA, const EventKey * keyB);
-
-
+int32_t EventKeyCompare(const EventKey *keyA, const EventKey *keyB);
 
 #endif /* INTERNAL_EVENTKEY_H */

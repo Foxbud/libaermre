@@ -3,7 +3,7 @@
  *
  * @brief Utilities for querying and manipulating game instances.
  *
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-
-
 /* ----- PUBLIC TYPES ----- */
 
 /**
@@ -36,8 +34,6 @@
  * @sa object.h
  */
 typedef void AERInstance;
-
-
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
@@ -63,10 +59,7 @@ typedef void AERInstance;
  *
  * @since 1.0.0
  */
-size_t AERInstanceGetAll(
-		size_t bufSize,
-		AERInstance ** instBuf
-);
+size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf);
 
 /**
  * @brief Query all instances of an object in the current room.
@@ -94,11 +87,8 @@ size_t AERInstanceGetAll(
  *
  * @since 1.0.0
  */
-size_t AERInstanceGetByObject(
-		int32_t objIdx,
-		size_t bufSize,
-		AERInstance ** instBuf
-);
+size_t AERInstanceGetByObject(int32_t objIdx, size_t bufSize,
+                              AERInstance **instBuf);
 
 /**
  * @brief Query the instance with a specific ID in the current room.
@@ -114,7 +104,7 @@ size_t AERInstanceGetByObject(
  *
  * @sa AERInstanceGetId
  */
-AERInstance * AERInstanceGetById(int32_t instId);
+AERInstance *AERInstanceGetById(int32_t instId);
 
 /**
  * @brief Create an instance of an object.
@@ -133,11 +123,7 @@ AERInstance * AERInstanceGetById(int32_t instId);
  *
  * @sa AERObjectAttachCreateListener
  */
-AERInstance * AERInstanceCreate(
-		int32_t objIdx,
-		float x,
-		float y
-);
+AERInstance *AERInstanceCreate(int32_t objIdx, float x, float y);
 
 /**
  * @brief Convert an instance of one object into an instance of another
@@ -165,11 +151,7 @@ AERInstance * AERInstanceCreate(
  * @sa AERObjectAttachCreateListener
  * @sa AERObjectAttachDestroyListener
  */
-void AERInstanceChange(
-		AERInstance * inst,
-		int32_t newObjIdx,
-		bool doEvents
-);
+void AERInstanceChange(AERInstance *inst, int32_t newObjIdx, bool doEvents);
 
 /**
  * @brief Destroy an instance and call its destroy event.
@@ -184,7 +166,7 @@ void AERInstanceChange(
  * @sa AERInstanceDelete
  * @sa AERObjectAttachDestroyListener
  */
-void AERInstanceDestroy(AERInstance * inst);
+void AERInstanceDestroy(AERInstance *inst);
 
 /**
  * @brief Destroy an instance but do **not** call its destroy event.
@@ -199,7 +181,7 @@ void AERInstanceDestroy(AERInstance * inst);
  * @sa AERInstanceDestroy
  * @sa AERObjectAttachDestroyListener
  */
-void AERInstanceDelete(AERInstance * inst);
+void AERInstanceDelete(AERInstance *inst);
 
 /**
  * @brief Query the render depth of an instance.
@@ -213,7 +195,7 @@ void AERInstanceDelete(AERInstance * inst);
  *
  * @since 1.0.0
  */
-float AERInstanceGetDepth(AERInstance * inst);
+float AERInstanceGetDepth(AERInstance *inst);
 
 /**
  * @brief Set the render depth of an instance.
@@ -226,7 +208,7 @@ float AERInstanceGetDepth(AERInstance * inst);
  *
  * @since 1.0.0
  */
-void AERInstanceSetDepth(AERInstance * inst, float depth);
+void AERInstanceSetDepth(AERInstance *inst, float depth);
 
 /**
  * @brief Set the render depth of an instance based on its position in the
@@ -239,7 +221,7 @@ void AERInstanceSetDepth(AERInstance * inst, float depth);
  *
  * @since 1.0.0
  */
-void AERInstanceSyncDepth(AERInstance * inst);
+void AERInstanceSyncDepth(AERInstance *inst);
 
 /**
  * @brief Query the ID of an instance.
@@ -259,7 +241,7 @@ void AERInstanceSyncDepth(AERInstance * inst);
  *
  * @sa AERInstanceGetById
  */
-int32_t AERInstanceGetId(AERInstance * inst);
+int32_t AERInstanceGetId(AERInstance *inst);
 
 /**
  * @brief Query the object of an instance.
@@ -273,7 +255,7 @@ int32_t AERInstanceGetId(AERInstance * inst);
  *
  * @since 1.0.0
  */
-int32_t AERInstanceGetObject(AERInstance * inst);
+int32_t AERInstanceGetObject(AERInstance *inst);
 
 /**
  * @brief Query the position of an instance in the current room.
@@ -291,11 +273,7 @@ int32_t AERInstanceGetObject(AERInstance * inst);
  *
  * @since 1.0.0
  */
-void AERInstanceGetPosition(
-		AERInstance * inst,
-		float * x,
-		float * y
-);
+void AERInstanceGetPosition(AERInstance *inst, float *x, float *y);
 
 /**
  * @brief Set the position of an instance in the current room.
@@ -309,11 +287,7 @@ void AERInstanceGetPosition(
  *
  * @since 1.0.0
  */
-void AERInstanceSetPosition(
-		AERInstance * inst,
-		float x,
-		float y
-);
+void AERInstanceSetPosition(AERInstance *inst, float x, float y);
 
 /**
  * @brief Query the axis-aligned bounding box of an instance.
@@ -336,13 +310,8 @@ void AERInstanceSetPosition(
  *
  * @since 1.0.0
  */
-void AERInstanceGetBoundingBox(
-		AERInstance * inst,
-		float * left,
-		float * top,
-		float * right,
-		float * bottom
-);
+void AERInstanceGetBoundingBox(AERInstance *inst, float *left, float *top,
+                               float *right, float *bottom);
 
 /**
  * @brief Query the friction of an instance.
@@ -360,7 +329,7 @@ void AERInstanceGetBoundingBox(
  *
  * @since 1.0.0
  */
-float AERInstanceGetFriction(AERInstance * inst);
+float AERInstanceGetFriction(AERInstance *inst);
 
 /**
  * @brief Set the friction of an instance.
@@ -375,10 +344,7 @@ float AERInstanceGetFriction(AERInstance * inst);
  *
  * @since 1.0.0
  */
-void AERInstanceSetFriction(
-		AERInstance * inst,
-		float friction
-);
+void AERInstanceSetFriction(AERInstance *inst, float friction);
 
 /**
  * @brief Query the motion of an instance.
@@ -396,11 +362,7 @@ void AERInstanceSetFriction(
  *
  * @since 1.0.0
  */
-void AERInstanceGetMotion(
-		AERInstance * inst,
-		float * x,
-		float * y
-);
+void AERInstanceGetMotion(AERInstance *inst, float *x, float *y);
 
 /**
  * @brief Set the motion of an instance.
@@ -416,11 +378,7 @@ void AERInstanceGetMotion(
  *
  * @sa AERInstanceAddMotion
  */
-void AERInstanceSetMotion(
-		AERInstance * inst,
-		float x,
-		float y
-);
+void AERInstanceSetMotion(AERInstance *inst, float x, float y);
 
 /**
  * @brief Add to the existing motion of an instance.
@@ -436,11 +394,7 @@ void AERInstanceSetMotion(
  *
  * @sa AERInstanceSetMotion
  */
-void AERInstanceAddMotion(
-		AERInstance * inst,
-		float x,
-		float y
-);
+void AERInstanceAddMotion(AERInstance *inst, float x, float y);
 
 /**
  * @brief Query the collision mask of an instance.
@@ -454,7 +408,7 @@ void AERInstanceAddMotion(
  *
  * @since 1.0.0
  */
-int32_t AERInstanceGetMask(AERInstance * inst);
+int32_t AERInstanceGetMask(AERInstance *inst);
 
 /**
  * @brief Set the collision mask of an instance.
@@ -471,10 +425,7 @@ int32_t AERInstanceGetMask(AERInstance * inst);
  *
  * @since 1.0.0
  */
-void AERInstanceSetMask(
-		AERInstance * inst,
-		int32_t maskIdx
-);
+void AERInstanceSetMask(AERInstance *inst, int32_t maskIdx);
 
 /**
  * @brief Query the sprite of an instance.
@@ -488,7 +439,7 @@ void AERInstanceSetMask(
  *
  * @since 1.0.0
  */
-int32_t AERInstanceGetSprite(AERInstance * inst);
+int32_t AERInstanceGetSprite(AERInstance *inst);
 
 /**
  * @brief Set the sprite of an instance.
@@ -502,10 +453,7 @@ int32_t AERInstanceGetSprite(AERInstance * inst);
  *
  * @since 1.0.0
  */
-void AERInstanceSetSprite(
-		AERInstance * inst,
-		int32_t spriteIdx
-);
+void AERInstanceSetSprite(AERInstance *inst, int32_t spriteIdx);
 
 /**
  * @brief Query the current frame of sprite animation of an instance.
@@ -530,7 +478,7 @@ void AERInstanceSetSprite(
  *
  * @sa AERObjectAttachAnimationEndListener
  */
-float AERInstanceGetSpriteFrame(AERInstance * inst);
+float AERInstanceGetSpriteFrame(AERInstance *inst);
 
 /**
  * @brief Set the current frame of sprite animation of an instance.
@@ -548,10 +496,7 @@ float AERInstanceGetSpriteFrame(AERInstance * inst);
  *
  * @sa AERObjectAttachAnimationEndListener
  */
-void AERInstanceSetSpriteFrame(
-		AERInstance * inst,
-		float frame
-);
+void AERInstanceSetSpriteFrame(AERInstance *inst, float frame);
 
 /**
  * @brief Query the sprite animation speed of an instance.
@@ -567,7 +512,7 @@ void AERInstanceSetSpriteFrame(
  *
  * @sa AERObjectAttachAnimationEndListener
  */
-float AERInstanceGetSpriteSpeed(AERInstance * inst);
+float AERInstanceGetSpriteSpeed(AERInstance *inst);
 
 /**
  * @brief Set the sprite animation speed of an instance.
@@ -583,10 +528,7 @@ float AERInstanceGetSpriteSpeed(AERInstance * inst);
  *
  * @sa AERObjectAttachAnimationEndListener
  */
-void AERInstanceSetSpriteSpeed(
-		AERInstance * inst,
-		float speed
-);
+void AERInstanceSetSpriteSpeed(AERInstance *inst, float speed);
 
 /**
  * @brief Query the sprite alpha (transparency) of an instance.
@@ -600,7 +542,7 @@ void AERInstanceSetSpriteSpeed(
  *
  * @since 1.0.0
  */
-float AERInstanceGetSpriteAlpha(AERInstance * inst);
+float AERInstanceGetSpriteAlpha(AERInstance *inst);
 
 /**
  * @brief Set the sprite alpha (transparency) of an instance.
@@ -615,10 +557,7 @@ float AERInstanceGetSpriteAlpha(AERInstance * inst);
  *
  * @since 1.0.0
  */
-void AERInstanceSetSpriteAlpha(
-		AERInstance * inst,
-		float alpha
-);
+void AERInstanceSetSpriteAlpha(AERInstance *inst, float alpha);
 
 /**
  * @brief Query the sprite offset angle of an instance.
@@ -632,7 +571,7 @@ void AERInstanceSetSpriteAlpha(
  *
  * @since 1.0.0
  */
-float AERInstanceGetSpriteAngle(AERInstance * inst);
+float AERInstanceGetSpriteAngle(AERInstance *inst);
 
 /**
  * @brief Set the sprite offset angle of an instance.
@@ -645,10 +584,7 @@ float AERInstanceGetSpriteAngle(AERInstance * inst);
  *
  * @since 1.0.0
  */
-void AERInstanceSetSpriteAngle(
-		AERInstance * inst,
-		float angle
-);
+void AERInstanceSetSpriteAngle(AERInstance *inst, float angle);
 
 /**
  * @brief Query the sprite scale of an instance.
@@ -666,11 +602,7 @@ void AERInstanceSetSpriteAngle(
  *
  * @since 1.0.0
  */
-void AERInstanceGetSpriteScale(
-		AERInstance * inst,
-		float * x,
-		float * y
-);
+void AERInstanceGetSpriteScale(AERInstance *inst, float *x, float *y);
 
 /**
  * @brief Set the sprite scale of an instance.
@@ -687,11 +619,7 @@ void AERInstanceGetSpriteScale(
  *
  * @since 1.0.0
  */
-void AERInstanceSetSpriteScale(
-		AERInstance * inst,
-		float x,
-		float y
-);
+void AERInstanceSetSpriteScale(AERInstance *inst, float x, float y);
 
 /**
  * @brief Query the tangibility of an instance.
@@ -711,7 +639,7 @@ void AERInstanceSetSpriteScale(
  *
  * @since 1.0.0
  */
-bool AERInstanceGetTangible(AERInstance * inst);
+bool AERInstanceGetTangible(AERInstance *inst);
 
 /**
  * @brief Set the tangibility of an instance.
@@ -726,10 +654,7 @@ bool AERInstanceGetTangible(AERInstance * inst);
  *
  * @since 1.0.0
  */
-void AERInstanceSetTangible(
-		AERInstance * inst,
-		bool tangible
-);
+void AERInstanceSetTangible(AERInstance *inst, bool tangible);
 
 /**
  * @brief Query the state of an alarm of an instance.
@@ -747,10 +672,7 @@ void AERInstanceSetTangible(
  *
  * @sa AERObjectAttachAlarmListener
  */
-int32_t AERInstanceGetAlarm(
-		AERInstance * inst,
-		uint32_t alarmIdx
-);
+int32_t AERInstanceGetAlarm(AERInstance *inst, uint32_t alarmIdx);
 
 /**
  * @brief Set the state of an alarm of an instance.
@@ -768,11 +690,8 @@ int32_t AERInstanceGetAlarm(
  *
  * @sa AERObjectAttachAlarmListener
  */
-void AERInstanceSetAlarm(
-		AERInstance * inst,
-		uint32_t alarmIdx,
-		int32_t numSteps
-);
+void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
+                         int32_t numSteps);
 
 /**
  * @brief Query the names of all locals of an instance.
@@ -799,11 +718,8 @@ void AERInstanceSetAlarm(
  *
  * @sa AERInstanceGetLocal
  */
-size_t AERInstanceGetLocals(
-		AERInstance * inst,
-		size_t bufSize,
-		const char ** nameBuf
-);
+size_t AERInstanceGetLocals(AERInstance *inst, size_t bufSize,
+                            const char **nameBuf);
 
 /**
  * @brief Get a reference to a specific local of an instance.
@@ -831,11 +747,6 @@ size_t AERInstanceGetLocals(
  *
  * @sa AERInstanceGetLocals
  */
-void * AERInstanceGetLocal(
-		AERInstance * inst,
-		const char * name
-);
-
-
+void *AERInstanceGetLocal(AERInstance *inst, const char *name);
 
 #endif /* AER_INSTANCE_H */

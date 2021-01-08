@@ -5,7 +5,7 @@
  *
  * @since 1.0.0
  *
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@
 #ifndef AER_LOG_H
 #define AER_LOG_H
 
-
-
 /* ----- PUBLIC FUNCTIONS ----- */
 
 /**
@@ -34,7 +32,7 @@
  *
  * @since 1.0.0
  */
-void AERLogInfo(const char * fmt, ...);
+void AERLogInfo(const char *fmt, ...);
 
 /**
  * @brief Log a warning message to the console.
@@ -44,7 +42,7 @@ void AERLogInfo(const char * fmt, ...);
  *
  * @since 1.0.0
  */
-void AERLogWarn(const char * fmt, ...);
+void AERLogWarn(const char *fmt, ...);
 
 /**
  * @brief Log an error message to the console.
@@ -56,8 +54,6 @@ void AERLogWarn(const char * fmt, ...);
  *
  * @since 1.0.0
  */
-void AERLogErr(const char * fmt, ...);
-
-
+void AERLogErr(const char *fmt, ...);
 
 #endif /* AER_LOG_H */

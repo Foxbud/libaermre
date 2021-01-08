@@ -5,7 +5,7 @@
  *
  * @since 1.0.0
  *
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
-
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
@@ -51,7 +49,7 @@ uint32_t AERGetNumSteps(void);
  *
  * @since 1.0.0
  */
-const bool * AERGetKeysPressed(void);
+const bool *AERGetKeysPressed(void);
 
 /**
  * @brief Query the keyboard key(s) that the user has held this step.
@@ -63,7 +61,7 @@ const bool * AERGetKeysPressed(void);
  *
  * @since 1.0.0
  */
-const bool * AERGetKeysHeld(void);
+const bool *AERGetKeysHeld(void);
 
 /**
  * @brief Query the keyboard key(s) that the user just released this step.
@@ -75,7 +73,7 @@ const bool * AERGetKeysHeld(void);
  *
  * @since 1.0.0
  */
-const bool * AERGetKeysReleased(void);
+const bool *AERGetKeysReleased(void);
 
 /**
  * @brief Query the mouse button(s) that the user just pressed this step.
@@ -96,7 +94,7 @@ const bool * AERGetKeysReleased(void);
  *
  * @since 1.0.0
  */
-const bool * AERGetMouseButtonsPressed(void);
+const bool *AERGetMouseButtonsPressed(void);
 
 /**
  * @brief Query the mouse button(s) that the user had held this step.
@@ -109,7 +107,7 @@ const bool * AERGetMouseButtonsPressed(void);
  *
  * @since 1.0.0
  */
-const bool * AERGetMouseButtonsHeld(void);
+const bool *AERGetMouseButtonsHeld(void);
 
 /**
  * @brief Query the mouse button(s) that the user just released this step.
@@ -122,7 +120,7 @@ const bool * AERGetMouseButtonsHeld(void);
  *
  * @since 1.0.0
  */
-const bool * AERGetMouseButtonsReleased(void);
+const bool *AERGetMouseButtonsReleased(void);
 
 /**
  * @brief Query the current position of the mouse cursor in pixels.
@@ -141,12 +139,7 @@ const bool * AERGetMouseButtonsReleased(void);
  *
  * @since 1.0.0
  */
-void AERGetMousePosition(
-		uint32_t * x,
-		uint32_t * y
-);
-
-
+void AERGetMousePosition(uint32_t *x, uint32_t *y);
 
 /* ----- DOCUMENTATION PAGES ----- */
 
@@ -156,7 +149,5 @@ void AERGetMousePosition(
  * Welcome to the public API documentation for the Action-Event-Response (AER)
  * Mod Runtime Environment (MRE)!
  */
-
-
 
 #endif /* AER_MRE_H */

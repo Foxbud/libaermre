@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,64 +26,54 @@
 #include "internal/hld.h"
 #include "internal/objtree.h"
 
-
-
 /* ----- INTERNAL TYPES ----- */
 
 /* This struct represents the current state of the mod runtime environment. */
 typedef struct AERMRE {
-	/*
-	 * Index of active room during previous game step. Solely for detecting
-	 * room changes.
-	 */
-	int32_t roomIndexPrevious;
-	/* Inheritance tree of all objects (including mod-registered). */
-	ObjTree * objTree;
-	/* Hash table mapping instance local names to indicies. */
-	FoxMap * instLocals;
-	/*
-	 * Hash table of all events that have been entrapped during the mod
-	 * event listener registration stage.
-	 */
-	FoxMap * eventTraps;
-	/* Key of currently active event. */
-	EventKey currentEvent;
-	/* 
-	 * Because C lacks enclosures, all entrapped events point to this common
-	 * event handler which then looks up and executes the trap for the
-	 * current event.
-	 */
-	HLDNamedFunction eventHandler;
-	/* Internal record of all subscriptions to subscribable events. */
-	FoxMap * eventSubscribers;
-	/* Current stage of the MRE. */
-	enum {
-		STAGE_INIT,
-		STAGE_SPRITE_REG,
-		STAGE_OBJECT_REG,
-		STAGE_LISTENER_REG,
-		STAGE_ACTION
-	} stage;
+  /*
+   * Index of active room during previous game step. Solely for detecting
+   * room changes.
+   */
+  int32_t roomIndexPrevious;
+  /* Inheritance tree of all objects (including mod-registered). */
+  ObjTree *objTree;
+  /* Hash table mapping instance local names to indicies. */
+  FoxMap *instLocals;
+  /*
+   * Hash table of all events that have been entrapped during the mod
+   * event listener registration stage.
+   */
+  FoxMap *eventTraps;
+  /* Key of currently active event. */
+  EventKey currentEvent;
+  /*
+   * Because C lacks enclosures, all entrapped events point to this common
+   * event handler which then looks up and executes the trap for the
+   * current event.
+   */
+  HLDNamedFunction eventHandler;
+  /* Internal record of all subscriptions to subscribable events. */
+  FoxMap *eventSubscribers;
+  /* Current stage of the MRE. */
+  enum {
+    STAGE_INIT,
+    STAGE_SPRITE_REG,
+    STAGE_OBJECT_REG,
+    STAGE_LISTENER_REG,
+    STAGE_ACTION
+  } stage;
 } AERMRE;
-
-
 
 /* ----- INTERNAL GLOBALS ----- */
 
 extern AERMRE mre;
 
-
-
 /* ----- INTERNAL FUNCTIONS ----- */
 
-const char * MREGetAbsAssetPath(const char * relAssetPath);
+const char *MREGetAbsAssetPath(const char *relAssetPath);
 
-void MRERegisterEventListener(
-		HLDObject * obj,
-		EventKey key,
-		bool (* listener)(AEREventTrapIter *, AERInstance *, AERInstance *)
-);
-
-
+void MRERegisterEventListener(HLDObject *obj, EventKey key,
+                              bool (*listener)(AEREventTrapIter *,
+                                               AERInstance *, AERInstance *));
 
 #endif /* INTERNAL_MRE_H */

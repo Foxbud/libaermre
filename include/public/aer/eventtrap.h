@@ -5,7 +5,7 @@
  *
  * @since 1.0.0
  *
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@
 
 #include "aer/instance.h"
 
-
-
 /* ----- PUBLIC TYPES ----- */
 
 /**
@@ -36,11 +34,8 @@
  * @since 1.0.0
  */
 typedef struct AEREventTrapIter {
-	bool (* next)(
-			struct AEREventTrapIter * event,
-			AERInstance * target,
-			AERInstance * other
-	);
+  bool (*next)(struct AEREventTrapIter *event, AERInstance *target,
+               AERInstance *other);
 } AEREventTrapIter;
 
 /**
@@ -58,7 +53,5 @@ typedef struct AEREventTrapIter {
  *
  * @memberof AEREventTrapIter
  */
-
-
 
 #endif /* AER_EVENTTRAP_H */

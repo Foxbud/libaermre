@@ -16,7 +16,7 @@
  *
  * @since 1.0.0
  *
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,6 @@
 
 #include <stdint.h>
 
-
-
 /* ----- PUBLIC TYPES ----- */
 
 /**
@@ -45,16 +43,16 @@
  * @since 1.0.0
  */
 typedef struct AERModDef {
-	/* Mod library management callbacks. */
-	void (* constructor)(void);
-	void (* destructor)(void);
-	/* Registration callbacks. */
-	void (* regSprites)(void);
-	void (* regObjects)(void);
-	void (* regObjListeners)(void);
-	/* Pseudoevent listeners. */
-	void (* roomStepListener)(void);
-	void (* roomChangeListener)(int32_t newRoomIdx, int32_t prevRoomIdx);
+  /* Mod library management callbacks. */
+  void (*constructor)(void);
+  void (*destructor)(void);
+  /* Registration callbacks. */
+  void (*regSprites)(void);
+  void (*regObjects)(void);
+  void (*regObjListeners)(void);
+  /* Pseudoevent listeners. */
+  void (*roomStepListener)(void);
+  void (*roomChangeListener)(int32_t newRoomIdx, int32_t prevRoomIdx);
 } AERModDef;
 
 /**
@@ -176,7 +174,5 @@ typedef struct AERModDef {
  *
  * @memberof AERModDef
  */
-
-
 
 #endif /* AER_MODMAN_H */

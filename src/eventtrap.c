@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,100 +23,79 @@
 
 #include "internal/eventtrap.h"
 
-
-
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void EventTrapInit(
-		EventTrap * trap,
-		HLDEventType eventType,
-		void (* origListener)(HLDInstance *, HLDInstance *)
-) {
-	assert(trap);
-	assert(origListener);
+void EventTrapInit(EventTrap *trap, HLDEventType eventType,
+                   void (*origListener)(HLDInstance *, HLDInstance *)) {
+  assert(trap);
+  assert(origListener);
 
-	trap->eventType = eventType;
-	trap->origListener = origListener;
-	FoxArrayMInitExt(ModListener, &trap->modListeners, 2);
+  trap->eventType = eventType;
+  trap->origListener = origListener;
+  FoxArrayMInitExt(ModListener, &trap->modListeners, 2);
 
-	return;
+  return;
 }
 
-void EventTrapDeinit(EventTrap * trap) {
-	assert(trap);
+void EventTrapDeinit(EventTrap *trap) {
+  assert(trap);
 
-	trap->eventType = 0;
-	trap->origListener = NULL;
-	FoxArrayMDeinit(ModListener, &trap->modListeners);
+  trap->eventType = 0;
+  trap->origListener = NULL;
+  FoxArrayMDeinit(ModListener, &trap->modListeners);
 
-	return;
+  return;
 }
 
-void EventTrapAddListener(
-		EventTrap * trap,
-		ModListener listener
-) {
-	assert(trap);
+void EventTrapAddListener(EventTrap *trap, ModListener listener) {
+  assert(trap);
 
-	*FoxArrayMPush(ModListener, &trap->modListeners) = listener;
+  *FoxArrayMPush(ModListener, &trap->modListeners) = listener;
 
-	return;
+  return;
 }
 
-void EventTrapIterInit(
-		EventTrapIter * iter,
-		EventTrap * trap
-) {
-	assert(iter);
-	assert(trap);
+void EventTrapIterInit(EventTrapIter *iter, EventTrap *trap) {
+  assert(iter);
+  assert(trap);
 
-	iter->base.next = (
-			(bool (*)(AEREventTrapIter *, AERInstance *, AERInstance *))
-			EventTrapIterNext
-	);
-	iter->trap = trap;
-	iter->nextIdx = 0;
+  iter->base.next = ((bool (*)(AEREventTrapIter *, AERInstance *,
+                               AERInstance *))EventTrapIterNext);
+  iter->trap = trap;
+  iter->nextIdx = 0;
 
-	return;
+  return;
 }
 
-void EventTrapIterDeinit(EventTrapIter * iter) {
-	assert(iter);
+void EventTrapIterDeinit(EventTrapIter *iter) {
+  assert(iter);
 
-	iter->base.next = NULL;
-	iter->trap = NULL;
-	iter->nextIdx = 0;
+  iter->base.next = NULL;
+  iter->trap = NULL;
+  iter->nextIdx = 0;
 
-	return;
+  return;
 }
 
-bool EventTrapIterNext(
-		EventTrapIter * iter,
-		HLDInstance * target,
-		HLDInstance * other
-) {
-	assert(iter);
-	assert(target);
-	assert(other);
-	bool result = true;
+bool EventTrapIterNext(EventTrapIter *iter, HLDInstance *target,
+                       HLDInstance *other) {
+  assert(iter);
+  assert(target);
+  assert(other);
+  bool result = true;
 
-	EventTrap * trap = iter->trap;
-	FoxArray * modListeners = &trap->modListeners;
-	if (iter->nextIdx < FoxArrayMSize(ModListener, modListeners)) {
-		ModListener * listener = FoxArrayMIndex(
-				ModListener,
-				modListeners,
-				iter->nextIdx++
-		);
-		*FoxArrayMPush(Mod *, &modman.context) = listener->mod;
-		result = (
-				(bool (*)(EventTrapIter *, HLDInstance *, HLDInstance *))
-				listener->func
-		)(iter,target,other);
-		FoxArrayMPop(Mod *, &modman.context);
-	} else {
-		trap->origListener(target, other);
-	}
+  EventTrap *trap = iter->trap;
+  FoxArray *modListeners = &trap->modListeners;
+  if (iter->nextIdx < FoxArrayMSize(ModListener, modListeners)) {
+    ModListener *listener =
+        FoxArrayMIndex(ModListener, modListeners, iter->nextIdx++);
+    *FoxArrayMPush(Mod *, &modman.context) = listener->mod;
+    result = ((bool (*)(EventTrapIter *, HLDInstance *,
+                        HLDInstance *))listener->func)(iter, target, other);
+    FoxArrayMPop(Mod *, &modman.context);
+  } else {
+    trap->origListener(target, other);
+  }
 
-	return result;
+  return result;
 }

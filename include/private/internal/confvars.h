@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,16 @@
 
 #include <stddef.h>
 
-
-
 /* ----- INTERNAL GLOBALS ----- */
 
 extern size_t confNumModNames;
 
-extern const char ** confModNames;
-
-
+extern const char **confModNames;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void ConfVarsConstructor(void);
 
 void ConfVarsDestructor(void);
-
-
 
 #endif /* INTERNAL_CONFVARS_H */

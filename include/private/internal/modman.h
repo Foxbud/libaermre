@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,46 +20,38 @@
 
 #include "internal/hld.h"
 
-
-
 /* ----- INTERNAL TYPES ----- */
 
 typedef struct Mod {
-	void * libHandle;
-	const char * name;
-	void (* constructor)(void);
-	void (* destructor)(void);
-	void (* regSprites)(void);
-	void (* regObjects)(void);
-	void (* regObjListeners)(void);
+  void *libHandle;
+  const char *name;
+  void (*constructor)(void);
+  void (*destructor)(void);
+  void (*regSprites)(void);
+  void (*regObjects)(void);
+  void (*regObjListeners)(void);
 } Mod;
 
 typedef struct ModListener {
-	void (* func)(void);
-	Mod * mod;
+  void (*func)(void);
+  Mod *mod;
 } ModListener;
 
 typedef struct ModMan {
-	FoxArray mods;
-	FoxArray context;
-	FoxArray roomStepListeners;
-	FoxArray roomChangeListeners;
+  FoxArray mods;
+  FoxArray context;
+  FoxArray roomStepListeners;
+  FoxArray roomChangeListeners;
 } ModMan;
-
-
 
 /* ----- INTERNAL GLOBALS ----- */
 
 extern ModMan modman;
-
-
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void ModManConstructor(void);
 
 void ModManDestructor(void);
-
-
 
 #endif /* INTERNAL_MODMAN_H */

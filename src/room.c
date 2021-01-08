@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,19 @@
 #include "internal/hld.h"
 #include "internal/mre.h"
 
-
-
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT int32_t AERRoomGetCurrent(void) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, AER_ROOM_NULL);
+  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, AER_ROOM_NULL);
 
-	return *hldvars.roomIndexCurrent;
+  return *hldvars.roomIndexCurrent;
 }
 
 AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
-	ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
-	ErrIf(!HLDRoomLookup(roomIdx), AER_FAILED_LOOKUP);
+  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+  ErrIf(!HLDRoomLookup(roomIdx), AER_FAILED_LOOKUP);
 
-	hldfuncs.actionRoomGoto(roomIdx, 0);
+  hldfuncs.actionRoomGoto(roomIdx, 0);
 
-	return;
+  return;
 }

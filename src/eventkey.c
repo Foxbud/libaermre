@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 the libaermre authors
+ * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,15 @@
 
 #include "internal/eventkey.h"
 
-
-
 /* ----- INTERNAL FUNCTIONS ----- */
 
-uint32_t EventKeyHash(const EventKey * key) {
-	uint32_t mem[] = {
-		key->type,
-		key->num,
-		key->objIdx
-	};
+uint32_t EventKeyHash(const EventKey *key) {
+  uint32_t mem[] = {key->type, key->num, key->objIdx};
 
-	return FoxHashMem(mem, sizeof(mem));
+  return FoxHashMem(mem, sizeof(mem));
 }
 
-int32_t EventKeyCompare(const EventKey * keyA, const EventKey * keyB) {
-	return !(
-			keyA->type == keyB->type
-			&& keyA->num == keyB->num
-			&& keyA->objIdx == keyB->objIdx
-	);
+int32_t EventKeyCompare(const EventKey *keyA, const EventKey *keyB) {
+  return !(keyA->type == keyB->type && keyA->num == keyB->num &&
+           keyA->objIdx == keyB->objIdx);
 }

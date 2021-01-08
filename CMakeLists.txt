@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-# Copyright 2020 the libaermre authors
+# Copyright 2021 the libaermre authors
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ project(AERMRE
 
 # Set cmake defaults.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	set(CMAKE_INSTALL_PREFIX "libaermre-${CMAKE_PROJECT_VERSION}"
 		CACHE PATH "..." FORCE)
