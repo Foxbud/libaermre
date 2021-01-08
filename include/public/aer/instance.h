@@ -248,7 +248,7 @@ int32_t AERInstanceGetId(AERInstance *inst);
  *
  * @param[in] inst Instance of interest.
  *
- * @return Object index or @ref ::AER_OBJECT_NULL if unsuccessful.
+ * @return Object index or ::AER_OBJECT_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -401,7 +401,7 @@ void AERInstanceAddMotion(AERInstance *inst, float x, float y);
  *
  * @param[in] inst Instance of interest.
  *
- * @return Collision mask index or @ref ::AER_SPRITE_NULL if unsuccessful.
+ * @return Collision mask index or ::AER_SPRITE_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -414,7 +414,7 @@ int32_t AERInstanceGetMask(AERInstance *inst);
  * @brief Set the collision mask of an instance.
  *
  * By default, an instance will use its sprite as its collision mask.
- * In this case, the instance's mask should be set to @ref ::AER_SPRITE_NULL.
+ * In this case, the instance's mask should be set to ::AER_SPRITE_NULL.
  *
  * @param[in] inst Instance of interest.
  * @param[in] maskIdx Collision mask index.
@@ -432,7 +432,7 @@ void AERInstanceSetMask(AERInstance *inst, int32_t maskIdx);
  *
  * @param[in] inst Instance of interest.
  *
- * @return Sprite index or @ref ::AER_SPRITE_NULL if unsuccessful.
+ * @return Sprite index or ::AER_SPRITE_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.

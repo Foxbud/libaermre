@@ -41,8 +41,11 @@
  * @since 1.0.0
  */
 typedef enum AERObjectIndex {
-  AER_OBJECT_NULL = -1, /**< Flag which represents either no object or an
-                           invalid object depending on context. */
+  /**
+   * @brief Flag which represents either no object or an invalid object
+   * depending on context.
+   */
+  AER_OBJECT_NULL = -1,
   AER_OBJECT_MASTERCLASS = 0x0,
   AER_OBJECT_DOORSTOVISIT = 0x1,
   AER_OBJECT_PAUSEDELAYOBJ = 0x2,
@@ -72,9 +75,11 @@ typedef enum AERObjectIndex {
   AER_OBJECT_MUSIC = 0x1a,
   AER_OBJECT_OBJWINDOW = 0x1b,
   AER_OBJECT_PARTICLE = 0x1c,
-  AER_OBJECT_PATHFINDOBSTACLE =
-      0x1d, /**< All "solid" objects must either directly or indirectly inherit
-               from this object. */
+  /**
+   * @brief All "solid" objects must either directly or indirectly inherit from
+   * this object.
+   */
+  AER_OBJECT_PATHFINDOBSTACLE = 0x1d,
   AER_OBJECT_PROJECTILEBLOCKCOLLIDER = 0x1e,
   AER_OBJECT_SCENERY = 0x1f,
   AER_OBJECT_SCREEN = 0x20,
@@ -152,8 +157,10 @@ typedef enum AERObjectIndex {
   AER_OBJECT_HALSPAWNER = 0x68,
   AER_OBJECT_MIDDOOR = 0x69,
   AER_OBJECT_PUDDLE = 0x6a,
-  AER_OBJECT_DESTRUCTABLE =
-      0x6b, /**< Objects that release energy when destroyed. */
+  /**
+   * @brief Objects that release energy when destroyed.
+   */
+  AER_OBJECT_DESTRUCTABLE = 0x6b,
   AER_OBJECT_PHASECRYSTALMAKER = 0x6c,
   AER_OBJECT_CRYSTALDESTRUCTABLE = 0x6d,
   AER_OBJECT_MULTIHITCRYSTAL = 0x6e,
@@ -469,10 +476,15 @@ typedef enum AERObjectIndex {
   AER_OBJECT_DRAWCIRCLE = 0x1a4,
   AER_OBJECT_DRAWOVAL = 0x1a5,
   AER_OBJECT_DRAWTEXT = 0x1a6,
-  AER_OBJECT_ATTACKCOL =
-      0x1a7, /**< Hitmask of attack when player swings sword. */
+  /**
+   * @brief Hitmask of attack when player swings sword.
+   */
+  AER_OBJECT_ATTACKCOL = 0x1a7,
   AER_OBJECT_HITCOLLIDER = 0x1a8,
-  AER_OBJECT_CHAR = 0x1a9, /**< Player character. */
+  /**
+   * @brief Player character.
+   */
+  AER_OBJECT_CHAR = 0x1a9,
   AER_OBJECT_DECOY = 0x1aa,
   AER_OBJECT_PHANTOMSLASH = 0x1ab,
   AER_OBJECT_CHARHITMASK = 0x1ac,
@@ -574,7 +586,7 @@ typedef enum AERObjectIndex {
  * instances of this object.
  * @param[in] persistent Default persistence for instances of this object.
  *
- * @return Index of new object or @ref ::AER_OBJECT_NULL if unsuccessful.
+ * @return Index of new object or ::AER_OBJECT_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside object registration stage.
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
@@ -620,7 +632,7 @@ const char *AERObjectGetName(int32_t objIdx);
  *
  * @param[in] objIdx Object of interest.
  *
- * @return Parent object's index or @ref ::AER_OBJECT_NULL if unsuccessful.
+ * @return Parent object's index or ::AER_OBJECT_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.

@@ -33,8 +33,11 @@
  * @since 1.0.0
  */
 typedef enum AERSpriteIndex {
-  AER_SPRITE_NULL = -1, /**< Flag which represents either no sprite or an
-                           invalid sprite depending on context. */
+  /**
+   * @brief Flag which represents either no sprite or an invalid sprite
+   * depending on context.
+   */
+  AER_SPRITE_NULL = -1,
   AER_SPRITE_CRAZYBGCOLORS = 0x0,
   AER_SPRITE_POINT = 0x1,
   AER_SPRITE_PINKBLOCK = 0x2,
@@ -3420,7 +3423,7 @@ typedef enum AERSpriteIndex {
  * @param[in] origX Horizontal origin (center) of sprite.
  * @param[in] origY Vertical origin (center) of sprite.
  *
- * @return Index of new sprite or @ref ::AER_SPRITE_NULL if unsuccessful.
+ * @return Index of new sprite or ::AER_SPRITE_NULL if unsuccessful.
  *
  * @throw ::AER_NULL_ARG if argument `name` or argument `filename` is
  * `NULL`.

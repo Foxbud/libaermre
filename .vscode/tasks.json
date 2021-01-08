@@ -54,6 +54,25 @@
       "problemMatcher": []
     },
     {
+      "label": "Generate Documentation",
+      "type": "shell",
+      "command": "cmake --build build/debug --target docs",
+      "isBackground": true,
+      "dependsOn": [
+        "Generate Debug"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Launch Documentation Server",
+      "type": "shell",
+      "command": "python3 -m http.server --directory build/debug/html",
+      "dependsOn": [
+        "Generate Documentation"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Prepare Launch",
       "dependsOn": [
         "Build Debug",

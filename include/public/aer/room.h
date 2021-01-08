@@ -35,8 +35,11 @@
  * @since 1.0.0
  */
 typedef enum AERRoomIndex {
-  AER_ROOM_NULL = -1, /**< Flag which represents either no room or an invalid
-                         room depending on context. */
+  /**
+   * @brief Flag which represents either no room or an invalid room depending on
+   * context.
+   */
+  AER_ROOM_NULL = -1,
   AER_ROOM__INIT = 0x0,
   AER_ROOM_FOLDER_MENU = 0x1,
   AER_ROOM_AUTOSAVEMESSAGE = 0x2,
