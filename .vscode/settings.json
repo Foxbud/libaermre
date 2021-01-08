@@ -12,5 +12,11 @@
   "editor.tabSize": 2,
   "C_Cpp.clang_format_sortIncludes": true,
   "C_Cpp.default.intelliSenseMode": "gcc-x86",
-  "C_Cpp.loggingLevel": "Warning"
+  "C_Cpp.loggingLevel": "Warning",
+  "cSpell.words": [
+    "aererr",
+    "hldfuncs",
+    "hldvars",
+    "libaermre"
+  ]
 }

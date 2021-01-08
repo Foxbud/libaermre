@@ -23,10 +23,10 @@
 /* ----- INTERNAL MACROS ----- */
 
 #define HLDObjectLookup(objIdx)                                                \
-  ((HLDObject *)HLDOHashTableLookup(*hldvars.objectTableHandle, (objIdx)))
+  ((HLDObject *)HLDOpenHashTableLookup(*hldvars.objectTableHandle, (objIdx)))
 
 #define HLDInstanceLookup(instId)                                              \
-  ((HLDInstance *)HLDOHashTableLookup(hldvars.instanceTable, (instId)))
+  ((HLDInstance *)HLDOpenHashTableLookup(hldvars.instanceTable, (instId)))
 
 /* ----- INTERNAL TYPES ----- */
 
@@ -58,37 +58,37 @@ typedef enum HLDEventOtherType {
   HLD_EVENT_OTHER_ANIMATION_END = 7
 } HLDEventOtherType;
 
-typedef struct HLDOHashItem {
-  struct HLDOHashItem *prev;
-  struct HLDOHashItem *next;
+typedef struct HLDOpenHashItem {
+  struct HLDOpenHashItem *prev;
+  struct HLDOpenHashItem *next;
   int32_t key;
   void *value;
-} HLDOHashItem;
+} HLDOpenHashItem;
 
-typedef struct HLDOHashSlot {
-  struct HLDOHashItem *first;
-  struct HLDOHashItem *last;
-} HLDOHashSlot;
+typedef struct HLDOpenHashSlot {
+  struct HLDOpenHashItem *first;
+  struct HLDOpenHashItem *last;
+} HLDOpenHashSlot;
 
-typedef struct HLDOHashTable {
-  struct HLDOHashSlot *slots;
+typedef struct HLDOpenHashTable {
+  struct HLDOpenHashSlot *slots;
   uint32_t keyMask;
   size_t numItems;
-} HLDOHashTable;
+} HLDOpenHashTable;
 
-typedef struct HLDCHashSlot {
+typedef struct HLDClosedHashSlot {
   int32_t key;
   void *value;
   int32_t keyNext;
-} HLDCHashSlot;
+} HLDClosedHashSlot;
 
-typedef struct HLDCHashTable {
+typedef struct HLDClosedHashTable {
   size_t numSlots;
   size_t numItems;
   uint32_t keyMask;
   uint32_t field_C;
-  struct HLDCHashSlot *slots;
-} HLDCHashTable;
+  struct HLDClosedHashSlot *slots;
+} HLDClosedHashTable;
 
 typedef struct HLDLookupTable {
   size_t size;
@@ -233,7 +233,7 @@ typedef struct HLDInstance {
   uint32_t tangible;
   uint32_t field_2C;
   uint32_t field_30;
-  HLDCHashTable *locals;
+  HLDClosedHashTable *locals;
   uint8_t field_38;
   bool visible;
   bool solid;
@@ -454,9 +454,9 @@ typedef struct __attribute__((packed)) HLDVariables {
   /* Array of all registered sprites. */
   HLDArrayPreSize *spriteTable;
   /* Hash table of all registered objects. */
-  HLDOHashTable **objectTableHandle;
+  HLDOpenHashTable **objectTableHandle;
   /* Hash table of all in-game instances. */
-  HLDOHashTable *instanceTable;
+  HLDOpenHashTable *instanceTable;
   /* Lookup table of all instance local variable names. */
   HLDLookupTable *instanceLocalTable;
   /*
@@ -534,9 +534,9 @@ HLDSprite *HLDSpriteLookup(int32_t spriteIdx);
 
 HLDRoom *HLDRoomLookup(int32_t roomIdx);
 
-void *HLDOHashTableLookup(HLDOHashTable *table, int32_t key);
+void *HLDOpenHashTableLookup(HLDOpenHashTable *table, int32_t key);
 
-void *HLDCHashTableLookup(HLDCHashTable *table, int32_t key);
+void *HLDClosedHashTableLookup(HLDClosedHashTable *table, int32_t key);
 
 HLDEvent *HLDEventNew(HLDNamedFunction *handler);
 

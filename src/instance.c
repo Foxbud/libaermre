@@ -429,8 +429,8 @@ AER_EXPORT size_t AERInstanceGetLocals(AERInstance *inst, size_t bufSize,
   ErrIf(!nameBuf && bufSize > 0, AER_NULL_ARG, 0);
 
   const char **names = hldvars.instanceLocalTable->elements;
-  HLDCHashTable *locals = ((HLDInstance *)inst)->locals;
-  HLDCHashSlot *slots = locals->slots;
+  HLDClosedHashTable *locals = ((HLDInstance *)inst)->locals;
+  HLDClosedHashSlot *slots = locals->slots;
 
   size_t numLocals = locals->numItems;
   size_t numToWrite = FoxMin(numLocals, bufSize);
@@ -439,7 +439,7 @@ AER_EXPORT size_t AERInstanceGetLocals(AERInstance *inst, size_t bufSize,
   for (uint32_t slotIdx = 0; slotIdx < numSlots; slotIdx++) {
     if (bufIdx == numToWrite)
       break;
-    HLDCHashSlot *slot = slots + slotIdx;
+    HLDClosedHashSlot *slot = slots + slotIdx;
     if (slot->keyNext) {
       nameBuf[bufIdx++] = names[slot->key];
     }
@@ -456,7 +456,8 @@ AER_EXPORT void *AERInstanceGetLocal(AERInstance *inst, const char *name) {
   int32_t *localIdx = FoxMapMIndex(const char *, int32_t, mre.instLocals, name);
   ErrIf(!localIdx, AER_FAILED_LOOKUP, NULL);
 
-  void *local = HLDCHashTableLookup(((HLDInstance *)inst)->locals, *localIdx);
+  void *local =
+      HLDClosedHashTableLookup(((HLDInstance *)inst)->locals, *localIdx);
   ErrIf(!local, AER_FAILED_LOOKUP, NULL);
 
   return local;

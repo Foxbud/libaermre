@@ -57,13 +57,13 @@ HLDRoom *HLDRoomLookup(int32_t roomIdx) {
   return result;
 }
 
-void *HLDOHashTableLookup(HLDOHashTable *table, int32_t key) {
+void *HLDOpenHashTableLookup(HLDOpenHashTable *table, int32_t key) {
   assert(table != NULL);
   void *result = NULL;
 
   if (key >= 0) {
     uint32_t idx = key & table->keyMask;
-    HLDOHashItem *item = table->slots[idx].first;
+    HLDOpenHashItem *item = table->slots[idx].first;
     while (item) {
       if (item->key == key) {
         result = item->value;
@@ -77,7 +77,7 @@ void *HLDOHashTableLookup(HLDOHashTable *table, int32_t key) {
   return result;
 }
 
-void *HLDCHashTableLookup(HLDCHashTable *table, int32_t key) {
+void *HLDClosedHashTableLookup(HLDClosedHashTable *table, int32_t key) {
   assert(table != NULL);
   void *result = NULL;
   uint32_t keyMask = table->keyMask;
@@ -85,7 +85,7 @@ void *HLDCHashTableLookup(HLDCHashTable *table, int32_t key) {
   if (key >= 0) {
     uint32_t origIdx = key & keyMask;
     uint32_t idx = origIdx;
-    HLDCHashSlot *slot = table->slots + idx;
+    HLDClosedHashSlot *slot = table->slots + idx;
     while (slot->keyNext) {
       if (slot->key == key) {
         result = slot->value;
