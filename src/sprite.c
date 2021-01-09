@@ -16,8 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "foxutils/arraymacs.h"
-
 #include "aer/sprite.h"
 #include "internal/err.h"
 #include "internal/export.h"
@@ -33,7 +31,7 @@ AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
                                      uint32_t origY) {
   ErrIf(!name, AER_NULL_ARG, -1);
   LogInfo("Registering sprite \"%s\" for mod \"%s\"...", name,
-          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          ModManGetMod(ModManPeekContext())->name);
   ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, AER_SPRITE_NULL);
   ErrIf(!filename, AER_NULL_ARG, AER_SPRITE_NULL);
 
@@ -58,7 +56,7 @@ AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
   HLDSprite *oldSprite = HLDSpriteLookup(spriteIdx);
   ErrIf(!oldSprite, AER_FAILED_LOOKUP);
   LogInfo("Replacing sprite \"%s\" for mod \"%s\"...", oldSprite->name,
-          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          ModManGetMod(ModManPeekContext())->name);
   ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK);
   ErrIf(!filename, AER_NULL_ARG);
 

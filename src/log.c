@@ -19,8 +19,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "foxutils/arraymacs.h"
-
 #include "aer/log.h"
 #include "internal/export.h"
 #include "internal/log.h"
@@ -28,18 +26,19 @@
 
 /* ----- PRIVATE MACROS ----- */
 
-#define FillMsgBufFromVA(fmt, lastArg)                                         \
-  do {                                                                         \
-    va_list FillMsgBufFromVA_va;                                               \
-    va_start(FillMsgBufFromVA_va, lastArg);                                    \
-    vsnprintf(msgBuf, MSG_BUF_SIZE, (fmt), FillMsgBufFromVA_va);               \
-    va_end(FillMsgBufFromVA_va);                                               \
-  } while (0)
+#define BuildMsgFromVA(fmt, lastArg)                                           \
+  ({                                                                           \
+    char BuildMsgFromVA_buf[1024];                                             \
+    va_list BuildMsgFromVA_va;                                                 \
+    va_start(BuildMsgFromVA_va, (lastArg));                                    \
+    vsnprintf(BuildMsgFromVA_buf, sizeof(BuildMsgFromVA_buf), (fmt),           \
+              BuildMsgFromVA_va);                                              \
+    va_end(BuildMsgFromVA_va);                                                 \
+    BuildMsgFromVA_buf;                                                        \
+  })
 
 #define GetCurrentModName()                                                    \
-  ((FoxArrayMEmpty(Mod *, &modman.context))                                    \
-       ? "?"                                                                   \
-       : (*FoxArrayMPeek(Mod *, &modman.context))->name)
+  ((ModManHasContext()) ? ModManGetMod(ModManPeekContext())->name : "?")
 
 /* ----- PRIVATE TYPES ----- */
 
@@ -51,13 +50,7 @@ static const char *MSG_FMT = "[%s][aer][%s] (%s) %s\n";
 
 static const char *LVL_STRS[3] = {"INFO", "WARNING", "ERROR"};
 
-static const size_t MSG_BUF_SIZE = 1024;
-
 static const char *INTERNAL_MOD_NAME = "mre";
-
-/* ----- PRIVATE GLOBALS ----- */
-
-static char msgBuf[1024];
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
@@ -94,11 +87,8 @@ static void Log(FILE *fp, LogLevel logLvl, const char *moduleName,
 void LogInfo(const char *fmt, ...) {
   assert(fmt);
 
-  /* Construct message string. */
-  FillMsgBufFromVA(fmt, fmt);
-
   /* Call common log function. */
-  Log(stdout, LOG_INFO, INTERNAL_MOD_NAME, msgBuf);
+  Log(stdout, LOG_INFO, INTERNAL_MOD_NAME, BuildMsgFromVA(fmt, fmt));
 
   return;
 }
@@ -106,11 +96,8 @@ void LogInfo(const char *fmt, ...) {
 void LogWarn(const char *fmt, ...) {
   assert(fmt);
 
-  /* Construct message string. */
-  FillMsgBufFromVA(fmt, fmt);
-
   /* Call common log function. */
-  Log(stderr, LOG_WARN, INTERNAL_MOD_NAME, msgBuf);
+  Log(stderr, LOG_WARN, INTERNAL_MOD_NAME, BuildMsgFromVA(fmt, fmt));
 
   return;
 }
@@ -118,11 +105,8 @@ void LogWarn(const char *fmt, ...) {
 void LogErr(const char *fmt, ...) {
   assert(fmt);
 
-  /* Construct message string. */
-  FillMsgBufFromVA(fmt, fmt);
-
   /* Call common log function. */
-  Log(stderr, LOG_ERR, INTERNAL_MOD_NAME, msgBuf);
+  Log(stderr, LOG_ERR, INTERNAL_MOD_NAME, BuildMsgFromVA(fmt, fmt));
 
   return;
 }
@@ -132,11 +116,8 @@ void LogErr(const char *fmt, ...) {
 AER_EXPORT void AERLogInfo(const char *fmt, ...) {
   assert(fmt);
 
-  /* Construct message string. */
-  FillMsgBufFromVA(fmt, fmt);
-
   /* Call common log function. */
-  Log(stdout, LOG_INFO, GetCurrentModName(), msgBuf);
+  Log(stdout, LOG_INFO, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
 
   return;
 }
@@ -144,11 +125,8 @@ AER_EXPORT void AERLogInfo(const char *fmt, ...) {
 AER_EXPORT void AERLogWarn(const char *fmt, ...) {
   assert(fmt);
 
-  /* Construct message string. */
-  FillMsgBufFromVA(fmt, fmt);
-
   /* Call common log function. */
-  Log(stdout, LOG_WARN, GetCurrentModName(), msgBuf);
+  Log(stdout, LOG_WARN, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
 
   return;
 }
@@ -156,11 +134,8 @@ AER_EXPORT void AERLogWarn(const char *fmt, ...) {
 AER_EXPORT void AERLogErr(const char *fmt, ...) {
   assert(fmt);
 
-  /* Construct message string. */
-  FillMsgBufFromVA(fmt, fmt);
-
   /* Call common log function. */
-  Log(stdout, LOG_ERR, GetCurrentModName(), msgBuf);
+  Log(stdout, LOG_ERR, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
 
   return;
 }

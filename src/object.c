@@ -36,7 +36,7 @@ AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
                                      bool collisions, bool persistent) {
   ErrIf(!name, AER_NULL_ARG, -1);
   LogInfo("Registering object \"%s\" for mod \"%s\"...", name,
-          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          ModManGetMod(ModManPeekContext())->name);
   ErrIf(mre.stage != STAGE_OBJECT_REG, AER_SEQ_BREAK, AER_OBJECT_NULL);
 
   HLDObject *parent = HLDObjectLookup(parentIdx);
@@ -116,7 +116,7 @@ AER_EXPORT void AERObjectAttachCreateListener(
     int32_t objIdx, bool (*listener)(AEREventTrapIter *ctx, AERInstance *target,
                                      AERInstance *other)) {
   LogInfo("Attaching create listener to object %i for mod \"%s\"...", objIdx,
-          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          ModManGetMod(ModManPeekContext())->name);
 
   ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
   ErrIf(!listener, AER_NULL_ARG);
@@ -136,7 +136,7 @@ AER_EXPORT void AERObjectAttachDestroyListener(
     int32_t objIdx, bool (*listener)(AEREventTrapIter *ctx, AERInstance *target,
                                      AERInstance *other)) {
   LogInfo("Attaching destroy listener to object %i for mod \"%s\"...", objIdx,
-          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          ModManGetMod(ModManPeekContext())->name);
 
   ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
   ErrIf(!listener, AER_NULL_ARG);
@@ -156,7 +156,7 @@ AER_EXPORT void AERObjectAttachAlarmListener(
     bool (*listener)(AEREventTrapIter *ctx, AERInstance *target,
                      AERInstance *other)) {
   LogInfo("Attaching alarm %u listener to object %i for mod \"%s\"...",
-          alarmIdx, objIdx, (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          alarmIdx, objIdx, ModManGetMod(ModManPeekContext())->name);
 
   ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
   ErrIf(!listener, AER_NULL_ARG);
@@ -176,7 +176,7 @@ AER_EXPORT void AERObjectAttachStepListener(
     int32_t objIdx, bool (*listener)(AEREventTrapIter *ctx, AERInstance *target,
                                      AERInstance *other)) {
   LogInfo("Attaching step listener to object %i for mod \"%s\"...", objIdx,
-          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          ModManGetMod(ModManPeekContext())->name);
 
   ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
   ErrIf(!listener, AER_NULL_ARG);
@@ -196,7 +196,7 @@ AER_EXPORT void AERObjectAttachPreStepListener(
     int32_t objIdx, bool (*listener)(AEREventTrapIter *ctx, AERInstance *target,
                                      AERInstance *other)) {
   LogInfo("Attaching pre-step listener to object %i for mod \"%s\"...", objIdx,
-          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          ModManGetMod(ModManPeekContext())->name);
 
   ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
   ErrIf(!listener, AER_NULL_ARG);
@@ -216,7 +216,7 @@ AER_EXPORT void AERObjectAttachPostStepListener(
     int32_t objIdx, bool (*listener)(AEREventTrapIter *ctx, AERInstance *target,
                                      AERInstance *other)) {
   LogInfo("Attaching post-step listener to object %i for mod \"%s\"...", objIdx,
-          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          ModManGetMod(ModManPeekContext())->name);
 
   ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
   ErrIf(!listener, AER_NULL_ARG);
@@ -237,8 +237,7 @@ AER_EXPORT void AERObjectAttachCollisionListener(
     bool (*listener)(AEREventTrapIter *ctx, AERInstance *target,
                      AERInstance *other)) {
   LogInfo("Attaching %i collision listener to object %i for mod \"%s\"...",
-          otherObjIdx, targetObjIdx,
-          (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          otherObjIdx, targetObjIdx, ModManGetMod(ModManPeekContext())->name);
 
   ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
   ErrIf(!listener, AER_NULL_ARG);
@@ -259,7 +258,7 @@ AER_EXPORT void AERObjectAttachAnimationEndListener(
     int32_t objIdx, bool (*listener)(AEREventTrapIter *ctx, AERInstance *target,
                                      AERInstance *other)) {
   LogInfo("Attaching animation end listener to object %i for mod \"%s\"...",
-          objIdx, (*FoxArrayMPeek(Mod *, &modman.context))->name);
+          objIdx, ModManGetMod(ModManPeekContext())->name);
 
   ErrIf(mre.stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
   ErrIf(!listener, AER_NULL_ARG);

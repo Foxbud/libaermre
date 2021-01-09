@@ -16,6 +16,10 @@
 #ifndef INTERNAL_MODMAN_H
 #define INTERNAL_MODMAN_H
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include "foxutils/array.h"
 
 #include "internal/hld.h"
@@ -24,6 +28,7 @@
 
 typedef struct Mod {
   void *libHandle;
+  int32_t idx;
   const char *name;
   void (*constructor)(void);
   void (*destructor)(void);
@@ -34,7 +39,7 @@ typedef struct Mod {
 
 typedef struct ModListener {
   void (*func)(void);
-  Mod *mod;
+  int32_t modIdx;
 } ModListener;
 
 typedef struct ModMan {
@@ -49,6 +54,18 @@ typedef struct ModMan {
 extern ModMan modman;
 
 /* ----- INTERNAL FUNCTIONS ----- */
+
+size_t ModManGetNumMods(void);
+
+Mod *ModManGetMod(uint32_t modIdx);
+
+bool ModManHasContext(void);
+
+void ModManPushContext(uint32_t modIdx);
+
+uint32_t ModManPeekContext(void);
+
+uint32_t ModManPopContext(void);
 
 void ModManConstructor(void);
 

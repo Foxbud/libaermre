@@ -316,7 +316,7 @@ static void InitMRE(HLDVariables varRefs, HLDFunctions funcRefs) {
 }
 
 static void InitMods(void) {
-  size_t numMods = FoxArrayMSize(Mod, &modman.mods);
+  size_t numMods = ModManGetNumMods();
 
   /* Register sprites. */
   mre.stage = STAGE_SPRITE_REG;
@@ -325,12 +325,13 @@ static void InitMods(void) {
    * Reverse order so that higher-priority mods' sprite replacements take
    * precedence over those of lower-priority mods.
    */
-  for (int32_t modIdx = numMods - 1; modIdx >= 0; modIdx--) {
-    Mod *mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
+  for (uint32_t idx = 0; idx < numMods; idx++) {
+    uint32_t modIdx = numMods - idx - 1;
+    Mod *mod = ModManGetMod(modIdx);
     if (mod->registerSprites) {
-      *FoxArrayMPush(Mod *, &modman.context) = mod;
+      ModManPushContext(modIdx);
       mod->registerSprites();
-      FoxArrayMPop(Mod *, &modman.context);
+      ModManPopContext();
     }
   }
   LogInfo("Done.");
@@ -339,11 +340,11 @@ static void InitMods(void) {
   mre.stage = STAGE_OBJECT_REG;
   LogInfo("Registering mod objects...");
   for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-    Mod *mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
+    Mod *mod = ModManGetMod(modIdx);
     if (mod->registerObjects) {
-      *FoxArrayMPush(Mod *, &modman.context) = mod;
+      ModManPushContext(modIdx);
       mod->registerObjects();
-      FoxArrayMPop(Mod *, &modman.context);
+      ModManPopContext();
     }
   }
   LogInfo("Done.");
@@ -359,11 +360,11 @@ static void InitMods(void) {
   mre.stage = STAGE_LISTENER_REG;
   LogInfo("Registering mod event listeners...");
   for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-    Mod *mod = FoxArrayMIndex(Mod, &modman.mods, modIdx);
+    Mod *mod = ModManGetMod(modIdx);
     if (mod->registerObjectListeners) {
-      *FoxArrayMPush(Mod *, &modman.context) = mod;
+      ModManPushContext(modIdx);
       mod->registerObjectListeners();
-      FoxArrayMPop(Mod *, &modman.context);
+      ModManPopContext();
     }
   }
   LogInfo("Done.");
@@ -377,10 +378,10 @@ static void InitMods(void) {
 
 const char *MREGetAbsAssetPath(const char *relAssetPath) {
   assert(relAssetPath);
-  assert(!FoxArrayMEmpty(Mod *, &modman.context));
+  assert(ModManHasContext());
 
   snprintf(assetPathBuf, sizeof(assetPathBuf), ABS_ASSET_PATH_FMT,
-           (*FoxArrayMPeek(Mod *, &modman.context))->name, relAssetPath);
+           ModManGetMod(ModManPeekContext())->name, relAssetPath);
 
   return assetPathBuf;
 }
@@ -405,9 +406,8 @@ void MRERegisterEventListener(HLDObject *obj, EventKey key,
     *trap = EntrapEvent(obj, key.type, key.num);
   }
 
-  EventTrapAddListener(
-      trap, (ModListener){.mod = *FoxArrayMPeek(Mod *, &modman.context),
-                          .func = (void (*)(void))listener});
+  EventTrapAddListener(trap, (ModListener){.func = (void (*)(void))listener,
+                                           .modIdx = ModManPeekContext()});
 
   return;
 }
@@ -436,10 +436,10 @@ AER_EXPORT void AERHookStep(void) {
     for (uint32_t idx = 0; idx < numListeners; idx++) {
       ModListener *listener =
           FoxArrayMIndex(ModListener, &modman.roomChangeListeners, idx);
-      *FoxArrayMPush(Mod *, &modman.context) = listener->mod;
+      ModManPushContext(listener->modIdx);
       ((void (*)(int32_t, int32_t))listener->func)(roomIndexCurrent,
                                                    mre.roomIndexPrevious);
-      FoxArrayMPop(Mod *, &modman.context);
+      ModManPopContext();
     }
     mre.roomIndexPrevious = roomIndexCurrent;
   }
@@ -449,9 +449,9 @@ AER_EXPORT void AERHookStep(void) {
   for (uint32_t idx = 0; idx < numListeners; idx++) {
     ModListener *listener =
         FoxArrayMIndex(ModListener, &modman.roomStepListeners, idx);
-    *FoxArrayMPush(Mod *, &modman.context) = listener->mod;
+    ModManPushContext(listener->modIdx);
     listener->func();
-    FoxArrayMPop(Mod *, &modman.context);
+    ModManPopContext();
   }
 
   return;

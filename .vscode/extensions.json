@@ -2,6 +2,7 @@
   "recommendations": [
     "twxs.cmake",
     "xaver.clang-format",
-    "ms-vscode.cpptools"
+    "ms-vscode.cpptools",
+    "streetsidesoftware.code-spell-checker"
   ]
 }

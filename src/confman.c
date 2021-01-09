@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,22 +37,21 @@
 #define GetAbsKey(key)                                                         \
   ({                                                                           \
     char GetAbsKey_buf[192];                                                   \
-    if ((size_t)snprintf(                                                      \
-            GetAbsKey_buf, sizeof(GetAbsKey_buf), "%s.%s",                     \
-            ((FoxArrayMEmpty(Mod *, &modman.context))                          \
-                 ? INTERNAL_CONF_NAME                                          \
-                 : (*FoxArrayMPeek(Mod *, &modman.context))->name),            \
-            (key)) >= sizeof(GetAbsKey_buf)) {                                 \
-      if (FoxArrayMEmpty(Mod *, &modman.context)) {                            \
-        LogErr("Key overflow while constructing internal configuration key. "  \
-               "Key must be less than %zu characters in length, "              \
-               "but key was \"%s\".",                                          \
-               sizeof(GetAbsKey_buf), GetAbsKey_buf);                          \
-      } else {                                                                 \
+    if ((size_t)snprintf(GetAbsKey_buf, sizeof(GetAbsKey_buf), "%s.%s",        \
+                         ((ModManHasContext())                                 \
+                              ? ModManGetMod(ModManPeekContext())->name        \
+                              : INTERNAL_CONF_NAME),                           \
+                         (key)) >= sizeof(GetAbsKey_buf)) {                    \
+      if (ModManHasContext()) {                                                \
         LogErr("Key overflow while constructing configuration key for mod "    \
                "\"%s\". Key must be less than %zu characters in length, "      \
                "but key was \"%s\".",                                          \
-               (*FoxArrayMPeek(Mod *, &modman.context))->name,                 \
+               ModManGetMod(ModManPeekContext())->name, sizeof(GetAbsKey_buf), \
+               GetAbsKey_buf);                                                 \
+      } else {                                                                 \
+        LogErr("Key overflow while constructing internal configuration key. "  \
+               "Key must be less than %zu characters in length, "              \
+               "but key was \"%s\".",                                          \
                sizeof(GetAbsKey_buf), GetAbsKey_buf);                          \
       }                                                                        \
       abort();                                                                 \

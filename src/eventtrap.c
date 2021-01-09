@@ -89,10 +89,10 @@ bool EventTrapIterNext(EventTrapIter *iter, HLDInstance *target,
   if (iter->nextIdx < FoxArrayMSize(ModListener, modListeners)) {
     ModListener *listener =
         FoxArrayMIndex(ModListener, modListeners, iter->nextIdx++);
-    *FoxArrayMPush(Mod *, &modman.context) = listener->mod;
+    ModManPushContext(listener->modIdx);
     result = ((bool (*)(EventTrapIter *, HLDInstance *,
                         HLDInstance *))listener->func)(iter, target, other);
-    FoxArrayMPop(Mod *, &modman.context);
+    ModManPopContext();
   } else {
     trap->origListener(target, other);
   }
