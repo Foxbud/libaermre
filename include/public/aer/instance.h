@@ -35,6 +35,20 @@
  */
 typedef void AERInstance;
 
+/**
+ * @brief TODO.
+ *
+ * @since 1.0.0
+ */
+typedef union AERLocal {
+  bool b;
+  uint64_t u;
+  int64_t i;
+  float f;
+  double d;
+  void *p;
+} AERLocal;
+
 /* ----- PUBLIC FUNCTIONS ----- */
 
 /**
@@ -694,21 +708,22 @@ void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
                          int32_t numSteps);
 
 /**
- * @brief Query the names of all locals of an instance.
+ * @brief Query the names of all vanilla locals of an instance.
  *
  * @warning Argument `nameBuf` must be large enough to hold at least
  * `bufSize` elements.
  *
  * @note Argument `bufSize` may be `0` in which case argument `nameBuf` may
  * be `NULL`. This may be used to efficiently query the total number of
- * locals that an instance has.
+ * vanilla locals that an instance has.
  *
  * @param[in] inst Instance of interest.
  * @param[in] bufSize Maximum number of elements to write to argument
  * `nameBuf`.
  * @param[out] nameBuf Buffer to write names to.
  *
- * @return Total number of locals that the instance has or `0` if unsuccessful.
+ * @return Total number of vanilla locals that the instance has or `0` if
+ * unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL` or argument
@@ -716,37 +731,44 @@ void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
  *
  * @since 1.0.0
  *
- * @sa AERInstanceGetLocal
+ * @sa AERInstanceGetHLDLocal
  */
-size_t AERInstanceGetLocals(AERInstance *inst, size_t bufSize,
-                            const char **nameBuf);
+size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
+                               const char **nameBuf);
 
 /**
- * @brief Get a reference to a specific local of an instance.
+ * @brief Get a reference to a specific vanilla local of an instance.
  *
- * @note Because this function returns a reference to the local rather
- * than the value of the local, it acts as both a "getter" and a "setter".
- *
- * The local could be one of several different types including but not
- * limited to `int`, `double` and `char *`. As a result, this function
- * simply returns a `void` pointer to the local. It is the caller's
- * responsibility to cast this pointer to the correct type before
- * dereferencing it.
+ * @warning The reference returned by this function should be considered highly
+ * unstable.
  *
  * @param[in] inst Instance of interest.
- * @param[in] name Local name.
+ * @param[in] name Vanilla local name.
  *
- * @return Reference to local or `NULL` if unsuccessful.
+ * @return Reference to vanilla local or `NULL` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if either argument `inst` or `name` is `NULL`.
- * @throw ::AER_FAILED_LOOKUP if instance does not have local with name
- * given by argument `name`.
+ * @throw ::AER_FAILED_LOOKUP if instance does not have a vanilla local with
+ * name given by argument `name`.
  *
  * @since 1.0.0
  *
- * @sa AERInstanceGetLocals
+ * @sa AERInstanceGetHLDLocals
  */
-void *AERInstanceGetLocal(AERInstance *inst, const char *name);
+AERLocal *AERInstanceGetHLDLocal(AERInstance *inst, const char *name);
+
+AERLocal *AERInstanceCreateModLocal(AERInstance *inst, const char *name,
+                                    bool public,
+                                    void (*destructor)(AERLocal *local));
+
+void AERInstanceDestroyModLocal(AERInstance *inst, const char *name,
+                                bool public);
+
+AERLocal AERInstanceDeleteModLocal(AERInstance *inst, const char *name,
+                                   bool public);
+
+AERLocal *AERInstanceGetModLocal(AERInstance *inst, const char *name,
+                                 bool public);
 
 #endif /* AER_INSTANCE_H */

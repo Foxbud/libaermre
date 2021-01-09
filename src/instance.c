@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
+
+#include "foxutils/arraymacs.h"
 #include "foxutils/mapmacs.h"
 #include "foxutils/math.h"
 
@@ -22,7 +25,113 @@
 #include "internal/err.h"
 #include "internal/export.h"
 #include "internal/hld.h"
+#include "internal/instance.h"
+#include "internal/log.h"
 #include "internal/mre.h"
+
+/* ----- PRIVATE MACROS ----- */
+
+#define ModLocalValDeinit(val)                                                 \
+  do {                                                                         \
+    ModLocalVal *ModLocalValDeinit_val = (val);                                \
+    void (*destructor)(AERLocal *);                                            \
+    if ((destructor = ModLocalValDeinit_val->destructor))                      \
+      destructor(&ModLocalValDeinit_val->local);                               \
+  } while (0);
+
+/* ----- PRIVATE TYPES ----- */
+
+typedef struct __attribute__((packed)) ModLocalKey {
+  int32_t modIdx;
+  int32_t instId;
+  char name[24];
+} ModLocalKey;
+
+typedef struct ModLocalVal {
+  AERLocal local;
+  void (*destructor)(AERLocal *);
+} ModLocalVal;
+
+/* ----- PRIVATE GLOBALS ----- */
+
+static FoxMap modLocals = {0};
+
+/* ----- PRIVATE FUNCTIONS ----- */
+
+static bool ModLocalKeyInit(ModLocalKey *key, int32_t instId, const char *name,
+                            bool public) {
+  assert(key);
+  assert(name);
+
+  key->modIdx = (public) ? MOD_NULL : ModManPeekContext();
+  key->instId = instId;
+
+  char *keyName = key->name;
+  bool endFound = false;
+  char curChar;
+  for (uint32_t idx = 0; idx < sizeof(key->name); idx++) {
+    if (!endFound && (curChar = name[idx]) == '\0')
+      endFound = true;
+    keyName[idx] = (endFound) ? '\0' : curChar;
+  }
+
+  return endFound;
+}
+
+static bool ModLocalValDeinitCallback(ModLocalVal *val, void *ctx) {
+  (void)ctx;
+
+  ModLocalValDeinit(val);
+
+  return true;
+}
+
+static bool ModLocalKeyGetOrphansCallback(const ModLocalKey *key,
+                                          FoxArray *orphans) {
+  if (!HLDInstanceLookup(key->instId))
+    *FoxArrayMPush(const ModLocalKey *, orphans) = key;
+
+  return true;
+}
+
+/* ----- INTERNAL FUNCTIONS ----- */
+
+void InstancePruneModLocals(void) {
+  LogInfo("Pruning mod instance locals...");
+
+  FoxArray orphans;
+  FoxArrayMInit(const ModLocalKey *, &orphans);
+
+  FoxMapMForEachKey(ModLocalKey, ModLocalVal, &modLocals,
+                    ModLocalKeyGetOrphansCallback, &orphans);
+  size_t numOrphans = FoxArrayMSize(const ModLocalKey *, &orphans);
+
+  for (uint32_t idx = 0; idx < numOrphans; idx++) {
+    ModLocalVal val =
+        FoxMapMRemove(ModLocalKey, ModLocalVal, &modLocals,
+                      *FoxArrayMPop(const ModLocalKey *, &orphans));
+    ModLocalValDeinit(&val);
+  }
+  FoxArrayMDeinit(const ModLocalKey *, &orphans);
+
+  LogInfo("Done. Pruned %zu local(s).", numOrphans);
+  return;
+}
+
+void InstanceConstructor(void) {
+  FoxMapMInit(ModLocalKey, ModLocalVal, &modLocals);
+
+  return;
+}
+
+void InstanceDestructor(void) {
+  FoxMapMForEachElement(ModLocalKey, ModLocalVal, &modLocals,
+                        ModLocalValDeinitCallback, NULL);
+  FoxMapMDeinit(ModLocalKey, ModLocalVal, &modLocals);
+  modLocals = (FoxMap){0};
+
+  return;
+}
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
@@ -422,8 +531,8 @@ AER_EXPORT void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
   return;
 }
 
-AER_EXPORT size_t AERInstanceGetLocals(AERInstance *inst, size_t bufSize,
-                                       const char **nameBuf) {
+AER_EXPORT size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
+                                          const char **nameBuf) {
   ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
   ErrIf(!inst, AER_NULL_ARG, 0);
   ErrIf(!nameBuf && bufSize > 0, AER_NULL_ARG, 0);
@@ -448,7 +557,8 @@ AER_EXPORT size_t AERInstanceGetLocals(AERInstance *inst, size_t bufSize,
   return numLocals;
 }
 
-AER_EXPORT void *AERInstanceGetLocal(AERInstance *inst, const char *name) {
+AER_EXPORT AERLocal *AERInstanceGetHLDLocal(AERInstance *inst,
+                                            const char *name) {
   ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
   ErrIf(!inst, AER_NULL_ARG, NULL);
   ErrIf(!name, AER_NULL_ARG, NULL);
@@ -456,9 +566,78 @@ AER_EXPORT void *AERInstanceGetLocal(AERInstance *inst, const char *name) {
   int32_t *localIdx = FoxMapMIndex(const char *, int32_t, mre.instLocals, name);
   ErrIf(!localIdx, AER_FAILED_LOOKUP, NULL);
 
-  void *local =
+  AERLocal *local =
       HLDClosedHashTableLookup(((HLDInstance *)inst)->locals, *localIdx);
   ErrIf(!local, AER_FAILED_LOOKUP, NULL);
 
   return local;
+}
+
+AER_EXPORT AERLocal *
+AERInstanceCreateModLocal(AERInstance *inst, const char *name, bool public,
+                          void (*destructor)(AERLocal *local)) {
+  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+  ErrIf(!inst, AER_NULL_ARG, NULL);
+  ErrIf(!name, AER_NULL_ARG, NULL);
+
+  ModLocalKey key;
+  ErrIf(!ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
+        AER_BAD_VAL, NULL);
+  ErrIf(FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key), AER_BAD_VAL,
+        NULL);
+
+  ModLocalVal *val = FoxMapMInsert(ModLocalKey, ModLocalVal, &modLocals, key);
+  val->destructor = destructor;
+
+  return &val->local;
+}
+
+AER_EXPORT void AERInstanceDestroyModLocal(AERInstance *inst, const char *name,
+                                           bool public) {
+  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK);
+  ErrIf(!inst, AER_NULL_ARG);
+  ErrIf(!name, AER_NULL_ARG);
+
+  ModLocalKey key;
+  ErrIf(!ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
+        AER_BAD_VAL);
+
+  ModLocalVal *val = FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key);
+  ErrIf(!val, AER_FAILED_LOOKUP);
+
+  ModLocalValDeinit(val);
+  FoxMapMRemove(ModLocalKey, ModLocalVal, &modLocals, key);
+
+  return;
+}
+
+AER_EXPORT AERLocal AERInstanceDeleteModLocal(AERInstance *inst,
+                                              const char *name, bool public) {
+  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, (AERLocal){0});
+  ErrIf(!inst, AER_NULL_ARG, (AERLocal){0});
+  ErrIf(!name, AER_NULL_ARG, (AERLocal){0});
+
+  ModLocalKey key;
+  ErrIf(!ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
+        AER_BAD_VAL, (AERLocal){0});
+  ErrIf(!FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key),
+        AER_FAILED_LOOKUP, (AERLocal){0});
+
+  return FoxMapMRemove(ModLocalKey, ModLocalVal, &modLocals, key).local;
+}
+
+AER_EXPORT AERLocal *AERInstanceGetModLocal(AERInstance *inst, const char *name,
+                                            bool public) {
+  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+  ErrIf(!inst, AER_NULL_ARG, NULL);
+  ErrIf(!name, AER_NULL_ARG, NULL);
+
+  ModLocalKey key;
+  ErrIf(!ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
+        AER_BAD_VAL, NULL);
+
+  ModLocalVal *val = FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key);
+  ErrIf(!val, AER_FAILED_LOOKUP, NULL);
+
+  return &val->local;
 }

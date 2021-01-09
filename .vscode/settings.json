@@ -14,9 +14,12 @@
   "C_Cpp.default.intelliSenseMode": "gcc-x86",
   "C_Cpp.loggingLevel": "Warning",
   "cSpell.words": [
+    "AERMRE",
     "aererr",
+    "deinitializing",
     "hldfuncs",
     "hldvars",
+    "insts",
     "libaermre"
   ]
 }

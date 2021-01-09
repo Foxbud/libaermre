@@ -49,6 +49,10 @@ typedef struct ModMan {
   FoxArray roomChangeListeners;
 } ModMan;
 
+/* ----- INTERNAL CONSTANTS ----- */
+
+extern const int32_t MOD_NULL;
+
 /* ----- INTERNAL GLOBALS ----- */
 
 extern ModMan modman;
@@ -57,15 +61,15 @@ extern ModMan modman;
 
 size_t ModManGetNumMods(void);
 
-Mod *ModManGetMod(uint32_t modIdx);
+Mod *ModManGetMod(int32_t modIdx);
 
 bool ModManHasContext(void);
 
-void ModManPushContext(uint32_t modIdx);
+void ModManPushContext(int32_t modIdx);
 
-uint32_t ModManPeekContext(void);
+int32_t ModManPeekContext(void);
 
-uint32_t ModManPopContext(void);
+int32_t ModManPopContext(void);
 
 void ModManConstructor(void);
 

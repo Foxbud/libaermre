@@ -49,7 +49,7 @@ add_library(aermre SHARED
 	src/modman.c
 	src/mre.c
 	src/object.c
-	src/objtree.c
+  src/objtree.c
 	src/rand.c
 	src/room.c
 	src/sprite.c)

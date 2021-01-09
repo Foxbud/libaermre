@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include <assert.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,6 +30,7 @@
 #include "internal/err.h"
 #include "internal/eventtrap.h"
 #include "internal/export.h"
+#include "internal/instance.h"
 #include "internal/log.h"
 #include "internal/modman.h"
 #include "internal/mre.h"
@@ -326,7 +328,7 @@ static void InitMods(void) {
    * precedence over those of lower-priority mods.
    */
   for (uint32_t idx = 0; idx < numMods; idx++) {
-    uint32_t modIdx = numMods - idx - 1;
+    int32_t modIdx = (int32_t)(numMods - idx - 1);
     Mod *mod = ModManGetMod(modIdx);
     if (mod->registerSprites) {
       ModManPushContext(modIdx);
@@ -428,8 +430,14 @@ AER_EXPORT void AERHookInit(HLDVariables varRefs, HLDFunctions funcRefs) {
 
 AER_EXPORT void AERHookStep(void) {
   /* Check if room changed. */
-  int32_t roomIndexCurrent = *hldvars.roomIndexCurrent;
-  if (roomIndexCurrent != mre.roomIndexPrevious) {
+  int32_t roomIdxCur = *hldvars.roomIndexCurrent;
+  int32_t roomIdxPrev = mre.roomIndexPrevious;
+  if (roomIdxCur != roomIdxPrev) {
+    mre.roomIndexPrevious = roomIdxCur;
+
+    /* Prune orphaned mod instance locals. */
+    InstancePruneModLocals();
+
     /* Call room change listeners. */
     size_t numListeners =
         FoxArrayMSize(ModListener, &modman.roomChangeListeners);
@@ -437,11 +445,9 @@ AER_EXPORT void AERHookStep(void) {
       ModListener *listener =
           FoxArrayMIndex(ModListener, &modman.roomChangeListeners, idx);
       ModManPushContext(listener->modIdx);
-      ((void (*)(int32_t, int32_t))listener->func)(roomIndexCurrent,
-                                                   mre.roomIndexPrevious);
+      ((void (*)(int32_t, int32_t))listener->func)(roomIdxCur, roomIdxPrev);
       ModManPopContext();
     }
-    mre.roomIndexPrevious = roomIndexCurrent;
   }
 
   /* Call room step listeners. */
@@ -482,6 +488,10 @@ __attribute__((constructor)) void AERConstructor(void) {
   RandConstructor();
   LogInfo("Done initializing random module.");
 
+  LogInfo("Initializing instance module...");
+  InstanceConstructor();
+  LogInfo("Done initializing instance module.");
+
   return;
 }
 
@@ -519,6 +529,10 @@ __attribute__((destructor)) void AERDestructor(void) {
   mre.objTree = NULL;
 
   LogInfo("Done deinitializing mod runtime environment.");
+
+  LogInfo("Deinitializing instance module...");
+  InstanceDestructor();
+  LogInfo("Done deinitializing instance module.");
 
   LogInfo("Deinitializing random module...");
   RandDestructor();
