@@ -413,26 +413,11 @@ AER_EXPORT void AERHookStep(void) {
     InstancePruneModLocals();
 
     /* Call room change listeners. */
-    size_t numListeners =
-        FoxArrayMSize(ModListener, &modman.roomChangeListeners);
-    for (uint32_t idx = 0; idx < numListeners; idx++) {
-      ModListener *listener =
-          FoxArrayMIndex(ModListener, &modman.roomChangeListeners, idx);
-      ModManPushContext(listener->modIdx);
-      ((void (*)(int32_t, int32_t))listener->func)(roomIdxCur, roomIdxPrev);
-      ModManPopContext();
-    }
+    ModManExecuteRoomChangeListeners(roomIdxCur, roomIdxPrev);
   }
 
   /* Call room step listeners. */
-  size_t numListeners = FoxArrayMSize(ModListener, &modman.roomStepListeners);
-  for (uint32_t idx = 0; idx < numListeners; idx++) {
-    ModListener *listener =
-        FoxArrayMIndex(ModListener, &modman.roomStepListeners, idx);
-    ModManPushContext(listener->modIdx);
-    listener->func();
-    ModManPopContext();
-  }
+  ModManExecuteRoomStepListeners();
 
   return;
 }

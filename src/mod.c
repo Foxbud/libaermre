@@ -45,9 +45,15 @@ static const char *DEF_MOD_NAMES[] = {"define_mod", "definemod", "defineMod",
 
 const int32_t MOD_NULL = -1;
 
-/* ----- INTERNAL GLOBALS ----- */
+/* ----- PRIVATE GLOBALS ----- */
 
-ModMan modman = {0};
+static FoxArray mods;
+
+static FoxArray context;
+
+static FoxArray roomStepListeners;
+
+static FoxArray roomChangeListeners;
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
@@ -117,14 +123,12 @@ static void ModInit(Mod *mod, int32_t idx, const char *name) {
 
   /* Record pseudoevent listeners. */
   if (def.roomStepListener) {
-    ModListener *listener =
-        FoxArrayMPush(ModListener, &modman.roomStepListeners);
+    ModListener *listener = FoxArrayMPush(ModListener, &roomStepListeners);
     listener->modIdx = idx;
     listener->func = def.roomStepListener;
   }
   if (def.roomChangeListener) {
-    ModListener *listener =
-        FoxArrayMPush(ModListener, &modman.roomChangeListeners);
+    ModListener *listener = FoxArrayMPush(ModListener, &roomChangeListeners);
     listener->modIdx = idx;
     listener->func = (void (*)(void))def.roomChangeListener;
   }
@@ -158,50 +162,74 @@ static void ModDeinit(Mod *mod) {
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-size_t ModManGetNumMods(void) { return FoxArrayMSize(Mod *, &modman.mods); }
+size_t ModManGetNumMods(void) { return FoxArrayMSize(Mod *, &mods); }
 
 Mod *ModManGetMod(int32_t modIdx) {
-  assert(modIdx >= 0 && (uint32_t)modIdx < FoxArrayMSize(Mod, &modman.mods));
+  assert(modIdx >= 0 && (uint32_t)modIdx < FoxArrayMSize(Mod, &mods));
 
-  return FoxArrayMIndex(Mod, &modman.mods, modIdx);
+  return FoxArrayMIndex(Mod, &mods, modIdx);
 }
 
-bool ModManHasContext(void) {
-  return !FoxArrayMEmpty(int32_t, &modman.context);
+void ModManExecuteRoomStepListeners(void) {
+  size_t numListeners = FoxArrayMSize(ModListener, &roomStepListeners);
+  for (uint32_t idx = 0; idx < numListeners; idx++) {
+    ModListener *listener =
+        FoxArrayMIndex(ModListener, &roomStepListeners, idx);
+    ModManPushContext(listener->modIdx);
+    listener->func();
+    ModManPopContext();
+  }
+
+  return;
 }
+
+void ModManExecuteRoomChangeListeners(int32_t newRoomIdx, int32_t prevRoomIdx) {
+  size_t numListeners = FoxArrayMSize(ModListener, &roomChangeListeners);
+  for (uint32_t idx = 0; idx < numListeners; idx++) {
+    ModListener *listener =
+        FoxArrayMIndex(ModListener, &roomChangeListeners, idx);
+    ModManPushContext(listener->modIdx);
+    ((void (*)(int32_t, int32_t))listener->func)(newRoomIdx, prevRoomIdx);
+    ModManPopContext();
+  }
+
+  return;
+}
+
+bool ModManHasContext(void) { return !FoxArrayMEmpty(int32_t, &context); }
 
 void ModManPushContext(int32_t modIdx) {
-  assert(modIdx >= 0 && (uint32_t)modIdx < FoxArrayMSize(Mod, &modman.mods));
+  assert(modIdx >= 0 && (uint32_t)modIdx < FoxArrayMSize(Mod, &mods));
 
-  *FoxArrayMPush(int32_t, &modman.context) = modIdx;
+  *FoxArrayMPush(int32_t, &context) = modIdx;
 
   return;
 }
 
 int32_t ModManPeekContext(void) {
-  assert(!FoxArrayMEmpty(int32_t, &modman.context));
+  assert(!FoxArrayMEmpty(int32_t, &context));
 
-  return *FoxArrayMPeek(int32_t, &modman.context);
+  return *FoxArrayMPeek(int32_t, &context);
 }
 
 int32_t ModManPopContext(void) {
-  assert(!FoxArrayMEmpty(int32_t, &modman.context));
+  assert(!FoxArrayMEmpty(int32_t, &context));
 
-  return FoxArrayMPop(int32_t, &modman.context);
+  return FoxArrayMPop(int32_t, &context);
 }
 
 void ModManConstructor(void) {
   LogInfo("Loading mods...");
 
   /* Initialize mod manager. */
-  FoxArrayMInit(Mod, &modman.mods);
-  FoxArrayMInit(int32_t, &modman.context);
-  FoxArrayMInit(ModListener, &modman.roomStepListeners);
-  FoxArrayMInit(ModListener, &modman.roomChangeListeners);
+  FoxArrayMInit(Mod, &mods);
+  FoxArrayMInit(int32_t, &context);
+  FoxArrayMInit(ModListener, &roomStepListeners);
+  FoxArrayMInit(ModListener, &roomChangeListeners);
 
   /* Load mod libraries. */
   for (uint32_t idx = 0; idx < confNumModNames; idx++) {
-    Mod *mod = FoxArrayMPush(Mod, &modman.mods);
+    Mod *mod = FoxArrayMPush(Mod, &mods);
     ModInit(mod, (int32_t)idx, confModNames[idx]);
     if (mod->constructor) {
       ModManPushContext(idx);
@@ -217,24 +245,24 @@ void ModManConstructor(void) {
 void ModManDestructor(void) {
   /* Unload mods. */
   LogInfo("Unloading mods...");
-  size_t numMods = FoxArrayMSize(Mod, &modman.mods);
+  size_t numMods = FoxArrayMSize(Mod, &mods);
   for (uint32_t idx = 0; idx < numMods; idx++) {
-    Mod *mod = FoxArrayMPeek(Mod, &modman.mods);
+    Mod *mod = FoxArrayMPeek(Mod, &mods);
     if (mod->destructor) {
       ModManPushContext(idx);
       mod->destructor();
       ModManPopContext();
     }
     ModDeinit(mod);
-    FoxArrayMPop(Mod, &modman.mods);
+    FoxArrayMPop(Mod, &mods);
   }
   LogInfo("Done. Unloaded %zu mod(s).", numMods);
 
   /* Deinit modman. */
-  FoxArrayMDeinit(Mod, &modman.mods);
-  FoxArrayMDeinit(int32_t, &modman.context);
-  FoxArrayMDeinit(ModListener, &modman.roomStepListeners);
-  FoxArrayMDeinit(ModListener, &modman.roomChangeListeners);
+  FoxArrayMDeinit(Mod, &mods);
+  FoxArrayMDeinit(int32_t, &context);
+  FoxArrayMDeinit(ModListener, &roomStepListeners);
+  FoxArrayMDeinit(ModListener, &roomChangeListeners);
 
   return;
 }

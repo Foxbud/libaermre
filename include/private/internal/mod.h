@@ -42,26 +42,19 @@ typedef struct ModListener {
   int32_t modIdx;
 } ModListener;
 
-typedef struct ModMan {
-  FoxArray mods;
-  FoxArray context;
-  FoxArray roomStepListeners;
-  FoxArray roomChangeListeners;
-} ModMan;
-
 /* ----- INTERNAL CONSTANTS ----- */
 
 extern const int32_t MOD_NULL;
-
-/* ----- INTERNAL GLOBALS ----- */
-
-extern ModMan modman;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
 size_t ModManGetNumMods(void);
 
 Mod *ModManGetMod(int32_t modIdx);
+
+void ModManExecuteRoomStepListeners(void);
+
+void ModManExecuteRoomChangeListeners(int32_t newRoomIdx, int32_t prevRoomIdx);
 
 bool ModManHasContext(void);
 
