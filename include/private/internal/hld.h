@@ -509,6 +509,8 @@ typedef struct __attribute__((packed)) HLDFunctions {
   /* Destroy an instance. */
   void (*actionInstanceDestroy)(HLDInstance *inst0, HLDInstance *inst1,
                                 int32_t objIdx, bool doEvent);
+  /* Set instance's position (and update bounding box accordingly). */
+  void (*Instance_setPosition)(HLDInstance *inst, float x, float y);
   /* Set instance's mask index. */
   void (*Instance_setMaskIndex)(HLDInstance *inst, int32_t maskIndex);
   /* Set an instance's direction and speed based on its motion vector. */
