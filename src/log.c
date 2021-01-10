@@ -22,7 +22,7 @@
 #include "aer/log.h"
 #include "internal/export.h"
 #include "internal/log.h"
-#include "internal/modman.h"
+#include "internal/mod.h"
 
 /* ----- PRIVATE MACROS ----- */
 

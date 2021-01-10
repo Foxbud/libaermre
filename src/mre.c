@@ -32,7 +32,7 @@
 #include "internal/export.h"
 #include "internal/instance.h"
 #include "internal/log.h"
-#include "internal/modman.h"
+#include "internal/mod.h"
 #include "internal/mre.h"
 #include "internal/object.h"
 #include "internal/rand.h"

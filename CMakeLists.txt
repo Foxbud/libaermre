@@ -46,7 +46,7 @@ add_library(aermre SHARED
 	src/hld.c
 	src/instance.c
 	src/log.c
-	src/modman.c
+	src/mod.c
 	src/mre.c
 	src/object.c
 	src/rand.c

@@ -27,7 +27,7 @@
 #include "internal/export.h"
 #include "internal/hld.h"
 #include "internal/log.h"
-#include "internal/modman.h"
+#include "internal/mod.h"
 #include "internal/mre.h"
 #include "internal/object.h"
 

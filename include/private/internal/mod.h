@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERNAL_MODMAN_H
-#define INTERNAL_MODMAN_H
+#ifndef INTERNAL_MOD_H
+#define INTERNAL_MOD_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -75,4 +75,4 @@ void ModManConstructor(void);
 
 void ModManDestructor(void);
 
-#endif /* INTERNAL_MODMAN_H */
+#endif /* INTERNAL_MOD_H */

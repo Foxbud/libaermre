@@ -24,10 +24,10 @@
 #include "foxutils/arraymacs.h"
 
 #include "aer/err.h"
-#include "aer/modman.h"
+#include "aer/mod.h"
 #include "internal/confvars.h"
 #include "internal/log.h"
-#include "internal/modman.h"
+#include "internal/mod.h"
 
 /* ----- PRIVATE MACROS ----- */
 

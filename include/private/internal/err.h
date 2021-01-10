@@ -18,7 +18,7 @@
 
 #include "aer/err.h"
 #include "internal/log.h"
-#include "internal/modman.h"
+#include "internal/mod.h"
 
 /* ----- INTERNAL MACROS ----- */
 

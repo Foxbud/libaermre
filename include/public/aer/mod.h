@@ -30,8 +30,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AER_MODMAN_H
-#define AER_MODMAN_H
+#ifndef AER_MOD_H
+#define AER_MOD_H
 
 #include <stdint.h>
 
@@ -165,4 +165,4 @@ typedef struct AERModDef {
   void (*roomChangeListener)(int32_t newRoomIdx, int32_t prevRoomIdx);
 } AERModDef;
 
-#endif /* AER_MODMAN_H */
+#endif /* AER_MOD_H */

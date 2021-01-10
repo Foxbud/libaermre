@@ -20,7 +20,7 @@
 
 #include "aer/eventtrap.h"
 #include "internal/hld.h"
-#include "internal/modman.h"
+#include "internal/mod.h"
 
 /* ----- INTERNAL TYPES ----- */
 
