@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "foxutils/arraymacs.h"
+#include "foxutils/mapmacs.h"
 #include "foxutils/math.h"
 
 #include "aer/object.h"
@@ -27,6 +29,106 @@
 #include "internal/log.h"
 #include "internal/modman.h"
 #include "internal/mre.h"
+#include "internal/object.h"
+
+/* ----- PRIVATE GLOBALS ----- */
+
+static FoxMap objTree = {0};
+
+static FoxMap flatObjTree = {0};
+
+/* ----- PRIVATE FUNCTIONS ----- */
+
+static void ObjTreeGetAllChildren(FoxArray *directChildren,
+                                  FoxArray *allChildren) {
+  size_t numDirectChildren = FoxArrayMSize(int32_t, directChildren);
+  for (uint32_t idx = 0; idx < numDirectChildren; idx++) {
+    int32_t childIdx = *FoxArrayMIndex(int32_t, directChildren, idx);
+    *FoxArrayMPush(int32_t, allChildren) = childIdx;
+    FoxArray *nextChildren =
+        FoxMapMIndex(int32_t, FoxArray, &objTree, childIdx);
+    if (nextChildren)
+      ObjTreeGetAllChildren(nextChildren, allChildren);
+  }
+
+  return;
+}
+
+static bool ObjTreeBuildFlatObjTreeCallback(const int32_t *objIdx,
+                                            FoxArray *directChildren,
+                                            void *ctx) {
+  (void)ctx;
+
+  FoxArray *allChildren =
+      FoxMapMInsert(int32_t, FoxArray, &flatObjTree, *objIdx);
+  FoxArrayMInit(int32_t, allChildren);
+  ObjTreeGetAllChildren(directChildren, allChildren);
+
+  return true;
+}
+
+static bool ObjTreeChildrenDeinitCallback(FoxArray *children, void *ctx) {
+  (void)ctx;
+
+  FoxArrayMDeinit(int32_t, children);
+
+  return true;
+}
+
+/* ----- INTERNAL FUNCTIONS ----- */
+
+FoxArray *ObjectGetDirectChildren(int32_t objIdx) {
+  return FoxMapMIndex(int32_t, FoxArray, &objTree, objIdx);
+}
+
+FoxArray *ObjectGetAllChildren(int32_t objIdx) {
+  return FoxMapMIndex(int32_t, FoxArray, &flatObjTree, objIdx);
+}
+
+void ObjectBuildTrees(void) {
+  /* Build object tree. */
+  size_t numObjs = (*hldvars.objectTableHandle)->numItems;
+  for (uint32_t objIdx = 0; objIdx < numObjs; objIdx++) {
+    HLDObject *obj = HLDObjectLookup(objIdx);
+    assert(obj);
+    int32_t parentIdx = obj->parentIndex;
+    FoxArray *directChildren =
+        FoxMapMIndex(int32_t, FoxArray, &objTree, parentIdx);
+    if (!directChildren)
+      FoxArrayMInit(int32_t, (directChildren = FoxMapMInsert(
+                                  int32_t, FoxArray, &objTree, parentIdx)));
+    *FoxArrayMPush(int32_t, directChildren) = objIdx;
+  }
+
+  /* Build flat object tree. */
+  FoxMapMForEachPair(int32_t, FoxArray, &objTree,
+                     ObjTreeBuildFlatObjTreeCallback, NULL);
+
+  return;
+}
+
+void ObjectConstructor(void) {
+  FoxMapMInit(int32_t, FoxArray, &objTree);
+  FoxMapMInit(int32_t, FoxArray, &flatObjTree);
+
+  return;
+}
+
+void ObjectDestructor(void) {
+  /* Deinitialize object tree. */
+  FoxMapMForEachElement(int32_t, FoxArray, &objTree,
+                        ObjTreeChildrenDeinitCallback, NULL);
+  FoxMapMDeinit(int32_t, FoxArray, &objTree);
+  objTree = (FoxMap){0};
+
+  /* Deinitialize flat object tree. */
+  FoxMapMForEachElement(int32_t, FoxArray, &flatObjTree,
+                        ObjTreeChildrenDeinitCallback, NULL);
+  FoxMapMDeinit(int32_t, FoxArray, &flatObjTree);
+  flatObjTree = (FoxMap){0};
+
+  return;
+}
 
 /* ----- PUBLIC FUNCTIONS ----- */
 

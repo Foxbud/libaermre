@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERNAL_OBJTREE_H
-#define INTERNAL_OBJTREE_H
+#ifndef INTERNAL_OBJECT_H
+#define INTERNAL_OBJECT_H
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
-#include "foxutils/map.h"
-
-/* ----- INTERNAL TYPES ----- */
-
-typedef struct ObjTree {
-  FoxMap table;
-} ObjTree;
+#include "foxutils/array.h"
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-ObjTree *ObjTreeNew(void);
+FoxArray *ObjectGetDirectChildren(int32_t objIdx);
 
-void ObjTreeFree(ObjTree *tree);
+FoxArray *ObjectGetAllChildren(int32_t objIdx);
 
-void ObjTreeInsert(ObjTree *tree, int32_t objIdx, int32_t childIdx);
+void ObjectBuildTrees(void);
 
-void ObjTreeForEach(ObjTree *tree, int32_t rootObjIdx, size_t maxDepth,
-                    bool (*callback)(int32_t objIdx, void *ctx), void *ctx);
+void ObjectConstructor(void);
 
-#endif /* INTERNAL_OBJTREE_H */
+void ObjectDestructor(void);
+
+#endif /* INTERNAL_OBJECT_H */

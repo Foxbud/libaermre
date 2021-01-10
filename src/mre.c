@@ -34,26 +34,12 @@
 #include "internal/log.h"
 #include "internal/modman.h"
 #include "internal/mre.h"
+#include "internal/object.h"
 #include "internal/rand.h"
-
-/* ----- PRIVATE TYPES ----- */
-
-/*
- * This struct holds context information about the target event when
- * recursively subscribing objects to an event that requires subscription.
- */
-typedef struct SubscriptionContext {
-  HLDEventType eventType;
-  uint32_t eventNum;
-  size_t *subCountsArr;
-  HLDEventSubscribers *subArrs;
-} SubscriptionContext;
 
 /* ----- PRIVATE CONSTANTS ----- */
 
 static const char *ABS_ASSET_PATH_FMT = "assets/mod/%s/%s";
-
-static const size_t MAX_OBJ_TREE_DEPTH = 64;
 
 /* ----- PRIVATE GLOBALS ----- */
 
@@ -215,44 +201,18 @@ static void BuildInstanceLocals(void) {
   return;
 }
 
-static void BuildObjTree(void) {
-  size_t numObjs = (*hldvars.objectTableHandle)->numItems;
-  for (uint32_t idx = 0; idx < numObjs; idx++) {
-    HLDObject *obj = HLDObjectLookup(idx);
-    assert(obj);
-    ObjTreeInsert(mre.objTree, obj->parentIndex, idx);
-  }
-
-  return;
-}
-
-static bool EnsureEventSubscriber(int32_t objIdx, void *ctx) {
-#define ctx ((SubscriptionContext *)ctx)
-  EventKey key = {
-      .type = ctx->eventType, .num = ctx->eventNum, .objIdx = objIdx};
-  if (!FoxMapMIndex(EventKey, uint8_t, mre.eventSubscribers, key)) {
-    uint32_t arrIdx = ctx->subCountsArr[key.num]++;
-    ctx->subArrs[key.num].objects[arrIdx] = objIdx;
-    FoxMapMInsert(EventKey, uint8_t, mre.eventSubscribers, key);
-  }
-
-  return true;
-#undef ctx
-}
-
 static void RegisterEventSubscriber(EventKey key) {
-  SubscriptionContext ctx;
-  ctx.eventType = key.type;
-  ctx.eventNum = key.num;
+  size_t *subCount;
+  HLDEventSubscribers subArr;
   switch (key.type) {
   case HLD_EVENT_ALARM:
-    ctx.subCountsArr = *hldvars.alarmEventSubscriberCounts;
-    ctx.subArrs = *hldvars.alarmEventSubscribers;
+    subCount = (*hldvars.alarmEventSubscriberCounts) + key.num;
+    subArr = (*hldvars.alarmEventSubscribers)[key.num];
     break;
 
   case HLD_EVENT_STEP:
-    ctx.subCountsArr = *hldvars.stepEventSubscriberCounts;
-    ctx.subArrs = *hldvars.stepEventSubscribers;
+    subCount = (*hldvars.stepEventSubscriberCounts) + key.num;
+    subArr = (*hldvars.stepEventSubscribers)[key.num];
     break;
 
   default:
@@ -260,9 +220,24 @@ static void RegisterEventSubscriber(EventKey key) {
     abort();
   }
 
-  if (!FoxMapMIndex(EventKey, uint8_t, mre.eventSubscribers, key)) {
-    ObjTreeForEach(mre.objTree, key.objIdx, MAX_OBJ_TREE_DEPTH,
-                   &EnsureEventSubscriber, &ctx);
+  FoxMap *eventSubs = mre.eventSubscribers;
+  if (!FoxMapMIndex(EventKey, uint8_t, eventSubs, key)) {
+    uint32_t arrIdx = (*subCount)++;
+    subArr.objects[arrIdx] = key.objIdx;
+    FoxMapMInsert(EventKey, uint8_t, eventSubs, key);
+
+    FoxArray *allChildren = ObjectGetAllChildren(key.objIdx);
+    if (allChildren) {
+      size_t numChildren = FoxArrayMSize(int32_t, allChildren);
+      for (uint32_t childIdx = 0; childIdx < numChildren; childIdx++) {
+        key.objIdx = childIdx;
+        if (!FoxMapMIndex(EventKey, uint8_t, eventSubs, key)) {
+          arrIdx = (*subCount)++;
+          subArr.objects[arrIdx] = key.objIdx;
+          FoxMapMInsert(EventKey, uint8_t, eventSubs, key);
+        }
+      }
+    }
   }
 
   return;
@@ -299,7 +274,6 @@ static void InitMRE(HLDVariables varRefs, HLDFunctions funcRefs) {
 
   mre = (AERMRE){
       .roomIndexPrevious = 0,
-      .objTree = ObjTreeNew(),
       .instLocals = FoxStringMapMNew(int32_t),
       .eventTraps = FoxMapMNewExt(EventKey, EventTrap, FOXMAP_DEF_INITSLOTS,
                                   &EventKeyHash, &EventKeyCompare),
@@ -351,8 +325,8 @@ static void InitMods(void) {
   }
   LogInfo("Done.");
 
-  /* Build object inheritance tree and mask event subscribers. */
-  BuildObjTree();
+  /* Build object inheritance trees and mask event subscribers. */
+  ObjectBuildTrees();
   MaskEventSubscribers(HLD_EVENT_ALARM, 12, *hldvars.alarmEventSubscriberCounts,
                        *hldvars.alarmEventSubscribers);
   MaskEventSubscribers(HLD_EVENT_STEP, 3, *hldvars.stepEventSubscriberCounts,
@@ -488,6 +462,10 @@ __attribute__((constructor)) void AERConstructor(void) {
   RandConstructor();
   LogInfo("Done initializing random module.");
 
+  LogInfo("Initializing object module...");
+  ObjectConstructor();
+  LogInfo("Done initializing object module.");
+
   LogInfo("Initializing instance module...");
   InstanceConstructor();
   LogInfo("Done initializing instance module.");
@@ -525,14 +503,15 @@ __attribute__((destructor)) void AERDestructor(void) {
   FoxMapMFree(const char *, int32_t, mre.instLocals);
   mre.instLocals = NULL;
 
-  ObjTreeFree(mre.objTree);
-  mre.objTree = NULL;
-
   LogInfo("Done deinitializing mod runtime environment.");
 
   LogInfo("Deinitializing instance module...");
   InstanceDestructor();
   LogInfo("Done deinitializing instance module.");
+
+  LogInfo("Deinitializing object module...");
+  ObjectDestructor();
+  LogInfo("Done deinitializing object module.");
 
   LogInfo("Deinitializing random module...");
   RandDestructor();
