@@ -221,9 +221,9 @@ void ModManDestructor(void) {
   for (uint32_t idx = 0; idx < numMods; idx++) {
     Mod *mod = FoxArrayMPeek(Mod, &modman.mods);
     if (mod->destructor) {
-      *FoxArrayMPush(Mod *, &modman.context) = mod;
+      ModManPushContext(idx);
       mod->destructor();
-      FoxArrayMPop(Mod *, &modman.context);
+      ModManPopContext();
     }
     ModDeinit(mod);
     FoxArrayMPop(Mod, &modman.mods);
