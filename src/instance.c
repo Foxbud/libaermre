@@ -198,14 +198,16 @@ AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx, bool recursive,
 
   if (recursive) {
     FoxArray *children = ObjectManGetAllChildren(objIdx);
-    size_t numChildren = FoxArrayMSize(int32_t, children);
-    for (uint32_t idx = 0; idx < numChildren; idx++) {
-      obj = HLDObjectLookup(*FoxArrayMIndex(int32_t, children, idx));
-      numInsts += obj->numInstances;
-      node = obj->instanceFirst;
-      while (node && bufIdx < bufSize) {
-        instBuf[bufIdx++] = (AERInstance *)node->item;
-        node = node->next;
+    if (children) {
+      size_t numChildren = FoxArrayMSize(int32_t, children);
+      for (uint32_t idx = 0; idx < numChildren; idx++) {
+        obj = HLDObjectLookup(*FoxArrayMIndex(int32_t, children, idx));
+        numInsts += obj->numInstances;
+        node = obj->instanceFirst;
+        while (node && bufIdx < bufSize) {
+          instBuf[bufIdx++] = (AERInstance *)node->item;
+          node = node->next;
+        }
       }
     }
   }
