@@ -13,40 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERNAL_MRE_H
-#define INTERNAL_MRE_H
-
-#include <stdint.h>
-
-#include "foxutils/map.h"
+#ifndef INTERNAL_CORE_H
+#define INTERNAL_CORE_H
 
 /* ----- INTERNAL TYPES ----- */
 
-/* This struct represents the current state of the mod runtime environment. */
-typedef struct AERMRE {
-  /*
-   * Index of active room during previous game step. Solely for detecting
-   * room changes.
-   */
-  int32_t roomIndexPrevious;
-  /* Hash table mapping instance local names to indicies. */
-  FoxMap *instLocals;
-  /* Current stage of the MRE. */
-  enum {
-    STAGE_INIT,
-    STAGE_SPRITE_REG,
-    STAGE_OBJECT_REG,
-    STAGE_LISTENER_REG,
-    STAGE_ACTION
-  } stage;
-} AERMRE;
+typedef enum CoreStage {
+  STAGE_INIT,
+  STAGE_SPRITE_REG,
+  STAGE_OBJECT_REG,
+  STAGE_LISTENER_REG,
+  STAGE_ACTION
+} CoreStage;
 
 /* ----- INTERNAL GLOBALS ----- */
 
-extern AERMRE mre;
+extern CoreStage stage;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-const char *MREGetAbsAssetPath(const char *relAssetPath);
+const char *CoreGetAbsAssetPath(const char *relAssetPath);
 
-#endif /* INTERNAL_MRE_H */
+#endif /* INTERNAL_CORE_H */

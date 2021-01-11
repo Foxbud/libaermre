@@ -38,14 +38,15 @@ find_package(Tomlc99 REQUIRED)
 find_package(Doxygen)
 
 add_library(aermre SHARED
-	src/conf.c
+  src/conf.c
+  src/core.c
 	src/err.c
 	src/event.c
-	src/hld.c
+  src/hld.c
+  src/input.c
 	src/instance.c
 	src/log.c
 	src/mod.c
-	src/mre.c
   src/object.c
   src/option.c
 	src/rand.c

@@ -158,56 +158,65 @@ HLDEventWrapper *HLDEventWrapperNew(HLDEvent *event) {
   return wrapper;
 }
 
-/* Sanity check to make sure all engine variables are as expected. */
-void HLDVariablesCheck(HLDVariables *hldvars) {
-  CheckVar(hldvars->numSteps);
+void HLDRecordEngineRefs(HLDVariables *vars, HLDFunctions *funcs) {
+  LogInfo("Checking engine variables...");
 
-  CheckVar(hldvars->keysPressedTable);
-  CheckVar(hldvars->keysHeldTable);
-  CheckVar(hldvars->keysReleasedTable);
+  CheckVar(vars->numSteps);
 
-  CheckVar(hldvars->mouseButtonsPressedTable);
-  CheckVar(hldvars->mouseButtonsHeldTable);
-  CheckVar(hldvars->mouseButtonsReleasedTable);
+  CheckVar(vars->keysPressedTable);
+  CheckVar(vars->keysHeldTable);
+  CheckVar(vars->keysReleasedTable);
 
-  CheckVar(hldvars->mousePosX);
-  CheckVar(hldvars->mousePosY);
+  CheckVar(vars->mouseButtonsPressedTable);
+  CheckVar(vars->mouseButtonsHeldTable);
+  CheckVar(vars->mouseButtonsReleasedTable);
 
-  CheckVar(hldvars->roomTable);
-  CheckVar(hldvars->roomTable->elements);
-  CheckVar(hldvars->roomTable->size == 0x114);
+  CheckVar(vars->mousePosX);
+  CheckVar(vars->mousePosY);
 
-  CheckVar(hldvars->roomIndexCurrent);
+  CheckVar(vars->roomTable);
+  CheckVar(vars->roomTable->elements);
+  CheckVar(vars->roomTable->size == 0x114);
 
-  CheckVar(hldvars->roomCurrent);
-  CheckVar(*hldvars->roomCurrent);
+  CheckVar(vars->roomIndexCurrent);
 
-  CheckVar(hldvars->spriteTable);
-  CheckVar(hldvars->spriteTable->elements);
-  CheckVar(hldvars->spriteTable->size == 0xd2b);
+  CheckVar(vars->roomCurrent);
+  CheckVar(*vars->roomCurrent);
 
-  CheckVar(hldvars->objectTableHandle);
-  CheckVar(*hldvars->objectTableHandle);
-  CheckVar((*hldvars->objectTableHandle)->slots);
-  CheckVar((*hldvars->objectTableHandle)->numItems == 0x1fe);
-  CheckVar((*hldvars->objectTableHandle)->keyMask == 0x1ff);
+  CheckVar(vars->spriteTable);
+  CheckVar(vars->spriteTable->elements);
+  CheckVar(vars->spriteTable->size == 0xd2b);
 
-  CheckVar(hldvars->instanceTable);
-  CheckVar(hldvars->instanceTable->slots);
+  CheckVar(vars->objectTableHandle);
+  CheckVar(*vars->objectTableHandle);
+  CheckVar((*vars->objectTableHandle)->slots);
+  CheckVar((*vars->objectTableHandle)->numItems == 0x1fe);
+  CheckVar((*vars->objectTableHandle)->keyMask == 0x1ff);
 
-  CheckVar(hldvars->instanceLocalTable);
-  CheckVar(hldvars->instanceLocalTable->elements);
-  CheckVar(hldvars->instanceLocalTable->size == 0xdf4);
+  CheckVar(vars->instanceTable);
+  CheckVar(vars->instanceTable->slots);
 
-  CheckVar(hldvars->alarmEventSubscriberCounts);
-  CheckVar(hldvars->alarmEventSubscribers);
+  CheckVar(vars->instanceLocalTable);
+  CheckVar(vars->instanceLocalTable->elements);
+  CheckVar(vars->instanceLocalTable->size == 0xdf4);
 
-  CheckVar(hldvars->stepEventSubscriberCounts);
-  CheckVar(hldvars->stepEventSubscribers);
+  CheckVar(vars->alarmEventSubscriberCounts);
+  CheckVar(vars->alarmEventSubscribers);
 
-  CheckVar(hldvars->eventClass);
-  CheckVar(hldvars->eventWrapperClass);
-  CheckVar(hldvars->unknownEventAddress);
+  CheckVar(vars->stepEventSubscriberCounts);
+  CheckVar(vars->stepEventSubscribers);
 
+  CheckVar(vars->eventClass);
+  CheckVar(vars->eventWrapperClass);
+  CheckVar(vars->unknownEventAddress);
+
+  LogInfo("Done checking engine variables.");
+
+  LogInfo("Recording engine references...");
+
+  hldvars = *vars;
+  hldfuncs = *funcs;
+
+  LogInfo("Done recording engine references...");
   return;
 }

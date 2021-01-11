@@ -17,12 +17,12 @@
 #include <string.h>
 
 #include "aer/sprite.h"
+#include "internal/core.h"
 #include "internal/err.h"
 #include "internal/export.h"
 #include "internal/hld.h"
 #include "internal/log.h"
 #include "internal/mod.h"
-#include "internal/mre.h"
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
@@ -32,11 +32,11 @@ AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
   ErrIf(!name, AER_NULL_ARG, -1);
   LogInfo("Registering sprite \"%s\" for mod \"%s\"...", name,
           ModManGetMod(ModManPeekContext())->name);
-  ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, AER_SPRITE_NULL);
+  ErrIf(stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, AER_SPRITE_NULL);
   ErrIf(!filename, AER_NULL_ARG, AER_SPRITE_NULL);
 
   int32_t spriteIdx = hldfuncs.actionSpriteAdd(
-      MREGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
+      CoreGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
   HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
   ErrIf(!sprite, AER_BAD_FILE, AER_SPRITE_NULL);
 
@@ -57,10 +57,10 @@ AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
   ErrIf(!oldSprite, AER_FAILED_LOOKUP);
   LogInfo("Replacing sprite \"%s\" for mod \"%s\"...", oldSprite->name,
           ModManGetMod(ModManPeekContext())->name);
-  ErrIf(mre.stage != STAGE_SPRITE_REG, AER_SEQ_BREAK);
+  ErrIf(stage != STAGE_SPRITE_REG, AER_SEQ_BREAK);
   ErrIf(!filename, AER_NULL_ARG);
 
-  hldfuncs.actionSpriteReplace(spriteIdx, MREGetAbsAssetPath(filename),
+  hldfuncs.actionSpriteReplace(spriteIdx, CoreGetAbsAssetPath(filename),
                                numFrames, 0, 0, 0, 0, origX, origY);
   /* TODO Check if replacement was successful. */
 
@@ -70,13 +70,13 @@ AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
 }
 
 AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
-  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
   return hldvars.spriteTable->size;
 }
 
 AER_EXPORT const char *AERSpriteGetName(int32_t spriteIdx) {
-  ErrIf(mre.stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
   HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
   ErrIf(!sprite, AER_FAILED_LOOKUP, NULL);

@@ -25,6 +25,7 @@
     "insts",
     "libaermre",
     "ss",
+    "uncategorized",
     "xoshiro"
   ],
   "files.associations": {

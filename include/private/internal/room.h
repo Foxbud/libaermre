@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERNAL_INSTANCE_H
-#define INTERNAL_INSTANCE_H
+#ifndef INTERNAL_ROOM_H
+#define INTERNAL_ROOM_H
 
-#include <stddef.h>
+#include <stdint.h>
 
-/* ----- INTERNAL FUNCTIONS ----- */
+/* ----- INTERNAL GLOBALS ----- */
 
-void InstanceManPruneModLocals(void);
+extern int32_t roomIndexPrevious;
 
-void InstanceManRecordHLDLocals(void);
-
-void InstanceManConstructor(void);
-
-void InstanceManDestructor(void);
-
-#endif /* INTERNAL_INSTANCE_H */
+#endif /* INTERNAL_ROOM_H */

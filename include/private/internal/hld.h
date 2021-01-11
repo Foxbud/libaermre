@@ -544,6 +544,6 @@ HLDEvent *HLDEventNew(HLDNamedFunction *handler);
 
 HLDEventWrapper *HLDEventWrapperNew(HLDEvent *event);
 
-void HLDVariablesCheck(HLDVariables *hldvars);
+void HLDRecordEngineRefs(HLDVariables *vars, HLDFunctions *funcs);
 
 #endif /* INTERNAL_HLD_H */

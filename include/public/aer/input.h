@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @brief Uncategorized functions for querying and manipulating game state.
+ * @brief Utilities for querying user input.
  *
  * @since 1.0.0
  *
@@ -19,25 +19,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AER_MRE_H
-#define AER_MRE_H
+#ifndef AER_INPUT_H
+#define AER_INPUT_H
 
 #include <stdbool.h>
 #include <stdint.h>
 
 /* ----- PUBLIC FUNCTIONS ----- */
-
-/**
- * @brief Query the number of steps (ticks) elapsed since the start
- * of the game.
- *
- * @return Number of steps or `0` if unsuccessful.
- *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
- *
- * @since 1.0.0
- */
-uint32_t AERGetNumSteps(void);
 
 /**
  * @brief Query the keyboard key(s) that the user just pressed this step.
@@ -49,7 +37,7 @@ uint32_t AERGetNumSteps(void);
  *
  * @since 1.0.0
  */
-const bool *AERGetKeysPressed(void);
+const bool *AERInputGetKeysPressed(void);
 
 /**
  * @brief Query the keyboard key(s) that the user has held this step.
@@ -61,7 +49,7 @@ const bool *AERGetKeysPressed(void);
  *
  * @since 1.0.0
  */
-const bool *AERGetKeysHeld(void);
+const bool *AERInputGetKeysHeld(void);
 
 /**
  * @brief Query the keyboard key(s) that the user just released this step.
@@ -73,7 +61,7 @@ const bool *AERGetKeysHeld(void);
  *
  * @since 1.0.0
  */
-const bool *AERGetKeysReleased(void);
+const bool *AERInputGetKeysReleased(void);
 
 /**
  * @brief Query the mouse button(s) that the user just pressed this step.
@@ -94,7 +82,7 @@ const bool *AERGetKeysReleased(void);
  *
  * @since 1.0.0
  */
-const bool *AERGetMouseButtonsPressed(void);
+const bool *AERInputGetMouseButtonsPressed(void);
 
 /**
  * @brief Query the mouse button(s) that the user had held this step.
@@ -107,7 +95,7 @@ const bool *AERGetMouseButtonsPressed(void);
  *
  * @since 1.0.0
  */
-const bool *AERGetMouseButtonsHeld(void);
+const bool *AERInputGetMouseButtonsHeld(void);
 
 /**
  * @brief Query the mouse button(s) that the user just released this step.
@@ -120,7 +108,7 @@ const bool *AERGetMouseButtonsHeld(void);
  *
  * @since 1.0.0
  */
-const bool *AERGetMouseButtonsReleased(void);
+const bool *AERInputGetMouseButtonsReleased(void);
 
 /**
  * @brief Query the current position of the mouse cursor in pixels.
@@ -139,15 +127,6 @@ const bool *AERGetMouseButtonsReleased(void);
  *
  * @since 1.0.0
  */
-void AERGetMousePosition(uint32_t *x, uint32_t *y);
+void AERInputGetMousePosition(uint32_t *x, uint32_t *y);
 
-/* ----- DOCUMENTATION PAGES ----- */
-
-/**
- * @mainpage
- *
- * Welcome to the public API documentation for the Action-Event-Response (AER)
- * Mod Runtime Environment (MRE)!
- */
-
-#endif /* AER_MRE_H */
+#endif /* AER_INPUT_H */

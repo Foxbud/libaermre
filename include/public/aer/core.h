@@ -1,4 +1,10 @@
 /**
+ * @file
+ *
+ * @brief Uncategorized functions for querying and manipulating game state.
+ *
+ * @since 1.0.0
+ *
  * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,30 +19,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "aer/room.h"
-#include "internal/core.h"
-#include "internal/err.h"
-#include "internal/export.h"
-#include "internal/hld.h"
-#include "internal/room.h"
+#ifndef AER_CORE_H
+#define AER_CORE_H
 
-/* ----- INTERNAL GLOBALS ----- */
-
-int32_t roomIndexPrevious = AER_ROOM_NULL;
+#include <stdint.h>
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AER_EXPORT int32_t AERRoomGetCurrent(void) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, AER_ROOM_NULL);
+/**
+ * @brief Query the number of steps (ticks) elapsed since the start
+ * of the game.
+ *
+ * @return Number of steps or `0` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.0.0
+ */
+uint32_t AERGetNumSteps(void);
 
-  return *hldvars.roomIndexCurrent;
-}
+/* ----- DOCUMENTATION PAGES ----- */
 
-AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
-  ErrIf(!HLDRoomLookup(roomIdx), AER_FAILED_LOOKUP);
+/**
+ * @mainpage
+ *
+ * Welcome to the public API documentation for the Action-Event-Response (AER)
+ * Mod Runtime Environment (MRE)!
+ */
 
-  hldfuncs.actionRoomGoto(roomIdx, 0);
-
-  return;
-}
+#endif /* AER_CORE_H */
