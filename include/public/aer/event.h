@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @brief Utilities for querying and manipulating entrapped object events.
+ * @brief Utilities for querying and manipulating object events.
  *
  * @since 1.0.0
  *
@@ -19,8 +19,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AER_EVENTTRAP_H
-#define AER_EVENTTRAP_H
+#ifndef AER_EVENT_H
+#define AER_EVENT_H
 
 #include <stdbool.h>
 
@@ -29,13 +29,13 @@
 /* ----- PUBLIC TYPES ----- */
 
 /**
- * @brief Context object for object event listener iteration.
+ * @brief Context object for object event listeners.
  *
  * For more information about how to use this object see @ref ObjListeners.
  *
  * @since 1.0.0
  */
-typedef struct AEREventTrapIter {
+typedef struct AEREventContext {
   /**
    * @var next
    *
@@ -52,10 +52,10 @@ typedef struct AEREventTrapIter {
    *
    * @since 1.0.0
    *
-   * @memberof AEREventTrapIter
+   * @memberof AEREventContext
    */
-  bool (*next)(struct AEREventTrapIter *ctx, AERInstance *target,
+  bool (*next)(struct AEREventContext *ctx, AERInstance *target,
                AERInstance *other);
-} AEREventTrapIter;
+} AEREventContext;
 
-#endif /* AER_EVENTTRAP_H */
+#endif /* AER_EVENT_H */

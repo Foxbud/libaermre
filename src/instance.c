@@ -96,7 +96,7 @@ static bool ModLocalKeyGetOrphansCallback(const ModLocalKey *key,
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void InstancePruneModLocals(void) {
+void InstanceManPruneModLocals(void) {
   LogInfo("Pruning mod instance locals...");
 
   FoxArray orphans;
@@ -118,18 +118,24 @@ void InstancePruneModLocals(void) {
   return;
 }
 
-void InstanceConstructor(void) {
+void InstanceManConstructor(void) {
+  LogInfo("Initializing instance module...");
+
   FoxMapMInit(ModLocalKey, ModLocalVal, &modLocals);
 
+  LogInfo("Done initializing instance module.");
   return;
 }
 
-void InstanceDestructor(void) {
+void InstanceManDestructor(void) {
+  LogInfo("Deinitializing instance module...");
+
   FoxMapMForEachElement(ModLocalKey, ModLocalVal, &modLocals,
                         ModLocalValDeinitCallback, NULL);
   FoxMapMDeinit(ModLocalKey, ModLocalVal, &modLocals);
   modLocals = (FoxMap){0};
 
+  LogInfo("Done deinitializing instance module.");
   return;
 }
 

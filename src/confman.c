@@ -301,6 +301,8 @@ static bool ConfEntryDeinitCallback(ConfEntry *entry, void *ctx) {
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void ConfManConstructor(void) {
+  LogInfo("Initializing configuration manager module...");
+
   /* Initialize globals. */
   FoxStringMapMInit(ConfEntry, &conf);
   FoxArrayMInit(uint32_t, &workingBreaks);
@@ -329,16 +331,19 @@ void ConfManConstructor(void) {
   /* Cleanup. */
   toml_free(data);
 
+  LogInfo("Done initializing configuration manager module.");
   return;
 }
 
 void ConfManDestructor(void) {
-  /* Deinitialize globals. */
+  LogInfo("Deinitializing configuration manager module...");
+
   FoxMapMForEachElement(const char *, ConfEntry, &conf, ConfEntryDeinitCallback,
                         NULL);
   FoxMapMDeinit(const char *, ConfEntry, &conf);
   FoxArrayMDeinit(uint32_t, &workingBreaks);
 
+  LogInfo("Done deinitializing configuration manager module.");
   return;
 }
 

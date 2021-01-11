@@ -24,14 +24,14 @@
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-FoxArray *ObjectGetDirectChildren(int32_t objIdx);
+FoxArray *ObjectManGetDirectChildren(int32_t objIdx);
 
-FoxArray *ObjectGetAllChildren(int32_t objIdx);
+FoxArray *ObjectManGetAllChildren(int32_t objIdx);
 
-void ObjectBuildTrees(void);
+void ObjectManBuildInheritanceTrees(void);
 
-void ObjectConstructor(void);
+void ObjectManConstructor(void);
 
-void ObjectDestructor(void);
+void ObjectManDestructor(void);
 
 #endif /* INTERNAL_OBJECT_H */

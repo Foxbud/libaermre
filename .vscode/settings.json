@@ -18,9 +18,12 @@
     "aererr",
     "arrs",
     "deinitializing",
+    "fox",
     "hldfuncs",
     "hldvars",
     "insts",
-    "libaermre"
+    "libaermre",
+    "ss",
+    "xoshiro"
   ]
 }

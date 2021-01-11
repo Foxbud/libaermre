@@ -20,10 +20,10 @@
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void InstancePruneModLocals(void);
+void InstanceManPruneModLocals(void);
 
-void InstanceConstructor(void);
+void InstanceManConstructor(void);
 
-void InstanceDestructor(void);
+void InstanceManDestructor(void);
 
 #endif /* INTERNAL_INSTANCE_H */

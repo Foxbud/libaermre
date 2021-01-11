@@ -30,7 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "aer/eventtrap.h"
+#include "aer/event.h"
 #include "aer/instance.h"
 
 /* ----- PUBLIC TYPES ----- */
@@ -692,7 +692,7 @@ void AERObjectSetCollisions(int32_t objIdx, bool collisions);
  * @sa AERInstanceCreate
  */
 void AERObjectAttachCreateListener(int32_t objIdx,
-                                   bool (*listener)(AEREventTrapIter *ctx,
+                                   bool (*listener)(AEREventContext *ctx,
                                                     AERInstance *target,
                                                     AERInstance *other));
 
@@ -720,7 +720,7 @@ void AERObjectAttachCreateListener(int32_t objIdx,
  * @sa AERInstanceDelete
  */
 void AERObjectAttachDestroyListener(int32_t objIdx,
-                                    bool (*listener)(AEREventTrapIter *ctx,
+                                    bool (*listener)(AEREventContext *ctx,
                                                      AERInstance *target,
                                                      AERInstance *other));
 
@@ -748,7 +748,7 @@ void AERObjectAttachDestroyListener(int32_t objIdx,
  * @sa AERInstanceSetAlarm
  */
 void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
-                                  bool (*listener)(AEREventTrapIter *ctx,
+                                  bool (*listener)(AEREventContext *ctx,
                                                    AERInstance *target,
                                                    AERInstance *other));
 
@@ -771,7 +771,7 @@ void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
  * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachStepListener(int32_t objIdx,
-                                 bool (*listener)(AEREventTrapIter *ctx,
+                                 bool (*listener)(AEREventContext *ctx,
                                                   AERInstance *target,
                                                   AERInstance *other));
 
@@ -796,7 +796,7 @@ void AERObjectAttachStepListener(int32_t objIdx,
  * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachPreStepListener(int32_t objIdx,
-                                    bool (*listener)(AEREventTrapIter *ctx,
+                                    bool (*listener)(AEREventContext *ctx,
                                                      AERInstance *target,
                                                      AERInstance *other));
 
@@ -819,7 +819,7 @@ void AERObjectAttachPreStepListener(int32_t objIdx,
  * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachPostStepListener(int32_t objIdx,
-                                     bool (*listener)(AEREventTrapIter *ctx,
+                                     bool (*listener)(AEREventContext *ctx,
                                                       AERInstance *target,
                                                       AERInstance *other));
 
@@ -849,7 +849,7 @@ void AERObjectAttachPostStepListener(int32_t objIdx,
  * @sa AERObjectSetCollisions
  */
 void AERObjectAttachCollisionListener(int32_t targetObjIdx, int32_t otherObjIdx,
-                                      bool (*listener)(AEREventTrapIter *ctx,
+                                      bool (*listener)(AEREventContext *ctx,
                                                        AERInstance *target,
                                                        AERInstance *other));
 
@@ -876,7 +876,7 @@ void AERObjectAttachCollisionListener(int32_t targetObjIdx, int32_t otherObjIdx,
  * @sa AERInstanceSetSpriteSpeed
  */
 void AERObjectAttachAnimationEndListener(int32_t objIdx,
-                                         bool (*listener)(AEREventTrapIter *ctx,
+                                         bool (*listener)(AEREventContext *ctx,
                                                           AERInstance *target,
                                                           AERInstance *other));
 

@@ -41,8 +41,7 @@ add_library(aermre SHARED
 	src/confman.c
 	src/confvars.c
 	src/err.c
-	src/eventkey.c
-	src/eventtrap.c
+	src/event.c
 	src/hld.c
 	src/instance.c
 	src/log.c

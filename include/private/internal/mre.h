@@ -18,12 +18,7 @@
 
 #include <stdint.h>
 
-#include "foxutils/array.h"
 #include "foxutils/map.h"
-
-#include "aer/object.h"
-#include "internal/eventkey.h"
-#include "internal/hld.h"
 
 /* ----- INTERNAL TYPES ----- */
 
@@ -36,21 +31,6 @@ typedef struct AERMRE {
   int32_t roomIndexPrevious;
   /* Hash table mapping instance local names to indicies. */
   FoxMap *instLocals;
-  /*
-   * Hash table of all events that have been entrapped during the mod
-   * event listener registration stage.
-   */
-  FoxMap *eventTraps;
-  /* Key of currently active event. */
-  EventKey currentEvent;
-  /*
-   * Because C lacks enclosures, all entrapped events point to this common
-   * event handler which then looks up and executes the trap for the
-   * current event.
-   */
-  HLDNamedFunction eventHandler;
-  /* Internal record of all subscriptions to subscribable events. */
-  FoxMap *eventSubscribers;
   /* Current stage of the MRE. */
   enum {
     STAGE_INIT,
@@ -68,9 +48,5 @@ extern AERMRE mre;
 /* ----- INTERNAL FUNCTIONS ----- */
 
 const char *MREGetAbsAssetPath(const char *relAssetPath);
-
-void MRERegisterEventListener(HLDObject *obj, EventKey key,
-                              bool (*listener)(AEREventTrapIter *,
-                                               AERInstance *, AERInstance *));
 
 #endif /* INTERNAL_MRE_H */

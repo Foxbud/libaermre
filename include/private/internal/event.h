@@ -13,25 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERNAL_EVENTKEY_H
-#define INTERNAL_EVENTKEY_H
+#ifndef INTERNAL_EVENT_H
+#define INTERNAL_EVENT_H
 
-#include <stdint.h>
-
+#include "aer/event.h"
+#include "aer/instance.h"
 #include "internal/hld.h"
 
 /* ----- INTERNAL TYPES ----- */
 
-typedef struct EventKey {
+typedef struct __attribute__((packed)) EventKey {
   HLDEventType type;
   int32_t num;
   int32_t objIdx;
 } EventKey;
 
+/* ----- INTERNAL GLOBALS ----- */
+
+extern EventKey currentEvent;
+
 /* ----- INTERNAL FUNCTIONS ----- */
 
-uint32_t EventKeyHash(const EventKey *key);
+void EventManRegisterEventListener(HLDObject *obj, EventKey key,
+                                   bool (*listener)(AEREventContext *,
+                                                    AERInstance *,
+                                                    AERInstance *));
 
-int32_t EventKeyCompare(const EventKey *keyA, const EventKey *keyB);
+void EventManMaskSubscriptionArrays(void);
 
-#endif /* INTERNAL_EVENTKEY_H */
+void EventManConstructor(void);
+
+void EventManDestructor(void);
+
+#endif /* INTERNAL_EVENT_H */
