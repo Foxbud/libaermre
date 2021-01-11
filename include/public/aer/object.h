@@ -642,6 +642,35 @@ const char *AERObjectGetName(int32_t objIdx);
 int32_t AERObjectGetParent(int32_t objIdx);
 
 /**
+ * @brief Query the children of an object.
+ *
+ * @warning Argument `objBuf` must be large enough to hold at least
+ * `bufSize` elements.
+ *
+ * @note Argument `bufSize` may be `0` in which case argument `objBuf` may
+ * be `NULL`. This may be used to efficiently query the total number of
+ * children of the object.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] recursive Whether to query only direct (`false`) or both direct
+ * and indirect (`true`) children.
+ * @param[in] bufSize Maximum number of elements to write to argument
+ * `objBuf`.
+ * @param[out] objBuf Buffer to write object indexes to.
+ *
+ * @return Total number of child objects or `0` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `objBuf` is `NULL` and argument
+ * `bufSize` is greater than `0`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.0.0
+ */
+size_t AERObjectGetChildren(int32_t objIdx, bool recursive, size_t bufSize,
+                            int32_t *objBuf);
+
+/**
  * @brief Query whether or not an object has collision checking enabled.
  *
  * @param[in] objIdx Object of interest.

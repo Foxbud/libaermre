@@ -201,6 +201,27 @@ AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
   return obj->parentIndex;
 }
 
+size_t AERObjectGetChildren(int32_t objIdx, bool recursive, size_t bufSize,
+                            int32_t *objBuf) {
+  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+  ErrIf(!objBuf && bufSize > 0, AER_NULL_ARG, 0);
+
+  HLDObject *obj = HLDObjectLookup(objIdx);
+  ErrIf(!obj, AER_FAILED_LOOKUP, 0);
+
+  FoxArray *children = FoxMapMIndex(
+      int32_t, FoxArray, (recursive ? &flatObjTree : &objTree), objIdx);
+  if (!children)
+    return 0;
+  size_t numChildren = FoxArrayMSize(int32_t, children);
+
+  size_t numToWrite = FoxMin(numChildren, bufSize);
+  for (uint32_t idx = 0; idx < numToWrite; idx++)
+    objBuf[idx] = *FoxArrayMIndex(int32_t, children, idx);
+
+  return numChildren;
+}
+
 AER_EXPORT bool AERObjectGetCollisions(int32_t objIdx) {
   ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, false);
 
