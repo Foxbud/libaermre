@@ -25,8 +25,7 @@
 #include "foxutils/stringmapmacs.h"
 
 #include "aer/mre.h"
-#include "internal/confman.h"
-#include "internal/confvars.h"
+#include "internal/conf.h"
 #include "internal/err.h"
 #include "internal/event.h"
 #include "internal/export.h"
@@ -35,6 +34,7 @@
 #include "internal/mod.h"
 #include "internal/mre.h"
 #include "internal/object.h"
+#include "internal/option.h"
 #include "internal/rand.h"
 
 /* ----- PRIVATE CONSTANTS ----- */
@@ -192,8 +192,8 @@ AER_EXPORT void AERHookEvent(HLDObject *targetObject, HLDEventType eventType,
 __attribute__((constructor)) void AERConstructor(void) {
   LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
 
-  ConfManConstructor();
-  ConfVarsConstructor();
+  ConfConstructor();
+  OptionConstructor();
   RandConstructor();
   EventManConstructor();
   ObjectManConstructor();
@@ -216,8 +216,8 @@ __attribute__((destructor)) void AERDestructor(void) {
   ObjectManDestructor();
   EventManDestructor();
   RandDestructor();
-  ConfVarsDestructor();
-  ConfManDestructor();
+  OptionDestructor();
+  ConfDestructor();
 
   return;
 }

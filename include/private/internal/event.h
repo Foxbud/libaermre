@@ -35,7 +35,7 @@ extern EventKey currentEvent;
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void EventManRegisterEventListener(HLDObject *obj, EventKey key,
-                                   bool (*listener)(AEREventContext *,
+                                   bool (*listener)(AEREvent *,
                                                     AERInstance *,
                                                     AERInstance *));
 

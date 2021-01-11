@@ -38,8 +38,7 @@ find_package(Tomlc99 REQUIRED)
 find_package(Doxygen)
 
 add_library(aermre SHARED
-	src/confman.c
-	src/confvars.c
+	src/conf.c
 	src/err.c
 	src/event.c
 	src/hld.c
@@ -47,9 +46,10 @@ add_library(aermre SHARED
 	src/log.c
 	src/mod.c
 	src/mre.c
-	src/object.c
+  src/object.c
+  src/option.c
 	src/rand.c
-	src/room.c
+  src/room.c
 	src/sprite.c)
 generate_export_header(aermre
 	BASE_NAME AER

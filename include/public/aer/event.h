@@ -29,33 +29,34 @@
 /* ----- PUBLIC TYPES ----- */
 
 /**
- * @brief Context object for object event listeners.
+ * @brief An object event.
  *
  * For more information about how to use this object see @ref ObjListeners.
  *
  * @since 1.0.0
  */
-typedef struct AEREventContext {
+typedef struct AEREvent {
   /**
-   * @var next
+   * @var handle
    *
-   * @brief Call the next event listener attached to the current event.
+   * @brief Handle the current event.
    *
-   * @param[in] ctx Context object passed to the currently executing listener.
+   * This function has the effect of calling the next event listener attached to
+   * this object event.
+   *
+   * @param[in] event Event object passed to the currently executing listener.
    * @param[in] target Target instance passed to the currently executing
    * listener.
    * @param[in] other Other instance passed to the currently executing listener.
    *
-   * @return `true` if the original vanilla listener attached to this event was
-   * called or `false` if any mod listener in this event trap "cancelled" the
-   * event. The vanilla listener will always return `true`.
+   * @return Whether or not the event was handled.
    *
    * @since 1.0.0
    *
-   * @memberof AEREventContext
+   * @memberof AEREvent
    */
-  bool (*next)(struct AEREventContext *ctx, AERInstance *target,
-               AERInstance *other);
-} AEREventContext;
+  bool (*handle)(struct AEREvent *event, AERInstance *target,
+                 AERInstance *other);
+} AEREvent;
 
 #endif /* AER_EVENT_H */

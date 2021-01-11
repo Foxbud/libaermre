@@ -19,8 +19,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AER_CONFMAN_H
-#define AER_CONFMAN_H
+#ifndef AER_CONF_H
+#define AER_CONF_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -44,7 +44,7 @@
  *
  * @sa AERConfManGetBools
  */
-bool AERConfManGetBool(const char *key);
+bool AERConfGetBool(const char *key);
 
 /**
  * @brief Parse an array of boolean values from the configuration data.
@@ -74,7 +74,7 @@ bool AERConfManGetBool(const char *key);
  *
  * @sa AERConfManGetBool
  */
-size_t AERConfManGetBools(const char *key, size_t bufSize, bool *boolBuf);
+size_t AERConfGetBools(const char *key, size_t bufSize, bool *boolBuf);
 
 /**
  * @brief Parse an integer value from the configuration data.
@@ -92,7 +92,7 @@ size_t AERConfManGetBools(const char *key, size_t bufSize, bool *boolBuf);
  *
  * @sa AERConfManGetInts
  */
-int64_t AERConfManGetInt(const char *key);
+int64_t AERConfGetInt(const char *key);
 
 /**
  * @brief Parse an array of integer values from the configuration data.
@@ -122,7 +122,7 @@ int64_t AERConfManGetInt(const char *key);
  *
  * @sa AERConfManGetInt
  */
-size_t AERConfManGetInts(const char *key, size_t bufSize, int64_t *intBuf);
+size_t AERConfGetInts(const char *key, size_t bufSize, int64_t *intBuf);
 
 /**
  * @brief Parse a double value from the configuration data.
@@ -140,7 +140,7 @@ size_t AERConfManGetInts(const char *key, size_t bufSize, int64_t *intBuf);
  *
  * @sa AERConfManGetDoubles
  */
-double AERConfManGetDouble(const char *key);
+double AERConfGetDouble(const char *key);
 
 /**
  * @brief Parse an array of double values from the configuration data.
@@ -170,7 +170,7 @@ double AERConfManGetDouble(const char *key);
  *
  * @sa AERConfManGetDouble
  */
-size_t AERConfManGetDoubles(const char *key, size_t bufSize, double *doubleBuf);
+size_t AERConfGetDoubles(const char *key, size_t bufSize, double *doubleBuf);
 
 /**
  * @brief Parse a string from the configuration data.
@@ -188,7 +188,7 @@ size_t AERConfManGetDoubles(const char *key, size_t bufSize, double *doubleBuf);
  *
  * @sa AERConfManGetStrings
  */
-const char *AERConfManGetString(const char *key);
+const char *AERConfGetString(const char *key);
 
 /**
  * @brief Parse an array of strings from the configuration data.
@@ -218,7 +218,6 @@ const char *AERConfManGetString(const char *key);
  *
  * @sa AERConfManGetString
  */
-size_t AERConfManGetStrings(const char *key, size_t bufSize,
-                            const char **strBuf);
+size_t AERConfGetStrings(const char *key, size_t bufSize, const char **strBuf);
 
-#endif /* AER_CONFMAN_H */
+#endif /* AER_CONF_H */

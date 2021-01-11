@@ -25,8 +25,8 @@
 
 #include "toml.h"
 
-#include "aer/confman.h"
-#include "internal/confman.h"
+#include "aer/conf.h"
+#include "internal/conf.h"
 #include "internal/err.h"
 #include "internal/export.h"
 #include "internal/log.h"
@@ -300,8 +300,8 @@ static bool ConfEntryDeinitCallback(ConfEntry *entry, void *ctx) {
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void ConfManConstructor(void) {
-  LogInfo("Initializing configuration manager module...");
+void ConfConstructor(void) {
+  LogInfo("Initializing configuration module...");
 
   /* Initialize globals. */
   FoxStringMapMInit(ConfEntry, &conf);
@@ -331,25 +331,25 @@ void ConfManConstructor(void) {
   /* Cleanup. */
   toml_free(data);
 
-  LogInfo("Done initializing configuration manager module.");
+  LogInfo("Done initializing configuration module.");
   return;
 }
 
-void ConfManDestructor(void) {
-  LogInfo("Deinitializing configuration manager module...");
+void ConfDestructor(void) {
+  LogInfo("Deinitializing configuration module...");
 
   FoxMapMForEachElement(const char *, ConfEntry, &conf, ConfEntryDeinitCallback,
                         NULL);
   FoxMapMDeinit(const char *, ConfEntry, &conf);
   FoxArrayMDeinit(uint32_t, &workingBreaks);
 
-  LogInfo("Done deinitializing configuration manager module.");
+  LogInfo("Done deinitializing configuration module.");
   return;
 }
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AER_EXPORT bool AERConfManGetBool(const char *key) {
+AER_EXPORT bool AERConfGetBool(const char *key) {
   ErrIf(!key, AER_NULL_ARG, false);
 
   char *absKey = GetAbsKey(key);
@@ -360,8 +360,8 @@ AER_EXPORT bool AERConfManGetBool(const char *key) {
   return entry->value.b;
 }
 
-AER_EXPORT size_t AERConfManGetBools(const char *key, size_t bufSize,
-                                     bool *boolBuf) {
+AER_EXPORT size_t AERConfGetBools(const char *key, size_t bufSize,
+                                  bool *boolBuf) {
   ErrIf(!key, AER_NULL_ARG, 0);
   ErrIf(!boolBuf && bufSize > 0, AER_NULL_ARG, 0);
 
@@ -383,7 +383,7 @@ AER_EXPORT size_t AERConfManGetBools(const char *key, size_t bufSize,
   return numElems;
 }
 
-AER_EXPORT int64_t AERConfManGetInt(const char *key) {
+AER_EXPORT int64_t AERConfGetInt(const char *key) {
   ErrIf(!key, AER_NULL_ARG, 0);
 
   char *absKey = GetAbsKey(key);
@@ -394,8 +394,8 @@ AER_EXPORT int64_t AERConfManGetInt(const char *key) {
   return entry->value.i;
 }
 
-AER_EXPORT size_t AERConfManGetInts(const char *key, size_t bufSize,
-                                    int64_t *intBuf) {
+AER_EXPORT size_t AERConfGetInts(const char *key, size_t bufSize,
+                                 int64_t *intBuf) {
   ErrIf(!key, AER_NULL_ARG, 0);
   ErrIf(!intBuf && bufSize > 0, AER_NULL_ARG, 0);
 
@@ -417,7 +417,7 @@ AER_EXPORT size_t AERConfManGetInts(const char *key, size_t bufSize,
   return numElems;
 }
 
-AER_EXPORT double AERConfManGetDouble(const char *key) {
+AER_EXPORT double AERConfGetDouble(const char *key) {
   ErrIf(!key, AER_NULL_ARG, 0);
 
   char *absKey = GetAbsKey(key);
@@ -428,8 +428,8 @@ AER_EXPORT double AERConfManGetDouble(const char *key) {
   return entry->value.d;
 }
 
-AER_EXPORT size_t AERConfManGetDoubles(const char *key, size_t bufSize,
-                                       double *doubleBuf) {
+AER_EXPORT size_t AERConfGetDoubles(const char *key, size_t bufSize,
+                                    double *doubleBuf) {
   ErrIf(!key, AER_NULL_ARG, 0);
   ErrIf(!doubleBuf && bufSize > 0, AER_NULL_ARG, 0);
 
@@ -451,7 +451,7 @@ AER_EXPORT size_t AERConfManGetDoubles(const char *key, size_t bufSize,
   return numElems;
 }
 
-AER_EXPORT const char *AERConfManGetString(const char *key) {
+AER_EXPORT const char *AERConfGetString(const char *key) {
   ErrIf(!key, AER_NULL_ARG, 0);
 
   char *absKey = GetAbsKey(key);
@@ -462,8 +462,8 @@ AER_EXPORT const char *AERConfManGetString(const char *key) {
   return entry->value.s;
 }
 
-AER_EXPORT size_t AERConfManGetStrings(const char *key, size_t bufSize,
-                                       const char **strBuf) {
+AER_EXPORT size_t AERConfGetStrings(const char *key, size_t bufSize,
+                                    const char **strBuf) {
   ErrIf(!key, AER_NULL_ARG, 0);
   ErrIf(!strBuf && bufSize > 0, AER_NULL_ARG, 0);
 

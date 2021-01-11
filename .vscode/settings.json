@@ -17,6 +17,7 @@
     "AERMRE",
     "aererr",
     "arrs",
+    "bools",
     "deinitializing",
     "fox",
     "hldfuncs",
@@ -25,5 +26,15 @@
     "libaermre",
     "ss",
     "xoshiro"
-  ]
+  ],
+  "files.associations": {
+    "*.tcc": "cpp",
+    "functional": "cpp",
+    "fstream": "cpp",
+    "istream": "cpp",
+    "ranges": "cpp",
+    "streambuf": "cpp",
+    "variant": "cpp",
+    "tuple": "cpp"
+  }
 }

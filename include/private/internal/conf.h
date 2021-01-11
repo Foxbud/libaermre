@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERNAL_CONFVARS_H
-#define INTERNAL_CONFVARS_H
-
-#include <stddef.h>
-
-/* ----- INTERNAL GLOBALS ----- */
-
-extern size_t confNumModNames;
-
-extern const char **confModNames;
+#ifndef INTERNAL_CONF_H
+#define INTERNAL_CONF_H
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void ConfVarsConstructor(void);
+void ConfConstructor(void);
 
-void ConfVarsDestructor(void);
+void ConfDestructor(void);
 
-#endif /* INTERNAL_CONFVARS_H */
+#endif /* INTERNAL_CONF_H */

@@ -39,7 +39,7 @@ typedef struct EventTrap {
 } EventTrap;
 
 typedef struct EventTrapIter {
-  AEREventContext base;
+  AEREvent base;
   EventTrap *trap;
   uint32_t nextIdx;
 } EventTrapIter;
@@ -123,8 +123,8 @@ static void EventTrapIterInit(EventTrapIter *iter, EventTrap *trap) {
   assert(iter);
   assert(trap);
 
-  iter->base.next = ((bool (*)(AEREventContext *, AERInstance *,
-                               AERInstance *))EventTrapIterNext);
+  iter->base.handle =
+      ((bool (*)(AEREvent *, AERInstance *, AERInstance *))EventTrapIterNext);
   iter->trap = trap;
   iter->nextIdx = 0;
 
@@ -134,7 +134,7 @@ static void EventTrapIterInit(EventTrapIter *iter, EventTrap *trap) {
 static void EventTrapIterDeinit(EventTrapIter *iter) {
   assert(iter);
 
-  iter->base.next = NULL;
+  iter->base.handle = NULL;
   iter->trap = NULL;
   iter->nextIdx = 0;
 
@@ -340,8 +340,7 @@ static EventTrap EntrapEvent(HLDObject *obj, HLDEventType eventType,
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void EventManRegisterEventListener(HLDObject *obj, EventKey key,
-                                   bool (*listener)(AEREventContext *,
-                                                    AERInstance *,
+                                   bool (*listener)(AEREvent *, AERInstance *,
                                                     AERInstance *)) {
   /* Register subscription if subscribable event. */
   switch (key.type) {

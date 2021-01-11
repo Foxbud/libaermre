@@ -16,20 +16,14 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "aer/confman.h"
+#include "aer/conf.h"
 #include "aer/err.h"
-#include "internal/confvars.h"
 #include "internal/log.h"
-
-/* ----- PRIVATE CONSTANTS ----- */
-
-static const char *MOD_NAMES_KEY = "mods";
+#include "internal/option.h"
 
 /* ----- INTERNAL GLOBALS ----- */
 
-size_t confNumModNames = 0;
-
-const char **confModNames = NULL;
+Options opts = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
@@ -58,30 +52,29 @@ static void CheckErrors(const char *key) {
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void ConfVarsConstructor(void) {
-  LogInfo("Initializing configuration variables...");
+void OptionConstructor(void) {
+  LogInfo("Initializing options...");
 
   /* Mod names. */
   aererr = AER_OK;
-  confNumModNames = AERConfManGetStrings(MOD_NAMES_KEY, 0, NULL);
-  CheckErrors(MOD_NAMES_KEY);
-  confModNames = malloc(confNumModNames * sizeof(const char *));
-  assert(confModNames);
-  AERConfManGetStrings(MOD_NAMES_KEY, confNumModNames, confModNames);
-  CheckErrors(MOD_NAMES_KEY);
+  opts.numModNames = AERConfGetStrings("mods", 0, NULL);
+  CheckErrors("mods");
+  opts.modNames = malloc(opts.numModNames * sizeof(const char *));
+  assert(opts.modNames);
+  AERConfGetStrings("mods", opts.numModNames, opts.modNames);
+  CheckErrors("mods");
 
-  LogInfo("Done initializing configuration variables.");
+  LogInfo("Done initializing options.");
   return;
 }
 
-void ConfVarsDestructor(void) {
-  LogInfo("Deinitializing configuration variables...");
+void OptionDestructor(void) {
+  LogInfo("Deinitializing options...");
 
   /* Mod names. */
-  free(confModNames);
-  confModNames = NULL;
-  confNumModNames = 0;
+  free(opts.modNames);
+  opts = (Options){0};
 
-  LogInfo("Done deinitializing configuration variables.");
+  LogInfo("Done deinitializing options.");
   return;
 }

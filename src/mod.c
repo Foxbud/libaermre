@@ -25,9 +25,9 @@
 
 #include "aer/err.h"
 #include "aer/mod.h"
-#include "internal/confvars.h"
 #include "internal/log.h"
 #include "internal/mod.h"
+#include "internal/option.h"
 
 /* ----- PRIVATE MACROS ----- */
 
@@ -228,9 +228,9 @@ void ModManConstructor(void) {
   FoxArrayMInit(ModListener, &roomChangeListeners);
 
   /* Load mod libraries. */
-  for (uint32_t idx = 0; idx < confNumModNames; idx++) {
+  for (uint32_t idx = 0; idx < opts.numModNames; idx++) {
     Mod *mod = FoxArrayMPush(Mod, &mods);
-    ModInit(mod, (int32_t)idx, confModNames[idx]);
+    ModInit(mod, (int32_t)idx, opts.modNames[idx]);
     if (mod->constructor) {
       ModManPushContext(idx);
       mod->constructor();
@@ -238,7 +238,7 @@ void ModManConstructor(void) {
     }
   }
 
-  LogInfo("Done. Loaded %zu mod(s).", confNumModNames);
+  LogInfo("Done. Loaded %zu mod(s).", opts.numModNames);
   return;
 }
 

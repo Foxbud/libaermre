@@ -13,13 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERNAL_CONFMAN_H
-#define INTERNAL_CONFMAN_H
+#ifndef INTERNAL_OPTION_H
+#define INTERNAL_OPTION_H
+
+#include <stddef.h>
+
+/* ----- INTERNAL TYPES ----- */
+
+typedef struct Options {
+  size_t numModNames;
+  const char **modNames;
+} Options;
+
+/* ----- INTERNAL GLOBALS ----- */
+
+extern Options opts;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void ConfManConstructor(void);
+void OptionConstructor(void);
 
-void ConfManDestructor(void);
+void OptionDestructor(void);
 
-#endif /* INTERNAL_CONFMAN_H */
+#endif /* INTERNAL_OPTION_H */
