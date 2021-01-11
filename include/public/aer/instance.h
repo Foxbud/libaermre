@@ -708,7 +708,7 @@ void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
                          int32_t numSteps);
 
 /**
- * @brief Query the names of all vanilla locals of an instance.
+ * @brief Query the names of all vanilla local variables of an instance.
  *
  * @warning Argument `nameBuf` must be large enough to hold at least
  * `bufSize` elements.
@@ -737,20 +737,20 @@ size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
                                const char **nameBuf);
 
 /**
- * @brief Get a reference to a specific vanilla local of an instance.
+ * @brief Get a reference to a specific vanilla local variable of an instance.
  *
  * @warning The reference returned by this function should be considered highly
  * unstable.
  *
  * @param[in] inst Instance of interest.
- * @param[in] name Vanilla local name.
+ * @param[in] name Name of vanilla local.
  *
  * @return Reference to vanilla local or `NULL` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if either argument `inst` or `name` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if instance does not have a vanilla local with
- * name given by argument `name`.
+ * given name.
  *
  * @since 1.0.0
  *
@@ -758,16 +758,113 @@ size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
  */
 AERLocal *AERInstanceGetHLDLocal(AERInstance *inst, const char *name);
 
+/**
+ * @brief Create a new mod local variable for an instance.
+ *
+ * @warning The reference returned by this function should be considered highly
+ * unstable.
+ *
+ * @subsubsection ModLocalNamespace Namespace of Mod Local Variables
+ *
+ * When an instance is given a mod local in the public namespace, this local is
+ * accessible by all mods loaded. If, on the other hand, the local is created in
+ * a private namespace, then only the mod that created it can access and destroy
+ * it.
+ *
+ * Multiple mods may each assign a private mod local with the same name to the
+ * same instance without interfering with one another.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] name Name of mod local. Must be 24 characters or less (not
+ * including null-character).
+ * @param[in] public Whether to use the public or private local namespace. For
+ * more information see @ref ModLocalNamespace.
+ * @param[in] destructor Callback function executed when local is destroyed. May
+ * be `NULL` if local does not need special cleanup.
+ *
+ * @return Reference to newly created mod local or `NULL` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if either argument `inst` or `name` is `NULL`.
+ * @throw ::AER_BAD_VAL if argument `name` is greater than 24 characters in
+ * length (not including null-character).
+ * @throw ::AER_FAILED_LOOKUP if instance already has a mod local with given
+ * name in given namespace.
+ *
+ * @since 1.0.0
+ */
 AERLocal *AERInstanceCreateModLocal(AERInstance *inst, const char *name,
                                     bool public,
                                     void (*destructor)(AERLocal *local));
 
+/**
+ * @brief Destroy a mod local variable and call its destructor.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] name Name of mod local. Must be 24 characters or less (not
+ * including null-character).
+ * @param[in] public Whether to use the public or private local namespace. For
+ * more information see @ref ModLocalNamespace.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if either argument `inst` or `name` is `NULL`.
+ * @throw ::AER_BAD_VAL if argument `name` is greater than 24 characters in
+ * length (not including null-character).
+ * @throw ::AER_FAILED_LOOKUP if instance does not have a mod local with given
+ * name in given namespace.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceDeleteModLocal
+ */
 void AERInstanceDestroyModLocal(AERInstance *inst, const char *name,
                                 bool public);
 
+/**
+ * @brief Destroy a mod local variable but do **not** call its destructor.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] name Name of mod local. Must be 24 characters or less (not
+ * including null-character).
+ * @param[in] public Whether to use the public or private local namespace. For
+ * more information see @ref ModLocalNamespace.
+ *
+ * @return Value of deleted local or `(AERLocal){0}` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if either argument `inst` or `name` is `NULL`.
+ * @throw ::AER_BAD_VAL if argument `name` is greater than 24 characters in
+ * length (not including null-character).
+ * @throw ::AER_FAILED_LOOKUP if instance does not have a mod local with given
+ * name in given namespace.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInstanceDestroyModLocal
+ */
 AERLocal AERInstanceDeleteModLocal(AERInstance *inst, const char *name,
                                    bool public);
 
+/**
+ * @brief Get a reference to a specific mod local variable of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] name Name of mod local. Must be 24 characters or less (not
+ * including null-character).
+ * @param[in] public Whether to use the public or private local namespace. For
+ * more information see @ref ModLocalNamespace.
+ *
+ * @return Reference to mod local or `NULL` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if either argument `inst` or `name` is `NULL`.
+ * @throw ::AER_BAD_VAL if argument `name` is greater than 24 characters in
+ * length (not including null-character).
+ * @throw ::AER_FAILED_LOOKUP if instance does not have a mod local with given
+ * name in given namespace.
+ *
+ * @since 1.0.0
+ */
 AERLocal *AERInstanceGetModLocal(AERInstance *inst, const char *name,
                                  bool public);
 

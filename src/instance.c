@@ -608,8 +608,8 @@ AERInstanceCreateModLocal(AERInstance *inst, const char *name, bool public,
   ModLocalKey key;
   ErrIf(!ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
         AER_BAD_VAL, NULL);
-  ErrIf(FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key), AER_BAD_VAL,
-        NULL);
+  ErrIf(FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key),
+        AER_FAILED_LOOKUP, NULL);
 
   ModLocalVal *val = FoxMapMInsert(ModLocalKey, ModLocalVal, &modLocals, key);
   val->destructor = destructor;
