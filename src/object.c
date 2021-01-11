@@ -201,8 +201,8 @@ AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
   return obj->parentIndex;
 }
 
-size_t AERObjectGetChildren(int32_t objIdx, bool recursive, size_t bufSize,
-                            int32_t *objBuf) {
+AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
+                                       size_t bufSize, int32_t *objBuf) {
   ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
   ErrIf(!objBuf && bufSize > 0, AER_NULL_ARG, 0);
 

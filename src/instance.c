@@ -29,6 +29,7 @@
 #include "internal/hld.h"
 #include "internal/instance.h"
 #include "internal/log.h"
+#include "internal/object.h"
 
 /* ----- PRIVATE MACROS ----- */
 
@@ -178,7 +179,8 @@ AER_EXPORT size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf) {
   return numInsts;
 }
 
-AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx, size_t bufSize,
+AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx, bool recursive,
+                                         size_t bufSize,
                                          AERInstance **instBuf) {
   ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
   ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
@@ -187,11 +189,25 @@ AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx, size_t bufSize,
   ErrIf(!obj, AER_FAILED_LOOKUP, 0);
 
   size_t numInsts = obj->numInstances;
-  size_t numToWrite = FoxMin(numInsts, bufSize);
+  uint32_t bufIdx = 0;
   HLDNodeDLL *node = obj->instanceFirst;
-  for (uint32_t idx = 0; idx < numToWrite; idx++) {
-    instBuf[idx] = (AERInstance *)node->item;
+  while (node && bufIdx < bufSize) {
+    instBuf[bufIdx++] = (AERInstance *)node->item;
     node = node->next;
+  }
+
+  if (recursive) {
+    FoxArray *children = ObjectManGetAllChildren(objIdx);
+    size_t numChildren = FoxArrayMSize(int32_t, children);
+    for (uint32_t idx = 0; idx < numChildren; idx++) {
+      obj = HLDObjectLookup(*FoxArrayMIndex(int32_t, children, idx));
+      numInsts += obj->numInstances;
+      node = obj->instanceFirst;
+      while (node && bufIdx < bufSize) {
+        instBuf[bufIdx++] = (AERInstance *)node->item;
+        node = node->next;
+      }
+    }
   }
 
   return numInsts;

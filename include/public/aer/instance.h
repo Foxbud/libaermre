@@ -78,7 +78,6 @@ size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf);
 /**
  * @brief Query all instances of an object in the current room.
  *
- * @warning Does **not** include instances of child objects.
  * @warning Argument `instBuf` must be large enough to hold at least
  * `bufSize` elements.
  *
@@ -87,6 +86,9 @@ size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf);
  * instances of an object in the current room.
  *
  * @param[in] objIdx Object to get instances of.
+ * @param[in] recursive Whether to query instances of given object only
+ * (`false`) or both given object and direct and indirect children of given
+ * object (`true`).
  * @param[in] bufSize Maximum number of elements to write to argument
  * `instBuf`.
  * @param[out] instBuf Buffer to write instances to.
@@ -101,7 +103,7 @@ size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf);
  *
  * @since 1.0.0
  */
-size_t AERInstanceGetByObject(int32_t objIdx, size_t bufSize,
+size_t AERInstanceGetByObject(int32_t objIdx, bool recursive, size_t bufSize,
                               AERInstance **instBuf);
 
 /**
