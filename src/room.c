@@ -22,7 +22,7 @@
 
 /* ----- INTERNAL GLOBALS ----- */
 
-int32_t roomIndexPrevious = AER_ROOM_NULL;
+int32_t roomIndexPrevious = AER_ROOM__INIT;
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
