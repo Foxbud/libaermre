@@ -37,6 +37,12 @@ find_package(Foxutils REQUIRED)
 find_package(Tomlc99 REQUIRED)
 find_package(Doxygen)
 
+# Configure files.
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/VERSION.txt.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/VERSION.txt" @ONLY)
+
+# Add MRE library target.
 add_library(aermre SHARED
   src/conf.c
   src/core.c
@@ -88,7 +94,8 @@ install(EXPORT AERMRETargets
 install(FILES
 	AUTHORS.txt
 	LICENSE.txt
-	NOTICE.txt
+  NOTICE.txt
+  "${CMAKE_CURRENT_BINARY_DIR}/VERSION.txt"
 	DESTINATION ".")
 install(DIRECTORY ACKNOWLEDGMENTS
 	DESTINATION ".")
