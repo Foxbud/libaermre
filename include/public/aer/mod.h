@@ -4,8 +4,11 @@
  * @brief Defining and initializing mods.
  *
  * When the MRE successfully loads a mod library, it first searches for and
- * calls the mod's public definition function, which must have the signature
- * `AERModDef define_mod(void)`.
+ * calls the mod's public definition function, which must have the signature:
+ *
+ * @code{.c}
+ * AERModDef define_mod(void);
+ * @endcode
  *
  * In an attempt to accommodate varied naming conventions, this function may
  * be named any of the following:

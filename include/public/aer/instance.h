@@ -36,7 +36,7 @@
 typedef void AERInstance;
 
 /**
- * @brief TODO.
+ * @brief A dynamic member variable of an instance.
  *
  * @since 1.0.0
  */

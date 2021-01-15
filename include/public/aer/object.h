@@ -5,7 +5,61 @@
  *
  * @subsubsection ObjListeners Object Event Listeners
  *
- * TODO
+ * An object event listener is a callback function with the signature:
+ *
+ * @code{.c}
+ * bool listener(AEREvent *event, AERInstance *target, AERInstance *other);
+ * @endcode
+ *
+ * Whenever the event in question occurs for an instance of the given object,
+ * the MRE executes this callback, passing in the instance that triggered the
+ * event through the argument `target`. For all events except collisions,
+ * argument `other` is simply set to the same value as argument `target`. For
+ * collision events, argument `other` is set to the instance that the target
+ * instance collided with to trigger the event.
+ *
+ * The argument `event` has a member callback `handle` which "handles" the
+ * event. That is to say that calling this function with the arguments that the
+ * current event listener received has the effect of calling the next event
+ * listener attached to this object event by a mod with lower priority. However,
+ * if the current listener happens to be the last in the chain, then calling
+ * `handle` will execute the vanilla listener for this event. Regardless, it
+ * should not matter to the current event listener which of these is the case.
+ *
+ * This means that each listener in the chain is given the option of whether or
+ * not to actually handle the event. If a listener chooses not to call `handle`,
+ * then all listeners attached to that same object event with lower priority
+ * will not be executed. Furthermore, the original vanilla listener will not be
+ * executed.
+ *
+ * That is why listeners return a boolean value. It represents whether or not
+ * the event was handled. If `true`, that means all event listeners in the chain
+ * called the `handle` functions they were passed and the original vanilla
+ * listener was called. If `false`, that means that some event listener in the
+ * chain choose not to handle the event.
+ *
+ * This callback scheme was designed to maximize mod compatability, but for that
+ * to work, mod listeners should follow this general pattern:
+ *
+ * @code{.c}
+ * bool listener(AEREvent *event, AERInstance *target, AERInstance *other) {
+ *   // Code without side effects that (un)conditionally cancels the event.
+ *   if (this_condition || that_condition)
+ *     // `event->handle` not called, so return `false`.
+ *     return false;
+ *
+ *   // Call next listener in chain.
+ *   if (!event->handle(event, target, other))
+ *     // Event not handled, so cease futher processing and return `false`.
+ *     return false;
+ *
+ *   // Code with side effects that does not cancel event.
+ *   SomeFunction(target);
+ *
+ *   // If at this point, `event->handle` returned true, so return true.
+ *   return true;
+ * }
+ * @endcode
  *
  * @since 1.0.0
  *
