@@ -61,6 +61,8 @@
  * }
  * @endcode
  *
+ * *Special thanks to Josiah Bills for helping design this section of the API.*
+ *
  * @since 1.0.0
  *
  * @copyright 2021 the libaermre authors
