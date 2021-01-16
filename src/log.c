@@ -28,13 +28,11 @@
 
 #define BuildMsgFromVA(fmt, lastArg)                                           \
   ({                                                                           \
-    char BuildMsgFromVA_buf[1024];                                             \
     va_list BuildMsgFromVA_va;                                                 \
     va_start(BuildMsgFromVA_va, (lastArg));                                    \
-    vsnprintf(BuildMsgFromVA_buf, sizeof(BuildMsgFromVA_buf), (fmt),           \
-              BuildMsgFromVA_va);                                              \
+    vsnprintf(msgBuf, sizeof(msgBuf), (fmt), BuildMsgFromVA_va);               \
     va_end(BuildMsgFromVA_va);                                                 \
-    BuildMsgFromVA_buf;                                                        \
+    msgBuf;                                                                    \
   })
 
 #define GetCurrentModName()                                                    \
@@ -51,6 +49,10 @@ static const char *MSG_FMT = "[%s][aer][%s] (%s) %s\n";
 static const char *LVL_STRS[3] = {"INFO", "WARNING", "ERROR"};
 
 static const char *INTERNAL_MOD_NAME = "mre";
+
+/* ----- PRIVATE GLOBALS ----- */
+
+static char msgBuf[1024];
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
