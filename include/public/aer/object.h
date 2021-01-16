@@ -866,7 +866,7 @@ void AERObjectAttachStepListener(int32_t objIdx,
  * This event listener is called once at the start of every step
  * for each instance of the object.
  *
- * @note The listener is called *after* AERModDef::roomStepListener.
+ * @note The listener is called *after* AERModDef::gameStepListener.
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.

@@ -22,6 +22,7 @@
 #ifndef AER_CORE_H
 #define AER_CORE_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /* ----- PUBLIC FUNCTIONS ----- */
@@ -37,6 +38,18 @@
  * @since 1.0.0
  */
 uint32_t AERGetNumSteps(void);
+
+/**
+ * @brief Query the pause state of the game.
+ *
+ * @return `true` if game is paused or `false` if unsuccessful or game is not
+ * paused.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.0.0
+ */
+bool AERGetPaused(void);
 
 /* ----- DOCUMENTATION PAGES ----- */
 

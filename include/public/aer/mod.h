@@ -36,6 +36,7 @@
 #ifndef AER_MOD_H
 #define AER_MOD_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /* ----- PUBLIC TYPES ----- */
@@ -123,9 +124,9 @@ typedef struct AERModDef {
    */
   void (*registerObjectListeners)(void);
   /**
-   * @var roomStepListener
+   * @var gameStepListener
    *
-   * @brief Mod's room step pseudo-event listener.
+   * @brief Mod's game step pseudo-event listener.
    *
    * This is effectively the global "tick" function of a mod. If provided, the
    * MRE will unconditionally call it at the very start of every in-game
@@ -141,7 +142,28 @@ typedef struct AERModDef {
    *
    * @memberof AERModDef
    */
-  void (*roomStepListener)(void);
+  void (*gameStepListener)(void);
+  /**
+   * @var gamePauseListener
+   *
+   * @brief Mod's game pause pseudo-event listener.
+   *
+   * If provided and the game is paused or unpaused, the MRE will call this
+   * function at the very start of the first step of the new pause state
+   * (immediately before calling gameStepListener).
+   *
+   * This event does not exist in the GameMaker engine; the MRE
+   * provides it as a convenience to mod developers.
+   *
+   * @note May be `NULL`.
+   *
+   * @param[in] paused Whether game was paused (`true`) or unpaused (`false`).
+   *
+   * @since 1.0.0
+   *
+   * @memberof AERModDef
+   */
+  void (*gamePauseListener)(bool paused);
   /**
    * @var roomChangeListener
    *
@@ -149,7 +171,7 @@ typedef struct AERModDef {
    *
    * If provided and the active game room changes, the MRE will call this
    * function at the very start of the new room's first step
-   * (immediately before calling roomStepListener()).
+   * (immediately before calling gameStepListener).
    *
    * This event does not exist in the GameMaker engine; the MRE
    * provides it as a convenience to mod developers.

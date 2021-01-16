@@ -17,11 +17,13 @@
 #include <stdio.h>
 
 #include "aer/core.h"
+#include "aer/object.h"
 #include "internal/conf.h"
 #include "internal/core.h"
 #include "internal/err.h"
 #include "internal/event.h"
 #include "internal/export.h"
+#include "internal/hld.h"
 #include "internal/instance.h"
 #include "internal/log.h"
 #include "internal/mod.h"
@@ -35,6 +37,8 @@
 static const char *ABS_ASSET_PATH_FMT = "assets/mod/%s/%s";
 
 /* ----- PRIVATE GLOBALS ----- */
+
+static bool gamePaused = false;
 
 static char assetPathBuf[1024];
 
@@ -144,21 +148,29 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
 }
 
 AER_EXPORT void AERHookStep(void) {
+  /* Check if game pause state changed. */
+  bool paused = HLDObjectLookup(AER_OBJECT_MENUS)->numInstances > 0;
+  if (paused != gamePaused) {
+    gamePaused = paused;
+
+    /* Call game pause listeners. */
+    ModManExecuteGamePauseListeners(paused);
+  }
+
   /* Check if room changed. */
   int32_t roomIdxCur = *hldvars.roomIndexCurrent;
-  int32_t roomIdxPrev = roomIndexPrevious;
-  if (roomIdxCur != roomIdxPrev) {
-    roomIndexPrevious = roomIdxCur;
-
+  if (roomIdxCur != roomIndexPrevious) {
     /* Prune orphaned mod instance locals. */
     InstanceManPruneModLocals();
 
     /* Call room change listeners. */
-    ModManExecuteRoomChangeListeners(roomIdxCur, roomIdxPrev);
+    ModManExecuteRoomChangeListeners(roomIdxCur, roomIndexPrevious);
+
+    roomIndexPrevious = roomIdxCur;
   }
 
-  /* Call room step listeners. */
-  ModManExecuteRoomStepListeners();
+  /* Call game step listeners. */
+  ModManExecuteGameStepListeners();
 
   return;
 }
@@ -177,4 +189,10 @@ AER_EXPORT uint32_t AERGetNumSteps(void) {
   ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
   return *hldvars.numSteps;
+}
+
+AER_EXPORT bool AERGetPaused(void) {
+  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+
+  return gamePaused;
 }

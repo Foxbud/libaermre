@@ -52,7 +52,9 @@ size_t ModManGetNumMods(void);
 
 Mod *ModManGetMod(int32_t modIdx);
 
-void ModManExecuteRoomStepListeners(void);
+void ModManExecuteGameStepListeners(void);
+
+void ModManExecuteGamePauseListeners(bool paused);
 
 void ModManExecuteRoomChangeListeners(int32_t newRoomIdx, int32_t prevRoomIdx);
 

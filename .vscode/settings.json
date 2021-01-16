@@ -16,16 +16,20 @@
   "cSpell.words": [
     "AERMRE",
     "aererr",
+    "aeris",
     "arrs",
     "bools",
     "deinitializing",
     "fox",
+    "game",
     "hldfuncs",
     "hldvars",
     "insts",
     "libaermre",
+    "paused",
     "ss",
     "uncategorized",
+    "unpaused",
     "xoshiro"
   ],
   "files.associations": {
