@@ -128,7 +128,7 @@ void InstanceManRecordHLDLocals(void) {
   size_t numLocals = hldvars.instanceLocalTable->size;
   const char **names = hldvars.instanceLocalTable->elements;
   for (uint32_t idx = 0; idx < numLocals; idx++) {
-    *FoxMapMInsert(const char *, int32_t, &hldLocals, names[idx]) = idx;
+    *FoxMapMInsert(const char *, int32_t, &hldLocals, names[idx]) = idx + 1;
   }
 
   LogInfo("Done. Recorded %zu local(s).", numLocals);
@@ -592,8 +592,8 @@ AER_EXPORT size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
     if (bufIdx == numToWrite)
       break;
     HLDClosedHashSlot *slot = slots + slotIdx;
-    if (slot->keyNext) {
-      nameBuf[bufIdx++] = names[slot->key];
+    if (slot->value) {
+      nameBuf[bufIdx++] = names[slot->nameIdx];
     }
   }
 

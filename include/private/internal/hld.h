@@ -77,9 +77,9 @@ typedef struct HLDOpenHashTable {
 } HLDOpenHashTable;
 
 typedef struct HLDClosedHashSlot {
-  int32_t key;
+  int32_t nameIdx;
   void *value;
-  int32_t keyNext;
+  int32_t key;
 } HLDClosedHashSlot;
 
 typedef struct HLDClosedHashTable {

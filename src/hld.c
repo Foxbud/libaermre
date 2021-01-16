@@ -86,7 +86,7 @@ void *HLDClosedHashTableLookup(HLDClosedHashTable *table, int32_t key) {
     uint32_t origIdx = key & keyMask;
     uint32_t idx = origIdx;
     HLDClosedHashSlot *slot = table->slots + idx;
-    while (slot->keyNext) {
+    while (slot->value) {
       if (slot->key == key) {
         result = slot->value;
         break;
