@@ -36,6 +36,24 @@
       "problemMatcher": []
     },
     {
+      "label": "Clean Debug",
+      "type": "shell",
+      "command": "cmake --build build/debug --target clean",
+      "dependsOn": [
+        "Generate Debug"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean Release",
+      "type": "shell",
+      "command": "cmake --build build/release --target clean",
+      "dependsOn": [
+        "Generate Release"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Package Debug",
       "type": "shell",
       "command": "cmake --build build/debug --target package",
