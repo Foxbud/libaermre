@@ -81,7 +81,7 @@ static void ModInit(Mod *mod, int32_t idx, const char *name) {
   }
 
   /* Load mod definition function. */
-  AERModDef (*defMod)(void);
+  void (*defMod)(AERModDef *);
   size_t numDefModNames = sizeof(DEF_MOD_NAMES) / sizeof(const char *);
   for (uint32_t idx = 0; idx < numDefModNames; idx++) {
     defMod = dlsym(libHandle, DEF_MOD_NAMES[idx]);
@@ -116,7 +116,8 @@ static void ModInit(Mod *mod, int32_t idx, const char *name) {
            name, defModNamesBuf);
     abort();
   }
-  AERModDef def = defMod();
+  AERModDef def = {0};
+  defMod(&def);
 
   /* Record registration callbacks. */
   mod->registerSprites = def.registerSprites;

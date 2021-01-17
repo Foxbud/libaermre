@@ -36,7 +36,7 @@
  * the event was handled. If `true`, that means all event listeners in the chain
  * called the `handle` functions they were passed and the original vanilla
  * listener was called. If `false`, that means that some event listener in the
- * chain choose not to handle the event.
+ * chain chose not to handle the event.
  *
  * This callback scheme was designed to maximize mod compatability, but for that
  * to work, mod listeners should follow this general pattern:

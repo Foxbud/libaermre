@@ -7,7 +7,7 @@
  * calls the mod's public definition function, which must have the signature:
  *
  * @code{.c}
- * AERModDef define_mod(void);
+ * void define_mod(AERModDef *def);
  * @endcode
  *
  * In an attempt to accommodate varied naming conventions, this function may
