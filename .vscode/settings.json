@@ -7,7 +7,6 @@
   // VSCode settings.
   "editor.formatOnType": true,
   "editor.formatOnSave": true,
-  "editor.formatOnPaste": true,
   "editor.detectIndentation": false,
   "editor.tabSize": 2,
   "C_Cpp.clang_format_sortIncludes": true,

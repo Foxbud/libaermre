@@ -3439,7 +3439,7 @@ int32_t AERSpriteRegister(const char *name, const char *filename,
                           size_t numFrames, uint32_t origX, uint32_t origY);
 
 /**
- * @brief Override a vanilla sprite a custom sprite.
+ * @brief Override a vanilla sprite with a custom sprite.
  *
  * @param[in] spriteIdx Index of vanilla sprite to override.
  * @param[in] filename Path to sprite file relative to asset directory.
