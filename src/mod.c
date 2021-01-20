@@ -268,10 +268,10 @@ void ModManDestructor(void) {
   /* Unload mods. */
   LogInfo("Unloading mods...");
   size_t numMods = FoxArrayMSize(Mod, &mods);
-  for (uint32_t idx = 0; idx < numMods; idx++) {
+  for (uint32_t idx = 1; idx <= numMods; idx++) {
     Mod *mod = FoxArrayMPeek(Mod, &mods);
     if (mod->destructor) {
-      ModManPushContext(idx);
+      ModManPushContext(numMods - idx);
       mod->destructor();
       ModManPopContext();
     }
