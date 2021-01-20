@@ -28,7 +28,7 @@
 /* ----- PUBLIC TYPES ----- */
 
 /**
- * @brief Simple alias for a self-managed pseudorandom number generator.
+ * @brief Opaque type for a self-managed pseudorandom number generator.
  *
  * Use this with the functions prefixed with `AERRandGen...`
  *

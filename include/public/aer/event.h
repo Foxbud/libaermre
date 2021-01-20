@@ -29,7 +29,7 @@
 /* ----- PUBLIC TYPES ----- */
 
 /**
- * @brief An object event.
+ * @brief Semi-opaque type for an object event.
  *
  * For more information about how to use this object see @ref ObjListeners.
  *

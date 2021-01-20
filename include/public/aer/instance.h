@@ -27,7 +27,7 @@
 /* ----- PUBLIC TYPES ----- */
 
 /**
- * @brief Simple alias for an instance of an object.
+ * @brief Opaque type for instance of an object.
  *
  * @since 1.0.0
  *
