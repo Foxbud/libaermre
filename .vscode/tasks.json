@@ -5,13 +5,23 @@
       "label": "Generate Debug",
       "type": "shell",
       "command": "cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug",
-      "problemMatcher": []
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "CC": "${config:C_Cpp.default.compilerPath}"
+        }
+      }
     },
     {
       "label": "Generate Release",
       "type": "shell",
       "command": "cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release",
-      "problemMatcher": []
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "CC": "${config:C_Cpp.default.compilerPath}"
+        }
+      }
     },
     {
       "label": "Build Debug",
