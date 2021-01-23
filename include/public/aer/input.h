@@ -85,7 +85,7 @@ const bool *AERInputGetKeysReleased(void);
 const bool *AERInputGetMouseButtonsPressed(void);
 
 /**
- * @brief Query the mouse button(s) that the user had held this step.
+ * @brief Query the mouse button(s) that the user has held this step.
  *
  * For more information about the mouse buttons, see @ref MouseButtonStates.
  *

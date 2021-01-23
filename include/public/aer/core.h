@@ -48,6 +48,8 @@ uint32_t AERGetNumSteps(void);
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
  * @since 1.0.0
+ *
+ * @sa AERModDef::gamePauseListener
  */
 bool AERGetPaused(void);
 

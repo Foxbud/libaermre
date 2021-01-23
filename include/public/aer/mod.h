@@ -161,6 +161,8 @@ typedef struct AERModDef {
    *
    * @since 1.0.0
    *
+   * @sa AERGetPaused
+   *
    * @memberof AERModDef
    */
   void (*gamePauseListener)(bool paused);
