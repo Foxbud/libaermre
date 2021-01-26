@@ -49,150 +49,150 @@ CoreStage stage = STAGE_INIT;
 /* ----- INTERNAL FUNCTIONS ----- */
 
 const char *CoreGetAbsAssetPath(const char *relAssetPath) {
-  assert(relAssetPath);
-  assert(ModManHasContext());
+    assert(relAssetPath);
+    assert(ModManHasContext());
 
-  snprintf(assetPathBuf, sizeof(assetPathBuf), ABS_ASSET_PATH_FMT,
-           ModManGetMod(ModManPeekContext())->name, relAssetPath);
+    snprintf(assetPathBuf, sizeof(assetPathBuf), ABS_ASSET_PATH_FMT,
+             ModManGetMod(ModManPeekContext())->name, relAssetPath);
 
-  return assetPathBuf;
+    return assetPathBuf;
 }
 
 __attribute__((constructor)) static void CoreConstructor(void) {
-  LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
+    LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
 
-  ConfConstructor();
-  OptionConstructor();
-  RandConstructor();
-  EventManConstructor();
-  ObjectManConstructor();
-  InstanceManConstructor();
+    ConfConstructor();
+    OptionConstructor();
+    RandConstructor();
+    EventManConstructor();
+    ObjectManConstructor();
+    InstanceManConstructor();
 
-  return;
+    return;
 }
 
 __attribute__((destructor)) static void CoreDestructor(void) {
-  ModManDestructor();
+    ModManDestructor();
 
-  InstanceManDestructor();
-  ObjectManDestructor();
-  EventManDestructor();
-  RandDestructor();
-  OptionDestructor();
-  ConfDestructor();
+    InstanceManDestructor();
+    ObjectManDestructor();
+    EventManDestructor();
+    RandDestructor();
+    OptionDestructor();
+    ConfDestructor();
 
-  return;
+    return;
 }
 
 /* ----- UNLISTED FUNCTIONS ----- */
 
 AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
-  HLDRecordEngineRefs(&vars, &funcs);
+    HLDRecordEngineRefs(&vars, &funcs);
 
-  InstanceManRecordHLDLocals();
+    InstanceManRecordHLDLocals();
 
-  ModManConstructor();
-  size_t numMods = ModManGetNumMods();
+    ModManConstructor();
+    size_t numMods = ModManGetNumMods();
 
-  /* Register sprites. */
-  stage = STAGE_SPRITE_REG;
-  LogInfo("Registering mod sprites...");
-  /*
-   * Reverse order so that higher-priority mods' sprite replacements take
-   * precedence over those of lower-priority mods.
-   */
-  for (uint32_t idx = 0; idx < numMods; idx++) {
-    int32_t modIdx = (int32_t)(numMods - idx - 1);
-    Mod *mod = ModManGetMod(modIdx);
-    if (mod->registerSprites) {
-      ModManPushContext(modIdx);
-      mod->registerSprites();
-      ModManPopContext();
+    /* Register sprites. */
+    stage = STAGE_SPRITE_REG;
+    LogInfo("Registering mod sprites...");
+    /*
+     * Reverse order so that higher-priority mods' sprite replacements take
+     * precedence over those of lower-priority mods.
+     */
+    for (uint32_t idx = 0; idx < numMods; idx++) {
+        int32_t modIdx = (int32_t)(numMods - idx - 1);
+        Mod *mod = ModManGetMod(modIdx);
+        if (mod->registerSprites) {
+            ModManPushContext(modIdx);
+            mod->registerSprites();
+            ModManPopContext();
+        }
     }
-  }
-  LogInfo("Done.");
+    LogInfo("Done.");
 
-  /* Register objects. */
-  stage = STAGE_OBJECT_REG;
-  LogInfo("Registering mod objects...");
-  for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-    Mod *mod = ModManGetMod(modIdx);
-    if (mod->registerObjects) {
-      ModManPushContext(modIdx);
-      mod->registerObjects();
-      ModManPopContext();
+    /* Register objects. */
+    stage = STAGE_OBJECT_REG;
+    LogInfo("Registering mod objects...");
+    for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+        Mod *mod = ModManGetMod(modIdx);
+        if (mod->registerObjects) {
+            ModManPushContext(modIdx);
+            mod->registerObjects();
+            ModManPopContext();
+        }
     }
-  }
-  LogInfo("Done.");
+    LogInfo("Done.");
 
-  /* Build object inheritance trees and mask event subscribers. */
-  ObjectManBuildInheritanceTrees();
-  EventManMaskSubscriptionArrays();
+    /* Build object inheritance trees and mask event subscribers. */
+    ObjectManBuildInheritanceTrees();
+    EventManMaskSubscriptionArrays();
 
-  /* Register listeners. */
-  stage = STAGE_LISTENER_REG;
-  LogInfo("Registering mod event listeners...");
-  for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-    Mod *mod = ModManGetMod(modIdx);
-    if (mod->registerObjectListeners) {
-      ModManPushContext(modIdx);
-      mod->registerObjectListeners();
-      ModManPopContext();
+    /* Register listeners. */
+    stage = STAGE_LISTENER_REG;
+    LogInfo("Registering mod event listeners...");
+    for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+        Mod *mod = ModManGetMod(modIdx);
+        if (mod->registerObjectListeners) {
+            ModManPushContext(modIdx);
+            mod->registerObjectListeners();
+            ModManPopContext();
+        }
     }
-  }
-  LogInfo("Done.");
+    LogInfo("Done.");
 
-  stage = STAGE_ACTION;
+    stage = STAGE_ACTION;
 
-  return;
+    return;
 }
 
 AER_EXPORT void AERHookStep(void) {
-  /* Check if game pause state changed. */
-  bool paused = HLDObjectLookup(AER_OBJECT_MENUS)->numInstances > 0;
-  if (paused != gamePaused) {
-    gamePaused = paused;
+    /* Check if game pause state changed. */
+    bool paused = HLDObjectLookup(AER_OBJECT_MENUS)->numInstances > 0;
+    if (paused != gamePaused) {
+        gamePaused = paused;
 
-    /* Call game pause listeners. */
-    ModManExecuteGamePauseListeners(paused);
-  }
+        /* Call game pause listeners. */
+        ModManExecuteGamePauseListeners(paused);
+    }
 
-  /* Check if room changed. */
-  int32_t roomIdxCur = *hldvars.roomIndexCurrent;
-  if (roomIdxCur != roomIndexPrevious) {
-    /* Prune orphaned mod instance locals. */
-    InstanceManPruneModLocals();
+    /* Check if room changed. */
+    int32_t roomIdxCur = *hldvars.roomIndexCurrent;
+    if (roomIdxCur != roomIndexPrevious) {
+        /* Prune orphaned mod instance locals. */
+        InstanceManPruneModLocals();
 
-    /* Call room change listeners. */
-    ModManExecuteRoomChangeListeners(roomIdxCur, roomIndexPrevious);
+        /* Call room change listeners. */
+        ModManExecuteRoomChangeListeners(roomIdxCur, roomIndexPrevious);
 
-    roomIndexPrevious = roomIdxCur;
-  }
+        roomIndexPrevious = roomIdxCur;
+    }
 
-  /* Call game step listeners. */
-  ModManExecuteGameStepListeners();
+    /* Call game step listeners. */
+    ModManExecuteGameStepListeners();
 
-  return;
+    return;
 }
 
 AER_EXPORT void AERHookEvent(HLDObject *targetObject, HLDEventType eventType,
                              int32_t eventNum) {
-  currentEvent = (EventKey){
-      .type = eventType, .num = eventNum, .objIdx = targetObject->index};
+    currentEvent = (EventKey){
+        .type = eventType, .num = eventNum, .objIdx = targetObject->index};
 
-  return;
+    return;
 }
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT uint32_t AERGetNumSteps(void) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
-  return *hldvars.numSteps;
+    return *hldvars.numSteps;
 }
 
 AER_EXPORT bool AERGetPaused(void) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
 
-  return gamePaused;
+    return gamePaused;
 }

@@ -27,16 +27,16 @@
 /* ----- PRIVATE MACROS ----- */
 
 #define BuildMsgFromVA(fmt, lastArg)                                           \
-  ({                                                                           \
-    va_list BuildMsgFromVA_va;                                                 \
-    va_start(BuildMsgFromVA_va, (lastArg));                                    \
-    vsnprintf(msgBuf, sizeof(msgBuf), (fmt), BuildMsgFromVA_va);               \
-    va_end(BuildMsgFromVA_va);                                                 \
-    msgBuf;                                                                    \
-  })
+    ({                                                                         \
+        va_list BuildMsgFromVA_va;                                             \
+        va_start(BuildMsgFromVA_va, (lastArg));                                \
+        vsnprintf(msgBuf, sizeof(msgBuf), (fmt), BuildMsgFromVA_va);           \
+        va_end(BuildMsgFromVA_va);                                             \
+        msgBuf;                                                                \
+    })
 
 #define GetCurrentModName()                                                    \
-  ((ModManHasContext()) ? ModManGetMod(ModManPeekContext())->name : "?")
+    ((ModManHasContext()) ? ModManGetMod(ModManPeekContext())->name : "?")
 
 /* ----- PRIVATE TYPES ----- */
 
@@ -57,87 +57,87 @@ static char msgBuf[1024];
 /* ----- PRIVATE FUNCTIONS ----- */
 
 static void FmtCurTime(char buf[9]) {
-  assert(buf != NULL);
+    assert(buf != NULL);
 
-  time_t rawtime;
-  time(&rawtime);
-  struct tm *timeinfo = localtime(&rawtime);
-  strftime(buf, 9, "%H:%M:%S", timeinfo);
+    time_t rawtime;
+    time(&rawtime);
+    struct tm *timeinfo = localtime(&rawtime);
+    strftime(buf, 9, "%H:%M:%S", timeinfo);
 
-  return;
+    return;
 }
 
 static void Log(FILE *fp, LogLevel logLvl, const char *moduleName,
                 const char *msg) {
-  assert(fp != NULL);
-  assert(logLvl <= LOG_ERR);
-  assert(moduleName != NULL);
-  assert(msg != NULL);
+    assert(fp != NULL);
+    assert(logLvl <= LOG_ERR);
+    assert(moduleName != NULL);
+    assert(msg != NULL);
 
-  /* Get current time. */
-  char timeBuf[9];
-  FmtCurTime(timeBuf);
+    /* Get current time. */
+    char timeBuf[9];
+    FmtCurTime(timeBuf);
 
-  /* Print formatted message. */
-  fprintf(fp, MSG_FMT, timeBuf, moduleName, LVL_STRS[logLvl], msg);
+    /* Print formatted message. */
+    fprintf(fp, MSG_FMT, timeBuf, moduleName, LVL_STRS[logLvl], msg);
 
-  return;
+    return;
 }
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void LogInfo(const char *fmt, ...) {
-  assert(fmt);
+    assert(fmt);
 
-  /* Call common log function. */
-  Log(stdout, LOG_INFO, INTERNAL_MOD_NAME, BuildMsgFromVA(fmt, fmt));
+    /* Call common log function. */
+    Log(stdout, LOG_INFO, INTERNAL_MOD_NAME, BuildMsgFromVA(fmt, fmt));
 
-  return;
+    return;
 }
 
 void LogWarn(const char *fmt, ...) {
-  assert(fmt);
+    assert(fmt);
 
-  /* Call common log function. */
-  Log(stderr, LOG_WARN, INTERNAL_MOD_NAME, BuildMsgFromVA(fmt, fmt));
+    /* Call common log function. */
+    Log(stderr, LOG_WARN, INTERNAL_MOD_NAME, BuildMsgFromVA(fmt, fmt));
 
-  return;
+    return;
 }
 
 void LogErr(const char *fmt, ...) {
-  assert(fmt);
+    assert(fmt);
 
-  /* Call common log function. */
-  Log(stderr, LOG_ERR, INTERNAL_MOD_NAME, BuildMsgFromVA(fmt, fmt));
+    /* Call common log function. */
+    Log(stderr, LOG_ERR, INTERNAL_MOD_NAME, BuildMsgFromVA(fmt, fmt));
 
-  return;
+    return;
 }
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT void AERLogInfo(const char *fmt, ...) {
-  assert(fmt);
+    assert(fmt);
 
-  /* Call common log function. */
-  Log(stdout, LOG_INFO, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
+    /* Call common log function. */
+    Log(stdout, LOG_INFO, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
 
-  return;
+    return;
 }
 
 AER_EXPORT void AERLogWarn(const char *fmt, ...) {
-  assert(fmt);
+    assert(fmt);
 
-  /* Call common log function. */
-  Log(stdout, LOG_WARN, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
+    /* Call common log function. */
+    Log(stdout, LOG_WARN, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
 
-  return;
+    return;
 }
 
 AER_EXPORT void AERLogErr(const char *fmt, ...) {
-  assert(fmt);
+    assert(fmt);
 
-  /* Call common log function. */
-  Log(stdout, LOG_ERR, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
+    /* Call common log function. */
+    Log(stdout, LOG_ERR, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
 
-  return;
+    return;
 }

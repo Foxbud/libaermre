@@ -22,49 +22,49 @@
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT const bool *AERInputGetKeysPressed(void) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-  return *hldvars.keysPressedTable;
+    return *hldvars.keysPressedTable;
 }
 
 AER_EXPORT const bool *AERInputGetKeysHeld(void) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-  return *hldvars.keysHeldTable;
+    return *hldvars.keysHeldTable;
 }
 
 AER_EXPORT const bool *AERInputGetKeysReleased(void) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-  return *hldvars.keysReleasedTable;
+    return *hldvars.keysReleasedTable;
 }
 
 AER_EXPORT const bool *AERInputGetMouseButtonsPressed(void) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-  return *hldvars.mouseButtonsPressedTable;
+    return *hldvars.mouseButtonsPressedTable;
 }
 
 AER_EXPORT const bool *AERInputGetMouseButtonsHeld(void) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-  return *hldvars.mouseButtonsHeldTable;
+    return *hldvars.mouseButtonsHeldTable;
 }
 
 AER_EXPORT const bool *AERInputGetMouseButtonsReleased(void) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-  return *hldvars.mouseButtonsReleasedTable;
+    return *hldvars.mouseButtonsReleasedTable;
 }
 
 AER_EXPORT void AERInputGetMousePosition(uint32_t *x, uint32_t *y) {
-  ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
-  ErrIf(!(x || y), AER_NULL_ARG);
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(!(x || y), AER_NULL_ARG);
 
-  if (x)
-    *x = *hldvars.mousePosX;
-  if (y)
-    *y = *hldvars.mousePosY;
+    if (x)
+        *x = *hldvars.mousePosX;
+    if (y)
+        *y = *hldvars.mousePosY;
 
-  return;
+    return;
 }

@@ -30,142 +30,142 @@ static FoxXoshiro256SS randPRNG = {0};
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void RandConstructor(void) {
-  LogInfo("Initializing random module...");
+    LogInfo("Initializing random module...");
 
-  FoxXoshiro256SSInit(&randPRNG, time(NULL));
+    FoxXoshiro256SSInit(&randPRNG, time(NULL));
 
-  LogInfo("Done initializing random module.");
-  return;
+    LogInfo("Done initializing random module.");
+    return;
 }
 
 void RandDestructor(void) {
-  LogInfo("Deinitializing random module...");
+    LogInfo("Deinitializing random module...");
 
-  FoxXoshiro256SSDeinit(&randPRNG);
+    FoxXoshiro256SSDeinit(&randPRNG);
 
-  LogInfo("Done deinitializing random module.");
-  return;
+    LogInfo("Done deinitializing random module.");
+    return;
 }
 
 /* ------ PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT uint64_t AERRandUInt(void) {
-  return FoxRandUInt((FoxPRNG *)&randPRNG);
+    return FoxRandUInt((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT uint64_t AERRandUIntRange(uint64_t min, uint64_t max) {
-  ErrIf(min >= max, AER_BAD_VAL, 0);
+    ErrIf(min >= max, AER_BAD_VAL, 0);
 
-  return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT int64_t AERRandInt(void) { return FoxRandInt((FoxPRNG *)&randPRNG); }
 
 AER_EXPORT int64_t AERRandIntRange(int64_t min, int64_t max) {
-  ErrIf(min >= max, AER_BAD_VAL, 0);
+    ErrIf(min >= max, AER_BAD_VAL, 0);
 
-  return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT float AERRandFloat(void) {
-  return FoxRandFloat((FoxPRNG *)&randPRNG);
+    return FoxRandFloat((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT float AERRandFloatRange(float min, float max) {
-  ErrIf(min >= max, AER_BAD_VAL, 0.0f);
+    ErrIf(min >= max, AER_BAD_VAL, 0.0f);
 
-  return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT double AERRandDouble(void) {
-  return FoxRandDouble((FoxPRNG *)&randPRNG);
+    return FoxRandDouble((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT double AERRandDoubleRange(double min, double max) {
-  ErrIf(min >= max, AER_BAD_VAL, 0.0);
+    ErrIf(min >= max, AER_BAD_VAL, 0.0);
 
-  return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT bool AERRandBool(void) { return FoxRandBool((FoxPRNG *)&randPRNG); }
 
 AER_EXPORT AERRandGen *AERRandGenNew(uint64_t seed) {
-  return FoxXoshiro256SSNew(seed);
+    return FoxXoshiro256SSNew(seed);
 }
 
 AER_EXPORT void AERRandGenFree(AERRandGen *gen) {
-  ErrIf(!gen, AER_NULL_ARG);
+    ErrIf(!gen, AER_NULL_ARG);
 
-  FoxXoshiro256SSFree(gen);
+    FoxXoshiro256SSFree(gen);
 
-  return;
+    return;
 }
 
 AER_EXPORT void AERRandGenSeed(AERRandGen *gen, uint64_t seed) {
-  ErrIf(!gen, AER_NULL_ARG);
+    ErrIf(!gen, AER_NULL_ARG);
 
-  FoxXoshiro256SSSeed(gen, seed);
+    FoxXoshiro256SSSeed(gen, seed);
 
-  return;
+    return;
 }
 
 AER_EXPORT uint64_t AERRandGenUInt(AERRandGen *gen) {
-  ErrIf(!gen, AER_NULL_ARG, 0);
+    ErrIf(!gen, AER_NULL_ARG, 0);
 
-  return FoxRandUInt((FoxPRNG *)&randPRNG);
+    return FoxRandUInt((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT uint64_t AERRandGenUIntRange(AERRandGen *gen, uint64_t min,
                                         uint64_t max) {
-  ErrIf(!gen, AER_NULL_ARG, 0);
-  ErrIf(min >= max, AER_BAD_VAL, 0);
+    ErrIf(!gen, AER_NULL_ARG, 0);
+    ErrIf(min >= max, AER_BAD_VAL, 0);
 
-  return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT int64_t AERRandGenInt(AERRandGen *gen) {
-  ErrIf(!gen, AER_NULL_ARG, 0);
+    ErrIf(!gen, AER_NULL_ARG, 0);
 
-  return FoxRandFloat((FoxPRNG *)&randPRNG);
+    return FoxRandFloat((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT int64_t AERRandGenIntRange(AERRandGen *gen, int64_t min,
                                       int64_t max) {
-  ErrIf(!gen, AER_NULL_ARG, 0);
-  ErrIf(min >= max, AER_BAD_VAL, 0);
+    ErrIf(!gen, AER_NULL_ARG, 0);
+    ErrIf(min >= max, AER_BAD_VAL, 0);
 
-  return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT float AERRandGenFloat(AERRandGen *gen) {
-  ErrIf(!gen, AER_NULL_ARG, 0.0f);
+    ErrIf(!gen, AER_NULL_ARG, 0.0f);
 
-  return FoxRandFloat((FoxPRNG *)&randPRNG);
+    return FoxRandFloat((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT float AERRandGenFloatRange(AERRandGen *gen, float min, float max) {
-  ErrIf(!gen, AER_NULL_ARG, 0.0f);
-  ErrIf(min >= max, AER_BAD_VAL, 0.0f);
+    ErrIf(!gen, AER_NULL_ARG, 0.0f);
+    ErrIf(min >= max, AER_BAD_VAL, 0.0f);
 
-  return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT double AERRandGenDouble(AERRandGen *gen) {
-  ErrIf(!gen, AER_NULL_ARG, 0.0);
+    ErrIf(!gen, AER_NULL_ARG, 0.0);
 
-  return FoxRandDouble((FoxPRNG *)&randPRNG);
+    return FoxRandDouble((FoxPRNG *)&randPRNG);
 }
 
 AER_EXPORT double AERRandGenDoubleRange(AERRandGen *gen, double min,
                                         double max) {
-  ErrIf(!gen, AER_NULL_ARG, 0.0);
-  ErrIf(min >= max, AER_BAD_VAL, 0.0);
+    ErrIf(!gen, AER_NULL_ARG, 0.0);
+    ErrIf(min >= max, AER_BAD_VAL, 0.0);
 
-  return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
 }
 
 AER_EXPORT bool AERRandGenBool(AERRandGen *gen) {
-  ErrIf(!gen, AER_NULL_ARG, false);
+    ErrIf(!gen, AER_NULL_ARG, false);
 
-  return FoxRandBool((FoxPRNG *)&randPRNG);
+    return FoxRandBool((FoxPRNG *)&randPRNG);
 }

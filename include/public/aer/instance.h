@@ -41,12 +41,12 @@ typedef void AERInstance;
  * @since 1.0.0
  */
 typedef union AERLocal {
-  bool b;
-  uint64_t u;
-  int64_t i;
-  float f;
-  double d;
-  void *p;
+    bool b;
+    uint64_t u;
+    int64_t i;
+    float f;
+    double d;
+    void *p;
 } AERLocal;
 
 /* ----- PUBLIC FUNCTIONS ----- */
