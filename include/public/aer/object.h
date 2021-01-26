@@ -162,9 +162,19 @@ typedef enum AERObjectIndex {
   AER_OBJECT_NEWREGIONSOUNDEVENT = 0x35,
   AER_OBJECT_ALLHOARDESBEATEN = 0x36,
   AER_OBJECT_BONUSHOARDEBEATEN = 0x37,
+  /**
+   * @brief Door that takes the drifter to a new room.
+   *
+   * @sa @ref ObjPageDoor
+   */
   AER_OBJECT_DOOR = 0x38,
   AER_OBJECT_TITLEDOOR = 0x39,
   AER_OBJECT_EDITORCHECKPOINT = 0x3a,
+  /**
+   * @brief A rectangular area that detects collisions with a set object type.
+   *
+   * @sa @ref ObjPageRegion
+   */
   AER_OBJECT_REGION = 0x3b,
   AER_OBJECT_REGIONWALL = 0x3c,
   AER_OBJECT_BOSSWALL = 0x3d,
@@ -525,6 +535,12 @@ typedef enum AERObjectIndex {
   AER_OBJECT_UNDERWALL = 0x19d,
   AER_OBJECT_SAFEPLATFORM = 0x19e,
   AER_OBJECT_PROTECTIONPLATFORM = 0x19f,
+  /**
+   * @brief A gun used by the drifter. An instance is permanently loaded for
+   * each gun you have picked up.
+   *
+   * @sa @ref ObjPageSecondary
+   */
   AER_OBJECT_SECONDARY = 0x1a0,
   AER_OBJECT_ROOMMAPDATA = 0x1a1,
   AER_OBJECT_DRAWPOINT = 0x1a2,
@@ -533,7 +549,9 @@ typedef enum AERObjectIndex {
   AER_OBJECT_DRAWOVAL = 0x1a5,
   AER_OBJECT_DRAWTEXT = 0x1a6,
   /**
-   * @brief Hitmask of attack when player swings sword.
+   * @brief The drifter's melee attack.
+   *
+   * @sa @ref ObjPageAttackCol
    */
   AER_OBJECT_ATTACKCOL = 0x1a7,
   AER_OBJECT_HITCOLLIDER = 0x1a8,

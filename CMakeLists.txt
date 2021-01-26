@@ -108,5 +108,7 @@ if(DOXYGEN_FOUND)
   set(DOXYGEN_SHOW_INCLUDE_FILES FALSE)
   set(DOXYGEN_TYPEDEF_HIDES_STRUCT TRUE)
   set(DOXYGEN_STRIP_FROM_PATH "include/public")
-  doxygen_add_docs(docs "${CMAKE_CURRENT_SOURCE_DIR}/include/public")
+  doxygen_add_docs(docs
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/public"
+  "${CMAKE_CURRENT_SOURCE_DIR}/doc")
 endif()
