@@ -514,6 +514,10 @@ typedef struct __attribute__((packed)) HLDFunctions {
     int32_t (*actionEventPerform)(HLDInstance *target, HLDInstance *other,
                                   int32_t targetObjIdx, uint32_t eventType,
                                   int32_t eventNum);
+    /* Draw a triangle to the screen. */
+    void (*actionDrawTriangle)(float x1, float y1, float x2, float y2, float x3,
+                               float y3, uint32_t color1, uint32_t color2,
+                               uint32_t color3, bool outline);
     /* Draw a rectangle to the screen. */
     void (*actionDrawRectangle)(float left, float top, float right,
                                 float bottom, uint32_t colorNW,
