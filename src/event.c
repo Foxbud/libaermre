@@ -297,10 +297,6 @@ static EventTrap EntrapEvent(HLDObject *obj, HLDEventType eventType,
     numSubEvents = 3;
     break;
 
-  case HLD_EVENT_DRAW:
-    numSubEvents = 8;
-    break;
-
   case HLD_EVENT_ALARM:
     numSubEvents = 12;
     break;
@@ -312,6 +308,15 @@ static EventTrap EntrapEvent(HLDObject *obj, HLDEventType eventType,
   case HLD_EVENT_OTHER:
     /*
      * We don't yet know the maximum number of other events in this
+     * version of the engine, so we're using 128 as a presumably safe
+     * upper bound until we learn the true maximum.
+     */
+    numSubEvents = 128;
+    break;
+
+  case HLD_EVENT_DRAW:
+    /*
+     * We don't yet know the maximum number of draw events in this
      * version of the engine, so we're using 128 as a presumably safe
      * upper bound until we learn the true maximum.
      */

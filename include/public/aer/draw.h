@@ -3,7 +3,7 @@
  *
  * @brief Utilities for drawing to the screen.
  *
- * @since 1.0.0
+ * @since 1.1.0
  *
  * @copyright 2021 the libaermre authors
  *
