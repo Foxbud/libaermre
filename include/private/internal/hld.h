@@ -49,7 +49,7 @@ typedef enum HLDEventType {
 } HLDEventType;
 
 typedef enum HLDEventStepType {
-  HLD_EVENT_STEP_INLINE,
+  HLD_EVENT_STEP_NORMAL,
   HLD_EVENT_STEP_PRE,
   HLD_EVENT_STEP_POST
 } HLDEventStepType;
@@ -57,6 +57,17 @@ typedef enum HLDEventStepType {
 typedef enum HLDEventOtherType {
   HLD_EVENT_OTHER_ANIMATION_END = 7
 } HLDEventOtherType;
+
+typedef enum HLDEventDrawType {
+  HLD_EVENT_DRAW_NORMAL,
+  HLD_EVENT_DRAW_BEGIN,
+  HLD_EVENT_DRAW_END,
+  HLD_EVENT_DRAW_PRE,
+  HLD_EVENT_DRAW_POST,
+  HLD_EVENT_DRAW_GUI_NORMAL,
+  HLD_EVENT_DRAW_GUI_BEGIN,
+  HLD_EVENT_DRAW_GUI_END
+} HLDEventDrawType;
 
 typedef struct HLDOpenHashItem {
   struct HLDOpenHashItem *prev;
@@ -501,6 +512,17 @@ typedef struct __attribute__((packed)) HLDFunctions {
   int32_t (*actionEventPerform)(HLDInstance *target, HLDInstance *other,
                                 int32_t targetObjIdx, uint32_t eventType,
                                 int32_t eventNum);
+  /* Draw a rectangle to the screen. */
+  void (*actionDrawRectangle)(float left, float top, float right, float bottom,
+                              uint32_t colorNW, uint32_t colorNE,
+                              uint32_t colorSE, uint32_t colorSW, bool outline);
+  /* Draw a string to the screen. */
+  void (*actionDrawText)(float x, float y, const char *text, int32_t height,
+                         uint32_t width, float scaleX, float scaleY,
+                         float angle, uint32_t colorNW, uint32_t colorNE,
+                         uint32_t colorSE, uint32_t colorSW, float alpha);
+  /* Draw an instance's sprite. */
+  void (*actionDrawSelf)(HLDInstance *inst);
   /* Spawn a new instance of an object. */
   HLDInstance *(*actionInstanceCreate)(int32_t objIdx, float posX, float posY);
   /* Change the object type of an instance. */

@@ -168,13 +168,25 @@ static void CommonEventListener(HLDInstance *target, HLDInstance *other) {
   return;
 }
 
-static void PerformParentEvent(HLDInstance *target, HLDInstance *other) {
-  HLDObject *obj = HLDObjectLookup(currentEvent.objIdx);
-  int32_t parentObjIdx = obj->parentIndex;
-  if (parentObjIdx >= 0 &&
-      (uint32_t)parentObjIdx < (*hldvars.objectTableHandle)->numItems) {
-    hldfuncs.actionEventPerform(target, other, parentObjIdx, currentEvent.type,
-                                currentEvent.num);
+static void PerformDefaultEvent(HLDInstance *target, HLDInstance *other) {
+  switch (currentEvent.type) {
+  case HLD_EVENT_DRAW: {
+    /* Draw self and do NOT perform parent event. */
+    if (currentEvent.num == HLD_EVENT_DRAW_NORMAL &&
+        HLDSpriteLookup(target->spriteIndex))
+      hldfuncs.actionDrawSelf(target);
+    break;
+  }
+
+  default: {
+    /* Perform parent event. */
+    HLDObject *obj = HLDObjectLookup(currentEvent.objIdx);
+    int32_t parentObjIdx = obj->parentIndex;
+    if (parentObjIdx >= 0 &&
+        (uint32_t)parentObjIdx < (*hldvars.objectTableHandle)->numItems)
+      hldfuncs.actionEventPerform(target, other, parentObjIdx,
+                                  currentEvent.type, currentEvent.num);
+  }
   }
 
   return;
@@ -285,6 +297,10 @@ static EventTrap EntrapEvent(HLDObject *obj, HLDEventType eventType,
     numSubEvents = 3;
     break;
 
+  case HLD_EVENT_DRAW:
+    numSubEvents = 8;
+    break;
+
   case HLD_EVENT_ALARM:
     numSubEvents = 12;
     break;
@@ -332,7 +348,7 @@ static EventTrap EntrapEvent(HLDObject *obj, HLDEventType eventType,
   EventTrapInit(&trap, eventType,
                 (oldHandler) ? ((void (*)(HLDInstance *,
                                           HLDInstance *))oldHandler->function)
-                             : (PerformParentEvent));
+                             : (PerformDefaultEvent));
 
   return trap;
 }

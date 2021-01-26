@@ -47,6 +47,7 @@ configure_file(
 add_library(aermre SHARED
   src/conf.c
   src/core.c
+  src/draw.c
   src/err.c
   src/event.c
   src/hld.c

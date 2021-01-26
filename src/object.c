@@ -316,7 +316,7 @@ AER_EXPORT void AERObjectAttachStepListener(int32_t objIdx,
   ErrIf(!obj, AER_FAILED_LOOKUP);
 
   EventKey key = {
-      .type = HLD_EVENT_STEP, .num = HLD_EVENT_STEP_INLINE, .objIdx = objIdx};
+      .type = HLD_EVENT_STEP, .num = HLD_EVENT_STEP_NORMAL, .objIdx = objIdx};
   EventManRegisterEventListener(obj, key, listener);
 
   LogInfo("Successfully attached step listener.");
@@ -402,5 +402,24 @@ AER_EXPORT void AERObjectAttachAnimationEndListener(
   EventManRegisterEventListener(obj, key, listener);
 
   LogInfo("Successfully attached animation end listener.");
+  return;
+}
+
+AER_EXPORT void AERObjectAttachDrawListener(
+    int32_t objIdx, bool (*listener)(AEREvent *event, AERInstance *target,
+                                     AERInstance *other)) {
+  LogInfo("Attaching draw listener to object %i for mod \"%s\"...", objIdx,
+          ModManGetMod(ModManPeekContext())->name);
+
+  ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
+  ErrIf(!listener, AER_NULL_ARG);
+
+  HLDObject *obj = HLDObjectLookup(objIdx);
+  ErrIf(!obj, AER_FAILED_LOOKUP);
+
+  EventKey key = {.type = HLD_EVENT_DRAW, .num = 0, .objIdx = objIdx};
+  EventManRegisterEventListener(obj, key, listener);
+
+  LogInfo("Successfully attached draw listener.");
   return;
 }

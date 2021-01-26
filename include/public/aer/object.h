@@ -965,4 +965,9 @@ void AERObjectAttachAnimationEndListener(int32_t objIdx,
                                                           AERInstance *target,
                                                           AERInstance *other));
 
+void AERObjectAttachDrawListener(int32_t objIdx,
+                                 bool (*listener)(AEREvent *event,
+                                                  AERInstance *target,
+                                                  AERInstance *other));
+
 #endif /* AER_OBJECT_H */
