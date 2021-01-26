@@ -1,6 +1,10 @@
 /**
  * @page CommonLocals Common Locals
  * 
+ * @brief Locals that occur in many different objects and represent the same thing in each case.
+ *
+ * ALL OBJECTS:
+ *
  * t (double): Time since the instance was created.
  * xc
  * yc
@@ -11,7 +15,7 @@
  * xDrag
  * yDrag
  * 
- * caseState 
+ * caseState (uint): ? 
  * caseTime 
  * caseDelayDir 
  * caseCheck
@@ -30,7 +34,7 @@
  * muteObject (bool): All sounds are muted if >=1
  * lowAudioEffect
  * 
- * cid (uint): An ID (unique within the room) for a specific instance.
+ * cid (uint): An ID (unique within the room) for a specific instance, always the same on loading the room. Sometimes not set?
  * freeze
  * pause
  * controlsHaveBeenSet
@@ -41,4 +45,14 @@
  * linkID
  * justcreated 
  * usesCaseChecking 
+ * 
+ * SOME OBJECTS:
+ *
+ * owner (int): ID of instance that created this one.
+ * oldx (double): X position on the previous frame.
+ * oldy (double): Y position on the previous frame.
+ * imgspd : ?
+ * dir (double): Direction in degrees.
+ * life (double): Used to track lifetime of instances that are destroyed after a set time.
+ *
  */
