@@ -1,46 +1,57 @@
 {
-  // MRE settings.
-  "mre": {
-    // Make sure to surround each mod name with escaped double quotes.
-    "launchMods": []
-  },
-  // VSCode settings.
-  "editor.formatOnType": true,
-  "editor.formatOnSave": true,
-  "editor.detectIndentation": false,
-  "editor.tabSize": 2,
-  "C_Cpp.clang_format_sortIncludes": true,
-  "C_Cpp.default.compilerPath": "/usr/bin/gcc",
-  "C_Cpp.default.intelliSenseMode": "gcc-x86",
-  "C_Cpp.loggingLevel": "Warning",
-  "cSpell.words": [
-    "AERMRE",
-    "aererr",
-    "aeris",
-    "arrs",
-    "bools",
-    "deinitializing",
-    "fox",
-    "game",
-    "hldfuncs",
-    "hldvars",
-    "insts",
-    "libaermre",
-    "paused",
-    "ss",
-    "uncategorized",
-    "unpaused",
-    "xoshiro"
-  ],
-  "files.associations": {
-    "*.tcc": "cpp",
-    "functional": "cpp",
-    "fstream": "cpp",
-    "istream": "cpp",
-    "ranges": "cpp",
-    "streambuf": "cpp",
-    "variant": "cpp",
-    "tuple": "cpp",
-    "random": "cpp"
-  }
+    // MRE settings.
+    "mre": {
+        // Make sure to surround each mod name with escaped double quotes.
+        "launchMods": []
+    },
+    // VSCode settings.
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4,
+    "C_Cpp.clang_format_sortIncludes": true,
+    "C_Cpp.default.compilerPath": "/usr/bin/gcc",
+    "C_Cpp.default.intelliSenseMode": "gcc-x86",
+    "C_Cpp.loggingLevel": "Warning",
+    "cSpell.words": [
+        "AERMRE",
+        "aer",
+        "aererr",
+        "aeris",
+        "arrs",
+        "bools",
+        "copybrief",
+        "deinitializing",
+        "fox",
+        "game",
+        "hldfuncs",
+        "hldvars",
+        "insts",
+        "key",
+        "lalt",
+        "lctrl",
+        "lcurly",
+        "libaermre",
+        "lsquare",
+        "pageup",
+        "paused",
+        "ralt",
+        "rctrl",
+        "rcurly",
+        "rsquare",
+        "ss",
+        "uncategorized",
+        "unpaused",
+        "xoshiro"
+    ],
+    "files.associations": {
+        "*.tcc": "cpp",
+        "functional": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "ranges": "cpp",
+        "streambuf": "cpp",
+        "variant": "cpp",
+        "tuple": "cpp"
+    }
 }

@@ -41,12 +41,12 @@ typedef void AERInstance;
  * @since 1.0.0
  */
 typedef union AERLocal {
-  bool b;
-  uint64_t u;
-  int64_t i;
-  float f;
-  double d;
-  void *p;
+    bool b;
+    uint64_t u;
+    int64_t i;
+    float f;
+    double d;
+    void *p;
 } AERLocal;
 
 /* ----- PUBLIC FUNCTIONS ----- */
@@ -734,6 +734,7 @@ void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
  * @since 1.0.0
  *
  * @sa AERInstanceGetHLDLocal
+ * @sa @ref CommonLocals
  */
 size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
                                const char **nameBuf);
@@ -757,6 +758,7 @@ size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
  * @since 1.0.0
  *
  * @sa AERInstanceGetHLDLocals
+ * @sa @ref CommonLocals
  */
 AERLocal *AERInstanceGetHLDLocal(AERInstance *inst, const char *name);
 

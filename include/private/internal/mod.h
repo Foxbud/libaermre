@@ -27,19 +27,19 @@
 /* ----- INTERNAL TYPES ----- */
 
 typedef struct Mod {
-  void *libHandle;
-  int32_t idx;
-  const char *name;
-  void (*constructor)(void);
-  void (*destructor)(void);
-  void (*registerSprites)(void);
-  void (*registerObjects)(void);
-  void (*registerObjectListeners)(void);
+    void *libHandle;
+    int32_t idx;
+    const char *name;
+    void (*constructor)(void);
+    void (*destructor)(void);
+    void (*registerSprites)(void);
+    void (*registerObjects)(void);
+    void (*registerObjectListeners)(void);
 } Mod;
 
 typedef struct ModListener {
-  void (*func)(void);
-  int32_t modIdx;
+    void (*func)(void);
+    int32_t modIdx;
 } ModListener;
 
 /* ----- INTERNAL CONSTANTS ----- */

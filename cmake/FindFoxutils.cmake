@@ -12,35 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 find_path(FOXUTILS_INCLUDE_DIR
-	NAMES "foxutils/array.h"
-	PATHS
-		"$ENV{HOME}/.local/include"
-		"/usr/local/include"
-		"/usr/include"
-	REQUIRED
-	NO_DEFAULT_PATH)
+    NAMES "foxutils/array.h"
+    PATHS
+        "$ENV{HOME}/.local/include"
+        "/usr/local/include"
+        "/usr/include"
+    REQUIRED
+    NO_DEFAULT_PATH)
 find_library(FOXUTILS_LIBRARY
-	NAMES "libfoxutils.a"
-	PATHS
-		"$ENV{HOME}/.local/lib32"
-		"/usr/local/lib32"
-		"/usr/lib32"
-		"$ENV{HOME}/.local/lib"
-		"/usr/local/lib"
-		"/usr/lib"
-	REQUIRED
-	NO_DEFAULT_PATH)
+    NAMES "libfoxutils.a"
+    PATHS
+        "$ENV{HOME}/.local/lib32"
+        "/usr/local/lib32"
+        "/usr/lib32"
+        "$ENV{HOME}/.local/lib"
+        "/usr/local/lib"
+        "/usr/lib"
+    REQUIRED
+    NO_DEFAULT_PATH)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Foxutils
-	FOUND_VAR FOXUTILS_FOUND
-	REQUIRED_VARS
-		FOXUTILS_INCLUDE_DIR
-		FOXUTILS_LIBRARY)
+    FOUND_VAR FOXUTILS_FOUND
+    REQUIRED_VARS
+        FOXUTILS_INCLUDE_DIR
+        FOXUTILS_LIBRARY)
 
 if(FOXUTILS_FOUND AND NOT TARGET Foxutils::foxutils)
-	add_library(Foxutils::foxutils STATIC IMPORTED)
-	set_target_properties(Foxutils::foxutils PROPERTIES
-		IMPORTED_LOCATION "${FOXUTILS_LIBRARY}"
-		INTERFACE_INCLUDE_DIRECTORIES "${FOXUTILS_INCLUDE_DIR}")
+    add_library(Foxutils::foxutils STATIC IMPORTED)
+    set_target_properties(Foxutils::foxutils PROPERTIES
+        IMPORTED_LOCATION "${FOXUTILS_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${FOXUTILS_INCLUDE_DIR}")
 endif()
