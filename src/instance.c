@@ -353,14 +353,15 @@ AER_EXPORT void AERInstanceGetBoundingBox(AERInstance *inst, float *left,
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!(left || top || right || bottom), AER_NULL_ARG);
 
+    HLDBoundingBox bbox = inst->bbox;
     if (left)
-        *left = (float)inst->bbox.left;
+        *left = (float)bbox.left;
     if (top)
-        *top = (float)inst->bbox.top;
+        *top = (float)bbox.top;
     if (right)
-        *right = (float)inst->bbox.right;
+        *right = (float)bbox.right;
     if (bottom)
-        *bottom = (float)inst->bbox.bottom;
+        *bottom = (float)bbox.bottom;
 
     return;
 #undef inst
