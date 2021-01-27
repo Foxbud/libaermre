@@ -8,6 +8,15 @@
  *
  * @subsubsection DrawColors Colors
  *
+ * Colors are represented as unsigned 32-bit integers. The least significant
+ * byte is the red component, the next byte is the green component, the second
+ * most significant byte is the blue component and the most significant byte is
+ * unused (it is **not** used for alpha).
+ *
+ * This means that expressing a color in hexadecimal requires writing it in
+ * "BGR" order (i.e. the color red=0x0, green=0x70, blue=0xf0 would be written
+ * as `0xf07000`).
+ *
  * @since 1.1.0
  *
  * @copyright 2021 the libaermre authors
