@@ -638,6 +638,35 @@ void AERInstanceGetSpriteScale(AERInstance *inst, float *x, float *y);
 void AERInstanceSetSpriteScale(AERInstance *inst, float x, float y);
 
 /**
+ * @brief Query the sprite blend color of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Sprite blend color or `0` if unsuccessful. See @ref DrawColors for
+ * more infomation.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.1.0
+ */
+uint32_t AERInstanceGetSpriteBlend(AERInstance *inst);
+
+/**
+ * @brief Set the sprite blend color of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] color Sprite blend color. See @ref DrawColors for more
+ * information.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.1.0
+ */
+void AERInstanceSetSpriteBlend(AERInstance *inst, uint32_t color);
+
+/**
  * @brief Query the tangibility of an instance.
  *
  * @subsubsection Tangibility Instance Tangibility

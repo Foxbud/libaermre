@@ -267,7 +267,7 @@ typedef struct HLDInstance {
     struct HLDVecReal imageScale;
     float imageAngle;
     float imageAlpha;
-    int32_t imageBlend;
+    uint32_t imageBlend;
     int32_t maskIndex;
     uint32_t field_84;
     struct HLDVecReal pos;

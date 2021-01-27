@@ -539,6 +539,22 @@ AER_EXPORT void AERInstanceSetSpriteScale(AERInstance *inst, float x, float y) {
 #undef inst
 }
 
+AER_EXPORT uint32_t AERInstanceGetSpriteBlend(AERInstance *inst) {
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(!inst, AER_NULL_ARG, 0);
+
+    return ((HLDInstance *)inst)->imageBlend;
+}
+
+AER_EXPORT void AERInstanceSetSpriteBlend(AERInstance *inst, uint32_t color) {
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(!inst, AER_NULL_ARG);
+
+    ((HLDInstance *)inst)->imageBlend = color;
+
+    return;
+}
+
 AER_EXPORT bool AERInstanceGetTangible(AERInstance *inst) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, false);
     ErrIf(!inst, AER_NULL_ARG, false);
