@@ -45,13 +45,7 @@
         "xoshiro"
     ],
     "files.associations": {
-        "*.tcc": "cpp",
-        "functional": "cpp",
-        "fstream": "cpp",
-        "istream": "cpp",
-        "ranges": "cpp",
-        "streambuf": "cpp",
-        "variant": "cpp",
-        "tuple": "cpp"
-    }
+        "*.h": "c",
+    },
+    "C_Cpp.autoAddFileAssociations": false
 }

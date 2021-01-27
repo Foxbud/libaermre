@@ -81,6 +81,7 @@ AER_EXPORT void AERDrawText(const char *text, float x, float y, uint32_t width,
                             float scale, uint32_t color) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(currentEvent.type != HLD_EVENT_DRAW, AER_SEQ_BREAK);
+    ErrIf(!text, AER_NULL_ARG);
 
     hldfuncs.actionDrawText(x, y, WrapString(text), -1, width, scale, scale,
                             0.0f, color, color, color, color, 1.0f);
@@ -95,6 +96,7 @@ AER_EXPORT void AERDrawTextAdv(const char *text, float x, float y,
                                uint32_t colorSW, float alpha) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(currentEvent.type != HLD_EVENT_DRAW, AER_SEQ_BREAK);
+    ErrIf(!text, AER_NULL_ARG);
 
     hldfuncs.actionDrawText(x, y, WrapString(text), height, width, scaleX,
                             scaleY, angle, colorNW, colorNE, colorSE, colorSW,

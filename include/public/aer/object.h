@@ -983,6 +983,29 @@ void AERObjectAttachAnimationEndListener(int32_t objIdx,
                                                           AERInstance *target,
                                                           AERInstance *other));
 
+/**
+ * @brief Attach a draw event listener to an object.
+ *
+ * Draw events behave a bit differently from all the other types of events. The
+ * biggest difference is that draw events are **not** inherited.
+ *
+ * The draw event is one of the more performance taxing events in the engine, so
+ * it would be a good idea to treat it as a "read-only" event. That is to say
+ * that draw listeners should not change any game state, only read state and
+ * draw to the screen.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs.
+ * For more information see @ref ObjListeners.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.1.0
+ *
+ * @sa draw.h
+ */
 void AERObjectAttachDrawListener(int32_t objIdx,
                                  bool (*listener)(AEREvent *event,
                                                   AERInstance *target,
