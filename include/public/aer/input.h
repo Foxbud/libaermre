@@ -30,7 +30,7 @@
 /**
  * @brief Indices for keypresses in input lookup table.
  *
- * @since 1.0.0
+ * @since 1.1.0
  */
 typedef enum AERInputKey {
     AER_KEY_BACKSPACE = 0x9,
