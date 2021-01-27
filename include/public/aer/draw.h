@@ -100,10 +100,11 @@ void AERDrawTriangleAdv(float x1, float y1, float x2, float y2, float x3,
 /**
  * @brief Draw a rectangle to the screen.
  *
- * @param[in] left Left side of rectangle (in room space).
- * @param[in] top Top side of rectangle (in room space).
- * @param[in] right Right side of rectangle (in room space).
- * @param[in] bottom Bottom side of rectangle (in room space).
+ * @param[in] left X-intercept of the left side of rectangle (in room space).
+ * @param[in] top Y-intercept of the top side of rectangle (in room space).
+ * @param[in] right X-intercept of the right side of rectangle (in room space).
+ * @param[in] bottom Y-intercept of the bottom side of rectangle (in room
+ * space).
  * @param[in] color Color of the rectangle. See @ref DrawColors for more
  * infomation.
  * @param[in] outline Whether to render a solid rectangle (`false`) or a `1`
@@ -125,10 +126,11 @@ void AERDrawRectangle(float left, float top, float right, float bottom,
  * If more than one color is provided, then the engine will render a smooth
  * gradient.
  *
- * @param[in] left Left side of rectangle (in room space).
- * @param[in] top Top side of rectangle (in room space).
- * @param[in] right Right side of rectangle (in room space).
- * @param[in] bottom Bottom side of rectangle (in room space).
+ * @param[in] left X-intercept of the left side of rectangle (in room space).
+ * @param[in] top Y-intercept of the top side of rectangle (in room space).
+ * @param[in] right X-intercept of the right side of rectangle (in room space).
+ * @param[in] bottom Y-intercept of the bottom side of rectangle (in room
+ * space).
  * @param[in] colorNW Color of northwest vertex. See @ref DrawColors for more
  * infomation.
  * @param[in] colorNE Color of northeast vertex. See @ref DrawColors for more

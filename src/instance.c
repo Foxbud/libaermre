@@ -327,7 +327,19 @@ AER_EXPORT void AERInstanceSetPosition(AERInstance *inst, float x, float y) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
-    hldfuncs.Instance_setPosition((HLDInstance *)inst, x, y);
+    hldfuncs.Instance_setPosition(inst, x, y);
+
+    return;
+#undef inst
+}
+
+AER_EXPORT void AERInstanceAddPosition(AERInstance *inst, float x, float y) {
+#define inst ((HLDInstance *)inst)
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(!inst, AER_NULL_ARG);
+
+    HLDVecReal pos = inst->pos;
+    hldfuncs.Instance_setPosition(inst, pos.x + x, pos.y + y);
 
     return;
 #undef inst

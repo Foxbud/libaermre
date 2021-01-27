@@ -302,8 +302,28 @@ void AERInstanceGetPosition(AERInstance *inst, float *x, float *y);
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
  *
  * @since 1.0.0
+ *
+ * @sa AERInstanceAddPosition
  */
 void AERInstanceSetPosition(AERInstance *inst, float x, float y);
+
+/**
+ * @brief Add to the existing position of an instance in the current room.
+ *
+ * This is effectively a relative translation.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] x Relative horizontal position.
+ * @param[in] y Relative vertical position.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.1.0
+ *
+ * @sa AERInstanceSetPosition
+ */
+void AERInstanceAddPosition(AERInstance *inst, float x, float y);
 
 /**
  * @brief Query the axis-aligned bounding box of an instance.
@@ -400,8 +420,8 @@ void AERInstanceSetMotion(AERInstance *inst, float x, float y);
  * @brief Add to the existing motion of an instance.
  *
  * @param[in] inst Instance of interest.
- * @param[in] x Horizontal motion.
- * @param[in] y Vertical motion.
+ * @param[in] x Relative horizontal motion.
+ * @param[in] y Relative vertical motion.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
