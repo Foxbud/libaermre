@@ -123,11 +123,11 @@ typedef enum AERInputKey {
     AER_KEY_NUM7 = 0x67,
     AER_KEY_NUM8 = 0x68,
     AER_KEY_NUM9 = 0x69,
-    AER_KEY_NUMSLASH = 0x6a,
-    // AER_KEY_NUMSLASH = 0x6b,
-    // AER_KEY_NUMSLASH = 0x6d,
+    AER_KEY_NUMASTERISK = 0x6a,
+    AER_KEY_NUMPLUS = 0x6b,
+    AER_KEY_NUMMINUS = 0x6d,
     AER_KEY_NUMPERIOD = 0x6e,
-    // AER_KEY_NUMSLASH = 0x6f,
+    AER_KEY_NUMSLASH = 0x6f,
     AER_KEY_F1 = 0x70,
     AER_KEY_F2 = 0x71,
     AER_KEY_F3 = 0x72,
@@ -143,14 +143,13 @@ typedef enum AERInputKey {
     AER_KEY_RCURLY = 0x7d,
     AER_KEY_TILDE = 0x7e,
     AER_KEY_F11 = 0x80,
-    AER_KEY_F12 = 0x71,
+    AER_KEY_F12 = 0x81,
     AER_KEY_LSHIFT = 0xa0,
     AER_KEY_RSHIFT = 0xa1,
     AER_KEY_LCTRL = 0xa2,
     AER_KEY_RCTRL = 0xa3,
     AER_KEY_LALT = 0xa4,
     AER_KEY_RALT = 0xa5,
-    // AER_KEY_LALT = 0xa4,
     AER_KEY_SEMICOLON = 0xba,
     AER_KEY_EQUALS = 0xbb,
     AER_KEY_COMMA = 0xbc,
@@ -164,6 +163,14 @@ typedef enum AERInputKey {
     AER_KEY_HASH = 0xde,
     AER_KEY_BACKTICK = 0xdf
 } AERInputKey;
+
+/* ----- PUBLIC CONSTANTS ----- */
+
+/**
+ * @brief Printable characters corresponding to input table indices.
+ */
+const char AERKeyChars[0x100] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,' ','!','"',0,'$','%','&',0,'(',')','*','+',0,0,0,0,'0','1','2','3','4','5','6','7','8','9',':',0,'<',0,'>','?','@','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',0,0,0,'^',0,'_','0','1','2','3','4','5','6','7','8','9','*','+',0,'-','.','/',0,0,0,0,0,0,0,0,0,0,'{','|','}','~',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,';','=',',','-','.','/','\'',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'[','\\',']','#','`'};
+
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
