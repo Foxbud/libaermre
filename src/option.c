@@ -28,53 +28,54 @@ Options opts = {0};
 /* ----- PRIVATE FUNCTIONS ----- */
 
 static void CheckErrors(const char *key) {
-  switch (aererr) {
-  case AER_OK:
-    break;
+    switch (aererr) {
+    case AER_OK:
+        break;
 
-  case AER_FAILED_LOOKUP:
-    LogErr("Configuration key \"%s\" is undefined.", key);
-    abort();
-    break;
+    case AER_FAILED_LOOKUP:
+        LogErr("Configuration key \"%s\" is undefined.", key);
+        abort();
+        break;
 
-  case AER_FAILED_PARSE:
-    LogErr("Could not parse configuration key \"%s\".", key);
-    abort();
-    break;
+    case AER_FAILED_PARSE:
+        LogErr("Could not parse configuration key \"%s\".", key);
+        abort();
+        break;
 
-  default:
-    LogErr("Unknown error while trying to read configuration key \"%s\".", key);
-    abort();
-  }
+    default:
+        LogErr("Unknown error while trying to read configuration key \"%s\".",
+               key);
+        abort();
+    }
 
-  return;
+    return;
 }
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void OptionConstructor(void) {
-  LogInfo("Initializing options...");
+    LogInfo("Initializing options...");
 
-  /* Mod names. */
-  aererr = AER_OK;
-  opts.numModNames = AERConfGetStrings("mods", 0, NULL);
-  CheckErrors("mods");
-  opts.modNames = malloc(opts.numModNames * sizeof(const char *));
-  assert(opts.modNames);
-  AERConfGetStrings("mods", opts.numModNames, opts.modNames);
-  CheckErrors("mods");
+    /* Mod names. */
+    aererr = AER_OK;
+    opts.numModNames = AERConfGetStrings("mods", 0, NULL);
+    CheckErrors("mods");
+    opts.modNames = malloc(opts.numModNames * sizeof(const char *));
+    assert(opts.modNames);
+    AERConfGetStrings("mods", opts.numModNames, opts.modNames);
+    CheckErrors("mods");
 
-  LogInfo("Done initializing options.");
-  return;
+    LogInfo("Done initializing options.");
+    return;
 }
 
 void OptionDestructor(void) {
-  LogInfo("Deinitializing options...");
+    LogInfo("Deinitializing options...");
 
-  /* Mod names. */
-  free(opts.modNames);
-  opts = (Options){0};
+    /* Mod names. */
+    free(opts.modNames);
+    opts = (Options){0};
 
-  LogInfo("Done deinitializing options.");
-  return;
+    LogInfo("Done deinitializing options.");
+    return;
 }

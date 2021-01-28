@@ -41,12 +41,12 @@ typedef void AERInstance;
  * @since 1.0.0
  */
 typedef union AERLocal {
-  bool b;
-  uint64_t u;
-  int64_t i;
-  float f;
-  double d;
-  void *p;
+    bool b;
+    uint64_t u;
+    int64_t i;
+    float f;
+    double d;
+    void *p;
 } AERLocal;
 
 /* ----- PUBLIC FUNCTIONS ----- */
@@ -302,8 +302,28 @@ void AERInstanceGetPosition(AERInstance *inst, float *x, float *y);
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
  *
  * @since 1.0.0
+ *
+ * @sa AERInstanceAddPosition
  */
 void AERInstanceSetPosition(AERInstance *inst, float x, float y);
+
+/**
+ * @brief Add to the existing position of an instance in the current room.
+ *
+ * This is effectively a relative translation.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] x Relative horizontal position.
+ * @param[in] y Relative vertical position.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.1.0
+ *
+ * @sa AERInstanceSetPosition
+ */
+void AERInstanceAddPosition(AERInstance *inst, float x, float y);
 
 /**
  * @brief Query the axis-aligned bounding box of an instance.
@@ -400,8 +420,8 @@ void AERInstanceSetMotion(AERInstance *inst, float x, float y);
  * @brief Add to the existing motion of an instance.
  *
  * @param[in] inst Instance of interest.
- * @param[in] x Horizontal motion.
- * @param[in] y Vertical motion.
+ * @param[in] x Relative horizontal motion.
+ * @param[in] y Relative vertical motion.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
@@ -638,6 +658,35 @@ void AERInstanceGetSpriteScale(AERInstance *inst, float *x, float *y);
 void AERInstanceSetSpriteScale(AERInstance *inst, float x, float y);
 
 /**
+ * @brief Query the sprite blend color of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Sprite blend color or `0` if unsuccessful. See @ref DrawColors for
+ * more infomation.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.1.0
+ */
+uint32_t AERInstanceGetSpriteBlend(AERInstance *inst);
+
+/**
+ * @brief Set the sprite blend color of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] color Sprite blend color. See @ref DrawColors for more
+ * information.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.1.0
+ */
+void AERInstanceSetSpriteBlend(AERInstance *inst, uint32_t color);
+
+/**
  * @brief Query the tangibility of an instance.
  *
  * @subsubsection Tangibility Instance Tangibility
@@ -734,6 +783,7 @@ void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
  * @since 1.0.0
  *
  * @sa AERInstanceGetHLDLocal
+ * @sa @ref CommonLocals
  */
 size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
                                const char **nameBuf);
@@ -757,6 +807,7 @@ size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
  * @since 1.0.0
  *
  * @sa AERInstanceGetHLDLocals
+ * @sa @ref CommonLocals
  */
 AERLocal *AERInstanceGetHLDLocal(AERInstance *inst, const char *name);
 

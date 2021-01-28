@@ -23,9 +23,9 @@
 /* ----- INTERNAL TYPES ----- */
 
 typedef struct __attribute__((packed)) EventKey {
-  HLDEventType type;
-  int32_t num;
-  int32_t objIdx;
+    HLDEventType type;
+    int32_t num;
+    int32_t objIdx;
 } EventKey;
 
 /* ----- INTERNAL GLOBALS ----- */
@@ -35,8 +35,7 @@ extern EventKey currentEvent;
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void EventManRegisterEventListener(HLDObject *obj, EventKey key,
-                                   bool (*listener)(AEREvent *,
-                                                    AERInstance *,
+                                   bool (*listener)(AEREvent *, AERInstance *,
                                                     AERInstance *));
 
 void EventManMaskSubscriptionArrays(void);

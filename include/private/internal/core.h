@@ -19,11 +19,11 @@
 /* ----- INTERNAL TYPES ----- */
 
 typedef enum CoreStage {
-  STAGE_INIT,
-  STAGE_SPRITE_REG,
-  STAGE_OBJECT_REG,
-  STAGE_LISTENER_REG,
-  STAGE_ACTION
+    STAGE_INIT,
+    STAGE_SPRITE_REG,
+    STAGE_OBJECT_REG,
+    STAGE_LISTENER_REG,
+    STAGE_ACTION
 } CoreStage;
 
 /* ----- INTERNAL GLOBALS ----- */

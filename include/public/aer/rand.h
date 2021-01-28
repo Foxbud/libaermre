@@ -110,6 +110,14 @@ int64_t AERRandIntRange(int64_t min, int64_t max);
  * @brief Get a pseudorandom floating-point value on the interval [0.0f, 1.0f)
  * using the automatically-seeded global generator.
  *
+ * @bug This function uses a method of obtaining floats from integers that is
+ * now known to introduce slight distribution-related bias (see <a
+ * href="https://hal.archives-ouvertes.fr/hal-02427338/file/fpnglib_iccs.pdf">
+ * *Generating Random Floating-Point Numbers by Dividing Integers: a Case Study*
+ * by Frédéric Goualard</a>).
+ * This is unlikely to cause issues in the vast majority of usecases, but it
+ * should be kept in mind.
+ *
  * @return Pseudorandom floating-point value.
  *
  * @since 1.0.0
@@ -121,6 +129,14 @@ float AERRandFloat(void);
 /**
  * @brief Get a pseudorandom floating-point value on the interval [min, max)
  * using the automatically-seeded global generator.
+ *
+ * @bug This function uses a method of obtaining floats from integers that is
+ * now known to introduce slight distribution-related bias (see <a
+ * href="https://hal.archives-ouvertes.fr/hal-02427338/file/fpnglib_iccs.pdf">
+ * *Generating Random Floating-Point Numbers by Dividing Integers: a Case Study*
+ * by Frédéric Goualard</a>).
+ * This is unlikely to cause issues in the vast majority of usecases, but it
+ * should be kept in mind.
  *
  * @param[in] min Minimum possible value (inclusive).
  * @param[in] max Maximum possible value (exclusive).
@@ -140,6 +156,14 @@ float AERRandFloatRange(float min, float max);
  * @brief Get a pseudorandom double floating-point value on the interval
  * [0.0, 1.0) using the automatically-seeded global generator.
  *
+ * @bug This function uses a method of obtaining floats from integers that is
+ * now known to introduce slight distribution-related bias (see <a
+ * href="https://hal.archives-ouvertes.fr/hal-02427338/file/fpnglib_iccs.pdf">
+ * *Generating Random Floating-Point Numbers by Dividing Integers: a Case Study*
+ * by Frédéric Goualard</a>).
+ * This is unlikely to cause issues in the vast majority of usecases, but it
+ * should be kept in mind.
+ *
  * @return Pseudorandom double floating-point value.
  *
  * @since 1.0.0
@@ -151,6 +175,14 @@ double AERRandDouble(void);
 /**
  * @brief Get a pseudorandom double floating-point value on the interval
  * [min, max) using the automatically-seeded global generator.
+ *
+ * @bug This function uses a method of obtaining floats from integers that is
+ * now known to introduce slight distribution-related bias (see <a
+ * href="https://hal.archives-ouvertes.fr/hal-02427338/file/fpnglib_iccs.pdf">
+ * *Generating Random Floating-Point Numbers by Dividing Integers: a Case Study*
+ * by Frédéric Goualard</a>).
+ * This is unlikely to cause issues in the vast majority of usecases, but it
+ * should be kept in mind.
  *
  * @param[in] min Minimum possible value (inclusive).
  * @param[in] max Maximum possible value (exclusive).
@@ -304,6 +336,14 @@ int64_t AERRandGenIntRange(AERRandGen *gen, int64_t min, int64_t max);
  * @brief Get a pseudorandom floating-point value on the interval [0.0f, 1.0f)
  * using a self-managed generator.
  *
+ * @bug This function uses a method of obtaining floats from integers that is
+ * now known to introduce slight distribution-related bias (see <a
+ * href="https://hal.archives-ouvertes.fr/hal-02427338/file/fpnglib_iccs.pdf">
+ * *Generating Random Floating-Point Numbers by Dividing Integers: a Case Study*
+ * by Frédéric Goualard</a>).
+ * This is unlikely to cause issues in the vast majority of usecases, but it
+ * should be kept in mind.
+ *
  * @param[in] gen Generator of interest.
  *
  * @return Pseudorandom floating-point value or `0.0f` if unsuccessful.
@@ -319,6 +359,14 @@ float AERRandGenFloat(AERRandGen *gen);
 /**
  * @brief Get a pseudorandom floating-point value on the interval [min, max)
  * using a self-managed generator.
+ *
+ * @bug This function uses a method of obtaining floats from integers that is
+ * now known to introduce slight distribution-related bias (see <a
+ * href="https://hal.archives-ouvertes.fr/hal-02427338/file/fpnglib_iccs.pdf">
+ * *Generating Random Floating-Point Numbers by Dividing Integers: a Case Study*
+ * by Frédéric Goualard</a>).
+ * This is unlikely to cause issues in the vast majority of usecases, but it
+ * should be kept in mind.
  *
  * @param[in] gen Generator of interest.
  * @param[in] min Minimum possible value (inclusive).
@@ -340,6 +388,14 @@ float AERRandGenFloatRange(AERRandGen *gen, float min, float max);
  * @brief Get a pseudorandom double floating-point value on the interval
  * [0.0, 1.0) using a self-managed generator.
  *
+ * @bug This function uses a method of obtaining floats from integers that is
+ * now known to introduce slight distribution-related bias (see <a
+ * href="https://hal.archives-ouvertes.fr/hal-02427338/file/fpnglib_iccs.pdf">
+ * *Generating Random Floating-Point Numbers by Dividing Integers: a Case Study*
+ * by Frédéric Goualard</a>).
+ * This is unlikely to cause issues in the vast majority of usecases, but it
+ * should be kept in mind.
+ *
  * @param[in] gen Generator of interest.
  *
  * @return Pseudorandom double floating-point value or `0.0` if unsuccessful.
@@ -355,6 +411,14 @@ double AERRandGenDouble(AERRandGen *gen);
 /**
  * @brief Get a pseudorandom double floating-point value on the interval
  * [min, max) using a self-managed generator.
+ *
+ * @bug This function uses a method of obtaining floats from integers that is
+ * now known to introduce slight distribution-related bias (see <a
+ * href="https://hal.archives-ouvertes.fr/hal-02427338/file/fpnglib_iccs.pdf">
+ * *Generating Random Floating-Point Numbers by Dividing Integers: a Case Study*
+ * by Frédéric Goualard</a>).
+ * This is unlikely to cause issues in the vast majority of usecases, but it
+ * should be kept in mind.
  *
  * @param[in] gen Generator of interest.
  * @param[in] min Minimum possible value (inclusive).
