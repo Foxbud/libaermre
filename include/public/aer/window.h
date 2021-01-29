@@ -41,6 +41,6 @@ void AERViewGetSizeInRoom(uint32_t viewIdx, float *width, float *height);
 // void AERViewGetSizeInWindow(uint32_t viewIdx, int32_t *width, int32_t
 // *height);
 
-// void AERViewGetBorder(uint32_t viewIdx, int32_t *width, int32_t *height);
+void AERViewGetBorder(uint32_t viewIdx, int32_t *width, int32_t *height);
 
 #endif /* AER_WINDOW_H */
