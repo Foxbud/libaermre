@@ -155,11 +155,11 @@ typedef enum AERInputKey {
 /* ----- PUBLIC CONSTANTS ----- */
 
 /**
- * @brief Printable characters corresponding to input table indices.
+ * @brief Printable characters corresponding to input table indexes.
  *
  * @since 1.1.0
  */
-extern const char AERKeyChars[];
+extern const char AER_DISPLAY_KEYS[];
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
