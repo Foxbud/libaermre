@@ -72,9 +72,10 @@ __attribute__((constructor)) static void CoreConstructor(void) {
 }
 
 __attribute__((destructor)) static void CoreDestructor(void) {
+    InstanceManDestructor();
+
     ModManDestructor();
 
-    InstanceManDestructor();
     ObjectManDestructor();
     EventManDestructor();
     RandDestructor();
