@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 #include <stddef.h>
+#include <string.h>
 
 #include "aer/input.h"
 #include "internal/core.h"
 #include "internal/err.h"
 #include "internal/export.h"
+#include "internal/input.h"
 
 /* ----- PUBLIC CONSTANTS ----- */
 
@@ -39,42 +41,81 @@ AER_EXPORT const char AER_DISPLAY_KEYS[] = {
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,    0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   0,   '[', '\\', ']', '#',  '`'};
 
+/* ----- PRIVATE GLOBALS ----- */
+
+static bool keysPressedTable[0x100];
+
+static bool keysHeldTable[0x100];
+
+static bool keysReleasedTable[0x100];
+
+static bool mouseButtonsPressedTable[0x3];
+
+static bool mouseButtonsHeldTable[0x3];
+
+static bool mouseButtonsReleasedTable[0x3];
+
+static uint32_t mousePosX, mousePosY;
+
+/* ----- INTERNAL FUNCTIONS ----- */
+
+void InputManRecordUserInput(void) {
+    /* Keyboard. */
+    memcpy(keysPressedTable, *hldvars.keysPressedTable,
+           sizeof(keysPressedTable));
+    memcpy(keysHeldTable, *hldvars.keysHeldTable, sizeof(keysHeldTable));
+    memcpy(keysReleasedTable, *hldvars.keysReleasedTable,
+           sizeof(keysReleasedTable));
+
+    /* Mouse. */
+    memcpy(mouseButtonsPressedTable, *hldvars.mouseButtonsPressedTable,
+           sizeof(mouseButtonsPressedTable));
+    memcpy(mouseButtonsHeldTable, *hldvars.mouseButtonsHeldTable,
+           sizeof(mouseButtonsHeldTable));
+    memcpy(mouseButtonsReleasedTable, *hldvars.mouseButtonsReleasedTable,
+           sizeof(mouseButtonsReleasedTable));
+    mousePosX = *hldvars.mousePosX;
+    mousePosY = *hldvars.mousePosY;
+
+    return;
+}
+
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT const bool *AERInputGetKeysPressed(void) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-    return *hldvars.keysPressedTable;
+    return keysPressedTable;
 }
 
 AER_EXPORT const bool *AERInputGetKeysHeld(void) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-    return *hldvars.keysHeldTable;
+    return keysHeldTable;
 }
 
 AER_EXPORT const bool *AERInputGetKeysReleased(void) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-    return *hldvars.keysReleasedTable;
+    return keysReleasedTable;
 }
 
 AER_EXPORT const bool *AERInputGetMouseButtonsPressed(void) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-    return *hldvars.mouseButtonsPressedTable;
+    return mouseButtonsPressedTable;
 }
 
 AER_EXPORT const bool *AERInputGetMouseButtonsHeld(void) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-    return *hldvars.mouseButtonsHeldTable;
+    return mouseButtonsHeldTable;
 }
 
 AER_EXPORT const bool *AERInputGetMouseButtonsReleased(void) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
-    return *hldvars.mouseButtonsReleasedTable;
+    return mouseButtonsReleasedTable;
 }
 
 AER_EXPORT void AERInputGetMousePosition(uint32_t *x, uint32_t *y) {
@@ -82,9 +123,9 @@ AER_EXPORT void AERInputGetMousePosition(uint32_t *x, uint32_t *y) {
     ErrIf(!(x || y), AER_NULL_ARG);
 
     if (x)
-        *x = *hldvars.mousePosX;
+        *x = mousePosX;
     if (y)
-        *y = *hldvars.mousePosY;
+        *y = mousePosY;
 
     return;
 }
