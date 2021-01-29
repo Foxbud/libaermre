@@ -113,6 +113,11 @@ typedef struct HLDVecReal {
     float y;
 } HLDVecReal;
 
+typedef struct HLDVecIntegral {
+    int32_t x;
+    int32_t y;
+} HLDVecIntegral;
+
 typedef struct HLDArrayPreSize {
     size_t size;
     void *elements;
@@ -324,6 +329,23 @@ typedef struct HLDInstance {
     uint32_t field_180;
 } HLDInstance;
 
+typedef struct HLDView {
+    bool visible;
+    uint8_t field_1;
+    uint8_t field_2;
+    uint8_t field_3;
+    HLDVecReal posRoom;
+    HLDVecReal sizeRoom;
+    HLDVecIntegral posPort;
+    HLDVecIntegral sizePort;
+    float angle;
+    HLDVecIntegral border;
+    HLDVecIntegral speed;
+    int32_t objectIndex;
+    int32_t surfaceId;
+    int32_t camera;
+} HLDView;
+
 typedef struct HLDRoom {
     uint32_t field_0;
     struct HLDRoom *self;
@@ -343,14 +365,7 @@ typedef struct HLDRoom {
     uint32_t field_3C;
     uint32_t field_40;
     uint32_t field_44;
-    uint32_t field_48;
-    uint32_t field_4C;
-    uint32_t field_50;
-    uint32_t field_54;
-    uint32_t field_58;
-    uint32_t field_5C;
-    uint32_t field_60;
-    uint32_t field_64;
+    HLDView *views[8];
     uint32_t field_68;
     uint32_t field_6C;
     uint32_t field_70;
@@ -561,6 +576,8 @@ extern HLDVariables hldvars;
 extern HLDFunctions hldfuncs;
 
 /* ----- INTERNAL FUNCTIONS ----- */
+
+HLDView *HLDViewLookup(uint32_t viewIdx);
 
 HLDSprite *HLDSpriteLookup(int32_t spriteIdx);
 
