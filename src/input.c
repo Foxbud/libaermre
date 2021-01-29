@@ -22,7 +22,7 @@
 
 /* ----- PUBLIC CONSTANTS ----- */
 
-const char AER_DISPLAY_KEYS[] = {
+AER_EXPORT const char AER_DISPLAY_KEYS[] = {
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,    0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,    0,   0,
     0,   0,   ' ', '!', '"', 0,   '$', '%', '&', 0,   '(',  ')', '*',  '+', 0,
