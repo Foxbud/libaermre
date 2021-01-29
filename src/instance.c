@@ -39,7 +39,7 @@
         void (*destructor)(AERLocal *);                                        \
         if ((destructor = ModLocalValDeinit_val->destructor))                  \
             destructor(&ModLocalValDeinit_val->local);                         \
-    } while (0);
+    } while (0)
 
 /* ----- PRIVATE TYPES ----- */
 
