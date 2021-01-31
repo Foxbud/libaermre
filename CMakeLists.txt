@@ -50,6 +50,7 @@ add_library(aermre SHARED
    src/draw.c
    src/err.c
    src/event.c
+   src/font.c
    src/hld.c
    src/input.c
    src/instance.c

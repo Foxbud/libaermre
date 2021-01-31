@@ -190,6 +190,20 @@ typedef struct AERModDef {
      * @memberof AERModDef
      */
     void (*roomChangeListener)(int32_t newRoomIdx, int32_t prevRoomIdx);
+    /**
+     * @var registerFonts
+     *
+     * @brief Callback function which registers a mod's fonts.
+     *
+     * @note May be `NULL` if mod does not register any fonts.
+     *
+     * @since 1.1.0
+     *
+     * @sa AERFontRegister
+     *
+     * @memberof AERModDef
+     */
+    void (*registerFonts)(void);
 } AERModDef;
 
 #endif /* AER_MOD_H */

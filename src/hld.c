@@ -55,6 +55,15 @@ HLDSprite *HLDSpriteLookup(int32_t spriteIdx) {
     return result;
 }
 
+HLDFont *HLDFontLookup(int32_t fontIdx) {
+    HLDFont *result = NULL;
+
+    if (fontIdx >= 0 && (uint32_t)fontIdx < hldvars.fontTable->size)
+        result = ((HLDFont **)hldvars.fontTable->elements)[fontIdx];
+
+    return result;
+}
+
 HLDRoom *HLDRoomLookup(int32_t roomIdx) {
     HLDRoom *result = NULL;
 

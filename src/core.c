@@ -114,6 +114,19 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     }
     LogInfo("Done.");
 
+    /* Register fonts. */
+    stage = STAGE_FONT_REG;
+    LogInfo("Registering mod fonts...");
+    for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+        Mod *mod = ModManGetMod(modIdx);
+        if (mod->registerFonts) {
+            ModManPushContext(modIdx);
+            mod->registerFonts();
+            ModManPopContext();
+        }
+    }
+    LogInfo("Done.");
+
     /* Register objects. */
     stage = STAGE_OBJECT_REG;
     LogInfo("Registering mod objects...");

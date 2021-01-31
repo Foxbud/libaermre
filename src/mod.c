@@ -122,6 +122,7 @@ static void ModInit(Mod *mod, int32_t idx, const char *name) {
 
     /* Record registration callbacks. */
     mod->registerSprites = def.registerSprites;
+    mod->registerFonts = def.registerFonts;
     mod->registerObjects = def.registerObjects;
     mod->registerObjectListeners = def.registerObjectListeners;
 
@@ -158,13 +159,7 @@ static void ModDeinit(Mod *mod) {
 
     const char *name = mod->name;
 
-    mod->libHandle = NULL;
-    mod->name = NULL;
-    mod->constructor = NULL;
-    mod->destructor = NULL;
-    mod->registerSprites = NULL;
-    mod->registerObjects = NULL;
-    mod->registerObjectListeners = NULL;
+    *mod = (Mod){0};
 
     LogInfo("Successfully unloaded mod \"%s\".", name);
     return;
