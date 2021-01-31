@@ -39,7 +39,7 @@
         void (*destructor)(AERLocal *);                                        \
         if ((destructor = ModLocalValDeinit_val->destructor))                  \
             destructor(&ModLocalValDeinit_val->local);                         \
-    } while (0);
+    } while (0)
 
 /* ----- PRIVATE TYPES ----- */
 
@@ -327,7 +327,19 @@ AER_EXPORT void AERInstanceSetPosition(AERInstance *inst, float x, float y) {
     ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
-    hldfuncs.Instance_setPosition((HLDInstance *)inst, x, y);
+    hldfuncs.Instance_setPosition(inst, x, y);
+
+    return;
+#undef inst
+}
+
+AER_EXPORT void AERInstanceAddPosition(AERInstance *inst, float x, float y) {
+#define inst ((HLDInstance *)inst)
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(!inst, AER_NULL_ARG);
+
+    HLDVecReal pos = inst->pos;
+    hldfuncs.Instance_setPosition(inst, pos.x + x, pos.y + y);
 
     return;
 #undef inst
@@ -341,14 +353,15 @@ AER_EXPORT void AERInstanceGetBoundingBox(AERInstance *inst, float *left,
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!(left || top || right || bottom), AER_NULL_ARG);
 
+    HLDBoundingBox bbox = inst->bbox;
     if (left)
-        *left = (float)inst->bbox.left;
+        *left = (float)bbox.left;
     if (top)
-        *top = (float)inst->bbox.top;
+        *top = (float)bbox.top;
     if (right)
-        *right = (float)inst->bbox.right;
+        *right = (float)bbox.right;
     if (bottom)
-        *bottom = (float)inst->bbox.bottom;
+        *bottom = (float)bbox.bottom;
 
     return;
 #undef inst
@@ -537,6 +550,22 @@ AER_EXPORT void AERInstanceSetSpriteScale(AERInstance *inst, float x, float y) {
 
     return;
 #undef inst
+}
+
+AER_EXPORT uint32_t AERInstanceGetSpriteBlend(AERInstance *inst) {
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(!inst, AER_NULL_ARG, 0);
+
+    return ((HLDInstance *)inst)->imageBlend;
+}
+
+AER_EXPORT void AERInstanceSetSpriteBlend(AERInstance *inst, uint32_t color) {
+    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(!inst, AER_NULL_ARG);
+
+    ((HLDInstance *)inst)->imageBlend = color;
+
+    return;
 }
 
 AER_EXPORT bool AERInstanceGetTangible(AERInstance *inst) {

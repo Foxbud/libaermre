@@ -8,6 +8,15 @@
  *
  * @subsubsection DrawColors Colors
  *
+ * Colors are represented as unsigned 32-bit integers. The least significant
+ * byte is the red component, the next byte is the green component, the second
+ * most significant byte is the blue component and the most significant byte is
+ * unused (it is **not** used for alpha).
+ *
+ * This means that expressing a color in hexadecimal requires writing it in
+ * "BGR" order (i.e. the color red=0x0, green=0x70, blue=0xf0 would be written
+ * as `0xf07000`).
+ *
  * @since 1.1.0
  *
  * @copyright 2021 the libaermre authors
@@ -91,10 +100,11 @@ void AERDrawTriangleAdv(float x1, float y1, float x2, float y2, float x3,
 /**
  * @brief Draw a rectangle to the screen.
  *
- * @param[in] left Left side of rectangle (in room space).
- * @param[in] top Top side of rectangle (in room space).
- * @param[in] right Right side of rectangle (in room space).
- * @param[in] bottom Bottom side of rectangle (in room space).
+ * @param[in] left X-intercept of the left side of rectangle (in room space).
+ * @param[in] top Y-intercept of the top side of rectangle (in room space).
+ * @param[in] right X-intercept of the right side of rectangle (in room space).
+ * @param[in] bottom Y-intercept of the bottom side of rectangle (in room
+ * space).
  * @param[in] color Color of the rectangle. See @ref DrawColors for more
  * infomation.
  * @param[in] outline Whether to render a solid rectangle (`false`) or a `1`
@@ -116,10 +126,11 @@ void AERDrawRectangle(float left, float top, float right, float bottom,
  * If more than one color is provided, then the engine will render a smooth
  * gradient.
  *
- * @param[in] left Left side of rectangle (in room space).
- * @param[in] top Top side of rectangle (in room space).
- * @param[in] right Right side of rectangle (in room space).
- * @param[in] bottom Bottom side of rectangle (in room space).
+ * @param[in] left X-intercept of the left side of rectangle (in room space).
+ * @param[in] top Y-intercept of the top side of rectangle (in room space).
+ * @param[in] right X-intercept of the right side of rectangle (in room space).
+ * @param[in] bottom Y-intercept of the bottom side of rectangle (in room
+ * space).
  * @param[in] colorNW Color of northwest vertex. See @ref DrawColors for more
  * infomation.
  * @param[in] colorNE Color of northeast vertex. See @ref DrawColors for more

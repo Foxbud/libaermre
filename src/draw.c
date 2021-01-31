@@ -13,12 +13,12 @@
         uint32_t WrapString_idx;                                               \
         for (WrapString_idx = 0; WrapString_idx < sizeof(textBuf) - 1;         \
              WrapString_idx++) {                                               \
-            char curChar = WrapString_str[WrapString_idx];                     \
-            if (curChar == '\0')                                               \
+            char WrapString_curChar = WrapString_str[WrapString_idx];          \
+            if (WrapString_curChar == '\0')                                    \
                 break;                                                         \
-            textBuf[WrapString_idx] = curChar;                                 \
+            textBuf[WrapString_idx] = WrapString_curChar;                      \
         }                                                                      \
-        textBuf[++WrapString_idx] = '\0';                                      \
+        textBuf[WrapString_idx] = '\0';                                        \
         textBuf;                                                               \
     })
 

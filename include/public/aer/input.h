@@ -28,43 +28,31 @@
 /* ----- PUBLIC TYPES ----- */
 
 /**
- * @brief Indices for keypresses in input lookup table.
+ * @brief Indexes for keypresses in input lookup table.
  *
- * @since 1.0.0
+ * @since 1.1.0
  */
 typedef enum AERInputKey {
-    AER_KEY_BACKSPACE = 0x9,
+    AER_KEY_BACKSPACE = 0x8,
     AER_KEY_TAB = 0x9,
     AER_KEY_ENTER = 0xd,
     AER_KEY_CAPSLOCK = 0x14,
     AER_KEY_ESCAPE = 0x1b,
     AER_KEY_SPACE = 0x20,
-    /**
-     * @brief Also used for !
-     */
     AER_KEY_PAGEUP = 0x21,
-    /**
-     * @brief Also used for "
-     */
+    AER_KEY_EXCLAIM = 0x21,
     AER_KEY_PAGEDOWN = 0x22,
+    AER_KEY_QUOTE = 0x22,
     AER_KEY_END = 0x23,
-    /**
-     * @brief Also used for $
-     */
     AER_KEY_HOME = 0x24,
-    /**
-     * @brief Also used for %
-     */
+    AER_KEY_DOLLAR = 0x24,
     AER_KEY_LARROW = 0x25,
-    /**
-     * @brief Also used for &
-     */
+    AER_KEY_PERCENT = 0x25,
     AER_KEY_UARROW = 0x26,
+    AER_KEY_AMP = 0x26,
     AER_KEY_RARROW = 0x27,
-    /**
-     * @brief Also used for (
-     */
     AER_KEY_DARROW = 0x28,
+    AER_KEY_LPAREN = 0x28,
     AER_KEY_RPAREN = 0x29,
     AER_KEY_ASTERISK = 0x2a,
     AER_KEY_PLUS = 0x2b,
@@ -123,11 +111,11 @@ typedef enum AERInputKey {
     AER_KEY_NUM7 = 0x67,
     AER_KEY_NUM8 = 0x68,
     AER_KEY_NUM9 = 0x69,
-    AER_KEY_NUMSLASH = 0x6a,
-    // AER_KEY_NUMSLASH = 0x6b,
-    // AER_KEY_NUMSLASH = 0x6d,
+    AER_KEY_NUMASTERISK = 0x6a,
+    AER_KEY_NUMPLUS = 0x6b,
+    AER_KEY_NUMMINUS = 0x6d,
     AER_KEY_NUMPERIOD = 0x6e,
-    // AER_KEY_NUMSLASH = 0x6f,
+    AER_KEY_NUMSLASH = 0x6f,
     AER_KEY_F1 = 0x70,
     AER_KEY_F2 = 0x71,
     AER_KEY_F3 = 0x72,
@@ -143,14 +131,13 @@ typedef enum AERInputKey {
     AER_KEY_RCURLY = 0x7d,
     AER_KEY_TILDE = 0x7e,
     AER_KEY_F11 = 0x80,
-    AER_KEY_F12 = 0x71,
+    AER_KEY_F12 = 0x81,
     AER_KEY_LSHIFT = 0xa0,
     AER_KEY_RSHIFT = 0xa1,
     AER_KEY_LCTRL = 0xa2,
     AER_KEY_RCTRL = 0xa3,
     AER_KEY_LALT = 0xa4,
     AER_KEY_RALT = 0xa5,
-    // AER_KEY_LALT = 0xa4,
     AER_KEY_SEMICOLON = 0xba,
     AER_KEY_EQUALS = 0xbb,
     AER_KEY_COMMA = 0xbc,
@@ -164,6 +151,15 @@ typedef enum AERInputKey {
     AER_KEY_HASH = 0xde,
     AER_KEY_BACKTICK = 0xdf
 } AERInputKey;
+
+/* ----- PUBLIC CONSTANTS ----- */
+
+/**
+ * @brief Printable characters corresponding to input table indexes.
+ *
+ * @since 1.1.0
+ */
+extern const char AER_DISPLAY_KEYS[];
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
