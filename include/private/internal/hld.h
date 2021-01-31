@@ -59,14 +59,8 @@ typedef enum HLDEventOtherType {
 } HLDEventOtherType;
 
 typedef enum HLDEventDrawType {
-    HLD_EVENT_DRAW_NORMAL,
-    HLD_EVENT_DRAW_BEGIN,
-    HLD_EVENT_DRAW_END,
-    HLD_EVENT_DRAW_PRE,
-    HLD_EVENT_DRAW_POST,
-    HLD_EVENT_DRAW_GUI_NORMAL,
-    HLD_EVENT_DRAW_GUI_BEGIN,
-    HLD_EVENT_DRAW_GUI_END
+    HLD_EVENT_DRAW_NORMAL = 0,
+    HLD_EVENT_DRAW_GUI_NORMAL = 64
 } HLDEventDrawType;
 
 typedef struct HLDOpenHashItem {
