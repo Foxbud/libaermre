@@ -1012,10 +1012,10 @@ void AERObjectAttachDrawListener(int32_t objIdx,
                                                   AERInstance *other));
 
 /**
- * @brief Attach a post-draw event listener to an object.
+ * @brief Attach a GUI-draw event listener to an object.
  *
- * The post-draw event is similar to the normal draw event, but it draws
- * directly to the screen buffer.
+ * The GUI-draw event is similar to the normal draw event, but it draws
+ * directly to the screen.
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
@@ -1029,9 +1029,9 @@ void AERObjectAttachDrawListener(int32_t objIdx,
  *
  * @sa draw.h
  */
-void AERObjectAttachPostDrawListener(int32_t objIdx,
-                                     bool (*listener)(AEREvent *event,
-                                                      AERInstance *target,
-                                                      AERInstance *other));
+void AERObjectAttachGUIDrawListener(int32_t objIdx,
+                                    bool (*listener)(AEREvent *event,
+                                                     AERInstance *target,
+                                                     AERInstance *other));
 
 #endif /* AER_OBJECT_H */

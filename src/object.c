@@ -427,10 +427,10 @@ AER_EXPORT void AERObjectAttachDrawListener(
     return;
 }
 
-AER_EXPORT void AERObjectAttachPostDrawListener(
+AER_EXPORT void AERObjectAttachGUIDrawListener(
     int32_t objIdx, bool (*listener)(AEREvent *event, AERInstance *target,
                                      AERInstance *other)) {
-    LogInfo("Attaching post-draw listener to object %i for mod \"%s\"...",
+    LogInfo("Attaching GUI-draw listener to object %i for mod \"%s\"...",
             objIdx, ModManGetMod(ModManPeekContext())->name);
 
     ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
@@ -439,10 +439,11 @@ AER_EXPORT void AERObjectAttachPostDrawListener(
     HLDObject *obj = HLDObjectLookup(objIdx);
     ErrIf(!obj, AER_FAILED_LOOKUP);
 
-    EventKey key = {
-        .type = HLD_EVENT_DRAW, .num = HLD_EVENT_DRAW_POST, .objIdx = objIdx};
+    EventKey key = {.type = HLD_EVENT_DRAW,
+                    .num = HLD_EVENT_DRAW_GUI_NORMAL,
+                    .objIdx = objIdx};
     EventManRegisterEventListener(obj, key, listener);
 
-    LogInfo("Successfully attached post-draw listener.");
+    LogInfo("Successfully attached GUI-draw listener.");
     return;
 }
