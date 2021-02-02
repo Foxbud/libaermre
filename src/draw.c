@@ -28,74 +28,88 @@ static char textBuf[1024];
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT float AERDrawGetCurrentAlpha(void) {
-    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK, -1.0f);
+#define errRet -1.0f
+    EnsureStageStrict(STAGE_DRAW);
 
     return hldfuncs.actionDrawGetAlpha();
+#undef errRet
 }
 
 AER_EXPORT void AERDrawSetCurrentAlpha(float alpha) {
-    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK);
-    ErrIf(alpha < 0.0f || alpha > 1.0f, AER_BAD_VAL);
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
+    EnsureProba(alpha);
 
     hldfuncs.actionDrawSetAlpha(alpha);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERDrawTriangle(float x1, float y1, float x2, float y2,
                                 float x3, float y3, uint32_t color,
                                 bool outline) {
-    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK);
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
 
     hldfuncs.actionDrawTriangle(x1, y1, x2, y2, x3, y3, color, color, color,
                                 outline);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERDrawTriangleAdv(float x1, float y1, float x2, float y2,
                                    float x3, float y3, uint32_t color1,
                                    uint32_t color2, uint32_t color3,
                                    bool outline) {
-    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK);
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
 
     hldfuncs.actionDrawTriangle(x1, y1, x2, y2, x3, y3, color1, color2, color3,
                                 outline);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERDrawRectangle(float left, float top, float right,
                                  float bottom, uint32_t color, bool outline) {
-    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK);
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
 
     hldfuncs.actionDrawRectangle(left, top, right, bottom, color, color, color,
                                  color, outline);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERDrawRectangleAdv(float left, float top, float right,
                                     float bottom, uint32_t colorNW,
                                     uint32_t colorNE, uint32_t colorSE,
                                     uint32_t colorSW, bool outline) {
-    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK);
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
 
     hldfuncs.actionDrawRectangle(left, top, right, bottom, colorNW, colorNE,
                                  colorSE, colorSW, outline);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERDrawText(const char *text, float x, float y, uint32_t width,
                             float scale, uint32_t color) {
-    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK);
-    ErrIf(!text, AER_NULL_ARG);
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
+    EnsureArg(text);
 
     hldfuncs.actionDrawText(x, y, WrapString(text), -1, width, scale, scale,
                             0.0f, color, color, color, color, 1.0f);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERDrawTextAdv(const char *text, float x, float y,
@@ -103,13 +117,15 @@ AER_EXPORT void AERDrawTextAdv(const char *text, float x, float y,
                                float scaleY, float angle, uint32_t colorNW,
                                uint32_t colorNE, uint32_t colorSE,
                                uint32_t colorSW, float alpha) {
-    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK);
-    ErrIf(!text, AER_NULL_ARG);
-    ErrIf(alpha < 0.0f || alpha > 1.0f, AER_BAD_VAL);
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
+    EnsureArg(text);
+    EnsureProba(alpha);
 
     hldfuncs.actionDrawText(x, y, WrapString(text), height, width, scaleX,
                             scaleY, angle, colorNW, colorNE, colorSE, colorSW,
                             alpha);
 
     return;
+#undef errRet
 }
