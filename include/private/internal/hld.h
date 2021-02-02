@@ -574,6 +574,10 @@ typedef struct __attribute__((packed)) HLDFunctions {
     int32_t (*actionEventPerform)(HLDInstance *target, HLDInstance *other,
                                   int32_t targetObjIdx, uint32_t eventType,
                                   int32_t eventNum);
+    /* Get the current global draw alpha. */
+    float (*actionDrawGetAlpha)(void);
+    /* Set the current global draw alpha. */
+    void (*actionDrawSetAlpha)(float alpha);
     /* Draw a triangle to the screen. */
     void (*actionDrawTriangle)(float x1, float y1, float x2, float y2, float x3,
                                float y3, uint32_t color1, uint32_t color2,

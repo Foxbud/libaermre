@@ -24,6 +24,7 @@
 #include "foxutils/mapmacs.h"
 
 #include "aer/event.h"
+#include "internal/core.h"
 #include "internal/event.h"
 #include "internal/hld.h"
 #include "internal/log.h"
@@ -148,6 +149,10 @@ static void CommonEventListener(HLDInstance *target, HLDInstance *other) {
 
     EventTrapIter iter;
     EventTrapIterInit(&iter, trap);
+    /* If draw event, set draw stage. */
+    CoreStage origStage = stage;
+    if (currentEvent.type == HLD_EVENT_DRAW)
+        stage = STAGE_DRAW;
 
     /* Execute listeners and check if event was canceled. */
     if (!EventTrapIterNext(&iter, target, other)) {
@@ -163,6 +168,7 @@ static void CommonEventListener(HLDInstance *target, HLDInstance *other) {
         }
     }
 
+    stage = origStage;
     EventTrapIterDeinit(&iter);
 
     return;

@@ -27,6 +27,21 @@ static char textBuf[1024];
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+AER_EXPORT float AERDrawGetCurrentAlpha(void) {
+    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK, -1.0f);
+
+    return hldfuncs.actionDrawGetAlpha();
+}
+
+AER_EXPORT void AERDrawSetCurrentAlpha(float alpha) {
+    ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK);
+    ErrIf(alpha < 0.0f || alpha > 1.0f, AER_BAD_VAL);
+
+    hldfuncs.actionDrawSetAlpha(alpha);
+
+    return;
+}
+
 AER_EXPORT void AERDrawTriangle(float x1, float y1, float x2, float y2,
                                 float x3, float y3, uint32_t color,
                                 bool outline) {
@@ -90,6 +105,7 @@ AER_EXPORT void AERDrawTextAdv(const char *text, float x, float y,
                                uint32_t colorSW, float alpha) {
     ErrIf(stage != STAGE_DRAW, AER_SEQ_BREAK);
     ErrIf(!text, AER_NULL_ARG);
+    ErrIf(alpha < 0.0f || alpha > 1.0f, AER_BAD_VAL);
 
     hldfuncs.actionDrawText(x, y, WrapString(text), height, width, scaleX,
                             scaleY, angle, colorNW, colorNE, colorSE, colorSW,

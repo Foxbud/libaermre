@@ -119,6 +119,8 @@ typedef struct AERModDef {
      * @sa AERObjectAttachPostStepListener
      * @sa AERObjectAttachCollisionListener
      * @sa AERObjectAttachAnimationEndListener
+     * @sa AERObjectAttachDrawListener
+     * @sa AERObjectAttachGUIDrawListener
      *
      * @memberof AERModDef
      */

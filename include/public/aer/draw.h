@@ -42,6 +42,38 @@
 /* ----- PUBLIC FUNCTIONS ----- */
 
 /**
+ * @brief Query the current global draw alpha.
+ *
+ * @subsubsection GlobalAlpha Global Alpha
+ *
+ * This value is implicitly blended into the final result of all draw functions.
+ * For functions that take an explicit alpha value, the global alpha is still
+ * factored in.
+ *
+ * @return Global alpha or `-1.0f` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ *
+ * @since 1.1.0
+ */
+float AERDrawGetCurrentAlpha(void);
+
+/**
+ * @brief Set the current global draw alpha.
+ *
+ * See @ref GlobalAlpha for more information about this value.
+ *
+ * @param[in] alpha Global alpha.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ * @throw ::AER_BAD_VAL if argument `alpha` is less than `0.0f` or greater
+ * than `1.0f`.
+ *
+ * @since 1.1.0
+ */
+void AERDrawSetCurrentAlpha(float alpha);
+
+/**
  * @brief Draw a triangle to the screen.
  *
  * @param[in] x1 Horizontal position of first vertex (in room space).
@@ -200,6 +232,8 @@ void AERDrawText(const char *text, float x, float y, uint32_t width,
  *
  * @throw ::AER_SEQ_BREAK if called outside draw stage.
  * @throw ::AER_NULL_ARG if argument `text` is `NULL`.
+ * @throw ::AER_BAD_VAL if argument `alpha` is less than `0.0f` or greater
+ * than `1.0f`.
  *
  * @since 1.1.0
  *
