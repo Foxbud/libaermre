@@ -53,6 +53,8 @@
   - `imgspd` : ?
   - `dir (double)`: Direction in degrees.
   - `life (double)`: Used to track lifetime of instances that are destroyed after a set time.
+  - `x1, x2, y1, y2 (double)`: Coordinates of a rectangle, possibly collision?
+
 
 @sa AERInstanceGetHLDLocals
 @sa AERInstanceGetHLDLocal
