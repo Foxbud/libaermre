@@ -29,7 +29,7 @@ static char textBuf[1024];
 
 AER_EXPORT float AERDrawGetCurrentAlpha(void) {
 #define errRet -1.0f
-    EnsureStageStrict(STAGE_DRAW);
+    EnsureStage(STAGE_ACTION);
 
     return hldfuncs.actionDrawGetAlpha();
 #undef errRet
@@ -37,7 +37,7 @@ AER_EXPORT float AERDrawGetCurrentAlpha(void) {
 
 AER_EXPORT void AERDrawSetCurrentAlpha(float alpha) {
 #define errRet
-    EnsureStageStrict(STAGE_DRAW);
+    EnsureStage(STAGE_ACTION);
     EnsureProba(alpha);
 
     hldfuncs.actionDrawSetAlpha(alpha);

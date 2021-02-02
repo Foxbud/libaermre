@@ -52,7 +52,7 @@
  *
  * @return Global alpha or `-1.0f` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
  * @since 1.1.0
  */
@@ -65,7 +65,7 @@ float AERDrawGetCurrentAlpha(void);
  *
  * @param[in] alpha Global alpha.
  *
- * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_BAD_VAL if argument `alpha` is less than `0.0f` or greater
  * than `1.0f`.
  *
