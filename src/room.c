@@ -27,16 +27,20 @@ int32_t roomIndexPrevious = AER_ROOM__INIT;
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT int32_t AERRoomGetCurrent(void) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, AER_ROOM_NULL);
+#define errRet AER_ROOM_NULL
+    EnsureStage(STAGE_ACTION);
 
     return *hldvars.roomIndexCurrent;
+#undef errRet
 }
 
 AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!HLDRoomLookup(roomIdx), AER_FAILED_LOOKUP);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureLookup(HLDRoomLookup(roomIdx));
 
     hldfuncs.actionRoomGoto(roomIdx, 0);
 
     return;
+#undef errRet
 }

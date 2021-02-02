@@ -323,7 +323,7 @@ typedef enum AERRoomIndex {
 /**
  * @brief Query the currently active room.
  *
- * @return Index of current room or @ref ::AER_ROOM_NULL if unsuccessful.
+ * @return Index of current room or ::AER_ROOM_NULL if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
