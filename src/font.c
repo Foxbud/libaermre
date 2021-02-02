@@ -22,92 +22,112 @@
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT int32_t AERFontGetCurrent(void) {
-    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, AER_FONT_NULL);
+#define errRet AER_FONT_NULL
+    EnsureStagePast(STAGE_FONT_REG);
 
     return *hldvars.fontIndexCurrent;
+#undef errRet
 }
 
 AER_EXPORT void AERFontSetCurrent(int32_t fontIdx) {
-    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK);
-    ErrIf(!HLDFontLookup(fontIdx), AER_FAILED_LOOKUP);
+#define errRet
+    EnsureStagePast(STAGE_FONT_REG);
+    EnsureLookup(HLDFontLookup(fontIdx));
 
     hldfuncs.actionDrawSetFont(fontIdx);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT int32_t AERFontRegister(const char *filename, size_t size, bool bold,
                                    bool italic, int32_t first, int32_t last) {
-    ErrIf(!filename, AER_NULL_ARG, AER_FONT_NULL);
+#define errRet AER_FONT_NULL
+    EnsureArg(filename);
     LogInfo("Registering font \"%s\" for mod \"%s\"...", filename,
             ModManGetMod(ModManPeekContext())->name);
-    ErrIf(stage != STAGE_FONT_REG, AER_SEQ_BREAK, AER_FONT_NULL);
+    EnsureStageStrict(STAGE_FONT_REG);
 
     int32_t fontIdx = hldfuncs.actionFontAdd(CoreGetAbsAssetPath(filename),
                                              size, bold, italic, first, last);
-    ErrIf(!HLDFontLookup(fontIdx), AER_BAD_FILE, AER_FONT_NULL);
+    Ensure(HLDFontLookup(fontIdx), AER_BAD_FILE);
 
     LogInfo("Successfully registered font to index %i.", fontIdx);
 
     return fontIdx;
+#undef errRet
 }
 
 AER_EXPORT size_t AERFontGetNumRegistered(void) {
-    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, 0);
+#define errRet 0
+    EnsureStagePast(STAGE_FONT_REG);
 
     return hldvars.fontTable->size;
+#undef errRet
 }
 
 AER_EXPORT const char *AERFontGetName(int32_t fontIdx) {
-    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStagePast(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
-    ErrIf(!font, AER_FAILED_LOOKUP, NULL);
+    EnsureLookup(font);
 
     return font->fontname;
+#undef errRet
 }
 
 AER_EXPORT size_t AERFontGetSize(int32_t fontIdx) {
-    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, 0);
+#define errRet 0
+    EnsureStagePast(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
-    ErrIf(!font, AER_FAILED_LOOKUP, 0);
+    EnsureLookup(font);
 
     return font->size;
+#undef errRet
 }
 
 AER_EXPORT bool AERFontGetBold(int32_t fontIdx) {
-    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, false);
+#define errRet false
+    EnsureStagePast(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
-    ErrIf(!font, AER_FAILED_LOOKUP, false);
+    EnsureLookup(font);
 
     return font->bold;
+#undef errRet
 }
 
 AER_EXPORT bool AERFontGetItalic(int32_t fontIdx) {
-    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, false);
+#define errRet false
+    EnsureStagePast(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
-    ErrIf(!font, AER_FAILED_LOOKUP, false);
+    EnsureLookup(font);
 
     return font->italic;
+#undef errRet
 }
 
 AER_EXPORT int32_t AERFontGetFirst(int32_t fontIdx) {
-    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, -1);
+#define errRet -1
+    EnsureStagePast(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
-    ErrIf(!font, AER_FAILED_LOOKUP, -1);
+    EnsureLookup(font);
 
     return font->first;
+#undef errRet
 }
 
 AER_EXPORT int32_t AERFontGetLast(int32_t fontIdx) {
-    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, -1);
+#define errRet -1
+    EnsureStagePast(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
-    ErrIf(!font, AER_FAILED_LOOKUP, -1);
+    EnsureLookup(font);
 
     return font->last;
+#undef errRet
 }

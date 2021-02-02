@@ -44,8 +44,7 @@
 
 #define EnsureArg(arg) Ensure((arg), AER_NULL_ARG)
 
-#define EnsureArgBuf(buf, size)                                                \
-    Ensure(((buf) != NULL || (size) == 0), AER_NULL_ARG)
+#define EnsureArgBuf(buf, size) Ensure(((buf) || (size) == 0), AER_NULL_ARG)
 
 #define EnsureLookup(item) Ensure((item), AER_FAILED_LOOKUP)
 
