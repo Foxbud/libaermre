@@ -688,6 +688,21 @@ int32_t AERObjectRegister(const char *name, int32_t parentIdx,
 size_t AERObjectGetNumRegistered(void);
 
 /**
+ * @brief Query the object with a specific name.
+ *
+ * @param[in] name Name of object.
+ *
+ * @return Object index or ::AER_OBJECT_NULL if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before end of object registration stage.
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if no object with name given by argument `name`.
+ *
+ * @since 1.1.0
+ */
+int32_t AERObjectGetByName(const char *name);
+
+/**
  * @brief Query the name of an object.
  *
  * @param[in] objIdx Object of interest.

@@ -20,6 +20,7 @@
 #include "foxutils/arraymacs.h"
 #include "foxutils/mapmacs.h"
 #include "foxutils/math.h"
+#include "foxutils/stringmapmacs.h"
 
 #include "aer/object.h"
 #include "internal/core.h"
@@ -36,6 +37,8 @@
 static FoxMap objTree = {0};
 
 static FoxMap flatObjTree = {0};
+
+static FoxMap objNames = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
@@ -105,6 +108,13 @@ void ObjectManBuildInheritanceTrees(void) {
     FoxMapMForEachPair(int32_t, FoxArray, &objTree,
                        ObjTreeBuildFlatObjTreeCallback, NULL);
 
+    /* Build name table. */
+    for (uint32_t objIdx = 0; objIdx < numObjs; objIdx++) {
+        HLDObject *obj = HLDObjectLookup(objIdx);
+        assert(obj);
+        *FoxMapMInsert(const char *, int32_t, &objNames, obj->name) = objIdx;
+    }
+
     return;
 }
 
@@ -113,6 +123,7 @@ void ObjectManConstructor(void) {
 
     FoxMapMInit(int32_t, FoxArray, &objTree);
     FoxMapMInit(int32_t, FoxArray, &flatObjTree);
+    FoxStringMapMInit(int32_t, &objNames);
 
     LogInfo("Done initializing object module.");
     return;
@@ -132,6 +143,10 @@ void ObjectManDestructor(void) {
                           ObjTreeChildrenDeinitCallback, NULL);
     FoxMapMDeinit(int32_t, FoxArray, &flatObjTree);
     flatObjTree = (FoxMap){0};
+
+    /* Deinitialize name table. */
+    FoxMapMDeinit(const char *, int32_t, &objNames);
+    objNames = (FoxMap){0};
 
     LogInfo("Done deinitializing object module.");
     return;
@@ -182,6 +197,16 @@ AER_EXPORT size_t AERObjectGetNumRegistered(void) {
     ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, 0);
 
     return (*hldvars.objectTableHandle)->numItems;
+}
+
+AER_EXPORT int32_t AERObjectGetByName(const char *name) {
+    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, AER_OBJECT_NULL);
+    ErrIf(!name, AER_NULL_ARG, AER_OBJECT_NULL);
+
+    int32_t *objIdx = FoxMapMIndex(const char *, int32_t, &objNames, name);
+    ErrIf(!objIdx, AER_FAILED_LOOKUP, AER_OBJECT_NULL);
+
+    return *objIdx;
 }
 
 AER_EXPORT const char *AERObjectGetName(int32_t objIdx) {
