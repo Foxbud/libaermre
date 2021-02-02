@@ -48,6 +48,10 @@
 
 #define EnsureLookup(item) Ensure((item), AER_FAILED_LOOKUP)
 
+#define EnsureMin(val, min) Ensure(((val) >= (typeof(val))(min)), AER_BAD_VAL)
+
+#define EnsureMax(val, max) Ensure(((val) <= (typeof(val))(max)), AER_BAD_VAL)
+
 #define EnsureRange(val, min, max)                                             \
     do {                                                                       \
         typeof(val) EnsureRange_val = (val);                                   \

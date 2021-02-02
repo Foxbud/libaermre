@@ -163,8 +163,9 @@ void InstanceManDestructor(void) {
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
-    ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureStage(STAGE_ACTION);
+    EnsureArgBuf(instBuf, bufSize);
 
     HLDRoom *room = *hldvars.roomCurrent;
 
@@ -177,16 +178,18 @@ AER_EXPORT size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf) {
     }
 
     return numInsts;
+#undef errRet
 }
 
 AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx, bool recursive,
                                          size_t bufSize,
                                          AERInstance **instBuf) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
-    ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureStage(STAGE_ACTION);
+    EnsureArgBuf(instBuf, bufSize);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP, 0);
+    EnsureLookup(obj);
 
     size_t numInsts = obj->numInstances;
     uint32_t bufIdx = 0;
@@ -213,105 +216,127 @@ AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx, bool recursive,
     }
 
     return numInsts;
+#undef errRet
 }
 
 AER_EXPORT AERInstance *AERInstanceGetById(int32_t instId) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
 
     AERInstance *inst = (AERInstance *)HLDInstanceLookup(instId);
-    ErrIf(!inst, AER_FAILED_LOOKUP, NULL);
+    EnsureLookup(inst);
 
     return inst;
+#undef errRet
 }
 
 AER_EXPORT AERInstance *AERInstanceCreate(int32_t objIdx, float x, float y) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
-    ErrIf(!HLDObjectLookup(objIdx), AER_FAILED_LOOKUP, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
+    EnsureLookup(HLDObjectLookup(objIdx));
 
     AERInstance *inst =
         (AERInstance *)hldfuncs.actionInstanceCreate(objIdx, x, y);
-    ErrIf(!inst, AER_OUT_OF_MEM, NULL);
+    Ensure(inst, AER_OUT_OF_MEM);
 
     return inst;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceChange(AERInstance *inst, int32_t newObjIdx,
                                   bool doEvents) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(!HLDObjectLookup(newObjIdx), AER_FAILED_LOOKUP);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureLookup(HLDObjectLookup(newObjIdx));
 
     hldfuncs.actionInstanceChange((HLDInstance *)inst, newObjIdx, doEvents);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceDestroy(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     hldfuncs.actionInstanceDestroy((HLDInstance *)inst, (HLDInstance *)inst, -1,
                                    true);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceDelete(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     hldfuncs.actionInstanceDestroy((HLDInstance *)inst, (HLDInstance *)inst, -1,
                                    false);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT float AERInstanceGetDepth(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
-    ErrIf(!inst, AER_NULL_ARG, 0.0f);
+#define errRet 0.0f
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->depth;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetDepth(AERInstance *inst, float depth) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     ((HLDInstance *)inst)->depth = depth;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSyncDepth(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     uint32_t unknownDatastructure[4] = {0};
     hldfuncs.gmlScriptSetdepth((HLDInstance *)inst, (HLDInstance *)inst,
                                &unknownDatastructure, 0, 0);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT int32_t AERInstanceGetId(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1);
-    ErrIf(!inst, AER_NULL_ARG, -1);
+#define errRet -1
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->id;
+#undef errRet
 }
 
 AER_EXPORT int32_t AERInstanceGetObject(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, AER_OBJECT_NULL);
-    ErrIf(!inst, AER_NULL_ARG, AER_OBJECT_NULL);
+#define errRet AER_OBJECT_NULL
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->objectIndex;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceGetPosition(AERInstance *inst, float *x, float *y) {
+#define errRet
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(!(x || y), AER_NULL_ARG);
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArg(x || y);
 
     HLDVecReal pos = inst->pos;
     if (x)
@@ -321,38 +346,44 @@ AER_EXPORT void AERInstanceGetPosition(AERInstance *inst, float *x, float *y) {
 
     return;
 #undef inst
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetPosition(AERInstance *inst, float x, float y) {
+#define errRet
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     hldfuncs.Instance_setPosition(inst, x, y);
 
     return;
 #undef inst
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceAddPosition(AERInstance *inst, float x, float y) {
+#define errRet
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     HLDVecReal pos = inst->pos;
     hldfuncs.Instance_setPosition(inst, pos.x + x, pos.y + y);
 
     return;
 #undef inst
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceGetBoundingBox(AERInstance *inst, float *left,
                                           float *top, float *right,
                                           float *bottom) {
+#define errRet
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(!(left || top || right || bottom), AER_NULL_ARG);
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArg(left || top || right || bottom);
 
     HLDBoundingBox bbox = inst->bbox;
     if (left)
@@ -366,29 +397,35 @@ AER_EXPORT void AERInstanceGetBoundingBox(AERInstance *inst, float *left,
 
     return;
 #undef inst
+#undef errRet
 }
 
 AER_EXPORT float AERInstanceGetFriction(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
-    ErrIf(!inst, AER_NULL_ARG, 0.0f);
+#define errRet 0.0f
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->friction;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetFriction(AERInstance *inst, float friction) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     ((HLDInstance *)inst)->friction = friction;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceGetMotion(AERInstance *inst, float *x, float *y) {
+#define errRet
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(!(x || y), AER_NULL_ARG);
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArg(x || y);
 
     if (x)
         *x = inst->speedX;
@@ -397,12 +434,14 @@ AER_EXPORT void AERInstanceGetMotion(AERInstance *inst, float *x, float *y) {
 
     return;
 #undef inst
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetMotion(AERInstance *inst, float x, float y) {
+#define errRet
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     inst->speedX = x;
     inst->speedY = y;
@@ -410,12 +449,14 @@ AER_EXPORT void AERInstanceSetMotion(AERInstance *inst, float x, float y) {
 
     return;
 #undef inst
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceAddMotion(AERInstance *inst, float x, float y) {
+#define errRet
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     inst->speedX += x;
     inst->speedY += y;
@@ -423,114 +464,140 @@ AER_EXPORT void AERInstanceAddMotion(AERInstance *inst, float x, float y) {
 
     return;
 #undef inst
+#undef errRet
 }
 
 AER_EXPORT int32_t AERInstanceGetMask(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, AER_SPRITE_NULL);
-    ErrIf(!inst, AER_NULL_ARG, AER_SPRITE_NULL);
+#define errRet AER_SPRITE_NULL
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->maskIndex;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetMask(AERInstance *inst, int32_t maskIdx) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(!(maskIdx == -1 || HLDSpriteLookup(maskIdx)), AER_FAILED_LOOKUP);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureLookup(maskIdx == AER_SPRITE_NULL || HLDSpriteLookup(maskIdx));
 
     hldfuncs.Instance_setMaskIndex((HLDInstance *)inst, maskIdx);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT int32_t AERInstanceGetSprite(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, AER_SPRITE_NULL);
-    ErrIf(!inst, AER_NULL_ARG, AER_SPRITE_NULL);
+#define errRet AER_SPRITE_NULL
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->spriteIndex;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetSprite(AERInstance *inst, int32_t spriteIdx) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(!(spriteIdx == -1 || HLDSpriteLookup(spriteIdx)), AER_FAILED_LOOKUP);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureLookup(spriteIdx == AER_SPRITE_NULL || HLDSpriteLookup(spriteIdx));
 
     ((HLDInstance *)inst)->spriteIndex = spriteIdx;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT float AERInstanceGetSpriteFrame(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
-    ErrIf(!inst, AER_NULL_ARG, -1.0f);
+#define errRet -1.0f
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->imageIndex;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetSpriteFrame(AERInstance *inst, float frame) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     ((HLDInstance *)inst)->imageIndex = frame;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT float AERInstanceGetSpriteSpeed(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
-    ErrIf(!inst, AER_NULL_ARG, -1.0f);
+#define errRet -1.0f
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->imageSpeed;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetSpriteSpeed(AERInstance *inst, float speed) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(speed < 0.0f, AER_BAD_VAL);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureMin(speed, 0.0f);
 
     ((HLDInstance *)inst)->imageSpeed = speed;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT float AERInstanceGetSpriteAlpha(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
-    ErrIf(!inst, AER_NULL_ARG, -1.0f);
+#define errRet -1.0f
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->imageAlpha;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetSpriteAlpha(AERInstance *inst, float alpha) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(alpha < 0.0f || alpha > 1.0f, AER_BAD_VAL);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureProba(alpha);
 
     ((HLDInstance *)inst)->imageAlpha = alpha;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT float AERInstanceGetSpriteAngle(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
-    ErrIf(!inst, AER_NULL_ARG, 0.0f);
+#define errRet 0.0f
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->imageAngle;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetSpriteAngle(AERInstance *inst, float angle) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     ((HLDInstance *)inst)->imageAngle = angle;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceGetSpriteScale(AERInstance *inst, float *x,
                                           float *y) {
+#define errRet
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(!(x || y), AER_NULL_ARG);
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArg(x || y);
 
     if (x)
         *x = inst->imageScale.x;
@@ -539,76 +606,92 @@ AER_EXPORT void AERInstanceGetSpriteScale(AERInstance *inst, float *x,
 
     return;
 #undef inst
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetSpriteScale(AERInstance *inst, float x, float y) {
+#define errRet
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     inst->imageScale.x = x;
     inst->imageScale.y = y;
 
     return;
 #undef inst
+#undef errRet
 }
 
 AER_EXPORT uint32_t AERInstanceGetSpriteBlend(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
-    ErrIf(!inst, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->imageBlend;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetSpriteBlend(AERInstance *inst, uint32_t color) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     ((HLDInstance *)inst)->imageBlend = color;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT bool AERInstanceGetTangible(AERInstance *inst) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, false);
-    ErrIf(!inst, AER_NULL_ARG, false);
+#define errRet false
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     return ((HLDInstance *)inst)->tangible;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetTangible(AERInstance *inst, bool tangible) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
 
     ((HLDInstance *)inst)->tangible = tangible;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT int32_t AERInstanceGetAlarm(AERInstance *inst, uint32_t alarmIdx) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1);
-    ErrIf(!inst, AER_NULL_ARG, -1);
-    ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP, -1);
+#define errRet -1
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureMax(alarmIdx, 11);
 
     return ((HLDInstance *)inst)->alarms[alarmIdx];
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
                                     int32_t numSteps) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureMax(alarmIdx, 11);
 
     ((HLDInstance *)inst)->alarms[alarmIdx] = numSteps;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
                                           const char **nameBuf) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
-    ErrIf(!inst, AER_NULL_ARG, 0);
-    ErrIf(!nameBuf && bufSize > 0, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArgBuf(nameBuf, bufSize);
 
     const char **names = hldvars.instanceLocalTable->elements;
     HLDClosedHashTable *locals = ((HLDInstance *)inst)->locals;
@@ -628,89 +711,98 @@ AER_EXPORT size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
     }
 
     return numLocals;
+#undef errRet
 }
 
 AER_EXPORT AERLocal *AERInstanceGetHLDLocal(AERInstance *inst,
                                             const char *name) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
-    ErrIf(!inst, AER_NULL_ARG, NULL);
-    ErrIf(!name, AER_NULL_ARG, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArg(name);
 
     int32_t *localIdx = FoxMapMIndex(const char *, int32_t, &hldLocals, name);
-    ErrIf(!localIdx, AER_FAILED_LOOKUP, NULL);
+    EnsureLookup(localIdx);
 
     AERLocal *local =
         HLDClosedHashTableLookup(((HLDInstance *)inst)->locals, *localIdx);
-    ErrIf(!local, AER_FAILED_LOOKUP, NULL);
+    EnsureLookup(local);
 
     return local;
+#undef errRet
 }
 
 AER_EXPORT AERLocal *
 AERInstanceCreateModLocal(AERInstance *inst, const char *name, bool public,
                           void (*destructor)(AERLocal *local)) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
-    ErrIf(!inst, AER_NULL_ARG, NULL);
-    ErrIf(!name, AER_NULL_ARG, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArg(name);
 
     ModLocalKey key;
-    ErrIf(!ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
-          AER_BAD_VAL, NULL);
-    ErrIf(FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key),
-          AER_FAILED_LOOKUP, NULL);
+    Ensure(ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
+           AER_BAD_VAL);
+    EnsureLookup(!FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key));
 
     ModLocalVal *val = FoxMapMInsert(ModLocalKey, ModLocalVal, &modLocals, key);
     val->destructor = destructor;
 
     return &val->local;
+#undef errRet
 }
 
 AER_EXPORT void AERInstanceDestroyModLocal(AERInstance *inst, const char *name,
                                            bool public) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!inst, AER_NULL_ARG);
-    ErrIf(!name, AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArg(name);
 
     ModLocalKey key;
-    ErrIf(!ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
-          AER_BAD_VAL);
+    Ensure(ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
+           AER_BAD_VAL);
 
     ModLocalVal *val = FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key);
-    ErrIf(!val, AER_FAILED_LOOKUP);
+    EnsureLookup(val);
 
     ModLocalValDeinit(val);
     FoxMapMRemove(ModLocalKey, ModLocalVal, &modLocals, key);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT AERLocal AERInstanceDeleteModLocal(AERInstance *inst,
                                               const char *name, bool public) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, (AERLocal){0});
-    ErrIf(!inst, AER_NULL_ARG, (AERLocal){0});
-    ErrIf(!name, AER_NULL_ARG, (AERLocal){0});
+#define errRet (AERLocal){0};
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArg(name);
 
     ModLocalKey key;
-    ErrIf(!ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
-          AER_BAD_VAL, (AERLocal){0});
-    ErrIf(!FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key),
-          AER_FAILED_LOOKUP, (AERLocal){0});
+    Ensure(ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
+           AER_BAD_VAL);
+    EnsureLookup(FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key));
 
     return FoxMapMRemove(ModLocalKey, ModLocalVal, &modLocals, key).local;
+#undef errRet
 }
 
 AER_EXPORT AERLocal *AERInstanceGetModLocal(AERInstance *inst, const char *name,
                                             bool public) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
-    ErrIf(!inst, AER_NULL_ARG, NULL);
-    ErrIf(!name, AER_NULL_ARG, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+    EnsureArg(name);
 
     ModLocalKey key;
-    ErrIf(!ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
-          AER_BAD_VAL, NULL);
+    Ensure(ModLocalKeyInit(&key, ((HLDInstance *)inst)->id, name, public),
+           AER_BAD_VAL);
 
     ModLocalVal *val = FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key);
-    ErrIf(!val, AER_FAILED_LOOKUP, NULL);
+    EnsureLookup(val);
 
     return &val->local;
+#undef errRet
 }
