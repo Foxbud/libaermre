@@ -158,26 +158,25 @@ AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
                                      int32_t spriteIdx, int32_t maskIdx,
                                      int32_t depth, bool visible,
                                      bool collisions, bool persistent) {
-    ErrIf(!name, AER_NULL_ARG, -1);
+#define errRet AER_OBJECT_NULL
+    EnsureArg(name);
     LogInfo("Registering object \"%s\" for mod \"%s\"...", name,
             ModManGetMod(ModManPeekContext())->name);
-    ErrIf(stage != STAGE_OBJECT_REG, AER_SEQ_BREAK, AER_OBJECT_NULL);
+    EnsureStageStrict(STAGE_OBJECT_REG);
 
     HLDObject *parent = HLDObjectLookup(parentIdx);
-    ErrIf(!parent, AER_FAILED_LOOKUP, AER_OBJECT_NULL);
+    EnsureLookup(parent);
 
-    ErrIf(!(spriteIdx == -1 || HLDSpriteLookup(spriteIdx)), AER_FAILED_LOOKUP,
-          AER_OBJECT_NULL);
-    ErrIf(!(maskIdx == -1 || HLDSpriteLookup(maskIdx)), AER_FAILED_LOOKUP,
-          AER_OBJECT_NULL);
+    EnsureLookup(spriteIdx == -1 || HLDSpriteLookup(spriteIdx));
+    EnsureLookup(maskIdx == -1 || HLDSpriteLookup(maskIdx));
 
     int32_t objIdx = hldfuncs.actionObjectAdd();
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_OUT_OF_MEM, AER_OBJECT_NULL);
+    Ensure(obj, AER_OUT_OF_MEM);
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
     char *tmpName = malloc(strlen(name) + 1);
-    ErrIf(!tmpName, AER_OUT_OF_MEM, AER_OBJECT_NULL);
+    Ensure(tmpName, AER_OUT_OF_MEM);
     obj->name = strcpy(tmpName, name);
 
     obj->parentIndex = parentIdx;
@@ -191,49 +190,59 @@ AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
 
     LogInfo("Successfully registered object to index %i.", objIdx);
     return objIdx;
+#undef errRet
 }
 
 AER_EXPORT size_t AERObjectGetNumRegistered(void) {
-    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, 0);
+#define errRet 0
+    EnsureStagePast(STAGE_OBJECT_REG);
 
     return (*hldvars.objectTableHandle)->numItems;
+#undef errRet
 }
 
 AER_EXPORT int32_t AERObjectGetByName(const char *name) {
-    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, AER_OBJECT_NULL);
-    ErrIf(!name, AER_NULL_ARG, AER_OBJECT_NULL);
+#define errRet AER_OBJECT_NULL
+    EnsureStagePast(STAGE_OBJECT_REG);
+    EnsureArg(name);
 
     int32_t *objIdx = FoxMapMIndex(const char *, int32_t, &objNames, name);
-    ErrIf(!objIdx, AER_FAILED_LOOKUP, AER_OBJECT_NULL);
+    EnsureLookup(objIdx);
 
     return *objIdx;
+#undef errRet
 }
 
 AER_EXPORT const char *AERObjectGetName(int32_t objIdx) {
-    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStagePast(STAGE_OBJECT_REG);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP, NULL);
+    EnsureLookup(obj);
 
     return obj->name;
+#undef errRet
 }
 
 AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
-    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, AER_OBJECT_NULL);
+#define errRet AER_OBJECT_NULL
+    EnsureStagePast(STAGE_OBJECT_REG);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP, AER_OBJECT_NULL);
+    EnsureLookup(obj);
 
     return obj->parentIndex;
+#undef errRet
 }
 
 AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
                                        size_t bufSize, int32_t *objBuf) {
-    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, 0);
-    ErrIf(!objBuf && bufSize > 0, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureStagePast(STAGE_OBJECT_REG);
+    EnsureArgBuf(objBuf, bufSize);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP, 0);
+    EnsureLookup(obj);
 
     FoxArray *children = FoxMapMIndex(
         int32_t, FoxArray, (recursive ? &flatObjTree : &objTree), objIdx);
@@ -246,39 +255,45 @@ AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
         objBuf[idx] = *FoxArrayMIndex(int32_t, children, idx);
 
     return numChildren;
+#undef errRet
 }
 
 AER_EXPORT bool AERObjectGetCollisions(int32_t objIdx) {
-    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, false);
+#define errRet false
+    EnsureStagePast(STAGE_OBJECT_REG);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP, false);
+    EnsureLookup(obj);
 
     return obj->flags.collisions;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectSetCollisions(int32_t objIdx, bool collisions) {
-    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK);
+#define errRet
+    EnsureStagePast(STAGE_OBJECT_REG);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
     obj->flags.collisions = collisions;
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachCreateListener(int32_t objIdx,
                                               bool (*listener)(AEREvent *,
                                                                AERInstance *,
                                                                AERInstance *)) {
+#define errRet
     LogInfo("Attaching create listener to object %i for mod \"%s\"...", objIdx,
             ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key =
         (EventKey){.type = HLD_EVENT_CREATE, .num = 0, .objIdx = objIdx};
@@ -286,60 +301,66 @@ AER_EXPORT void AERObjectAttachCreateListener(int32_t objIdx,
 
     LogInfo("Successfully attached create listener.");
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachDestroyListener(
     int32_t objIdx,
     bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+#define errRet
     LogInfo("Attaching destroy listener to object %i for mod \"%s\"...", objIdx,
             ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_DESTROY, .num = 0, .objIdx = objIdx};
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached destroy listener.");
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
                                              bool (*listener)(AEREvent *,
                                                               AERInstance *,
                                                               AERInstance *)) {
+#define errRet
     LogInfo("Attaching alarm %u listener to object %i for mod \"%s\"...",
             alarmIdx, objIdx, ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
-    ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
+    EnsureMax(alarmIdx, 11);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_ALARM, .num = alarmIdx, .objIdx = objIdx};
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached alarm %u listener.", alarmIdx);
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachStepListener(int32_t objIdx,
                                             bool (*listener)(AEREvent *,
                                                              AERInstance *,
                                                              AERInstance *)) {
+#define errRet
     LogInfo("Attaching step listener to object %i for mod \"%s\"...", objIdx,
             ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key = {
         .type = HLD_EVENT_STEP, .num = HLD_EVENT_STEP_NORMAL, .objIdx = objIdx};
@@ -347,19 +368,21 @@ AER_EXPORT void AERObjectAttachStepListener(int32_t objIdx,
 
     LogInfo("Successfully attached step listener.");
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachPreStepListener(
     int32_t objIdx,
     bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+#define errRet
     LogInfo("Attaching pre-step listener to object %i for mod \"%s\"...",
             objIdx, ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key = {
         .type = HLD_EVENT_STEP, .num = HLD_EVENT_STEP_PRE, .objIdx = objIdx};
@@ -367,19 +390,21 @@ AER_EXPORT void AERObjectAttachPreStepListener(
 
     LogInfo("Successfully attached pre-step listener.");
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachPostStepListener(
     int32_t objIdx,
     bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+#define errRet
     LogInfo("Attaching post-step listener to object %i for mod \"%s\"...",
             objIdx, ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key = {
         .type = HLD_EVENT_STEP, .num = HLD_EVENT_STEP_POST, .objIdx = objIdx};
@@ -387,20 +412,22 @@ AER_EXPORT void AERObjectAttachPostStepListener(
 
     LogInfo("Successfully attached post-step listener.");
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachCollisionListener(
     int32_t targetObjIdx, int32_t otherObjIdx,
     bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+#define errRet
     LogInfo("Attaching %i collision listener to object %i for mod \"%s\"...",
             otherObjIdx, targetObjIdx, ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
-    ErrIf(!HLDObjectLookup(otherObjIdx), AER_FAILED_LOOKUP);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
+    EnsureLookup(HLDObjectLookup(otherObjIdx));
 
     HLDObject *obj = HLDObjectLookup(targetObjIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_COLLISION,
                     .num = otherObjIdx,
@@ -409,19 +436,21 @@ AER_EXPORT void AERObjectAttachCollisionListener(
 
     LogInfo("Successfully attached %i collision listener.", otherObjIdx);
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachAnimationEndListener(
     int32_t objIdx,
     bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+#define errRet
     LogInfo("Attaching animation end listener to object %i for mod \"%s\"...",
             objIdx, ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_OTHER,
                     .num = HLD_EVENT_OTHER_ANIMATION_END,
@@ -430,19 +459,21 @@ AER_EXPORT void AERObjectAttachAnimationEndListener(
 
     LogInfo("Successfully attached animation end listener.");
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachDrawListener(
     int32_t objIdx, bool (*listener)(AEREvent *event, AERInstance *target,
                                      AERInstance *other)) {
+#define errRet
     LogInfo("Attaching draw listener to object %i for mod \"%s\"...", objIdx,
             ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key = {
         .type = HLD_EVENT_DRAW, .num = HLD_EVENT_DRAW_NORMAL, .objIdx = objIdx};
@@ -450,19 +481,21 @@ AER_EXPORT void AERObjectAttachDrawListener(
 
     LogInfo("Successfully attached draw listener.");
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERObjectAttachGUIDrawListener(
     int32_t objIdx, bool (*listener)(AEREvent *event, AERInstance *target,
                                      AERInstance *other)) {
+#define errRet
     LogInfo("Attaching GUI-draw listener to object %i for mod \"%s\"...",
             objIdx, ModManGetMod(ModManPeekContext())->name);
 
-    ErrIf(stage != STAGE_LISTENER_REG, AER_SEQ_BREAK);
-    ErrIf(!listener, AER_NULL_ARG);
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
-    ErrIf(!obj, AER_FAILED_LOOKUP);
+    EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_DRAW,
                     .num = HLD_EVENT_DRAW_GUI_NORMAL,
@@ -471,4 +504,5 @@ AER_EXPORT void AERObjectAttachGUIDrawListener(
 
     LogInfo("Successfully attached GUI-draw listener.");
     return;
+#undef errRet
 }
