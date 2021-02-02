@@ -54,17 +54,21 @@ AER_EXPORT uint64_t AERRandUInt(void) {
 }
 
 AER_EXPORT uint64_t AERRandUIntRange(uint64_t min, uint64_t max) {
-    ErrIf(min >= max, AER_BAD_VAL, 0);
+#define errRet 0
+    EnsureMaxExc(min, max);
 
     return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
+#undef errRet
 }
 
 AER_EXPORT int64_t AERRandInt(void) { return FoxRandInt((FoxPRNG *)&randPRNG); }
 
 AER_EXPORT int64_t AERRandIntRange(int64_t min, int64_t max) {
-    ErrIf(min >= max, AER_BAD_VAL, 0);
+#define errRet 0
+    EnsureMaxExc(min, max);
 
     return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
+#undef errRet
 }
 
 AER_EXPORT float AERRandFloat(void) {
@@ -72,9 +76,11 @@ AER_EXPORT float AERRandFloat(void) {
 }
 
 AER_EXPORT float AERRandFloatRange(float min, float max) {
-    ErrIf(min >= max, AER_BAD_VAL, 0.0f);
+#define errRet 0.0f
+    EnsureMaxExc(min, max);
 
     return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
+#undef errRet
 }
 
 AER_EXPORT double AERRandDouble(void) {
@@ -82,9 +88,11 @@ AER_EXPORT double AERRandDouble(void) {
 }
 
 AER_EXPORT double AERRandDoubleRange(double min, double max) {
-    ErrIf(min >= max, AER_BAD_VAL, 0.0);
+#define errRet 0.0
+    EnsureMaxExc(min, max);
 
     return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
+#undef errRet
 }
 
 AER_EXPORT bool AERRandBool(void) { return FoxRandBool((FoxPRNG *)&randPRNG); }
@@ -94,78 +102,100 @@ AER_EXPORT AERRandGen *AERRandGenNew(uint64_t seed) {
 }
 
 AER_EXPORT void AERRandGenFree(AERRandGen *gen) {
-    ErrIf(!gen, AER_NULL_ARG);
+#define errRet
+    EnsureArg(gen);
 
     FoxXoshiro256SSFree(gen);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT void AERRandGenSeed(AERRandGen *gen, uint64_t seed) {
-    ErrIf(!gen, AER_NULL_ARG);
+#define errRet
+    EnsureArg(gen);
 
     FoxXoshiro256SSSeed(gen, seed);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT uint64_t AERRandGenUInt(AERRandGen *gen) {
-    ErrIf(!gen, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureArg(gen);
 
     return FoxRandUInt((FoxPRNG *)&randPRNG);
+#undef errRet
 }
 
 AER_EXPORT uint64_t AERRandGenUIntRange(AERRandGen *gen, uint64_t min,
                                         uint64_t max) {
-    ErrIf(!gen, AER_NULL_ARG, 0);
-    ErrIf(min >= max, AER_BAD_VAL, 0);
+#define errRet 0
+    EnsureArg(gen);
+    EnsureMaxExc(min, max);
 
     return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
+#undef errRet
 }
 
 AER_EXPORT int64_t AERRandGenInt(AERRandGen *gen) {
-    ErrIf(!gen, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureArg(gen);
 
     return FoxRandFloat((FoxPRNG *)&randPRNG);
+#undef errRet
 }
 
 AER_EXPORT int64_t AERRandGenIntRange(AERRandGen *gen, int64_t min,
                                       int64_t max) {
-    ErrIf(!gen, AER_NULL_ARG, 0);
-    ErrIf(min >= max, AER_BAD_VAL, 0);
+#define errRet 0
+    EnsureArg(gen);
+    EnsureMaxExc(min, max);
 
     return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
+#undef errRet
 }
 
 AER_EXPORT float AERRandGenFloat(AERRandGen *gen) {
-    ErrIf(!gen, AER_NULL_ARG, 0.0f);
+#define errRet 0.0f
+    EnsureArg(gen);
 
     return FoxRandFloat((FoxPRNG *)&randPRNG);
+#undef errRet
 }
 
 AER_EXPORT float AERRandGenFloatRange(AERRandGen *gen, float min, float max) {
-    ErrIf(!gen, AER_NULL_ARG, 0.0f);
-    ErrIf(min >= max, AER_BAD_VAL, 0.0f);
+#define errRet 0.0f
+    EnsureArg(gen);
+    EnsureMaxExc(min, max);
 
     return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
+#undef errRet
 }
 
 AER_EXPORT double AERRandGenDouble(AERRandGen *gen) {
-    ErrIf(!gen, AER_NULL_ARG, 0.0);
+#define errRet 0.0
+    EnsureArg(gen);
 
     return FoxRandDouble((FoxPRNG *)&randPRNG);
+#undef errRet
 }
 
 AER_EXPORT double AERRandGenDoubleRange(AERRandGen *gen, double min,
                                         double max) {
-    ErrIf(!gen, AER_NULL_ARG, 0.0);
-    ErrIf(min >= max, AER_BAD_VAL, 0.0);
+#define errRet 0.0
+    EnsureArg(gen);
+    EnsureMaxExc(min, max);
 
     return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
+#undef errRet
 }
 
 AER_EXPORT bool AERRandGenBool(AERRandGen *gen) {
-    ErrIf(!gen, AER_NULL_ARG, false);
+#define errRet false
+    EnsureArg(gen);
 
     return FoxRandBool((FoxPRNG *)&randPRNG);
+#undef errRet
 }

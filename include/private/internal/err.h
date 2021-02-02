@@ -50,13 +50,25 @@
 
 #define EnsureMin(val, min) Ensure(((val) >= (typeof(val))(min)), AER_BAD_VAL)
 
+#define EnsureMinExc(val, min) Ensure(((val) > (typeof(val))(min)), AER_BAD_VAL)
+
 #define EnsureMax(val, max) Ensure(((val) <= (typeof(val))(max)), AER_BAD_VAL)
+
+#define EnsureMaxExc(val, max) Ensure(((val) < (typeof(val))(max)), AER_BAD_VAL)
 
 #define EnsureRange(val, min, max)                                             \
     do {                                                                       \
         typeof(val) EnsureRange_val = (val);                                   \
         Ensure((EnsureRange_val >= (typeof(val))(min) &&                       \
                 EnsureRange_val <= (typeof(val))(max)),                        \
+               AER_BAD_VAL);                                                   \
+    } while (0)
+
+#define EnsureRangeExc(val, min, max)                                          \
+    do {                                                                       \
+        typeof(val) EnsureRangeExc_val = (val);                                \
+        Ensure((EnsureRangeExc_val > (typeof(val))(min) &&                     \
+                EnsureRangeExc_val < (typeof(val))(max)),                      \
                AER_BAD_VAL);                                                   \
     } while (0)
 
