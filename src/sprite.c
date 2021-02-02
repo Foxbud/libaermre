@@ -29,36 +29,39 @@
 AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
                                      size_t numFrames, uint32_t origX,
                                      uint32_t origY) {
-    ErrIf(!name, AER_NULL_ARG, AER_SPRITE_NULL);
+#define errRet AER_SPRITE_NULL
+    EnsureArg(name);
     LogInfo("Registering sprite \"%s\" for mod \"%s\"...", name,
             ModManGetMod(ModManPeekContext())->name);
-    ErrIf(stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, AER_SPRITE_NULL);
-    ErrIf(!filename, AER_NULL_ARG, AER_SPRITE_NULL);
+    EnsureStageStrict(STAGE_SPRITE_REG);
+    EnsureArg(filename);
 
     int32_t spriteIdx = hldfuncs.actionSpriteAdd(
         CoreGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
     HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
-    ErrIf(!sprite, AER_BAD_FILE, AER_SPRITE_NULL);
+    Ensure(sprite, AER_BAD_FILE);
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
     char *tmpName = malloc(strlen(name) + 1);
-    ErrIf(!tmpName, AER_OUT_OF_MEM, AER_SPRITE_NULL);
+    Ensure(tmpName, AER_OUT_OF_MEM);
     sprite->name = strcpy(tmpName, name);
 
     LogInfo("Successfully registered sprite to index %i.", spriteIdx);
 
     return spriteIdx;
+#undef errRet
 }
 
 AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
                                  size_t numFrames, uint32_t origX,
                                  uint32_t origY) {
+#define errRet
     HLDSprite *oldSprite = HLDSpriteLookup(spriteIdx);
-    ErrIf(!oldSprite, AER_FAILED_LOOKUP);
+    EnsureLookup(oldSprite);
     LogInfo("Replacing sprite \"%s\" for mod \"%s\"...", oldSprite->name,
             ModManGetMod(ModManPeekContext())->name);
-    ErrIf(stage != STAGE_SPRITE_REG, AER_SEQ_BREAK);
-    ErrIf(!filename, AER_NULL_ARG);
+    EnsureStageStrict(STAGE_SPRITE_REG);
+    EnsureArg(filename);
 
     hldfuncs.actionSpriteReplace(spriteIdx, CoreGetAbsAssetPath(filename),
                                  numFrames, 0, 0, 0, 0, origX, origY);
@@ -67,19 +70,24 @@ AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
     LogInfo("Successfully replaced sprite at index %i.", spriteIdx);
 
     return;
+#undef errRet
 }
 
 AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
-    ErrIf(stage <= STAGE_SPRITE_REG, AER_SEQ_BREAK, 0);
+#define errRet 0
+    EnsureStagePast(STAGE_SPRITE_REG);
 
     return hldvars.spriteTable->size;
+#undef errRet
 }
 
 AER_EXPORT const char *AERSpriteGetName(int32_t spriteIdx) {
-    ErrIf(stage <= STAGE_SPRITE_REG, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStagePast(STAGE_SPRITE_REG);
 
     HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
-    ErrIf(!sprite, AER_FAILED_LOOKUP, NULL);
+    EnsureLookup(sprite);
 
     return sprite->name;
+#undef errRet
 }
