@@ -29,7 +29,7 @@
 AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
                                      size_t numFrames, uint32_t origX,
                                      uint32_t origY) {
-    ErrIf(!name, AER_NULL_ARG, -1);
+    ErrIf(!name, AER_NULL_ARG, AER_SPRITE_NULL);
     LogInfo("Registering sprite \"%s\" for mod \"%s\"...", name,
             ModManGetMod(ModManPeekContext())->name);
     ErrIf(stage != STAGE_SPRITE_REG, AER_SEQ_BREAK, AER_SPRITE_NULL);

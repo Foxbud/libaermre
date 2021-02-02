@@ -28,43 +28,31 @@
 /* ----- PUBLIC TYPES ----- */
 
 /**
- * @brief Indices for keypresses in input lookup table.
+ * @brief Indexes for keypresses in input lookup table.
  *
  * @since 1.1.0
  */
 typedef enum AERInputKey {
-    AER_KEY_BACKSPACE = 0x9,
+    AER_KEY_BACKSPACE = 0x8,
     AER_KEY_TAB = 0x9,
     AER_KEY_ENTER = 0xd,
     AER_KEY_CAPSLOCK = 0x14,
     AER_KEY_ESCAPE = 0x1b,
     AER_KEY_SPACE = 0x20,
-    /**
-     * @brief Also used for !
-     */
     AER_KEY_PAGEUP = 0x21,
-    /**
-     * @brief Also used for "
-     */
+    AER_KEY_EXCLAIM = 0x21,
     AER_KEY_PAGEDOWN = 0x22,
+    AER_KEY_QUOTE = 0x22,
     AER_KEY_END = 0x23,
-    /**
-     * @brief Also used for $
-     */
     AER_KEY_HOME = 0x24,
-    /**
-     * @brief Also used for %
-     */
+    AER_KEY_DOLLAR = 0x24,
     AER_KEY_LARROW = 0x25,
-    /**
-     * @brief Also used for &
-     */
+    AER_KEY_PERCENT = 0x25,
     AER_KEY_UARROW = 0x26,
+    AER_KEY_AMP = 0x26,
     AER_KEY_RARROW = 0x27,
-    /**
-     * @brief Also used for (
-     */
     AER_KEY_DARROW = 0x28,
+    AER_KEY_LPAREN = 0x28,
     AER_KEY_RPAREN = 0x29,
     AER_KEY_ASTERISK = 0x2a,
     AER_KEY_PLUS = 0x2b,
@@ -167,10 +155,11 @@ typedef enum AERInputKey {
 /* ----- PUBLIC CONSTANTS ----- */
 
 /**
- * @brief Printable characters corresponding to input table indices.
+ * @brief Printable characters corresponding to input table indexes.
+ *
+ * @since 1.1.0
  */
-const char AERKeyChars[0x100] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,' ','!','"',0,'$','%','&',0,'(',')','*','+',0,0,0,0,'0','1','2','3','4','5','6','7','8','9',':',0,'<',0,'>','?','@','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',0,0,0,'^',0,'_','0','1','2','3','4','5','6','7','8','9','*','+',0,'-','.','/',0,0,0,0,0,0,0,0,0,0,'{','|','}','~',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,';','=',',','-','.','/','\'',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'[','\\',']','#','`'};
-
+extern const char AER_DISPLAY_KEYS[];
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
@@ -283,4 +272,3 @@ const bool *AERInputGetMouseButtonsReleased(void);
 void AERInputGetMousePosition(uint32_t *x, uint32_t *y);
 
 #endif /* AER_INPUT_H */
-

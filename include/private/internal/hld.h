@@ -59,14 +59,8 @@ typedef enum HLDEventOtherType {
 } HLDEventOtherType;
 
 typedef enum HLDEventDrawType {
-    HLD_EVENT_DRAW_NORMAL,
-    HLD_EVENT_DRAW_BEGIN,
-    HLD_EVENT_DRAW_END,
-    HLD_EVENT_DRAW_PRE,
-    HLD_EVENT_DRAW_POST,
-    HLD_EVENT_DRAW_GUI_NORMAL,
-    HLD_EVENT_DRAW_GUI_BEGIN,
-    HLD_EVENT_DRAW_GUI_END
+    HLD_EVENT_DRAW_NORMAL = 0,
+    HLD_EVENT_DRAW_GUI_NORMAL = 64
 } HLDEventDrawType;
 
 typedef struct HLDOpenHashItem {
@@ -112,6 +106,11 @@ typedef struct HLDVecReal {
     float x;
     float y;
 } HLDVecReal;
+
+typedef struct HLDVecIntegral {
+    int32_t x;
+    int32_t y;
+} HLDVecIntegral;
 
 typedef struct HLDArrayPreSize {
     size_t size;
@@ -324,6 +323,23 @@ typedef struct HLDInstance {
     uint32_t field_180;
 } HLDInstance;
 
+typedef struct HLDView {
+    bool visible;
+    uint8_t field_1;
+    uint8_t field_2;
+    uint8_t field_3;
+    HLDVecReal posRoom;
+    HLDVecReal sizeRoom;
+    HLDVecIntegral posPort;
+    HLDVecIntegral sizePort;
+    float angle;
+    HLDVecIntegral border;
+    HLDVecIntegral speed;
+    int32_t objectIndex;
+    int32_t surfaceId;
+    int32_t camera;
+} HLDView;
+
 typedef struct HLDRoom {
     uint32_t field_0;
     struct HLDRoom *self;
@@ -343,14 +359,7 @@ typedef struct HLDRoom {
     uint32_t field_3C;
     uint32_t field_40;
     uint32_t field_44;
-    uint32_t field_48;
-    uint32_t field_4C;
-    uint32_t field_50;
-    uint32_t field_54;
-    uint32_t field_58;
-    uint32_t field_5C;
-    uint32_t field_60;
-    uint32_t field_64;
+    HLDView *views[8];
     uint32_t field_68;
     uint32_t field_6C;
     uint32_t field_70;
@@ -437,6 +446,48 @@ typedef struct HLDSprite {
     uint32_t field_84;
 } HLDSprite;
 
+typedef struct HLDFont {
+    void *classDef;
+    const char *fontname;
+    size_t size;
+    bool bold;
+    bool italic;
+    uint8_t field_E;
+    uint8_t field_F;
+    uint32_t field_10;
+    uint32_t field_14;
+    int32_t first;
+    int32_t last;
+    uint32_t field_20;
+    uint32_t field_24;
+    uint32_t field_28;
+    uint32_t field_2C;
+    uint32_t field_30;
+    uint32_t field_34;
+    uint32_t field_38;
+    uint32_t field_3C;
+    uint32_t field_40;
+    uint32_t field_44;
+    uint32_t field_48;
+    uint32_t field_4C;
+    uint32_t field_50;
+    uint32_t field_54;
+    uint32_t field_58;
+    uint32_t field_5C;
+    uint32_t field_60;
+    uint32_t field_64;
+    uint32_t field_68;
+    uint32_t field_6C;
+    uint32_t field_70;
+    uint32_t field_74;
+    uint32_t field_78;
+    uint32_t field_7C;
+    uint32_t field_80;
+    uint32_t field_84;
+    uint32_t field_88;
+    uint32_t field_8C;
+} HLDFont;
+
 /*
  * This struct holds pointers to global variables in the Game Maker
  * engine. These pointers are passed into the MRE from the hooks injected
@@ -464,6 +515,12 @@ typedef struct __attribute__((packed)) HLDVariables {
     HLDRoom **roomCurrent;
     /* Array of all registered sprites. */
     HLDArrayPreSize *spriteTable;
+    /* Array of all registered fonts. */
+    HLDArrayPreSize *fontTable;
+    /* Index of currently active font. */
+    int32_t *fontIndexCurrent;
+    /* Actual font object of currently active font. */
+    HLDFont **fontCurrent;
     /* Hash table of all registered objects. */
     HLDOpenHashTable **objectTableHandle;
     /* Hash table of all in-game instances. */
@@ -508,6 +565,9 @@ typedef struct __attribute__((packed)) HLDFunctions {
                                 int32_t unknown1, int32_t unknown2,
                                 int32_t unknown3, uint32_t origX,
                                 uint32_t origY);
+    /* Register a new font. */
+    int32_t (*actionFontAdd)(const char *fname, size_t size, bool bold,
+                             bool italic, int32_t first, int32_t last);
     /* Register a new object. */
     int32_t (*actionObjectAdd)(void);
     /* Trigger an event as if it occurred "naturally." */
@@ -530,6 +590,8 @@ typedef struct __attribute__((packed)) HLDFunctions {
                            uint32_t colorSE, uint32_t colorSW, float alpha);
     /* Draw an instance's sprite. */
     void (*actionDrawSelf)(HLDInstance *inst);
+    /* Set the currently active draw font. */
+    void (*actionDrawSetFont)(int32_t fontIdx);
     /* Spawn a new instance of an object. */
     HLDInstance *(*actionInstanceCreate)(int32_t objIdx, float posX,
                                          float posY);
@@ -562,7 +624,11 @@ extern HLDFunctions hldfuncs;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
+HLDView *HLDViewLookup(uint32_t viewIdx);
+
 HLDSprite *HLDSpriteLookup(int32_t spriteIdx);
+
+HLDFont *HLDFontLookup(int32_t fontIdx);
 
 HLDRoom *HLDRoomLookup(int32_t roomIdx);
 

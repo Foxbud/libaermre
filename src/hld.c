@@ -37,12 +37,29 @@ HLDFunctions hldfuncs = {0};
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
+HLDView *HLDViewLookup(uint32_t viewIdx) {
+    HLDView *result = NULL;
+
+    if (viewIdx < 8)
+        result = (*hldvars.roomCurrent)->views[viewIdx];
+
+    return result;
+}
+
 HLDSprite *HLDSpriteLookup(int32_t spriteIdx) {
     HLDSprite *result = NULL;
 
-    if (spriteIdx >= 0 && (uint32_t)spriteIdx < hldvars.spriteTable->size) {
+    if (spriteIdx >= 0 && (uint32_t)spriteIdx < hldvars.spriteTable->size)
         result = ((HLDSprite **)hldvars.spriteTable->elements)[spriteIdx];
-    }
+
+    return result;
+}
+
+HLDFont *HLDFontLookup(int32_t fontIdx) {
+    HLDFont *result = NULL;
+
+    if (fontIdx >= 0 && (uint32_t)fontIdx < hldvars.fontTable->size)
+        result = ((HLDFont **)hldvars.fontTable->elements)[fontIdx];
 
     return result;
 }
@@ -50,9 +67,8 @@ HLDSprite *HLDSpriteLookup(int32_t spriteIdx) {
 HLDRoom *HLDRoomLookup(int32_t roomIdx) {
     HLDRoom *result = NULL;
 
-    if (roomIdx >= 0 && (uint32_t)roomIdx < hldvars.roomTable->size) {
+    if (roomIdx >= 0 && (uint32_t)roomIdx < hldvars.roomTable->size)
         result = ((HLDRoom **)hldvars.roomTable->elements)[roomIdx];
-    }
 
     return result;
 }

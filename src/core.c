@@ -24,6 +24,7 @@
 #include "internal/event.h"
 #include "internal/export.h"
 #include "internal/hld.h"
+#include "internal/input.h"
 #include "internal/instance.h"
 #include "internal/log.h"
 #include "internal/mod.h"
@@ -72,9 +73,10 @@ __attribute__((constructor)) static void CoreConstructor(void) {
 }
 
 __attribute__((destructor)) static void CoreDestructor(void) {
+    InstanceManDestructor();
+
     ModManDestructor();
 
-    InstanceManDestructor();
     ObjectManDestructor();
     EventManDestructor();
     RandDestructor();
@@ -107,6 +109,19 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
         if (mod->registerSprites) {
             ModManPushContext(modIdx);
             mod->registerSprites();
+            ModManPopContext();
+        }
+    }
+    LogInfo("Done.");
+
+    /* Register fonts. */
+    stage = STAGE_FONT_REG;
+    LogInfo("Registering mod fonts...");
+    for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
+        Mod *mod = ModManGetMod(modIdx);
+        if (mod->registerFonts) {
+            ModManPushContext(modIdx);
+            mod->registerFonts();
             ModManPopContext();
         }
     }
@@ -148,6 +163,9 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
 }
 
 AER_EXPORT void AERHookStep(void) {
+    /* Record user input. */
+    InputManRecordUserInput();
+
     /* Check if game pause state changed. */
     bool paused = HLDObjectLookup(AER_OBJECT_MENUS)->numInstances > 0;
     if (paused != gamePaused) {

@@ -50,6 +50,7 @@ add_library(aermre SHARED
    src/draw.c
    src/err.c
    src/event.c
+   src/font.c
    src/hld.c
    src/input.c
    src/instance.c
@@ -59,7 +60,8 @@ add_library(aermre SHARED
    src/option.c
    src/rand.c
    src/room.c
-   src/sprite.c)
+   src/sprite.c
+   src/window.c)
 generate_export_header(aermre
     BASE_NAME AER
     EXPORT_FILE_NAME include/private/internal/export.h)

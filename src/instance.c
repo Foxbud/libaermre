@@ -39,7 +39,7 @@
         void (*destructor)(AERLocal *);                                        \
         if ((destructor = ModLocalValDeinit_val->destructor))                  \
             destructor(&ModLocalValDeinit_val->local);                         \
-    } while (0);
+    } while (0)
 
 /* ----- PRIVATE TYPES ----- */
 
@@ -313,10 +313,11 @@ AER_EXPORT void AERInstanceGetPosition(AERInstance *inst, float *x, float *y) {
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!(x || y), AER_NULL_ARG);
 
+    HLDVecReal pos = inst->pos;
     if (x)
-        *x = inst->pos.x;
+        *x = pos.x;
     if (y)
-        *y = inst->pos.y;
+        *y = pos.y;
 
     return;
 #undef inst
