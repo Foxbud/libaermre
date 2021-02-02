@@ -3464,7 +3464,7 @@ void AERSpriteReplace(int32_t spriteIdx, const char *filename, size_t numFrames,
  *
  * @return Number of sprites or `0` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called before end of sprite registration stage.
  *
  * @since 1.0.0
  */
@@ -3477,7 +3477,7 @@ size_t AERSpriteGetNumRegistered(void);
  *
  * @return Name of sprite or `NULL` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called before end of sprite registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
  *
  * @since 1.0.0

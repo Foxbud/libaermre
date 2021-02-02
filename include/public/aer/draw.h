@@ -55,8 +55,7 @@
  * @param[in] outline Whether to render a solid triangle (`false`) or a `1`
  * pixel wide outline of a triangle (`true`).
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage or outside of a draw
- * event listener.
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
  *
  * @since 1.1.0
  *
@@ -86,8 +85,7 @@ void AERDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3,
  * @param[in] outline Whether to render a solid triangle (`false`) or a `1`
  * pixel wide outline of a triangle (`true`).
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage or outside of a draw
- * event listener.
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
  *
  * @since 1.1.0
  *
@@ -110,8 +108,7 @@ void AERDrawTriangleAdv(float x1, float y1, float x2, float y2, float x3,
  * @param[in] outline Whether to render a solid rectangle (`false`) or a `1`
  * pixel wide outline of a rectangle (`true`).
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage or outside of a draw
- * event listener.
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
  *
  * @since 1.1.0
  *
@@ -142,8 +139,7 @@ void AERDrawRectangle(float left, float top, float right, float bottom,
  * @param[in] outline Whether to render a solid rectangle (`false`) or a `1`
  * pixel wide outline of a rectangle (`true`).
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage or outside of a draw
- * event listener.
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
  *
  * @since 1.1.0
  *
@@ -166,8 +162,7 @@ void AERDrawRectangleAdv(float left, float top, float right, float bottom,
  * @param[in] color Color of text. See @ref DrawColors for more
  * infomation.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage or outside of a draw
- * event listener.
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
  * @throw ::AER_NULL_ARG if argument `text` is `NULL`.
  *
  * @since 1.1.0
@@ -203,8 +198,7 @@ void AERDrawText(const char *text, float x, float y, uint32_t width,
  * infomation.
  * @param[in] alpha Text alpha (transparency).
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage or outside of a draw
- * event listener.
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
  * @throw ::AER_NULL_ARG if argument `text` is `NULL`.
  *
  * @since 1.1.0

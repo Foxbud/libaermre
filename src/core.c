@@ -204,13 +204,13 @@ AER_EXPORT void AERHookEvent(HLDObject *targetObject, HLDEventType eventType,
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT uint32_t AERGetNumSteps(void) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
 
     return *hldvars.numSteps;
 }
 
 AER_EXPORT bool AERGetPaused(void) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
 
     return gamePaused;
 }

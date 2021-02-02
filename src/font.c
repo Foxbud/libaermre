@@ -22,13 +22,13 @@
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT int32_t AERFontGetCurrent(void) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, AER_FONT_NULL);
+    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, AER_FONT_NULL);
 
     return *hldvars.fontIndexCurrent;
 }
 
 AER_EXPORT void AERFontSetCurrent(int32_t fontIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK);
     ErrIf(!HLDFontLookup(fontIdx), AER_FAILED_LOOKUP);
 
     hldfuncs.actionDrawSetFont(fontIdx);
@@ -53,13 +53,13 @@ AER_EXPORT int32_t AERFontRegister(const char *filename, size_t size, bool bold,
 }
 
 AER_EXPORT size_t AERFontGetNumRegistered(void) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, 0);
 
     return hldvars.fontTable->size;
 }
 
 AER_EXPORT const char *AERFontGetName(int32_t fontIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, NULL);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     ErrIf(!font, AER_FAILED_LOOKUP, NULL);
@@ -68,7 +68,7 @@ AER_EXPORT const char *AERFontGetName(int32_t fontIdx) {
 }
 
 AER_EXPORT size_t AERFontGetSize(int32_t fontIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, 0);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     ErrIf(!font, AER_FAILED_LOOKUP, 0);
@@ -77,7 +77,7 @@ AER_EXPORT size_t AERFontGetSize(int32_t fontIdx) {
 }
 
 AER_EXPORT bool AERFontGetBold(int32_t fontIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, false);
+    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, false);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     ErrIf(!font, AER_FAILED_LOOKUP, false);
@@ -86,7 +86,7 @@ AER_EXPORT bool AERFontGetBold(int32_t fontIdx) {
 }
 
 AER_EXPORT bool AERFontGetItalic(int32_t fontIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, false);
+    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, false);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     ErrIf(!font, AER_FAILED_LOOKUP, false);
@@ -95,7 +95,7 @@ AER_EXPORT bool AERFontGetItalic(int32_t fontIdx) {
 }
 
 AER_EXPORT int32_t AERFontGetFirst(int32_t fontIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, -1);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     ErrIf(!font, AER_FAILED_LOOKUP, -1);
@@ -104,7 +104,7 @@ AER_EXPORT int32_t AERFontGetFirst(int32_t fontIdx) {
 }
 
 AER_EXPORT int32_t AERFontGetLast(int32_t fontIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+    ErrIf(stage <= STAGE_FONT_REG, AER_SEQ_BREAK, -1);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     ErrIf(!font, AER_FAILED_LOOKUP, -1);

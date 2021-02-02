@@ -179,13 +179,13 @@ AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
 }
 
 AER_EXPORT size_t AERObjectGetNumRegistered(void) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, 0);
 
     return (*hldvars.objectTableHandle)->numItems;
 }
 
 AER_EXPORT const char *AERObjectGetName(int32_t objIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, NULL);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
     ErrIf(!obj, AER_FAILED_LOOKUP, NULL);
@@ -194,7 +194,7 @@ AER_EXPORT const char *AERObjectGetName(int32_t objIdx) {
 }
 
 AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, AER_OBJECT_NULL);
+    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, AER_OBJECT_NULL);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
     ErrIf(!obj, AER_FAILED_LOOKUP, AER_OBJECT_NULL);
@@ -204,7 +204,7 @@ AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
 
 AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
                                        size_t bufSize, int32_t *objBuf) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, 0);
     ErrIf(!objBuf && bufSize > 0, AER_NULL_ARG, 0);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
@@ -224,7 +224,7 @@ AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
 }
 
 AER_EXPORT bool AERObjectGetCollisions(int32_t objIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, false);
+    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK, false);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
     ErrIf(!obj, AER_FAILED_LOOKUP, false);
@@ -233,7 +233,7 @@ AER_EXPORT bool AERObjectGetCollisions(int32_t objIdx) {
 }
 
 AER_EXPORT void AERObjectSetCollisions(int32_t objIdx, bool collisions) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage <= STAGE_OBJECT_REG, AER_SEQ_BREAK);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
     ErrIf(!obj, AER_FAILED_LOOKUP);

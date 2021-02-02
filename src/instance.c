@@ -163,7 +163,7 @@ void InstanceManDestructor(void) {
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
     ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
 
     HLDRoom *room = *hldvars.roomCurrent;
@@ -182,7 +182,7 @@ AER_EXPORT size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf) {
 AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx, bool recursive,
                                          size_t bufSize,
                                          AERInstance **instBuf) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
     ErrIf(!instBuf && bufSize > 0, AER_NULL_ARG, 0);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
@@ -216,7 +216,7 @@ AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx, bool recursive,
 }
 
 AER_EXPORT AERInstance *AERInstanceGetById(int32_t instId) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
 
     AERInstance *inst = (AERInstance *)HLDInstanceLookup(instId);
     ErrIf(!inst, AER_FAILED_LOOKUP, NULL);
@@ -225,7 +225,7 @@ AER_EXPORT AERInstance *AERInstanceGetById(int32_t instId) {
 }
 
 AER_EXPORT AERInstance *AERInstanceCreate(int32_t objIdx, float x, float y) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
     ErrIf(!HLDObjectLookup(objIdx), AER_FAILED_LOOKUP, NULL);
 
     AERInstance *inst =
@@ -237,7 +237,7 @@ AER_EXPORT AERInstance *AERInstanceCreate(int32_t objIdx, float x, float y) {
 
 AER_EXPORT void AERInstanceChange(AERInstance *inst, int32_t newObjIdx,
                                   bool doEvents) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!HLDObjectLookup(newObjIdx), AER_FAILED_LOOKUP);
 
@@ -247,7 +247,7 @@ AER_EXPORT void AERInstanceChange(AERInstance *inst, int32_t newObjIdx,
 }
 
 AER_EXPORT void AERInstanceDestroy(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     hldfuncs.actionInstanceDestroy((HLDInstance *)inst, (HLDInstance *)inst, -1,
@@ -257,7 +257,7 @@ AER_EXPORT void AERInstanceDestroy(AERInstance *inst) {
 }
 
 AER_EXPORT void AERInstanceDelete(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     hldfuncs.actionInstanceDestroy((HLDInstance *)inst, (HLDInstance *)inst, -1,
@@ -267,14 +267,14 @@ AER_EXPORT void AERInstanceDelete(AERInstance *inst) {
 }
 
 AER_EXPORT float AERInstanceGetDepth(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
     ErrIf(!inst, AER_NULL_ARG, 0.0f);
 
     return ((HLDInstance *)inst)->depth;
 }
 
 AER_EXPORT void AERInstanceSetDepth(AERInstance *inst, float depth) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     ((HLDInstance *)inst)->depth = depth;
@@ -283,7 +283,7 @@ AER_EXPORT void AERInstanceSetDepth(AERInstance *inst, float depth) {
 }
 
 AER_EXPORT void AERInstanceSyncDepth(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     uint32_t unknownDatastructure[4] = {0};
@@ -294,14 +294,14 @@ AER_EXPORT void AERInstanceSyncDepth(AERInstance *inst) {
 }
 
 AER_EXPORT int32_t AERInstanceGetId(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1);
     ErrIf(!inst, AER_NULL_ARG, -1);
 
     return ((HLDInstance *)inst)->id;
 }
 
 AER_EXPORT int32_t AERInstanceGetObject(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, AER_OBJECT_NULL);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, AER_OBJECT_NULL);
     ErrIf(!inst, AER_NULL_ARG, AER_OBJECT_NULL);
 
     return ((HLDInstance *)inst)->objectIndex;
@@ -309,7 +309,7 @@ AER_EXPORT int32_t AERInstanceGetObject(AERInstance *inst) {
 
 AER_EXPORT void AERInstanceGetPosition(AERInstance *inst, float *x, float *y) {
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!(x || y), AER_NULL_ARG);
 
@@ -325,7 +325,7 @@ AER_EXPORT void AERInstanceGetPosition(AERInstance *inst, float *x, float *y) {
 
 AER_EXPORT void AERInstanceSetPosition(AERInstance *inst, float x, float y) {
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     hldfuncs.Instance_setPosition(inst, x, y);
@@ -336,7 +336,7 @@ AER_EXPORT void AERInstanceSetPosition(AERInstance *inst, float x, float y) {
 
 AER_EXPORT void AERInstanceAddPosition(AERInstance *inst, float x, float y) {
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     HLDVecReal pos = inst->pos;
@@ -350,7 +350,7 @@ AER_EXPORT void AERInstanceGetBoundingBox(AERInstance *inst, float *left,
                                           float *top, float *right,
                                           float *bottom) {
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!(left || top || right || bottom), AER_NULL_ARG);
 
@@ -369,14 +369,14 @@ AER_EXPORT void AERInstanceGetBoundingBox(AERInstance *inst, float *left,
 }
 
 AER_EXPORT float AERInstanceGetFriction(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
     ErrIf(!inst, AER_NULL_ARG, 0.0f);
 
     return ((HLDInstance *)inst)->friction;
 }
 
 AER_EXPORT void AERInstanceSetFriction(AERInstance *inst, float friction) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     ((HLDInstance *)inst)->friction = friction;
@@ -386,7 +386,7 @@ AER_EXPORT void AERInstanceSetFriction(AERInstance *inst, float friction) {
 
 AER_EXPORT void AERInstanceGetMotion(AERInstance *inst, float *x, float *y) {
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!(x || y), AER_NULL_ARG);
 
@@ -401,7 +401,7 @@ AER_EXPORT void AERInstanceGetMotion(AERInstance *inst, float *x, float *y) {
 
 AER_EXPORT void AERInstanceSetMotion(AERInstance *inst, float x, float y) {
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     inst->speedX = x;
@@ -414,7 +414,7 @@ AER_EXPORT void AERInstanceSetMotion(AERInstance *inst, float x, float y) {
 
 AER_EXPORT void AERInstanceAddMotion(AERInstance *inst, float x, float y) {
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     inst->speedX += x;
@@ -426,14 +426,14 @@ AER_EXPORT void AERInstanceAddMotion(AERInstance *inst, float x, float y) {
 }
 
 AER_EXPORT int32_t AERInstanceGetMask(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, AER_SPRITE_NULL);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, AER_SPRITE_NULL);
     ErrIf(!inst, AER_NULL_ARG, AER_SPRITE_NULL);
 
     return ((HLDInstance *)inst)->maskIndex;
 }
 
 AER_EXPORT void AERInstanceSetMask(AERInstance *inst, int32_t maskIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!(maskIdx == -1 || HLDSpriteLookup(maskIdx)), AER_FAILED_LOOKUP);
 
@@ -443,14 +443,14 @@ AER_EXPORT void AERInstanceSetMask(AERInstance *inst, int32_t maskIdx) {
 }
 
 AER_EXPORT int32_t AERInstanceGetSprite(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, AER_SPRITE_NULL);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, AER_SPRITE_NULL);
     ErrIf(!inst, AER_NULL_ARG, AER_SPRITE_NULL);
 
     return ((HLDInstance *)inst)->spriteIndex;
 }
 
 AER_EXPORT void AERInstanceSetSprite(AERInstance *inst, int32_t spriteIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!(spriteIdx == -1 || HLDSpriteLookup(spriteIdx)), AER_FAILED_LOOKUP);
 
@@ -460,14 +460,14 @@ AER_EXPORT void AERInstanceSetSprite(AERInstance *inst, int32_t spriteIdx) {
 }
 
 AER_EXPORT float AERInstanceGetSpriteFrame(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
     ErrIf(!inst, AER_NULL_ARG, -1.0f);
 
     return ((HLDInstance *)inst)->imageIndex;
 }
 
 AER_EXPORT void AERInstanceSetSpriteFrame(AERInstance *inst, float frame) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     ((HLDInstance *)inst)->imageIndex = frame;
@@ -476,14 +476,14 @@ AER_EXPORT void AERInstanceSetSpriteFrame(AERInstance *inst, float frame) {
 }
 
 AER_EXPORT float AERInstanceGetSpriteSpeed(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
     ErrIf(!inst, AER_NULL_ARG, -1.0f);
 
     return ((HLDInstance *)inst)->imageSpeed;
 }
 
 AER_EXPORT void AERInstanceSetSpriteSpeed(AERInstance *inst, float speed) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(speed < 0.0f, AER_BAD_VAL);
 
@@ -493,14 +493,14 @@ AER_EXPORT void AERInstanceSetSpriteSpeed(AERInstance *inst, float speed) {
 }
 
 AER_EXPORT float AERInstanceGetSpriteAlpha(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1.0f);
     ErrIf(!inst, AER_NULL_ARG, -1.0f);
 
     return ((HLDInstance *)inst)->imageAlpha;
 }
 
 AER_EXPORT void AERInstanceSetSpriteAlpha(AERInstance *inst, float alpha) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(alpha < 0.0f || alpha > 1.0f, AER_BAD_VAL);
 
@@ -510,14 +510,14 @@ AER_EXPORT void AERInstanceSetSpriteAlpha(AERInstance *inst, float alpha) {
 }
 
 AER_EXPORT float AERInstanceGetSpriteAngle(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0.0f);
     ErrIf(!inst, AER_NULL_ARG, 0.0f);
 
     return ((HLDInstance *)inst)->imageAngle;
 }
 
 AER_EXPORT void AERInstanceSetSpriteAngle(AERInstance *inst, float angle) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     ((HLDInstance *)inst)->imageAngle = angle;
@@ -528,7 +528,7 @@ AER_EXPORT void AERInstanceSetSpriteAngle(AERInstance *inst, float angle) {
 AER_EXPORT void AERInstanceGetSpriteScale(AERInstance *inst, float *x,
                                           float *y) {
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!(x || y), AER_NULL_ARG);
 
@@ -543,7 +543,7 @@ AER_EXPORT void AERInstanceGetSpriteScale(AERInstance *inst, float *x,
 
 AER_EXPORT void AERInstanceSetSpriteScale(AERInstance *inst, float x, float y) {
 #define inst ((HLDInstance *)inst)
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     inst->imageScale.x = x;
@@ -554,14 +554,14 @@ AER_EXPORT void AERInstanceSetSpriteScale(AERInstance *inst, float x, float y) {
 }
 
 AER_EXPORT uint32_t AERInstanceGetSpriteBlend(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
     ErrIf(!inst, AER_NULL_ARG, 0);
 
     return ((HLDInstance *)inst)->imageBlend;
 }
 
 AER_EXPORT void AERInstanceSetSpriteBlend(AERInstance *inst, uint32_t color) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     ((HLDInstance *)inst)->imageBlend = color;
@@ -570,14 +570,14 @@ AER_EXPORT void AERInstanceSetSpriteBlend(AERInstance *inst, uint32_t color) {
 }
 
 AER_EXPORT bool AERInstanceGetTangible(AERInstance *inst) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, false);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, false);
     ErrIf(!inst, AER_NULL_ARG, false);
 
     return ((HLDInstance *)inst)->tangible;
 }
 
 AER_EXPORT void AERInstanceSetTangible(AERInstance *inst, bool tangible) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
 
     ((HLDInstance *)inst)->tangible = tangible;
@@ -586,7 +586,7 @@ AER_EXPORT void AERInstanceSetTangible(AERInstance *inst, bool tangible) {
 }
 
 AER_EXPORT int32_t AERInstanceGetAlarm(AERInstance *inst, uint32_t alarmIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, -1);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, -1);
     ErrIf(!inst, AER_NULL_ARG, -1);
     ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP, -1);
 
@@ -595,7 +595,7 @@ AER_EXPORT int32_t AERInstanceGetAlarm(AERInstance *inst, uint32_t alarmIdx) {
 
 AER_EXPORT void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
                                     int32_t numSteps) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(alarmIdx >= 12, AER_FAILED_LOOKUP);
 
@@ -606,7 +606,7 @@ AER_EXPORT void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
 
 AER_EXPORT size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
                                           const char **nameBuf) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, 0);
     ErrIf(!inst, AER_NULL_ARG, 0);
     ErrIf(!nameBuf && bufSize > 0, AER_NULL_ARG, 0);
 
@@ -632,7 +632,7 @@ AER_EXPORT size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
 
 AER_EXPORT AERLocal *AERInstanceGetHLDLocal(AERInstance *inst,
                                             const char *name) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
     ErrIf(!inst, AER_NULL_ARG, NULL);
     ErrIf(!name, AER_NULL_ARG, NULL);
 
@@ -649,7 +649,7 @@ AER_EXPORT AERLocal *AERInstanceGetHLDLocal(AERInstance *inst,
 AER_EXPORT AERLocal *
 AERInstanceCreateModLocal(AERInstance *inst, const char *name, bool public,
                           void (*destructor)(AERLocal *local)) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
     ErrIf(!inst, AER_NULL_ARG, NULL);
     ErrIf(!name, AER_NULL_ARG, NULL);
 
@@ -667,7 +667,7 @@ AERInstanceCreateModLocal(AERInstance *inst, const char *name, bool public,
 
 AER_EXPORT void AERInstanceDestroyModLocal(AERInstance *inst, const char *name,
                                            bool public) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
     ErrIf(!inst, AER_NULL_ARG);
     ErrIf(!name, AER_NULL_ARG);
 
@@ -686,7 +686,7 @@ AER_EXPORT void AERInstanceDestroyModLocal(AERInstance *inst, const char *name,
 
 AER_EXPORT AERLocal AERInstanceDeleteModLocal(AERInstance *inst,
                                               const char *name, bool public) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, (AERLocal){0});
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, (AERLocal){0});
     ErrIf(!inst, AER_NULL_ARG, (AERLocal){0});
     ErrIf(!name, AER_NULL_ARG, (AERLocal){0});
 
@@ -701,7 +701,7 @@ AER_EXPORT AERLocal AERInstanceDeleteModLocal(AERInstance *inst,
 
 AER_EXPORT AERLocal *AERInstanceGetModLocal(AERInstance *inst, const char *name,
                                             bool public) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
     ErrIf(!inst, AER_NULL_ARG, NULL);
     ErrIf(!name, AER_NULL_ARG, NULL);
 

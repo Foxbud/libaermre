@@ -24,7 +24,8 @@ typedef enum CoreStage {
     STAGE_FONT_REG,
     STAGE_OBJECT_REG,
     STAGE_LISTENER_REG,
-    STAGE_ACTION
+    STAGE_ACTION,
+    STAGE_DRAW
 } CoreStage;
 
 /* ----- INTERNAL GLOBALS ----- */

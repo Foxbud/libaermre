@@ -70,13 +70,13 @@ AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
 }
 
 AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, 0);
+    ErrIf(stage <= STAGE_SPRITE_REG, AER_SEQ_BREAK, 0);
 
     return hldvars.spriteTable->size;
 }
 
 AER_EXPORT const char *AERSpriteGetName(int32_t spriteIdx) {
-    ErrIf(stage != STAGE_ACTION, AER_SEQ_BREAK, NULL);
+    ErrIf(stage <= STAGE_SPRITE_REG, AER_SEQ_BREAK, NULL);
 
     HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
     ErrIf(!sprite, AER_FAILED_LOOKUP, NULL);
