@@ -83,44 +83,57 @@ void InputManRecordUserInput(void) {
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT const bool *AERInputGetKeysPressed(void) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
 
     return keysPressedTable;
+#undef errRet
 }
 
 AER_EXPORT const bool *AERInputGetKeysHeld(void) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
 
     return keysHeldTable;
+#undef errRet
 }
 
 AER_EXPORT const bool *AERInputGetKeysReleased(void) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
 
     return keysReleasedTable;
+#undef errRet
 }
 
 AER_EXPORT const bool *AERInputGetMouseButtonsPressed(void) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
 
     return mouseButtonsPressedTable;
+#undef errRet
 }
 
 AER_EXPORT const bool *AERInputGetMouseButtonsHeld(void) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
 
     return mouseButtonsHeldTable;
+#undef errRet
 }
 
 AER_EXPORT const bool *AERInputGetMouseButtonsReleased(void) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK, NULL);
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
 
     return mouseButtonsReleasedTable;
+#undef errRet
 }
 
 AER_EXPORT void AERInputGetMousePosition(uint32_t *x, uint32_t *y) {
-    ErrIf(stage < STAGE_ACTION, AER_SEQ_BREAK);
-    ErrIf(!(x || y), AER_NULL_ARG);
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(x || y);
 
     if (x)
         *x = mousePosX;
@@ -128,4 +141,5 @@ AER_EXPORT void AERInputGetMousePosition(uint32_t *x, uint32_t *y) {
         *y = mousePosY;
 
     return;
+#undef errRet
 }

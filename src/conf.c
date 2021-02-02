@@ -62,6 +62,24 @@
         GetAbsKey_buf;                                                         \
     })
 
+#define EnsureTypeScalar(entry, expType)                                       \
+    do {                                                                       \
+        typeof(entry) EnsureTypeScalar_entry = (entry);                        \
+        Ensure((EnsureTypeScalar_entry->type == (expType) &&                   \
+                !EnsureTypeScalar_entry->isArray),                             \
+               AER_FAILED_PARSE);                                              \
+    } while (0)
+
+#define EnsureTypeArr(entry, expType)                                          \
+    do {                                                                       \
+        typeof(entry) EnsureTypeArr_entry = (entry);                           \
+        ConfType EnsureTypeArr_type = EnsureTypeArr_entry->type;               \
+        Ensure(((EnsureTypeArr_type == (expType) ||                            \
+                 EnsureTypeArr_type == CONF_NULL) &&                           \
+                EnsureTypeArr_entry->isArray),                                 \
+               AER_FAILED_PARSE);                                              \
+    } while (0)
+
 /* ----- PRIVATE TYPES ----- */
 
 typedef enum ConfType {
@@ -356,28 +374,29 @@ void ConfDestructor(void) {
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT bool AERConfGetBool(const char *key) {
-    ErrIf(!key, AER_NULL_ARG, false);
+#define errRet false
+    EnsureArg(key);
 
     char *absKey = GetAbsKey(key);
     ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
-    ErrIf(!entry, AER_FAILED_LOOKUP, false);
-    ErrIf(entry->type != CONF_BOOL || entry->isArray, AER_FAILED_PARSE, false);
+    EnsureLookup(entry);
+    EnsureTypeScalar(entry, CONF_BOOL);
 
     return entry->value.b;
+#undef errRet
 }
 
 AER_EXPORT size_t AERConfGetBools(const char *key, size_t bufSize,
                                   bool *boolBuf) {
-    ErrIf(!key, AER_NULL_ARG, 0);
-    ErrIf(!boolBuf && bufSize > 0, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureArg(key);
+    EnsureArgBuf(boolBuf, bufSize);
 
     char *absKey = GetAbsKey(key);
     ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
-    ErrIf(!entry, AER_FAILED_LOOKUP, 0);
-    ConfType type = entry->type;
-    ErrIf(!(type == CONF_BOOL || type == CONF_NULL) || !entry->isArray,
-          AER_FAILED_PARSE, 0);
-    if (type == CONF_NULL)
+    EnsureLookup(entry);
+    EnsureTypeArr(entry, CONF_BOOL);
+    if (entry->type == CONF_NULL)
         return 0;
 
     FoxArray *array = entry->value.a;
@@ -387,31 +406,33 @@ AER_EXPORT size_t AERConfGetBools(const char *key, size_t bufSize,
         boolBuf[idx] = *FoxArrayMIndex(bool, array, idx);
 
     return numElems;
+#undef errRet
 }
 
 AER_EXPORT int64_t AERConfGetInt(const char *key) {
-    ErrIf(!key, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureArg(key);
 
     char *absKey = GetAbsKey(key);
     ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
-    ErrIf(!entry, AER_FAILED_LOOKUP, 0);
-    ErrIf(entry->type != CONF_INT || entry->isArray, AER_FAILED_PARSE, 0);
+    EnsureLookup(entry);
+    EnsureTypeScalar(entry, CONF_INT);
 
     return entry->value.i;
+#undef errRet
 }
 
 AER_EXPORT size_t AERConfGetInts(const char *key, size_t bufSize,
                                  int64_t *intBuf) {
-    ErrIf(!key, AER_NULL_ARG, 0);
-    ErrIf(!intBuf && bufSize > 0, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureArg(key);
+    EnsureArgBuf(intBuf, bufSize);
 
     char *absKey = GetAbsKey(key);
     ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
-    ErrIf(!entry, AER_FAILED_LOOKUP, 0);
-    ConfType type = entry->type;
-    ErrIf(!(type == CONF_INT || type == CONF_NULL) || !entry->isArray,
-          AER_FAILED_PARSE, 0);
-    if (type == CONF_NULL)
+    EnsureLookup(entry);
+    EnsureTypeArr(entry, CONF_INT);
+    if (entry->type == CONF_NULL)
         return 0;
 
     FoxArray *array = entry->value.a;
@@ -421,31 +442,33 @@ AER_EXPORT size_t AERConfGetInts(const char *key, size_t bufSize,
         intBuf[idx] = *FoxArrayMIndex(int64_t, array, idx);
 
     return numElems;
+#undef errRet
 }
 
 AER_EXPORT double AERConfGetDouble(const char *key) {
-    ErrIf(!key, AER_NULL_ARG, 0);
+#define errRet 0.0
+    EnsureArg(key);
 
     char *absKey = GetAbsKey(key);
     ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
-    ErrIf(!entry, AER_FAILED_LOOKUP, 0);
-    ErrIf(entry->type != CONF_DOUBLE || entry->isArray, AER_FAILED_PARSE, 0);
+    EnsureLookup(entry);
+    EnsureTypeScalar(entry, CONF_DOUBLE);
 
     return entry->value.d;
+#undef errRet
 }
 
 AER_EXPORT size_t AERConfGetDoubles(const char *key, size_t bufSize,
                                     double *doubleBuf) {
-    ErrIf(!key, AER_NULL_ARG, 0);
-    ErrIf(!doubleBuf && bufSize > 0, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureArg(key);
+    EnsureArgBuf(doubleBuf, bufSize);
 
     char *absKey = GetAbsKey(key);
     ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
-    ErrIf(!entry, AER_FAILED_LOOKUP, 0);
-    ConfType type = entry->type;
-    ErrIf(!(type == CONF_DOUBLE || type == CONF_NULL) || !entry->isArray,
-          AER_FAILED_PARSE, 0);
-    if (type == CONF_NULL)
+    EnsureLookup(entry);
+    EnsureTypeArr(entry, CONF_DOUBLE);
+    if (entry->type == CONF_NULL)
         return 0;
 
     FoxArray *array = entry->value.a;
@@ -455,31 +478,33 @@ AER_EXPORT size_t AERConfGetDoubles(const char *key, size_t bufSize,
         doubleBuf[idx] = *FoxArrayMIndex(double, array, idx);
 
     return numElems;
+#undef errRet
 }
 
 AER_EXPORT const char *AERConfGetString(const char *key) {
-    ErrIf(!key, AER_NULL_ARG, 0);
+#define errRet NULL
+    EnsureArg(key);
 
     char *absKey = GetAbsKey(key);
     ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
-    ErrIf(!entry, AER_FAILED_LOOKUP, 0);
-    ErrIf(entry->type != CONF_STRING || entry->isArray, AER_FAILED_PARSE, 0);
+    EnsureLookup(entry);
+    EnsureTypeScalar(entry, CONF_STRING);
 
     return entry->value.s;
+#undef errRet
 }
 
 AER_EXPORT size_t AERConfGetStrings(const char *key, size_t bufSize,
                                     const char **strBuf) {
-    ErrIf(!key, AER_NULL_ARG, 0);
-    ErrIf(!strBuf && bufSize > 0, AER_NULL_ARG, 0);
+#define errRet 0
+    EnsureArg(key);
+    EnsureArgBuf(strBuf, bufSize);
 
     char *absKey = GetAbsKey(key);
     ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
-    ErrIf(!entry, AER_FAILED_LOOKUP, 0);
-    ConfType type = entry->type;
-    ErrIf(!(type == CONF_STRING || type == CONF_NULL) || !entry->isArray,
-          AER_FAILED_PARSE, 0);
-    if (type == CONF_NULL)
+    EnsureLookup(entry);
+    EnsureTypeArr(entry, CONF_STRING);
+    if (entry->type == CONF_NULL)
         return 0;
 
     FoxArray *array = entry->value.a;
@@ -489,4 +514,5 @@ AER_EXPORT size_t AERConfGetStrings(const char *key, size_t bufSize,
         strBuf[idx] = *FoxArrayMIndex(char *, array, idx);
 
     return numElems;
+#undef errRet
 }

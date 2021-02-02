@@ -22,6 +22,49 @@
 
 /* ----- INTERNAL MACROS ----- */
 
+#define Ensure(cond, err)                                                      \
+    do {                                                                       \
+        if (!(cond)) {                                                         \
+            aererr = (err);                                                    \
+            if (ModManHasContext()) {                                          \
+                LogWarn("Potentially recoverable error \"%s\" occurred "       \
+                        "during call to "                                      \
+                        "function \"%s\" by mod \"%s\".",                      \
+                        #err, __func__,                                        \
+                        ModManGetMod(ModManPeekContext())->name);              \
+            } else {                                                           \
+                LogWarn("Potentially recoverable error \"%s\" occurred "       \
+                        "during internal "                                     \
+                        "call to function \"%s\".",                            \
+                        #err, __func__);                                       \
+            }                                                                  \
+            return errRet;                                                     \
+        }                                                                      \
+    } while (0)
+
+#define EnsureArg(arg) Ensure((arg), AER_NULL_ARG)
+
+#define EnsureArgBuf(buf, size)                                                \
+    Ensure(((buf) != NULL || (size) == 0), AER_NULL_ARG)
+
+#define EnsureLookup(item) Ensure((item), AER_FAILED_LOOKUP)
+
+#define EnsureRange(val, min, max)                                             \
+    do {                                                                       \
+        typeof(val) EnsureRange_val = (val);                                   \
+        Ensure((EnsureRange_val >= (typeof(val))(min) &&                       \
+                EnsureRange_val <= (typeof(val))(max)),                        \
+               AER_BAD_VAL);                                                   \
+    } while (0)
+
+#define EnsureProba(val) EnsureRange((val), 0.0f, 1.0f)
+
+#define EnsureStage(curStage) Ensure((stage >= (curStage)), AER_SEQ_BREAK)
+
+#define EnsureStageStrict(curStage) Ensure((stage == (curStage)), AER_SEQ_BREAK)
+
+#define EnsureStagePast(pastStage) Ensure((stage > (pastStage)), AER_SEQ_BREAK)
+
 #define ErrIf(cond, err, ...)                                                  \
     do {                                                                       \
         if ((cond)) {                                                          \
