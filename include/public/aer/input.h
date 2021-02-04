@@ -33,6 +33,7 @@
  * @since 1.1.0
  */
 typedef enum AERInputKey {
+    AER_KEY_INTERRUPT = 0x3,
     AER_KEY_BACKSPACE = 0x8,
     AER_KEY_TAB = 0x9,
     AER_KEY_ENTER = 0xd,
