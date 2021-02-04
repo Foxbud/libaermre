@@ -38,6 +38,7 @@ typedef enum AERInputKey {
     AER_KEY_TAB = 0x9,
     AER_KEY_ENTER = 0xd,
     AER_KEY_CAPSLOCK = 0x14,
+    AER_KEY_ERASE = 0x15,
     AER_KEY_ESCAPE = 0x1b,
     AER_KEY_SPACE = 0x20,
     AER_KEY_PAGEUP = 0x21,
