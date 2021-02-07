@@ -41,7 +41,7 @@ static const char *ABS_ASSET_PATH_FMT = "assets/mod/%s/%s";
 
 static bool gamePaused = false;
 
-static char assetPathBuf[1024];
+static char assetPathBuf[8 * 1024];
 
 /* ----- INTERNAL GLOBALS ----- */
 
