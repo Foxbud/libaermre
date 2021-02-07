@@ -184,6 +184,8 @@ void AERDrawRectangleAdv(float left, float top, float right, float bottom,
 /**
  * @brief Draw text to the screen.
  *
+ * See @ref DrawTextEscape for more information about text escape sequences.
+ *
  * @param[in] text String to draw. Maximum size is 1024 characters including
  * null terminator (will not cause error if larger).
  * @param[in] x Horizontal position at which to draw text (in room space).
@@ -209,6 +211,11 @@ void AERDrawText(const char *text, float x, float y, uint32_t width,
  *
  * If more than one color is provided, then the engine will render a smooth
  * gradient.
+ *
+ * @subsubsection DrawTextEscape Text Escape Sequences
+ *
+ * The game maker engine chose to use the hashtag ('#') character to represent
+ * linebreaks. To display a literal hashtag, preceed it with a backslash.
  *
  * @param[in] text String to draw. Maximum size is 1024 characters including
  * null terminator (will not cause error if larger).
