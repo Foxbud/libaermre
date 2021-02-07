@@ -52,7 +52,7 @@ static const char *INTERNAL_MOD_NAME = "mre";
 
 /* ----- PRIVATE GLOBALS ----- */
 
-static char msgBuf[1024];
+static char msgBuf[8 * 1024];
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
