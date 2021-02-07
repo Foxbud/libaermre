@@ -23,7 +23,7 @@
 
 /* ----- PRIVATE GLOBALS ----- */
 
-static char textBuf[1024];
+static char textBuf[8 * 1024];
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
