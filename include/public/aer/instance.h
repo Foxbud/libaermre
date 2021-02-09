@@ -464,6 +464,33 @@ int32_t AERInstanceGetMask(AERInstance *inst);
 void AERInstanceSetMask(AERInstance *inst, int32_t maskIdx);
 
 /**
+ * @brief Query the visibility of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Visibility or `false` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.1.0
+ */
+bool AERInstanceGetVisible(AERInstance *inst);
+
+/**
+ * @brief Set the visibility of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] tangible Visibility.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.1.0
+ */
+void AERInstanceSetVisible(AERInstance *inst, bool visible);
+
+/**
  * @brief Query the sprite of an instance.
  *
  * @param[in] inst Instance of interest.

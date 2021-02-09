@@ -488,6 +488,26 @@ AER_EXPORT void AERInstanceSetMask(AERInstance *inst, int32_t maskIdx) {
 #undef errRet
 }
 
+AER_EXPORT bool AERInstanceGetVisible(AERInstance *inst) {
+#define errRet false
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+
+    return ((HLDInstance *)inst)->visible;
+#undef errRet
+}
+
+AER_EXPORT void AERInstanceSetVisible(AERInstance *inst, bool visible) {
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+
+    ((HLDInstance *)inst)->visible = visible;
+
+    return;
+#undef errRet
+}
+
 AER_EXPORT int32_t AERInstanceGetSprite(AERInstance *inst) {
 #define errRet AER_SPRITE_NULL
     EnsureStage(STAGE_ACTION);
