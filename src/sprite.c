@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -39,11 +40,11 @@ AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
     int32_t spriteIdx = hldfuncs.actionSpriteAdd(
         CoreGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
     HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
-    Ensure(sprite, AER_BAD_FILE);
+    assert(sprite);
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
     char *tmpName = malloc(strlen(name) + 1);
-    Ensure(tmpName, AER_OUT_OF_MEM);
+    assert(tmpName);
     sprite->name = strcpy(tmpName, name);
 
     LogInfo("Successfully registered sprite to index %i.", spriteIdx);

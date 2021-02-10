@@ -237,7 +237,7 @@ AER_EXPORT AERInstance *AERInstanceCreate(int32_t objIdx, float x, float y) {
 
     AERInstance *inst =
         (AERInstance *)hldfuncs.actionInstanceCreate(objIdx, x, y);
-    Ensure(inst, AER_OUT_OF_MEM);
+    assert(inst);
 
     return inst;
 #undef errRet

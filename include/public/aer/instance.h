@@ -133,7 +133,6 @@ AERInstance *AERInstanceGetById(int32_t instId);
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
- * @throw ::AER_OUT_OF_MEM if space for new instance could not be allocated.
  *
  * @since 1.0.0
  *

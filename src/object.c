@@ -183,6 +183,7 @@ AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
     char *tmpName = malloc(strlen(name) + 1);
+    assert(tmpName);
     obj->name = strcpy(tmpName, name);
 
     obj->parentIndex = parentIdx;

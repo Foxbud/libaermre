@@ -45,6 +45,8 @@ typedef enum AERErrCode {
     /**
      * @brief Function unable to allocate necessary memory required for proper
      * execution.
+     *
+     * @deprecated Since 1.1.0.
      */
     AER_OUT_OF_MEM,
     /**

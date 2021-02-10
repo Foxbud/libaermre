@@ -3429,7 +3429,6 @@ typedef enum AERSpriteIndex {
  * `NULL`.
  * @throw ::AER_SEQ_BREAK if called outside sprite registration stage.
  * @throw ::AER_BAD_FILE if argument `filename` does not point to valid file.
- * @throw ::AER_OUT_OF_MEM if space for new sprite could not be allocated.
  *
  * @since 1.0.0
  *
