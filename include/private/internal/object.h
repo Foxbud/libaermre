@@ -28,6 +28,8 @@ FoxArray *ObjectManGetDirectChildren(int32_t objIdx);
 
 FoxArray *ObjectManGetAllChildren(int32_t objIdx);
 
+void ObjectManBuildNameTable(void);
+
 void ObjectManBuildInheritanceTrees(void);
 
 void ObjectManConstructor(void);

@@ -23,6 +23,7 @@
 #include "foxutils/stringmapmacs.h"
 
 #include "aer/object.h"
+#include "aer/sprite.h"
 #include "internal/core.h"
 #include "internal/err.h"
 #include "internal/event.h"
@@ -88,6 +89,17 @@ FoxArray *ObjectManGetAllChildren(int32_t objIdx) {
     return FoxMapMIndex(int32_t, FoxArray, &flatObjTree, objIdx);
 }
 
+void ObjectManBuildNameTable(void) {
+    size_t numObjs = (*hldvars.objectTableHandle)->numItems;
+    for (uint32_t objIdx = 0; objIdx < numObjs; objIdx++) {
+        HLDObject *obj = HLDObjectLookup(objIdx);
+        assert(obj);
+        *FoxMapMInsert(const char *, int32_t, &objNames, obj->name) = objIdx;
+    }
+
+    return;
+}
+
 void ObjectManBuildInheritanceTrees(void) {
     /* Build object tree. */
     size_t numObjs = (*hldvars.objectTableHandle)->numItems;
@@ -107,13 +119,6 @@ void ObjectManBuildInheritanceTrees(void) {
     /* Build flat object tree. */
     FoxMapMForEachPair(int32_t, FoxArray, &objTree,
                        ObjTreeBuildFlatObjTreeCallback, NULL);
-
-    /* Build name table. */
-    for (uint32_t objIdx = 0; objIdx < numObjs; objIdx++) {
-        HLDObject *obj = HLDObjectLookup(objIdx);
-        assert(obj);
-        *FoxMapMInsert(const char *, int32_t, &objNames, obj->name) = objIdx;
-    }
 
     return;
 }
@@ -167,16 +172,17 @@ AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
     HLDObject *parent = HLDObjectLookup(parentIdx);
     EnsureLookup(parent);
 
-    EnsureLookup(spriteIdx == -1 || HLDSpriteLookup(spriteIdx));
-    EnsureLookup(maskIdx == -1 || HLDSpriteLookup(maskIdx));
+    EnsureLookup(spriteIdx == AER_SPRITE_NULL || HLDSpriteLookup(spriteIdx));
+    EnsureLookup(maskIdx == AER_SPRITE_NULL || HLDSpriteLookup(maskIdx));
+    Ensure(!FoxMapMIndex(const char *, int32_t, &objNames, name), AER_BAD_VAL);
 
     int32_t objIdx = hldfuncs.actionObjectAdd();
+    *FoxMapMInsert(const char *, int32_t, &objNames, name) = objIdx;
     HLDObject *obj = HLDObjectLookup(objIdx);
-    Ensure(obj, AER_OUT_OF_MEM);
+    assert(obj);
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
     char *tmpName = malloc(strlen(name) + 1);
-    Ensure(tmpName, AER_OUT_OF_MEM);
     obj->name = strcpy(tmpName, name);
 
     obj->parentIndex = parentIdx;

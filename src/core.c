@@ -127,6 +127,9 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     }
     LogInfo("Done.");
 
+    /* Build object name table. */
+    ObjectManBuildNameTable();
+
     /* Register objects. */
     stage = STAGE_OBJECT_REG;
     LogInfo("Registering mod objects...");
