@@ -119,6 +119,11 @@ typedef enum AERObjectIndex {
     AER_OBJECT_DECORSHADOW = 0xe,
     AER_OBJECT_DECORXRAYBLOCK = 0xf,
     AER_OBJECT_DECORXRAYSHADOWBLOCK = 0x10,
+    /**
+     * @brief Base object from which all enemys inherit.
+     *
+     * @sa @ref ObjPageEnemy
+     */
     AER_OBJECT_ENEMY = 0x11,
     AER_OBJECT_ENEMYHITMASK = 0x12,
     AER_OBJECT_FOREGROUND = 0x13,
