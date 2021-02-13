@@ -14,7 +14,7 @@ mods.
 
 Installation will vary according the AER UI in use.
 
-To automatically download install the latest stable version of *libaermre*
+To automatically download and install the latest stable version of *libaermre*
 using [*aerman*](https://github.com/Foxbud/aerman), run
 
 ```shell
