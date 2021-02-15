@@ -40,7 +40,7 @@ AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
     int32_t spriteIdx = hldfuncs.actionSpriteAdd(
         CoreGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
     HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
-    assert(sprite);
+    Ensure(sprite, AER_BAD_FILE);
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
     char *tmpName = malloc(strlen(name) + 1);
