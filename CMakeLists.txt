@@ -14,21 +14,29 @@ cmake_minimum_required(VERSION 3.19)
 # limitations under the License.
 
 project(AERMRE
-    VERSION 1.1.0
+    VERSION 1.2.0
     DESCRIPTION "AER modding framework for Hyper Light Drifter."
     LANGUAGES C)
+
+# Handle pre-release version.
+set(PRE_RELEASE TRUE)
+if(PRE_RELEASE)
+    set(EXTENDED_PROJECT_VERSION "${CMAKE_PROJECT_VERSION}-pre")
+else()
+    set(EXTENDED_PROJECT_VERSION "${CMAKE_PROJECT_VERSION}")
+endif()
 
 # Set cmake defaults.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "libaermre-${CMAKE_PROJECT_VERSION}"
+    set(CMAKE_INSTALL_PREFIX "libaermre-${EXTENDED_PROJECT_VERSION}"
         CACHE PATH "..." FORCE)
 endif()
 
 # Include CPack.
 set(CPACK_GENERATOR "TXZ")
-set(CPACK_PACKAGE_FILE_NAME "libaermre-${CMAKE_PROJECT_VERSION}")
+set(CPACK_PACKAGE_FILE_NAME "libaermre-${EXTENDED_PROJECT_VERSION}")
 include(CPack)
 
 # Include GenerateExportHeader.
@@ -60,7 +68,9 @@ add_library(aermre SHARED
    src/option.c
    src/rand.c
    src/room.c
-   src/sprite.c)
+   src/save.c
+   src/sprite.c
+)
 generate_export_header(aermre
     BASE_NAME AER
     EXPORT_FILE_NAME include/private/internal/export.h)
@@ -106,6 +116,7 @@ install(DIRECTORY include/public/aer
     DESTINATION include)
 
 if(DOXYGEN_FOUND)
+    set(DOXYGEN_PROJECT_NUMBER "${EXTENDED_PROJECT_VERSION}")
     set(DOXYGEN_HAVE_DOT FALSE)
     set(DOXYGEN_SHOW_INCLUDE_FILES FALSE)
     set(DOXYGEN_TYPEDEF_HIDES_STRUCT TRUE)
