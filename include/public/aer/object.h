@@ -105,6 +105,11 @@ typedef enum AERObjectIndex {
     AER_OBJECT_MASTERCLASS = 0x0,
     AER_OBJECT_DOORSTOVISIT = 0x1,
     AER_OBJECT_PAUSEDELAYOBJ = 0x2,
+    /**
+     * @brief Container for general information about the current save file.
+     *
+     * @sa @ref ObjPageAnalytics
+     */
     AER_OBJECT_ANALYTICS = 0x3,
     AER_OBJECT_BACKGROUND = 0x4,
     AER_OBJECT_STUCKBOX = 0x5,
