@@ -1,10 +1,4 @@
-/**
- * @file
- *
- * @brief Utilities for querying and manipulating savegame data.
- *
- * @since 1.2.0
- *
+/*
  * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AER_SAVE_H
-#define AER_SAVE_H
+#ifndef INTERNAL_SAVE_H
+#define INTERNAL_SAVE_H
 
-#include <stddef.h>
+/* ----- INTERNAL FUNCTIONS ----- */
 
-/* ----- PUBLIC FUNCTIONS ----- */
+void SaveManRefreshValueKeys(void);
 
-size_t AERSaveGetValueKeys(const char *prefix, size_t bufSize,
-                           const char **keyBuf);
+void SaveManConstructor(void);
 
-double AERSaveReadValue(const char *key);
+void SaveManDestructor(void);
 
-void AERSaveWriteValue(const char *key, double value);
-
-#endif /* AER_SAVE_H */
+#endif /* INTERNAL_SAVE_H */

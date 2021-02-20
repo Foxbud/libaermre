@@ -18,6 +18,7 @@
 
 #include "aer/core.h"
 #include "aer/object.h"
+#include "aer/room.h"
 #include "internal/conf.h"
 #include "internal/core.h"
 #include "internal/err.h"
@@ -32,6 +33,7 @@
 #include "internal/option.h"
 #include "internal/rand.h"
 #include "internal/room.h"
+#include "internal/save.h"
 
 /* ----- PRIVATE CONSTANTS ----- */
 
@@ -65,6 +67,7 @@ __attribute__((constructor)) static void CoreConstructor(void) {
     ConfConstructor();
     OptionConstructor();
     RandConstructor();
+    SaveManConstructor();
     EventManConstructor();
     ObjectManConstructor();
     InstanceManConstructor();
@@ -79,6 +82,7 @@ __attribute__((destructor)) static void CoreDestructor(void) {
 
     ObjectManDestructor();
     EventManDestructor();
+    SaveManDestructor();
     RandDestructor();
     OptionDestructor();
     ConfDestructor();
@@ -181,6 +185,10 @@ AER_EXPORT void AERHookStep(void) {
     /* Check if room changed. */
     int32_t roomIdxCur = *hldvars.roomIndexCurrent;
     if (roomIdxCur != roomIndexPrevious) {
+        /* Refresh save value keys. */
+        if (roomIndexPrevious == AER_ROOM_TITLE)
+            SaveManRefreshValueKeys();
+
         /* Prune orphaned mod instance locals. */
         InstanceManPruneModLocals();
 

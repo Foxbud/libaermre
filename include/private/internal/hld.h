@@ -570,6 +570,8 @@ typedef HLDPrimitive *(*HLDScriptCallback)(HLDInstance *target,
  * into the game's executable.
  */
 typedef struct __attribute__((packed)) HLDVariables {
+    /* Allocated GML hash tables. */
+    HLDArrayPostSize *maps;
     /* Number of steps since start of the game. */
     int32_t *numSteps;
     /* Tables of booleans where each index represents a key code. */
