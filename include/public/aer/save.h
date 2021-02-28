@@ -33,4 +33,6 @@ double AERSaveReadValue(const char *key);
 
 void AERSaveWriteValue(const char *key, double value);
 
+void AERSaveEraseValue(const char *key);
+
 #endif /* AER_SAVE_H */

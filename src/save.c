@@ -54,8 +54,8 @@
         double *GetValueMap_valueMapIdx = HLDClosedHashTableLookup(            \
             GetValueMap_dataInst->locals, 0x4b5 /* "miscValues" */);           \
         assert(GetValueMap_valueMapIdx);                                       \
-        *((HLDOpenHashTable ***)                                               \
-              hldvars.maps->elements)[(uint32_t)*GetValueMap_valueMapIdx];     \
+        ((HLDOpenHashTable ***)                                                \
+             hldvars.maps->elements)[(uint32_t)*GetValueMap_valueMapIdx];      \
     })
 
 /* ----- PRIVATE TYPES ----- */
@@ -89,11 +89,17 @@ static void ValueKeyInit(ValueKey *key, const char *str, size_t size) {
     return;
 }
 
+static void ValueKeyDeinit(ValueKey *key) {
+    free((char *)key->chars);
+    *key = (ValueKey){0};
+
+    return;
+}
+
 static enum btree_action ValueKeyDeinitCallback(ValueKey *key, void *ctx) {
     (void)ctx;
 
-    free((char *)key->chars);
-    *key = (ValueKey){0};
+    ValueKeyDeinit(key);
 
     return BTREE_DELETE;
 }
@@ -129,7 +135,7 @@ void SaveManRefreshValueKeys(void) {
         (enum btree_action(*)(void *, void *))ValueKeyDeinitCallback, NULL);
 
     /* Record new keys. */
-    HLDOpenHashTable *valueMap = GetValueMap();
+    HLDOpenHashTable *valueMap = *GetValueMap();
     HLDOpenHashSlot *slots = valueMap->slots;
     size_t numSlots = valueMap->keyMask + 1;
     for (uint32_t slotIdx = 0; slotIdx < numSlots; slotIdx++) {
@@ -179,7 +185,7 @@ void SaveManDestructor(void) {
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT size_t AERSaveGetValueKeys(const char *prefix, size_t bufSize,
-                                 const char **keyBuf) {
+                                      const char **keyBuf) {
 #define errRet 0
     EnsureSaveLoaded();
     EnsureArgBuf(keyBuf, bufSize);
@@ -222,7 +228,7 @@ AER_EXPORT void AERSaveWriteValue(const char *key, double value) {
     EnsureSaveLoaded();
     EnsureArg(key);
 
-    HLDOpenHashTable *valueMap = GetValueMap();
+    HLDOpenHashTable *valueMap = *GetValueMap();
     size_t initNumKeys = valueMap->numItems;
 
     /* Write key to buffer. */
@@ -237,6 +243,24 @@ AER_EXPORT void AERSaveWriteValue(const char *key, double value) {
         ValueKeyInit(&valueKey, key, keyLen + 1);
         btree_set(valueKeys, &valueKey);
     }
+
+    return;
+#undef errRet
+}
+
+AER_EXPORT void AERSaveEraseValue(const char *key) {
+#define errRet
+    EnsureSaveLoaded();
+    EnsureArg(key);
+
+    /* Remove key from Btree. */
+    ValueKey btreeKey = {.chars = key, .size = strlen(key) + 1};
+    EnsureLookup(btree_get(valueKeys, &btreeKey));
+    ValueKeyDeinit(btree_delete(valueKeys, &btreeKey));
+
+    /* Remove key from buffer. */
+    HLDPrimitiveMakeString(mapKey, keyBuf, CopyKey(key));
+    hldfuncs.actionMapDelete(GetValueMap(), &mapKey);
 
     return;
 #undef errRet

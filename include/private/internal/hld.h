@@ -632,6 +632,8 @@ typedef struct __attribute__((packed)) HLDVariables {
 typedef struct __attribute__((packed)) HLDFunctions {
     /* Go to room. */
     void (*actionRoomGoto)(int32_t roomIdx, int32_t unknown0);
+    /* Delete a key-value pair from a map (managed open hash table). */
+    void (*actionMapDelete)(HLDOpenHashTable **map, HLDPrimitive *key);
     /* Register a new sprite. */
     int32_t (*actionSpriteAdd)(const char *fname, size_t imgNum,
                                int32_t unknown0, int32_t unknown1,
