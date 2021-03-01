@@ -36,6 +36,7 @@ AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
             ModManGetMod(ModManPeekContext())->name);
     EnsureStageStrict(STAGE_SPRITE_REG);
     EnsureArg(filename);
+    EnsureMin(numFrames, 1);
 
     int32_t spriteIdx = hldfuncs.actionSpriteAdd(
         CoreGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
@@ -63,6 +64,7 @@ AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
             ModManGetMod(ModManPeekContext())->name);
     EnsureStageStrict(STAGE_SPRITE_REG);
     EnsureArg(filename);
+    EnsureMin(numFrames, 1);
 
     hldfuncs.actionSpriteReplace(spriteIdx, CoreGetAbsAssetPath(filename),
                                  numFrames, 0, 0, 0, 0, origX, origY);
