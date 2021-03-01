@@ -142,6 +142,10 @@ static void EventTrapIterDeinit(EventTrapIter *iter) {
     return;
 }
 
+static int32_t Int32KeyCompare(const int32_t *keyA, const int32_t *keyB) {
+    return *keyA - *keyB;
+}
+
 static void CommonEventListener(HLDInstance *target, HLDInstance *other) {
     EventTrap *trap =
         FoxMapMIndex(EventKey, EventTrap, &eventTraps, currentEvent);
@@ -260,6 +264,17 @@ static void MaskEventSubscriptionArray(HLDEventType eventType, size_t numEvents,
                             .objIdx = oldSubArr[subIdx]};
             RegisterEventSubscriber(key);
         }
+    }
+
+    return;
+}
+
+static void SortEventSubscriptionArray(size_t numEvents, size_t *subCountsArr,
+                                       HLDEventSubscribers *subArrs) {
+    for (uint32_t eventNum = 0; eventNum < numEvents; eventNum++) {
+        qsort(subArrs[eventNum].objects, subCountsArr[eventNum],
+              sizeof(int32_t),
+              (int (*)(const void *, const void *))Int32KeyCompare);
     }
 
     return;
@@ -400,6 +415,15 @@ void EventManMaskSubscriptionArrays(void) {
                                *hldvars.alarmEventSubscribers);
     MaskEventSubscriptionArray(HLD_EVENT_STEP, 3,
                                *hldvars.stepEventSubscriberCounts,
+                               *hldvars.stepEventSubscribers);
+
+    return;
+}
+
+void EventManSortSubscriptionArrays(void) {
+    SortEventSubscriptionArray(12, *hldvars.alarmEventSubscriberCounts,
+                               *hldvars.alarmEventSubscribers);
+    SortEventSubscriptionArray(3, *hldvars.stepEventSubscriberCounts,
                                *hldvars.stepEventSubscribers);
 
     return;

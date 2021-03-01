@@ -160,6 +160,9 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     }
     LogInfo("Done.");
 
+    /* Sort event subscribers. */
+    EventManSortSubscriptionArrays();
+
     stage = STAGE_ACTION;
 
     return;
