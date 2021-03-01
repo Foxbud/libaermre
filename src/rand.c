@@ -125,7 +125,7 @@ AER_EXPORT uint64_t AERRandGenUInt(AERRandGen *gen) {
 #define errRet 0
     EnsureArg(gen);
 
-    return FoxRandUInt((FoxPRNG *)&randPRNG);
+    return FoxRandUInt((FoxPRNG *)&gen);
 #undef errRet
 }
 
@@ -135,7 +135,7 @@ AER_EXPORT uint64_t AERRandGenUIntRange(AERRandGen *gen, uint64_t min,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandUIntRange((FoxPRNG *)&gen, min, max);
 #undef errRet
 }
 
@@ -143,7 +143,7 @@ AER_EXPORT int64_t AERRandGenInt(AERRandGen *gen) {
 #define errRet 0
     EnsureArg(gen);
 
-    return FoxRandFloat((FoxPRNG *)&randPRNG);
+    return FoxRandFloat((FoxPRNG *)&gen);
 #undef errRet
 }
 
@@ -153,7 +153,7 @@ AER_EXPORT int64_t AERRandGenIntRange(AERRandGen *gen, int64_t min,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandIntRange((FoxPRNG *)&gen, min, max);
 #undef errRet
 }
 
@@ -161,7 +161,7 @@ AER_EXPORT float AERRandGenFloat(AERRandGen *gen) {
 #define errRet 0.0f
     EnsureArg(gen);
 
-    return FoxRandFloat((FoxPRNG *)&randPRNG);
+    return FoxRandFloat((FoxPRNG *)&gen);
 #undef errRet
 }
 
@@ -170,7 +170,7 @@ AER_EXPORT float AERRandGenFloatRange(AERRandGen *gen, float min, float max) {
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandFloatRange((FoxPRNG *)&gen, min, max);
 #undef errRet
 }
 
@@ -178,7 +178,7 @@ AER_EXPORT double AERRandGenDouble(AERRandGen *gen) {
 #define errRet 0.0
     EnsureArg(gen);
 
-    return FoxRandDouble((FoxPRNG *)&randPRNG);
+    return FoxRandDouble((FoxPRNG *)&gen);
 #undef errRet
 }
 
@@ -188,7 +188,7 @@ AER_EXPORT double AERRandGenDoubleRange(AERRandGen *gen, double min,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
+    return FoxRandDoubleRange((FoxPRNG *)&gen, min, max);
 #undef errRet
 }
 
@@ -196,6 +196,6 @@ AER_EXPORT bool AERRandGenBool(AERRandGen *gen) {
 #define errRet false
     EnsureArg(gen);
 
-    return FoxRandBool((FoxPRNG *)&randPRNG);
+    return FoxRandBool((FoxPRNG *)&gen);
 #undef errRet
 }
