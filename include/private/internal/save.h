@@ -16,9 +16,13 @@
 #ifndef INTERNAL_SAVE_H
 #define INTERNAL_SAVE_H
 
+#include "internal/hld.h"
+
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void SaveManRefreshValueKeys(void);
+void SaveManLoadData(HLDPrimitive *dataMapId);
+
+void SaveManSaveData(HLDPrimitive *dataMapId);
 
 void SaveManConstructor(void);
 

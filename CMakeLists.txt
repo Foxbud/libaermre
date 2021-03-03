@@ -42,7 +42,6 @@ include(CPack)
 # Include GenerateExportHeader.
 include(GenerateExportHeader)
 
-find_package(BTreeC REQUIRED)
 find_package(Foxutils REQUIRED)
 find_package(Tomlc99 REQUIRED)
 find_package(Doxygen)
@@ -94,7 +93,6 @@ target_link_options(aermre
     PRIVATE -m32
     PRIVATE -rdynamic)
 target_link_libraries(aermre
-    PRIVATE BTreeC::btree
     PRIVATE Foxutils::foxutils
     PRIVATE Tomlc99::tomlc99)
 

@@ -22,17 +22,16 @@
 #ifndef AER_SAVE_H
 #define AER_SAVE_H
 
-#include <stddef.h>
-
 /* ----- PUBLIC FUNCTIONS ----- */
 
-size_t AERSaveGetValueKeys(const char *prefix, size_t bufSize,
-                           const char **keyBuf);
+void AERSaveDestroy(const char *key);
 
-double AERSaveReadValue(const char *key);
+double AERSaveGetDouble(const char *key);
 
-void AERSaveWriteValue(const char *key, double value);
+void AERSaveSetDouble(const char *key, double value);
 
-void AERSaveEraseValue(const char *key);
+const char *AERSaveGetString(const char *key);
+
+void AERSaveSetString(const char *key, const char *value);
 
 #endif /* AER_SAVE_H */

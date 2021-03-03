@@ -16,9 +16,11 @@
 #ifndef INTERNAL_HLD_H
 #define INTERNAL_HLD_H
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 /* ----- INTERNAL MACROS ----- */
 
@@ -28,11 +30,32 @@
 #define HLDPrimitiveMakeReal(name, initVal)                                    \
     HLDPrimitive name = {.value.r = (initVal), .type = HLD_PRIMITIVE_REAL}
 
-#define HLDPrimitiveMakeString(name, str, len)                                 \
+#define HLDPrimitiveMakeStringS(name, str, len)                                \
     HLDPrimitiveString name##InnerValue = {                                    \
         .chars = (str), .refs = 1, .length = (len)};                           \
     HLDPrimitive name = {.value.p = &name##InnerValue,                         \
                          .type = HLD_PRIMITIVE_STRING}
+
+#define HLDPrimitiveMakeStringH(name, str, len)                                \
+    HLDPrimitiveString *name##InnerValue = malloc(sizeof(HLDPrimitiveString)); \
+    assert(name##InnerValue);                                                  \
+    name##InnerValue->chars = (str);                                           \
+    name##InnerValue->refs = 1;                                                \
+    name##InnerValue->length = (len);                                          \
+    HLDPrimitive name = {.value.p = name##InnerValue,                          \
+                         .type = HLD_PRIMITIVE_STRING}
+
+#define HLDAPICallAdv(api, target, other, ...)                                 \
+    ({                                                                         \
+        HLDPrimitive HLDAPICallAdv_argv[] = {__VA_ARGS__};                     \
+        HLDPrimitiveMakeUndefined(HLDAPICallAdv_result);                       \
+        (api)(&HLDAPICallAdv_result, (target), (other),                        \
+              sizeof(HLDAPICallAdv_argv) / sizeof(HLDPrimitive),               \
+              HLDAPICallAdv_argv);                                             \
+        HLDAPICallAdv_result;                                                  \
+    })
+
+#define HLDAPICall(api, ...) HLDAPICallAdv((api), NULL, NULL, ##__VA_ARGS__)
 
 #define HLDScriptCallAdv(script, target, other, ...)                           \
     ({                                                                         \
@@ -180,7 +203,7 @@ typedef struct HLDPrimitive {
 } HLDPrimitive;
 
 typedef struct HLDPrimitiveString {
-    char *chars;
+    const char *chars;
     size_t refs;
     size_t length;
 } HLDPrimitiveString;
@@ -559,6 +582,12 @@ typedef struct HLDFont {
     uint32_t field_8C;
 } HLDFont;
 
+/* Builtin GML function signature. */
+typedef void (*HLDAPICallback)(HLDPrimitive *result, HLDInstance *target,
+                               HLDInstance *other, size_t argc,
+                               HLDPrimitive *argv);
+
+/* Custom Heart Machine function signature. */
 typedef HLDPrimitive *(*HLDScriptCallback)(HLDInstance *target,
                                            HLDInstance *other,
                                            HLDPrimitive *result, size_t argc,
@@ -632,8 +661,6 @@ typedef struct __attribute__((packed)) HLDVariables {
 typedef struct __attribute__((packed)) HLDFunctions {
     /* Go to room. */
     void (*actionRoomGoto)(int32_t roomIdx, int32_t unknown0);
-    /* Delete a key-value pair from a map (managed open hash table). */
-    void (*actionMapDelete)(HLDOpenHashTable **map, HLDPrimitive *key);
     /* Register a new sprite. */
     int32_t (*actionSpriteAdd)(const char *fname, size_t imgNum,
                                int32_t unknown0, int32_t unknown1,
@@ -691,6 +718,17 @@ typedef struct __attribute__((packed)) HLDFunctions {
     void (*Instance_setMaskIndex)(HLDInstance *inst, int32_t maskIndex);
     /* Set an instance's direction and speed based on its motion vector. */
     void (*Instance_setMotionPolarFromCartesian)(HLDInstance *inst);
+    /* Create a new GML map. Parameters: NULL. */
+    HLDAPICallback API_dsMapCreate;
+    /* Retrieve value from a GML map. Parameters: id, key. */
+    HLDAPICallback API_dsMapFindValue;
+    /* Set a GML map key to value. Parameters: id, key, val. */
+    HLDAPICallback API_dsMapSet;
+    /*
+     * Add a GML map to another GML map for JSON representation.
+     * Parameters: id, key, val.
+     */
+    HLDAPICallback API_dsMapAddMap;
     /*
      * Custom Heart Machine function that sets an instance's draw depth based
      * on its y position and the current room's height.
@@ -698,8 +736,6 @@ typedef struct __attribute__((packed)) HLDFunctions {
     HLDInstance *(*gmlScriptSetdepth)(HLDInstance *target, HLDInstance *other,
                                       void *unknown0, uint32_t unknown1,
                                       uint32_t unknown2);
-    HLDScriptCallback gmlScriptValueCheck;
-    HLDScriptCallback gmlScriptValueRecord;
 } HLDFunctions;
 
 /* ----- INTERNAL GLOBALS ----- */

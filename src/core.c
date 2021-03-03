@@ -67,7 +67,6 @@ __attribute__((constructor)) static void CoreConstructor(void) {
     ConfConstructor();
     OptionConstructor();
     RandConstructor();
-    SaveManConstructor();
     EventManConstructor();
     ObjectManConstructor();
     InstanceManConstructor();
@@ -78,11 +77,10 @@ __attribute__((constructor)) static void CoreConstructor(void) {
 __attribute__((destructor)) static void CoreDestructor(void) {
     InstanceManDestructor();
 
+    SaveManDestructor();
     ModManDestructor();
-
     ObjectManDestructor();
     EventManDestructor();
-    SaveManDestructor();
     RandDestructor();
     OptionDestructor();
     ConfDestructor();
@@ -98,6 +96,7 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     InstanceManRecordHLDLocals();
 
     ModManConstructor();
+    SaveManConstructor();
     size_t numMods = ModManGetNumMods();
 
     /* Register sprites. */
@@ -188,10 +187,6 @@ AER_EXPORT void AERHookStep(void) {
     /* Check if room changed. */
     int32_t roomIdxCur = *hldvars.roomIndexCurrent;
     if (roomIdxCur != roomIndexPrevious) {
-        /* Refresh save value keys. */
-        if (roomIndexPrevious == AER_ROOM_TITLE)
-            SaveManRefreshValueKeys();
-
         /* Prune orphaned mod instance locals. */
         InstanceManPruneModLocals();
 
@@ -211,6 +206,18 @@ AER_EXPORT void AERHookEvent(HLDObject *targetObject, HLDEventType eventType,
                              int32_t eventNum) {
     currentEvent = (EventKey){
         .type = eventType, .num = eventNum, .objIdx = targetObject->index};
+
+    return;
+}
+
+AER_EXPORT void AERHookLoadData(HLDPrimitive *dataMapId) {
+    SaveManLoadData(dataMapId);
+
+    return;
+}
+
+AER_EXPORT void AERHookSaveData(HLDPrimitive *dataMapId) {
+    SaveManSaveData(dataMapId);
 
     return;
 }
