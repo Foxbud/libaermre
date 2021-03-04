@@ -18,7 +18,6 @@
 
 #include "aer/core.h"
 #include "aer/object.h"
-#include "aer/room.h"
 #include "internal/conf.h"
 #include "internal/core.h"
 #include "internal/err.h"
@@ -190,7 +189,7 @@ AER_EXPORT void AERHookStep(void) {
         /* Prune orphaned mod instance locals. */
         InstanceManPruneModLocals();
 
-        /* Call room change listeners. */
+        /* Call mod room change listeners. */
         ModManExecuteRoomChangeListeners(roomIdxCur, roomIndexPrevious);
 
         roomIndexPrevious = roomIdxCur;
@@ -213,10 +212,14 @@ AER_EXPORT void AERHookEvent(HLDObject *targetObject, HLDEventType eventType,
 AER_EXPORT void AERHookLoadData(HLDPrimitive *dataMapId) {
     SaveManLoadData(dataMapId);
 
+    ModManExecuteGameLoadListeners(SaveManGetCurrentSlot());
+
     return;
 }
 
 AER_EXPORT void AERHookSaveData(HLDPrimitive *dataMapId) {
+    ModManExecuteGameSaveListeners(SaveManGetCurrentSlot());
+
     SaveManSaveData(dataMapId);
 
     return;

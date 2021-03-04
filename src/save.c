@@ -15,6 +15,7 @@
  */
 #include <assert.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -22,8 +23,9 @@
 #include "foxutils/math.h"
 #include "foxutils/stringmapmacs.h"
 
-#include "aer/room.h"
+#include "aer/object.h"
 #include "aer/save.h"
+#include "internal/core.h"
 #include "internal/err.h"
 #include "internal/export.h"
 #include "internal/log.h"
@@ -41,9 +43,6 @@
             free(SaveEntryDeinit_entry->value.s);                              \
         *SaveEntryDeinit_entry = (SaveEntry){0};                               \
     } while (0)
-
-#define EnsureSaveFileActive()                                                 \
-    Ensure((*hldvars.roomIndexCurrent > AER_ROOM_TITLE), AER_SEQ_BREAK)
 
 #define EnsureType(entry, expType)                                             \
     Ensure(((entry)->type == (expType)), AER_FAILED_PARSE);
@@ -147,6 +146,20 @@ static void ResetModMaps(void) {
 }
 
 /* ----- INTERNAL FUNCTIONS ----- */
+
+int32_t SaveManGetCurrentSlot(void) {
+    /* Get data instance. */
+    HLDObject *dataObj = HLDObjectLookup(AER_OBJECT_DATA);
+    assert(dataObj->numInstances == 1);
+    HLDInstance *dataInst = dataObj->instanceFirst->item;
+
+    /* Get save slot local. */
+    HLDPrimitive *saveSlotLocal = HLDClosedHashTableLookup(
+        dataInst->locals, 0x4a0 /* "currentSaveFileNo" */);
+    assert(saveSlotLocal);
+
+    return (int32_t)saveSlotLocal->value.r;
+}
 
 void SaveManLoadData(HLDPrimitive *hldDataMapId) {
     LogInfo("Loading mod data...");
@@ -318,9 +331,17 @@ void SaveManDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+AER_EXPORT int32_t AERSaveGetCurrentSlot(void) {
+#define errRet -1
+    EnsureStage(STAGE_ACTION);
+
+    return SaveManGetCurrentSlot();
+#undef errRet
+}
+
 AER_EXPORT size_t AERSaveGetKeys(size_t bufSize, const char **keyBuf) {
 #define errRet 0
-    EnsureSaveFileActive();
+    EnsureStage(STAGE_ACTION);
     EnsureArgBuf(keyBuf, bufSize);
 
     /* Get mod map. */
@@ -340,7 +361,7 @@ AER_EXPORT size_t AERSaveGetKeys(size_t bufSize, const char **keyBuf) {
 
 AER_EXPORT void AERSaveDestroy(const char *key) {
 #define errRet
-    EnsureSaveFileActive();
+    EnsureStage(STAGE_ACTION);
     EnsureArg(key);
 
     /* Get entry. */
@@ -359,7 +380,7 @@ AER_EXPORT void AERSaveDestroy(const char *key) {
 
 AER_EXPORT double AERSaveGetDouble(const char *key) {
 #define errRet 0.0
-    EnsureSaveFileActive();
+    EnsureStage(STAGE_ACTION);
     EnsureArg(key);
 
     /* Get entry. */
@@ -376,7 +397,7 @@ AER_EXPORT double AERSaveGetDouble(const char *key) {
 
 AER_EXPORT void AERSaveSetDouble(const char *key, double value) {
 #define errRet
-    EnsureSaveFileActive();
+    EnsureStage(STAGE_ACTION);
     EnsureArg(key);
     Ensure(isfinite(value), AER_BAD_VAL);
 
@@ -401,7 +422,7 @@ AER_EXPORT void AERSaveSetDouble(const char *key, double value) {
 
 AER_EXPORT const char *AERSaveGetString(const char *key) {
 #define errRet NULL
-    EnsureSaveFileActive();
+    EnsureStage(STAGE_ACTION);
     EnsureArg(key);
 
     /* Get entry. */
@@ -418,7 +439,7 @@ AER_EXPORT const char *AERSaveGetString(const char *key) {
 
 AER_EXPORT void AERSaveSetString(const char *key, const char *value) {
 #define errRet
-    EnsureSaveFileActive();
+    EnsureStage(STAGE_ACTION);
     EnsureArg(key);
     EnsureArg(value);
 

@@ -16,9 +16,13 @@
 #ifndef INTERNAL_SAVE_H
 #define INTERNAL_SAVE_H
 
+#include <stdint.h>
+
 #include "internal/hld.h"
 
 /* ----- INTERNAL FUNCTIONS ----- */
+
+int32_t SaveManGetCurrentSlot(void);
 
 void SaveManLoadData(HLDPrimitive *dataMapId);
 
