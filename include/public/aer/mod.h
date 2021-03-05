@@ -44,6 +44,12 @@
 /**
  * @brief Definition of a mod.
  *
+ * @warning As new features get added to the framework, this struct may receive
+ * new fields corresponding to those features **without** resulting in a new
+ * major version number. However, field ordering is guaranteed to remain the
+ * same for all releases with the same major version number. To ensure forward
+ * API compatability, only work with pointers to this struct.
+ *
  * @since 1.0.0
  */
 typedef struct AERModDef {
