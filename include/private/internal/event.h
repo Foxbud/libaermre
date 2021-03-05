@@ -40,6 +40,8 @@ void EventManRegisterEventListener(HLDObject *obj, EventKey key,
 
 void EventManMaskSubscriptionArrays(void);
 
+void EventManSortSubscriptionArrays(void);
+
 void EventManConstructor(void);
 
 void EventManDestructor(void);

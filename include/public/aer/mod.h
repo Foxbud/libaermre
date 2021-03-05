@@ -44,6 +44,12 @@
 /**
  * @brief Definition of a mod.
  *
+ * @warning As new features get added to the framework, this struct may receive
+ * new fields corresponding to those features **without** resulting in a new
+ * major version number. However, field ordering is guaranteed to remain the
+ * same for all releases with the same major version number. To ensure forward
+ * API compatability, only work with pointers to this struct.
+ *
  * @since 1.0.0
  */
 typedef struct AERModDef {
@@ -206,6 +212,65 @@ typedef struct AERModDef {
      * @memberof AERModDef
      */
     void (*registerFonts)(void);
+    /**
+     * @var gameSaveListener
+     *
+     * @brief Mod's game save pseudo-event listener.
+     *
+     * If provided and the game data gets saved, the MRE will call this function
+     * immediately after the game has finalized its vanilla save data but
+     * immediately before that data has been written to the savefile.
+     *
+     * This means that any calls to the functions in save.h from within this
+     * listener **will** make it into the savefile. However, this also means
+     * that any changes made to vanilla state (i.e. changing the number of
+     * gearbits that the player has) **will not** make it into the savefile.
+     *
+     * @note The functions in save.h can be called from anywhere within a mod,
+     * not just from within this listener.
+     *
+     * @note May be `NULL`.
+     *
+     * @param[in] curSlotIdx Index of save slot to which the game is saving
+     * data.
+     *
+     * @since 1.2.0
+     *
+     * @sa save.h
+     *
+     * @memberof AERModDef
+     */
+    void (*gameSaveListener)(int32_t curSlotIdx);
+    /**
+     * @var gameLoadListener
+     *
+     * @brief Mod's game load pseudo-event listener.
+     *
+     * If provided and the game data gets loaded, the MRE will call this
+     * function immediately after the game reads and parses data from the
+     * savefile but immediately before that gets applied to any in-game state.
+     *
+     * This means that any calls to the functions in save.h from within this
+     * listener **will** be saved at the next save point. However, this also
+     * means that any changes made to vanilla state (i.e. changing the number of
+     * gearbits that the player has) **will** be overwritten and **will not** be
+     * saved at the next save point.
+     *
+     * @note The functions in save.h can be called from anywhere within a mod,
+     * not just from within this listener.
+     *
+     * @note May be `NULL`.
+     *
+     * @param[in] curSlotIdx Index of save slot from which the game is loading
+     * data.
+     *
+     * @since 1.2.0
+     *
+     * @sa save.h
+     *
+     * @memberof AERModDef
+     */
+    void (*gameLoadListener)(int32_t curSlotIdx);
 } AERModDef;
 
 #endif /* AER_MOD_H */

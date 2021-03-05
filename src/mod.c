@@ -55,6 +55,10 @@ static FoxArray gameStepListeners;
 
 static FoxArray gamePauseListeners;
 
+static FoxArray gameSaveListeners;
+
+static FoxArray gameLoadListeners;
+
 static FoxArray roomChangeListeners;
 
 /* ----- PRIVATE FUNCTIONS ----- */
@@ -137,6 +141,16 @@ static void ModInit(Mod *mod, int32_t idx, const char *name) {
         listener->modIdx = idx;
         listener->func = (void (*)(void))def.gamePauseListener;
     }
+    if (def.gameSaveListener) {
+        ModListener *listener = FoxArrayMPush(ModListener, &gameSaveListeners);
+        listener->modIdx = idx;
+        listener->func = (void (*)(void))def.gameSaveListener;
+    }
+    if (def.gameLoadListener) {
+        ModListener *listener = FoxArrayMPush(ModListener, &gameLoadListeners);
+        listener->modIdx = idx;
+        listener->func = (void (*)(void))def.gameLoadListener;
+    }
     if (def.roomChangeListener) {
         ModListener *listener =
             FoxArrayMPush(ModListener, &roomChangeListeners);
@@ -201,6 +215,32 @@ void ModManExecuteGamePauseListeners(bool paused) {
     return;
 }
 
+void ModManExecuteGameSaveListeners(int32_t curSlotIdx) {
+    size_t numListeners = FoxArrayMSize(ModListener, &gameSaveListeners);
+    for (uint32_t idx = 0; idx < numListeners; idx++) {
+        ModListener *listener =
+            FoxArrayMIndex(ModListener, &gameSaveListeners, idx);
+        ModManPushContext(listener->modIdx);
+        ((void (*)(int32_t))listener->func)(curSlotIdx);
+        ModManPopContext();
+    }
+
+    return;
+}
+
+void ModManExecuteGameLoadListeners(int32_t curSlotIdx) {
+    size_t numListeners = FoxArrayMSize(ModListener, &gameLoadListeners);
+    for (uint32_t idx = 0; idx < numListeners; idx++) {
+        ModListener *listener =
+            FoxArrayMIndex(ModListener, &gameLoadListeners, idx);
+        ModManPushContext(listener->modIdx);
+        ((void (*)(int32_t))listener->func)(curSlotIdx);
+        ModManPopContext();
+    }
+
+    return;
+}
+
 void ModManExecuteRoomChangeListeners(int32_t newRoomIdx, int32_t prevRoomIdx) {
     size_t numListeners = FoxArrayMSize(ModListener, &roomChangeListeners);
     for (uint32_t idx = 0; idx < numListeners; idx++) {
@@ -244,6 +284,8 @@ void ModManConstructor(void) {
     FoxArrayMInit(int32_t, &context);
     FoxArrayMInit(ModListener, &gameStepListeners);
     FoxArrayMInit(ModListener, &gamePauseListeners);
+    FoxArrayMInit(ModListener, &gameSaveListeners);
+    FoxArrayMInit(ModListener, &gameLoadListeners);
     FoxArrayMInit(ModListener, &roomChangeListeners);
 
     /* Load mod libraries. */
@@ -277,11 +319,13 @@ void ModManDestructor(void) {
     }
     LogInfo("Done. Unloaded %zu mod(s).", numMods);
 
-    /* Deinit modman. */
+    /* Deinit mod manager. */
     FoxArrayMDeinit(Mod, &mods);
     FoxArrayMDeinit(int32_t, &context);
     FoxArrayMDeinit(ModListener, &gameStepListeners);
     FoxArrayMDeinit(ModListener, &gamePauseListeners);
+    FoxArrayMDeinit(ModListener, &gameSaveListeners);
+    FoxArrayMDeinit(ModListener, &gameLoadListeners);
     FoxArrayMDeinit(ModListener, &roomChangeListeners);
 
     return;

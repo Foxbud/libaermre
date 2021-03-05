@@ -1029,6 +1029,7 @@ void AERObjectAttachAnimationEndListener(int32_t objIdx,
  *
  * @since 1.1.0
  *
+ * @sa AERModDef::registerObjectListeners
  * @sa draw.h
  */
 void AERObjectAttachDrawListener(int32_t objIdx,
@@ -1052,6 +1053,7 @@ void AERObjectAttachDrawListener(int32_t objIdx,
  *
  * @since 1.1.0
  *
+ * @sa AERModDef::registerObjectListeners
  * @sa draw.h
  */
 void AERObjectAttachGUIDrawListener(int32_t objIdx,

@@ -57,6 +57,10 @@ void ModManExecuteGameStepListeners(void);
 
 void ModManExecuteGamePauseListeners(bool paused);
 
+void ModManExecuteGameSaveListeners(int32_t curSlotIdx);
+
+void ModManExecuteGameLoadListeners(int32_t curSlotIdx);
+
 void ModManExecuteRoomChangeListeners(int32_t newRoomIdx, int32_t prevRoomIdx);
 
 bool ModManHasContext(void);

@@ -3406,8 +3406,17 @@ typedef enum AERSpriteIndex {
     AER_SPRITE_REFHALDRIFT = 0xd25,
     AER_SPRITE_HALBG = 0xd26,
     AER_SPRITE_ENEMYHPCHECKER = 0xd27,
+    /**
+     * @deprecated Since 1.2.0.
+     */
     AER_SPRITE_SPRITE3368 = 0xd28,
+    /**
+     * @deprecated Since 1.2.0.
+     */
     AER_SPRITE_SPRITE3369 = 0xd29,
+    /**
+     * @deprecated Since 1.2.0.
+     */
     AER_SPRITE_SPRITE3370 = 0xd2a
 } AERSpriteIndex;
 
@@ -3428,6 +3437,7 @@ typedef enum AERSpriteIndex {
  * @throw ::AER_NULL_ARG if argument `name` or argument `filename` is
  * `NULL`.
  * @throw ::AER_SEQ_BREAK if called outside sprite registration stage.
+ * @throw ::AER_BAD_VAL if argument `numFrames` is less than `1`.
  * @throw ::AER_BAD_FILE if argument `filename` does not point to valid file.
  *
  * @since 1.0.0
@@ -3450,6 +3460,7 @@ int32_t AERSpriteRegister(const char *name, const char *filename,
  * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
  * @throw ::AER_SEQ_BREAK if called outside sprite registration stage.
  * @throw ::AER_NULL_ARG if argument `filename` is `NULL`.
+ * @throw ::AER_BAD_VAL if argument `numFrames` is less than `1`.
  *
  * @since 1.0.0
  *

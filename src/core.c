@@ -32,6 +32,7 @@
 #include "internal/option.h"
 #include "internal/rand.h"
 #include "internal/room.h"
+#include "internal/save.h"
 
 /* ----- PRIVATE CONSTANTS ----- */
 
@@ -75,8 +76,8 @@ __attribute__((constructor)) static void CoreConstructor(void) {
 __attribute__((destructor)) static void CoreDestructor(void) {
     InstanceManDestructor();
 
+    SaveManDestructor();
     ModManDestructor();
-
     ObjectManDestructor();
     EventManDestructor();
     RandDestructor();
@@ -94,6 +95,7 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     InstanceManRecordHLDLocals();
 
     ModManConstructor();
+    SaveManConstructor();
     size_t numMods = ModManGetNumMods();
 
     /* Register sprites. */
@@ -160,6 +162,9 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     }
     LogInfo("Done.");
 
+    /* Sort event subscribers. */
+    EventManSortSubscriptionArrays();
+
     stage = STAGE_ACTION;
 
     return;
@@ -184,7 +189,7 @@ AER_EXPORT void AERHookStep(void) {
         /* Prune orphaned mod instance locals. */
         InstanceManPruneModLocals();
 
-        /* Call room change listeners. */
+        /* Call mod room change listeners. */
         ModManExecuteRoomChangeListeners(roomIdxCur, roomIndexPrevious);
 
         roomIndexPrevious = roomIdxCur;
@@ -200,6 +205,22 @@ AER_EXPORT void AERHookEvent(HLDObject *targetObject, HLDEventType eventType,
                              int32_t eventNum) {
     currentEvent = (EventKey){
         .type = eventType, .num = eventNum, .objIdx = targetObject->index};
+
+    return;
+}
+
+AER_EXPORT void AERHookLoadData(HLDPrimitive *dataMapId) {
+    SaveManLoadData(dataMapId);
+
+    ModManExecuteGameLoadListeners(SaveManGetCurrentSlot());
+
+    return;
+}
+
+AER_EXPORT void AERHookSaveData(HLDPrimitive *dataMapId) {
+    ModManExecuteGameSaveListeners(SaveManGetCurrentSlot());
+
+    SaveManSaveData(dataMapId);
 
     return;
 }

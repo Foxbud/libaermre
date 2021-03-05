@@ -64,7 +64,7 @@
 
 #define EnsureTypeScalar(entry, expType)                                       \
     do {                                                                       \
-        typeof(entry) EnsureTypeScalar_entry = (entry);                        \
+        ConfEntry *EnsureTypeScalar_entry = (entry);                           \
         Ensure((EnsureTypeScalar_entry->type == (expType) &&                   \
                 !EnsureTypeScalar_entry->isArray),                             \
                AER_FAILED_PARSE);                                              \
@@ -72,7 +72,7 @@
 
 #define EnsureTypeArr(entry, expType)                                          \
     do {                                                                       \
-        typeof(entry) EnsureTypeArr_entry = (entry);                           \
+        ConfEntry *EnsureTypeArr_entry = (entry);                              \
         ConfType EnsureTypeArr_type = EnsureTypeArr_entry->type;               \
         Ensure(((EnsureTypeArr_type == (expType) ||                            \
                  EnsureTypeArr_type == CONF_NULL) &&                           \
