@@ -3406,8 +3406,17 @@ typedef enum AERSpriteIndex {
     AER_SPRITE_REFHALDRIFT = 0xd25,
     AER_SPRITE_HALBG = 0xd26,
     AER_SPRITE_ENEMYHPCHECKER = 0xd27,
+    /**
+     * @deprecated Since 1.2.0.
+     */
     AER_SPRITE_SPRITE3368 = 0xd28,
+    /**
+     * @deprecated Since 1.2.0.
+     */
     AER_SPRITE_SPRITE3369 = 0xd29,
+    /**
+     * @deprecated Since 1.2.0.
+     */
     AER_SPRITE_SPRITE3370 = 0xd2a
 } AERSpriteIndex;
 
