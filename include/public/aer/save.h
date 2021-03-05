@@ -37,6 +37,18 @@
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
+/**
+ * @brief Query the index of the currently active save slot.
+ *
+ * @bug When a save has not yet been loaded (such as is the case at the title
+ * screen), this function returns `0`.
+ *
+ * @return Save slot index or `-1` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since 1.2.0
+ */
 int32_t AERSaveGetCurrentSlot(void);
 
 /**
