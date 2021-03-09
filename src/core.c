@@ -33,6 +33,7 @@
 #include "internal/rand.h"
 #include "internal/room.h"
 #include "internal/save.h"
+#include "internal/sprite.h"
 
 /* ----- PRIVATE CONSTANTS ----- */
 
@@ -67,6 +68,7 @@ __attribute__((constructor)) static void CoreConstructor(void) {
     OptionConstructor();
     RandConstructor();
     EventManConstructor();
+    SpriteManConstructor();
     ObjectManConstructor();
     InstanceManConstructor();
 
@@ -79,6 +81,7 @@ __attribute__((destructor)) static void CoreDestructor(void) {
     SaveManDestructor();
     ModManDestructor();
     ObjectManDestructor();
+    SpriteManDestructor();
     EventManDestructor();
     RandDestructor();
     OptionDestructor();
@@ -97,6 +100,9 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     ModManConstructor();
     SaveManConstructor();
     size_t numMods = ModManGetNumMods();
+
+    /* Build sprite name table. */
+    SpriteManBuildNameTable();
 
     /* Register sprites. */
     stage = STAGE_SPRITE_REG;

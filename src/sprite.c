@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "foxutils/stringmapmacs.h"
+
 #include "aer/sprite.h"
 #include "internal/core.h"
 #include "internal/err.h"
@@ -24,6 +26,44 @@
 #include "internal/hld.h"
 #include "internal/log.h"
 #include "internal/mod.h"
+
+/* ----- PRIVATE TYPES ----- */
+
+static FoxMap spriteNames = {0};
+
+/* ----- INTERNAL FUNCTIONS ----- */
+
+void SpriteManBuildNameTable(void) {
+    size_t numSprites = hldvars.spriteTable->size;
+    for (uint32_t spriteIdx = 0; spriteIdx < numSprites; spriteIdx++) {
+        HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
+        assert(sprite);
+        *FoxMapMInsert(const char *, int32_t, &spriteNames, sprite->name) =
+            spriteIdx;
+    }
+
+    return;
+}
+
+void SpriteManConstructor(void) {
+    LogInfo("Initializing sprite module...");
+
+    FoxStringMapMInit(int32_t, &spriteNames);
+
+    LogInfo("Done initializing sprite module.");
+    return;
+}
+
+void SpriteManDestructor(void) {
+    LogInfo("Deinitializing sprite module...");
+
+    /* Deinitialize name table. */
+    FoxMapMDeinit(const char *, int32_t, &spriteNames);
+    spriteNames = (FoxMap){0};
+
+    LogInfo("Done deinitializing sprite module.");
+    return;
+}
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
@@ -37,11 +77,14 @@ AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
     EnsureStageStrict(STAGE_SPRITE_REG);
     EnsureArg(filename);
     EnsureMin(numFrames, 1);
+    Ensure(!FoxMapMIndex(const char *, int32_t, &spriteNames, name),
+           AER_BAD_VAL);
 
     int32_t spriteIdx = hldfuncs.actionSpriteAdd(
         CoreGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
     HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
     Ensure(sprite, AER_BAD_FILE);
+    *FoxMapMInsert(const char *, int32_t, &spriteNames, name) = spriteIdx;
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
     char *tmpName = malloc(strlen(name) + 1);

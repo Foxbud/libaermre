@@ -177,9 +177,9 @@ AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
     Ensure(!FoxMapMIndex(const char *, int32_t, &objNames, name), AER_BAD_VAL);
 
     int32_t objIdx = hldfuncs.actionObjectAdd();
-    *FoxMapMInsert(const char *, int32_t, &objNames, name) = objIdx;
     HLDObject *obj = HLDObjectLookup(objIdx);
     assert(obj);
+    *FoxMapMInsert(const char *, int32_t, &objNames, name) = objIdx;
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
     char *tmpName = malloc(strlen(name) + 1);
