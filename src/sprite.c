@@ -121,7 +121,7 @@ AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
 
 AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
 #define errRet 0
-    EnsureStagePast(STAGE_SPRITE_REG);
+    EnsureStage(STAGE_SPRITE_REG);
 
     return hldvars.spriteTable->size;
 #undef errRet
@@ -129,7 +129,7 @@ AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
 
 AER_EXPORT int32_t AERSpriteGetByName(const char *name) {
 #define errRet AER_SPRITE_NULL
-    EnsureStagePast(STAGE_SPRITE_REG);
+    EnsureStage(STAGE_SPRITE_REG);
     EnsureArg(name);
 
     int32_t *spriteIdx =
@@ -142,7 +142,7 @@ AER_EXPORT int32_t AERSpriteGetByName(const char *name) {
 
 AER_EXPORT const char *AERSpriteGetName(int32_t spriteIdx) {
 #define errRet NULL
-    EnsureStagePast(STAGE_SPRITE_REG);
+    EnsureStage(STAGE_SPRITE_REG);
 
     HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
     EnsureLookup(sprite);
