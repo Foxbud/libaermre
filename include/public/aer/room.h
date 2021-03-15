@@ -343,4 +343,18 @@ int32_t AERRoomGetCurrent(void);
  */
 void AERRoomGoto(int32_t roomIdx);
 
+/**
+ * @brief Query the name of a room.
+ *
+ * @param[in] roomIdx Room of interest.
+ *
+ * @return Name of room or `NULL` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `roomIdx` is an invalid sprite.
+ *
+ * @since 1.3.0
+ */
+const char *AERRoomGetName(int32_t roomIdx);
+
 #endif /* AER_ROOM_H */

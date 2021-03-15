@@ -44,3 +44,14 @@ AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
     return;
 #undef errRet
 }
+
+AER_EXPORT const char *AERRoomGetName(int32_t roomIdx) {
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
+
+    HLDRoom *room = HLDRoomLookup(roomIdx);
+    EnsureLookup(room);
+
+    return room->name;
+#undef errRet
+}
