@@ -3482,6 +3482,21 @@ void AERSpriteReplace(int32_t spriteIdx, const char *filename, size_t numFrames,
 size_t AERSpriteGetNumRegistered(void);
 
 /**
+ * @brief Query the sprite with a specific name.
+ *
+ * @param[in] name Name of sprite.
+ *
+ * @return Sprite index or ::AER_SPRITE_NULL if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before end of sprite registration stage.
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if no sprite with name given by argument `name`.
+ *
+ * @since 1.3.0
+ */
+int32_t AERSpriteGetByName(const char *name);
+
+/**
  * @brief Query the name of a sprite.
  *
  * @param[in] spriteIdx Sprite of interest.

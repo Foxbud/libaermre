@@ -127,6 +127,19 @@ AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
 #undef errRet
 }
 
+AER_EXPORT int32_t AERSpriteGetByName(const char *name) {
+#define errRet AER_SPRITE_NULL
+    EnsureStagePast(STAGE_SPRITE_REG);
+    EnsureArg(name);
+
+    int32_t *spriteIdx =
+        FoxMapMIndex(const char *, int32_t, &spriteNames, name);
+    EnsureLookup(spriteIdx);
+
+    return *spriteIdx;
+#undef errRet
+}
+
 AER_EXPORT const char *AERSpriteGetName(int32_t spriteIdx) {
 #define errRet NULL
     EnsureStagePast(STAGE_SPRITE_REG);
