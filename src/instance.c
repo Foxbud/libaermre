@@ -305,9 +305,8 @@ AER_EXPORT void AERInstanceSyncDepth(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    uint32_t unknownDatastructure[4] = {0};
-    hldfuncs.gmlScriptSetdepth((HLDInstance *)inst, (HLDInstance *)inst,
-                               &unknownDatastructure, 0, 0);
+    HLDScriptCallAdv(hldfuncs.Script_Setdepth, (HLDInstance *)inst,
+                     (HLDInstance *)inst);
 
     return;
 #undef errRet

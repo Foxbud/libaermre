@@ -733,9 +733,7 @@ typedef struct __attribute__((packed)) HLDFunctions {
      * Custom Heart Machine function that sets an instance's draw depth based
      * on its y position and the current room's height.
      */
-    HLDInstance *(*gmlScriptSetdepth)(HLDInstance *target, HLDInstance *other,
-                                      void *unknown0, uint32_t unknown1,
-                                      uint32_t unknown2);
+    HLDScriptCallback Script_Setdepth;
 } HLDFunctions;
 
 /* ----- INTERNAL GLOBALS ----- */
