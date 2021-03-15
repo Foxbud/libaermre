@@ -101,7 +101,7 @@ int32_t AERFontRegister(const char *filename, size_t size, bool bold,
  *
  * @return Number of fonts or `0` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called before start of font registration stage.
  *
  * @since 1.1.0
  */
@@ -114,7 +114,7 @@ size_t AERFontGetNumRegistered(void);
  *
  * @return Name of font or `NULL` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called before start of font registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `fontIdx` is an invalid font.
  *
  * @since 1.1.0
@@ -128,7 +128,7 @@ const char *AERFontGetName(int32_t fontIdx);
  *
  * @return Pixel size of font or `0` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called before start of font registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `fontIdx` is an invalid font.
  *
  * @since 1.1.0
@@ -142,7 +142,7 @@ size_t AERFontGetSize(int32_t fontIdx);
  *
  * @return Whether font is bold or `false` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called before start of font registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `fontIdx` is an invalid font.
  *
  * @since 1.1.0
@@ -156,7 +156,7 @@ bool AERFontGetBold(int32_t fontIdx);
  *
  * @return Whether font is italic or `false` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called before start of font registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `fontIdx` is an invalid font.
  *
  * @since 1.1.0
@@ -170,7 +170,7 @@ bool AERFontGetItalic(int32_t fontIdx);
  *
  * @return Index of first character or `-1` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called before start of font registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `fontIdx` is an invalid font.
  *
  * @since 1.1.0
@@ -184,7 +184,7 @@ int32_t AERFontGetFirst(int32_t fontIdx);
  *
  * @return Index of last character or `-1` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called before start of font registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `fontIdx` is an invalid font.
  *
  * @since 1.1.0

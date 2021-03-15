@@ -60,7 +60,7 @@ AER_EXPORT int32_t AERFontRegister(const char *filename, size_t size, bool bold,
 
 AER_EXPORT size_t AERFontGetNumRegistered(void) {
 #define errRet 0
-    EnsureStagePast(STAGE_FONT_REG);
+    EnsureStage(STAGE_FONT_REG);
 
     return hldvars.fontTable->size;
 #undef errRet
@@ -68,7 +68,7 @@ AER_EXPORT size_t AERFontGetNumRegistered(void) {
 
 AER_EXPORT const char *AERFontGetName(int32_t fontIdx) {
 #define errRet NULL
-    EnsureStagePast(STAGE_FONT_REG);
+    EnsureStage(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
@@ -79,7 +79,7 @@ AER_EXPORT const char *AERFontGetName(int32_t fontIdx) {
 
 AER_EXPORT size_t AERFontGetSize(int32_t fontIdx) {
 #define errRet 0
-    EnsureStagePast(STAGE_FONT_REG);
+    EnsureStage(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
@@ -90,7 +90,7 @@ AER_EXPORT size_t AERFontGetSize(int32_t fontIdx) {
 
 AER_EXPORT bool AERFontGetBold(int32_t fontIdx) {
 #define errRet false
-    EnsureStagePast(STAGE_FONT_REG);
+    EnsureStage(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
@@ -101,7 +101,7 @@ AER_EXPORT bool AERFontGetBold(int32_t fontIdx) {
 
 AER_EXPORT bool AERFontGetItalic(int32_t fontIdx) {
 #define errRet false
-    EnsureStagePast(STAGE_FONT_REG);
+    EnsureStage(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
@@ -112,7 +112,7 @@ AER_EXPORT bool AERFontGetItalic(int32_t fontIdx) {
 
 AER_EXPORT int32_t AERFontGetFirst(int32_t fontIdx) {
 #define errRet -1
-    EnsureStagePast(STAGE_FONT_REG);
+    EnsureStage(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
@@ -123,7 +123,7 @@ AER_EXPORT int32_t AERFontGetFirst(int32_t fontIdx) {
 
 AER_EXPORT int32_t AERFontGetLast(int32_t fontIdx) {
 #define errRet -1
-    EnsureStagePast(STAGE_FONT_REG);
+    EnsureStage(STAGE_FONT_REG);
 
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
