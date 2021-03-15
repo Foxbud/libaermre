@@ -202,7 +202,7 @@ AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
 
 AER_EXPORT size_t AERObjectGetNumRegistered(void) {
 #define errRet 0
-    EnsureStagePast(STAGE_OBJECT_REG);
+    EnsureStage(STAGE_OBJECT_REG);
 
     return (*hldvars.objectTableHandle)->numItems;
 #undef errRet
@@ -210,7 +210,7 @@ AER_EXPORT size_t AERObjectGetNumRegistered(void) {
 
 AER_EXPORT int32_t AERObjectGetByName(const char *name) {
 #define errRet AER_OBJECT_NULL
-    EnsureStagePast(STAGE_OBJECT_REG);
+    EnsureStage(STAGE_OBJECT_REG);
     EnsureArg(name);
 
     int32_t *objIdx = FoxMapMIndex(const char *, int32_t, &objNames, name);
@@ -222,7 +222,7 @@ AER_EXPORT int32_t AERObjectGetByName(const char *name) {
 
 AER_EXPORT const char *AERObjectGetName(int32_t objIdx) {
 #define errRet NULL
-    EnsureStagePast(STAGE_OBJECT_REG);
+    EnsureStage(STAGE_OBJECT_REG);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
@@ -233,7 +233,7 @@ AER_EXPORT const char *AERObjectGetName(int32_t objIdx) {
 
 AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
 #define errRet AER_OBJECT_NULL
-    EnsureStagePast(STAGE_OBJECT_REG);
+    EnsureStage(STAGE_OBJECT_REG);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
@@ -245,7 +245,7 @@ AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
 AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
                                        size_t bufSize, int32_t *objBuf) {
 #define errRet 0
-    EnsureStagePast(STAGE_OBJECT_REG);
+    EnsureStage(STAGE_OBJECT_REG);
     EnsureArgBuf(objBuf, bufSize);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
@@ -267,7 +267,7 @@ AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
 
 AER_EXPORT bool AERObjectGetCollisions(int32_t objIdx) {
 #define errRet false
-    EnsureStagePast(STAGE_OBJECT_REG);
+    EnsureStage(STAGE_OBJECT_REG);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
@@ -278,7 +278,7 @@ AER_EXPORT bool AERObjectGetCollisions(int32_t objIdx) {
 
 AER_EXPORT void AERObjectSetCollisions(int32_t objIdx, bool collisions) {
 #define errRet
-    EnsureStagePast(STAGE_OBJECT_REG);
+    EnsureStage(STAGE_OBJECT_REG);
 
     HLDObject *obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);

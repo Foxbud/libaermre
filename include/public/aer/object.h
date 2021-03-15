@@ -691,7 +691,7 @@ int32_t AERObjectRegister(const char *name, int32_t parentIdx,
  *
  * @return Number of objects or `0` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called before end of object registration stage.
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
  *
  * @since 1.0.0
  */
@@ -704,7 +704,7 @@ size_t AERObjectGetNumRegistered(void);
  *
  * @return Object index or ::AER_OBJECT_NULL if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called before end of object registration stage.
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if no object with name given by argument `name`.
  *
@@ -719,7 +719,7 @@ int32_t AERObjectGetByName(const char *name);
  *
  * @return Name of object of `NULL` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called before end of object registration stage.
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
  * @since 1.0.0
@@ -733,7 +733,7 @@ const char *AERObjectGetName(int32_t objIdx);
  *
  * @return Parent object's index or ::AER_OBJECT_NULL if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called before end of object registration stage.
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
  * @since 1.0.0
@@ -759,7 +759,7 @@ int32_t AERObjectGetParent(int32_t objIdx);
  *
  * @return Total number of child objects or `0` if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called before end of object registration stage.
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
  * @throw ::AER_NULL_ARG if argument `objBuf` is `NULL` and argument
  * `bufSize` is greater than `0`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
@@ -777,7 +777,7 @@ size_t AERObjectGetChildren(int32_t objIdx, bool recursive, size_t bufSize,
  * @return Whether object has collision checking enabled or `false` if
  * unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called before end of object registration stage.
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
  * @since 1.0.0
@@ -790,7 +790,7 @@ bool AERObjectGetCollisions(int32_t objIdx);
  * @param[in] objIdx Object of interest.
  * @param[in] collisions Whether or not to enable collision checking.
  *
- * @throw ::AER_SEQ_BREAK if called before end of object registration stage.
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
  * @since 1.0.0
