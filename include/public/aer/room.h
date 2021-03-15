@@ -344,6 +344,21 @@ int32_t AERRoomGetCurrent(void);
 void AERRoomGoto(int32_t roomIdx);
 
 /**
+ * @brief Query the room with a specific name.
+ *
+ * @param[in] name Name of room.
+ *
+ * @return Room index or ::AER_ROOM_NULL if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if no room with name given by argument `name`.
+ *
+ * @since 1.3.0
+ */
+int32_t AERRoomGetByName(const char *name);
+
+/**
  * @brief Query the name of a room.
  *
  * @param[in] roomIdx Room of interest.

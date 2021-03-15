@@ -70,6 +70,7 @@ __attribute__((constructor)) static void CoreConstructor(void) {
     EventManConstructor();
     SpriteManConstructor();
     ObjectManConstructor();
+    RoomManConstructor();
     InstanceManConstructor();
 
     return;
@@ -80,6 +81,7 @@ __attribute__((destructor)) static void CoreDestructor(void) {
 
     SaveManDestructor();
     ModManDestructor();
+    RoomManDestructor();
     ObjectManDestructor();
     SpriteManDestructor();
     EventManDestructor();
@@ -171,6 +173,9 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     /* Sort event subscribers. */
     EventManSortSubscriptionArrays();
 
+    /* Build room name table. */
+    RoomManBuildNameTable();
+
     stage = STAGE_ACTION;
 
     return;
@@ -195,7 +200,7 @@ AER_EXPORT void AERHookStep(void) {
         /* Prune orphaned mod instance locals. */
         InstanceManPruneModLocals();
 
-        /* Call mod room change listeners. */
+        /* Call room change listeners. */
         ModManExecuteRoomChangeListeners(roomIdxCur, roomIndexPrevious);
 
         roomIndexPrevious = roomIdxCur;

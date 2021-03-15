@@ -22,4 +22,12 @@
 
 extern int32_t roomIndexPrevious;
 
+/* ----- INTERNAL FUNCTIONS ----- */
+
+void RoomManBuildNameTable(void);
+
+void RoomManConstructor(void);
+
+void RoomManDestructor(void);
+
 #endif /* INTERNAL_ROOM_H */

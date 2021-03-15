@@ -27,7 +27,7 @@
 #include "internal/log.h"
 #include "internal/mod.h"
 
-/* ----- PRIVATE TYPES ----- */
+/* ----- PRIVATE GLOBALS ----- */
 
 static FoxMap spriteNames = {0};
 
