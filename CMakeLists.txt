@@ -14,12 +14,12 @@ cmake_minimum_required(VERSION 3.19)
 # limitations under the License.
 
 project(AERMRE
-    VERSION 1.2.0
+    VERSION 1.2.1
     DESCRIPTION "AER modding framework for Hyper Light Drifter."
     LANGUAGES C)
 
 # Handle pre-release version.
-set(PRE_RELEASE FALSE)
+set(PRE_RELEASE TRUE)
 if(PRE_RELEASE)
     set(EXTENDED_PROJECT_VERSION "${CMAKE_PROJECT_VERSION}-pre")
 else()
@@ -85,10 +85,8 @@ target_include_directories(aermre
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/public>"
     "$<INSTALL_INTERFACE:include>")
 target_compile_options(aermre 
-    PRIVATE -m32
-    PRIVATE -Wall
-    PRIVATE -Wextra
-    PRIVATE -Werror)
+    PRIVATE -m32 -Wall -Wextra -Werror -Wfatal-errors
+)
 target_link_options(aermre
     PRIVATE -m32
     PRIVATE -rdynamic)

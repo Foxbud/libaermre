@@ -48,54 +48,9 @@ static char assetPathBuf[8 * 1024];
 
 CoreStage stage = STAGE_INIT;
 
-/* ----- INTERNAL FUNCTIONS ----- */
+/* ----- PRIVATE FUNCTIONS ----- */
 
-const char *CoreGetAbsAssetPath(const char *relAssetPath) {
-    assert(relAssetPath);
-    assert(ModManHasContext());
-
-    snprintf(assetPathBuf, sizeof(assetPathBuf), ABS_ASSET_PATH_FMT,
-             ModManGetMod(ModManPeekContext())->name, relAssetPath);
-
-    return assetPathBuf;
-}
-
-__attribute__((constructor)) static void CoreConstructor(void) {
-    LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
-
-    ConfConstructor();
-    OptionConstructor();
-    RandConstructor();
-    EventManConstructor();
-    ObjectManConstructor();
-    InstanceManConstructor();
-
-    return;
-}
-
-__attribute__((destructor)) static void CoreDestructor(void) {
-    InstanceManDestructor();
-
-    SaveManDestructor();
-    ModManDestructor();
-    ObjectManDestructor();
-    EventManDestructor();
-    RandDestructor();
-    OptionDestructor();
-    ConfDestructor();
-
-    return;
-}
-
-/* ----- UNLISTED FUNCTIONS ----- */
-
-AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
-    HLDRecordEngineRefs(&vars, &funcs);
-
-    InstanceManRecordHLDLocals();
-
-    ModManConstructor();
-    SaveManConstructor();
+static void RegisterAssets(void) {
     size_t numMods = ModManGetNumMods();
 
     /* Register sprites. */
@@ -170,7 +125,62 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     return;
 }
 
+/* ----- INTERNAL FUNCTIONS ----- */
+
+const char *CoreGetAbsAssetPath(const char *relAssetPath) {
+    assert(relAssetPath);
+    assert(ModManHasContext());
+
+    snprintf(assetPathBuf, sizeof(assetPathBuf), ABS_ASSET_PATH_FMT,
+             ModManGetMod(ModManPeekContext())->name, relAssetPath);
+
+    return assetPathBuf;
+}
+
+__attribute__((constructor)) static void CoreConstructor(void) {
+    LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
+
+    ConfConstructor();
+    OptionConstructor();
+    RandConstructor();
+    EventManConstructor();
+    ObjectManConstructor();
+    InstanceManConstructor();
+
+    return;
+}
+
+__attribute__((destructor)) static void CoreDestructor(void) {
+    InstanceManDestructor();
+
+    SaveManDestructor();
+    ModManDestructor();
+    ObjectManDestructor();
+    EventManDestructor();
+    RandDestructor();
+    OptionDestructor();
+    ConfDestructor();
+
+    return;
+}
+
+/* ----- UNLISTED FUNCTIONS ----- */
+
+AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
+    HLDRecordEngineRefs(&vars, &funcs);
+
+    InstanceManRecordHLDLocals();
+
+    ModManConstructor();
+    SaveManConstructor();
+
+    return;
+}
+
 AER_EXPORT void AERHookStep(void) {
+    if (*hldvars.numSteps == 1)
+        RegisterAssets();
+
     /* Record user input. */
     InputManRecordUserInput();
 
