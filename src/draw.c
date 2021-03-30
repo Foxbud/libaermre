@@ -31,7 +31,7 @@ AER_EXPORT float AERDrawGetCurrentAlpha(void) {
 #define errRet -1.0f
     EnsureStage(STAGE_ACTION);
 
-    return hldfuncs.actionDrawGetAlpha();
+    Ok(hldfuncs.actionDrawGetAlpha());
 #undef errRet
 }
 
@@ -42,7 +42,7 @@ AER_EXPORT void AERDrawSetCurrentAlpha(float alpha) {
 
     hldfuncs.actionDrawSetAlpha(alpha);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -55,7 +55,7 @@ AER_EXPORT void AERDrawTriangle(float x1, float y1, float x2, float y2,
     hldfuncs.actionDrawTriangle(x1, y1, x2, y2, x3, y3, color, color, color,
                                 outline);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -69,7 +69,7 @@ AER_EXPORT void AERDrawTriangleAdv(float x1, float y1, float x2, float y2,
     hldfuncs.actionDrawTriangle(x1, y1, x2, y2, x3, y3, color1, color2, color3,
                                 outline);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -81,7 +81,7 @@ AER_EXPORT void AERDrawRectangle(float left, float top, float right,
     hldfuncs.actionDrawRectangle(left, top, right, bottom, color, color, color,
                                  color, outline);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -95,7 +95,7 @@ AER_EXPORT void AERDrawRectangleAdv(float left, float top, float right,
     hldfuncs.actionDrawRectangle(left, top, right, bottom, colorNW, colorNE,
                                  colorSE, colorSW, outline);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -108,7 +108,7 @@ AER_EXPORT void AERDrawText(const char *text, float x, float y, uint32_t width,
     hldfuncs.actionDrawText(x, y, WrapString(text), -1, width, scale, scale,
                             0.0f, color, color, color, color, 1.0f);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -126,6 +126,6 @@ AER_EXPORT void AERDrawTextAdv(const char *text, float x, float y,
                             scaleY, angle, colorNW, colorNE, colorSE, colorSW,
                             alpha);
 
-    return;
+    Ok();
 #undef errRet
 }
