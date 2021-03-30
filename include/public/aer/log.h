@@ -30,6 +30,8 @@
  * @param[in] fmt `printf` style format string.
  * @param[in] ... Variadic arguments to substitute into format string.
  *
+ * @throw ::AER_NULL_ARG if argument `fmt` is `NULL`.
+ *
  * @since 1.0.0
  */
 void AERLogInfo(const char *fmt, ...);
@@ -39,6 +41,8 @@ void AERLogInfo(const char *fmt, ...);
  *
  * @param[in] fmt `printf` style format string.
  * @param[in] ... Variadic arguments to substitute into format string.
+ *
+ * @throw ::AER_NULL_ARG if argument `fmt` is `NULL`.
  *
  * @since 1.0.0
  */
@@ -51,6 +55,8 @@ void AERLogWarn(const char *fmt, ...);
  *
  * @param[in] fmt `printf` style format string.
  * @param[in] ... Variadic arguments to substitute into format string.
+ *
+ * @throw ::AER_NULL_ARG if argument `fmt` is `NULL`.
  *
  * @since 1.0.0
  */

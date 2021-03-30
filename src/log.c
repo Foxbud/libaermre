@@ -20,6 +20,7 @@
 #include <time.h>
 
 #include "aer/log.h"
+#include "internal/err.h"
 #include "internal/export.h"
 #include "internal/log.h"
 #include "internal/mod.h"
@@ -116,28 +117,34 @@ void LogErr(const char *fmt, ...) {
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT void AERLogInfo(const char *fmt, ...) {
-    assert(fmt);
+#define errRet
+    EnsureArg(fmt);
 
     /* Call common log function. */
     Log(stdout, LOG_INFO, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
 
-    return;
+    Ok();
+#undef errRet
 }
 
 AER_EXPORT void AERLogWarn(const char *fmt, ...) {
-    assert(fmt);
+#define errRet
+    EnsureArg(fmt);
 
     /* Call common log function. */
     Log(stdout, LOG_WARN, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
 
-    return;
+    Ok();
+#undef errRet
 }
 
 AER_EXPORT void AERLogErr(const char *fmt, ...) {
-    assert(fmt);
+#define errRet
+    EnsureArg(fmt);
 
     /* Call common log function. */
     Log(stdout, LOG_ERR, GetCurrentModName(), BuildMsgFromVA(fmt, fmt));
 
-    return;
+    Ok();
+#undef errRet
 }
