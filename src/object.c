@@ -196,7 +196,7 @@ AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
     obj->flags.persistent = persistent;
 
     LogInfo("Successfully registered object to index %i.", objIdx);
-    return objIdx;
+    Ok(objIdx);
 #undef errRet
 }
 
@@ -204,7 +204,7 @@ AER_EXPORT size_t AERObjectGetNumRegistered(void) {
 #define errRet 0
     EnsureStage(STAGE_OBJECT_REG);
 
-    return (*hldvars.objectTableHandle)->numItems;
+    Ok((*hldvars.objectTableHandle)->numItems);
 #undef errRet
 }
 
@@ -216,7 +216,7 @@ AER_EXPORT int32_t AERObjectGetByName(const char *name) {
     int32_t *objIdx = FoxMapMIndex(const char *, int32_t, &objNames, name);
     EnsureLookup(objIdx);
 
-    return *objIdx;
+    Ok(*objIdx);
 #undef errRet
 }
 
@@ -227,7 +227,7 @@ AER_EXPORT const char *AERObjectGetName(int32_t objIdx) {
     HLDObject *obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
-    return obj->name;
+    Ok(obj->name);
 #undef errRet
 }
 
@@ -238,7 +238,7 @@ AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
     HLDObject *obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
-    return obj->parentIndex;
+    Ok(obj->parentIndex);
 #undef errRet
 }
 
@@ -254,14 +254,14 @@ AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
     FoxArray *children = FoxMapMIndex(
         int32_t, FoxArray, (recursive ? &flatObjTree : &objTree), objIdx);
     if (!children)
-        return 0;
+        Ok(0);
     size_t numChildren = FoxArrayMSize(int32_t, children);
 
     size_t numToWrite = FoxMin(numChildren, bufSize);
     for (uint32_t idx = 0; idx < numToWrite; idx++)
         objBuf[idx] = *FoxArrayMIndex(int32_t, children, idx);
 
-    return numChildren;
+    Ok(numChildren);
 #undef errRet
 }
 
@@ -272,7 +272,7 @@ AER_EXPORT bool AERObjectGetCollisions(int32_t objIdx) {
     HLDObject *obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
-    return obj->flags.collisions;
+    Ok(obj->flags.collisions);
 #undef errRet
 }
 
@@ -284,7 +284,7 @@ AER_EXPORT void AERObjectSetCollisions(int32_t objIdx, bool collisions) {
     EnsureLookup(obj);
     obj->flags.collisions = collisions;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -307,7 +307,7 @@ AER_EXPORT void AERObjectAttachCreateListener(int32_t objIdx,
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached create listener.");
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -328,7 +328,7 @@ AER_EXPORT void AERObjectAttachDestroyListener(
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached destroy listener.");
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -351,7 +351,7 @@ AER_EXPORT void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached alarm %u listener.", alarmIdx);
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -374,7 +374,7 @@ AER_EXPORT void AERObjectAttachStepListener(int32_t objIdx,
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached step listener.");
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -396,7 +396,7 @@ AER_EXPORT void AERObjectAttachPreStepListener(
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached pre-step listener.");
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -418,7 +418,7 @@ AER_EXPORT void AERObjectAttachPostStepListener(
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached post-step listener.");
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -442,7 +442,7 @@ AER_EXPORT void AERObjectAttachCollisionListener(
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached %i collision listener.", otherObjIdx);
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -465,7 +465,7 @@ AER_EXPORT void AERObjectAttachAnimationEndListener(
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached animation end listener.");
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -487,7 +487,7 @@ AER_EXPORT void AERObjectAttachDrawListener(
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached draw listener.");
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -510,6 +510,6 @@ AER_EXPORT void AERObjectAttachGUIDrawListener(
     EventManRegisterEventListener(obj, key, listener);
 
     LogInfo("Successfully attached GUI-draw listener.");
-    return;
+    Ok();
 #undef errRet
 }
