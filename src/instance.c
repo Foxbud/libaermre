@@ -177,7 +177,7 @@ AER_EXPORT size_t AERInstanceGetAll(size_t bufSize, AERInstance **instBuf) {
         inst = inst->instanceNext;
     }
 
-    return numInsts;
+    Ok(numInsts);
 #undef errRet
 }
 
@@ -215,7 +215,7 @@ AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx, bool recursive,
         }
     }
 
-    return numInsts;
+    Ok(numInsts);
 #undef errRet
 }
 
@@ -226,7 +226,7 @@ AER_EXPORT AERInstance *AERInstanceGetById(int32_t instId) {
     AERInstance *inst = (AERInstance *)HLDInstanceLookup(instId);
     EnsureLookup(inst);
 
-    return inst;
+    Ok(inst);
 #undef errRet
 }
 
@@ -239,7 +239,7 @@ AER_EXPORT AERInstance *AERInstanceCreate(int32_t objIdx, float x, float y) {
         (AERInstance *)hldfuncs.actionInstanceCreate(objIdx, x, y);
     assert(inst);
 
-    return inst;
+    Ok(inst);
 #undef errRet
 }
 
@@ -252,7 +252,7 @@ AER_EXPORT void AERInstanceChange(AERInstance *inst, int32_t newObjIdx,
 
     hldfuncs.actionInstanceChange((HLDInstance *)inst, newObjIdx, doEvents);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -264,7 +264,7 @@ AER_EXPORT void AERInstanceDestroy(AERInstance *inst) {
     hldfuncs.actionInstanceDestroy((HLDInstance *)inst, (HLDInstance *)inst, -1,
                                    true);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -276,7 +276,7 @@ AER_EXPORT void AERInstanceDelete(AERInstance *inst) {
     hldfuncs.actionInstanceDestroy((HLDInstance *)inst, (HLDInstance *)inst, -1,
                                    false);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -285,7 +285,7 @@ AER_EXPORT float AERInstanceGetDepth(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->depth;
+    Ok(((HLDInstance *)inst)->depth);
 #undef errRet
 }
 
@@ -296,7 +296,7 @@ AER_EXPORT void AERInstanceSetDepth(AERInstance *inst, float depth) {
 
     ((HLDInstance *)inst)->depth = depth;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -308,7 +308,7 @@ AER_EXPORT void AERInstanceSyncDepth(AERInstance *inst) {
     HLDScriptCallAdv(hldfuncs.Script_Setdepth, (HLDInstance *)inst,
                      (HLDInstance *)inst);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -317,7 +317,7 @@ AER_EXPORT int32_t AERInstanceGetId(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->id;
+    Ok(((HLDInstance *)inst)->id);
 #undef errRet
 }
 
@@ -326,7 +326,7 @@ AER_EXPORT int32_t AERInstanceGetObject(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->objectIndex;
+    Ok(((HLDInstance *)inst)->objectIndex);
 #undef errRet
 }
 
@@ -343,7 +343,7 @@ AER_EXPORT void AERInstanceGetPosition(AERInstance *inst, float *x, float *y) {
     if (y)
         *y = pos.y;
 
-    return;
+    Ok();
 #undef inst
 #undef errRet
 }
@@ -356,7 +356,7 @@ AER_EXPORT void AERInstanceSetPosition(AERInstance *inst, float x, float y) {
 
     hldfuncs.Instance_setPosition(inst, x, y);
 
-    return;
+    Ok();
 #undef inst
 #undef errRet
 }
@@ -370,7 +370,7 @@ AER_EXPORT void AERInstanceAddPosition(AERInstance *inst, float x, float y) {
     HLDVecReal pos = inst->pos;
     hldfuncs.Instance_setPosition(inst, pos.x + x, pos.y + y);
 
-    return;
+    Ok();
 #undef inst
 #undef errRet
 }
@@ -394,7 +394,7 @@ AER_EXPORT void AERInstanceGetBoundingBox(AERInstance *inst, float *left,
     if (bottom)
         *bottom = (float)bbox.bottom;
 
-    return;
+    Ok();
 #undef inst
 #undef errRet
 }
@@ -404,7 +404,7 @@ AER_EXPORT float AERInstanceGetFriction(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->friction;
+    Ok(((HLDInstance *)inst)->friction);
 #undef errRet
 }
 
@@ -415,7 +415,7 @@ AER_EXPORT void AERInstanceSetFriction(AERInstance *inst, float friction) {
 
     ((HLDInstance *)inst)->friction = friction;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -431,7 +431,7 @@ AER_EXPORT void AERInstanceGetMotion(AERInstance *inst, float *x, float *y) {
     if (y)
         *y = inst->speedY;
 
-    return;
+    Ok();
 #undef inst
 #undef errRet
 }
@@ -446,7 +446,7 @@ AER_EXPORT void AERInstanceSetMotion(AERInstance *inst, float x, float y) {
     inst->speedY = y;
     hldfuncs.Instance_setMotionPolarFromCartesian(inst);
 
-    return;
+    Ok();
 #undef inst
 #undef errRet
 }
@@ -461,7 +461,7 @@ AER_EXPORT void AERInstanceAddMotion(AERInstance *inst, float x, float y) {
     inst->speedY += y;
     hldfuncs.Instance_setMotionPolarFromCartesian(inst);
 
-    return;
+    Ok();
 #undef inst
 #undef errRet
 }
@@ -471,7 +471,7 @@ AER_EXPORT int32_t AERInstanceGetMask(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->maskIndex;
+    Ok(((HLDInstance *)inst)->maskIndex);
 #undef errRet
 }
 
@@ -483,7 +483,7 @@ AER_EXPORT void AERInstanceSetMask(AERInstance *inst, int32_t maskIdx) {
 
     hldfuncs.Instance_setMaskIndex((HLDInstance *)inst, maskIdx);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -492,7 +492,7 @@ AER_EXPORT bool AERInstanceGetVisible(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->visible;
+    Ok(((HLDInstance *)inst)->visible);
 #undef errRet
 }
 
@@ -503,7 +503,7 @@ AER_EXPORT void AERInstanceSetVisible(AERInstance *inst, bool visible) {
 
     ((HLDInstance *)inst)->visible = visible;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -512,7 +512,7 @@ AER_EXPORT int32_t AERInstanceGetSprite(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->spriteIndex;
+    Ok(((HLDInstance *)inst)->spriteIndex);
 #undef errRet
 }
 
@@ -524,7 +524,7 @@ AER_EXPORT void AERInstanceSetSprite(AERInstance *inst, int32_t spriteIdx) {
 
     ((HLDInstance *)inst)->spriteIndex = spriteIdx;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -533,7 +533,7 @@ AER_EXPORT float AERInstanceGetSpriteFrame(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->imageIndex;
+    Ok(((HLDInstance *)inst)->imageIndex);
 #undef errRet
 }
 
@@ -544,7 +544,7 @@ AER_EXPORT void AERInstanceSetSpriteFrame(AERInstance *inst, float frame) {
 
     ((HLDInstance *)inst)->imageIndex = frame;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -553,7 +553,7 @@ AER_EXPORT float AERInstanceGetSpriteSpeed(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->imageSpeed;
+    Ok(((HLDInstance *)inst)->imageSpeed);
 #undef errRet
 }
 
@@ -565,7 +565,7 @@ AER_EXPORT void AERInstanceSetSpriteSpeed(AERInstance *inst, float speed) {
 
     ((HLDInstance *)inst)->imageSpeed = speed;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -574,7 +574,7 @@ AER_EXPORT float AERInstanceGetSpriteAlpha(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->imageAlpha;
+    Ok(((HLDInstance *)inst)->imageAlpha);
 #undef errRet
 }
 
@@ -586,7 +586,7 @@ AER_EXPORT void AERInstanceSetSpriteAlpha(AERInstance *inst, float alpha) {
 
     ((HLDInstance *)inst)->imageAlpha = alpha;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -595,7 +595,7 @@ AER_EXPORT float AERInstanceGetSpriteAngle(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->imageAngle;
+    Ok(((HLDInstance *)inst)->imageAngle);
 #undef errRet
 }
 
@@ -606,7 +606,7 @@ AER_EXPORT void AERInstanceSetSpriteAngle(AERInstance *inst, float angle) {
 
     ((HLDInstance *)inst)->imageAngle = angle;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -623,7 +623,7 @@ AER_EXPORT void AERInstanceGetSpriteScale(AERInstance *inst, float *x,
     if (y)
         *y = inst->imageScale.y;
 
-    return;
+    Ok();
 #undef inst
 #undef errRet
 }
@@ -637,7 +637,7 @@ AER_EXPORT void AERInstanceSetSpriteScale(AERInstance *inst, float x, float y) {
     inst->imageScale.x = x;
     inst->imageScale.y = y;
 
-    return;
+    Ok();
 #undef inst
 #undef errRet
 }
@@ -647,7 +647,7 @@ AER_EXPORT uint32_t AERInstanceGetSpriteBlend(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->imageBlend;
+    Ok(((HLDInstance *)inst)->imageBlend);
 #undef errRet
 }
 
@@ -658,7 +658,7 @@ AER_EXPORT void AERInstanceSetSpriteBlend(AERInstance *inst, uint32_t color) {
 
     ((HLDInstance *)inst)->imageBlend = color;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -667,7 +667,7 @@ AER_EXPORT bool AERInstanceGetTangible(AERInstance *inst) {
     EnsureStage(STAGE_ACTION);
     EnsureArg(inst);
 
-    return ((HLDInstance *)inst)->tangible;
+    Ok(((HLDInstance *)inst)->tangible);
 #undef errRet
 }
 
@@ -678,7 +678,7 @@ AER_EXPORT void AERInstanceSetTangible(AERInstance *inst, bool tangible) {
 
     ((HLDInstance *)inst)->tangible = tangible;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -688,7 +688,7 @@ AER_EXPORT int32_t AERInstanceGetAlarm(AERInstance *inst, uint32_t alarmIdx) {
     EnsureArg(inst);
     EnsureMax(alarmIdx, 11);
 
-    return ((HLDInstance *)inst)->alarms[alarmIdx];
+    Ok(((HLDInstance *)inst)->alarms[alarmIdx]);
 #undef errRet
 }
 
@@ -701,7 +701,7 @@ AER_EXPORT void AERInstanceSetAlarm(AERInstance *inst, uint32_t alarmIdx,
 
     ((HLDInstance *)inst)->alarms[alarmIdx] = numSteps;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -729,7 +729,7 @@ AER_EXPORT size_t AERInstanceGetHLDLocals(AERInstance *inst, size_t bufSize,
         }
     }
 
-    return numLocals;
+    Ok(numLocals);
 #undef errRet
 }
 
@@ -747,7 +747,7 @@ AER_EXPORT AERLocal *AERInstanceGetHLDLocal(AERInstance *inst,
         HLDClosedHashTableLookup(((HLDInstance *)inst)->locals, *localIdx);
     EnsureLookup(local);
 
-    return local;
+    Ok(local);
 #undef errRet
 }
 
@@ -767,7 +767,7 @@ AERInstanceCreateModLocal(AERInstance *inst, const char *name, bool public,
     ModLocalVal *val = FoxMapMInsert(ModLocalKey, ModLocalVal, &modLocals, key);
     val->destructor = destructor;
 
-    return &val->local;
+    Ok(&val->local);
 #undef errRet
 }
 
@@ -788,7 +788,7 @@ AER_EXPORT void AERInstanceDestroyModLocal(AERInstance *inst, const char *name,
     ModLocalValDeinit(val);
     FoxMapMRemove(ModLocalKey, ModLocalVal, &modLocals, key);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -804,7 +804,7 @@ AER_EXPORT AERLocal AERInstanceDeleteModLocal(AERInstance *inst,
            AER_BAD_VAL);
     EnsureLookup(FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key));
 
-    return FoxMapMRemove(ModLocalKey, ModLocalVal, &modLocals, key).local;
+    Ok(FoxMapMRemove(ModLocalKey, ModLocalVal, &modLocals, key).local);
 #undef errRet
 }
 
@@ -822,6 +822,6 @@ AER_EXPORT AERLocal *AERInstanceGetModLocal(AERInstance *inst, const char *name,
     ModLocalVal *val = FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key);
     EnsureLookup(val);
 
-    return &val->local;
+    Ok(&val->local);
 #undef errRet
 }
