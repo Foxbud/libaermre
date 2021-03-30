@@ -335,7 +335,7 @@ AER_EXPORT int32_t AERSaveGetCurrentSlot(void) {
 #define errRet -1
     EnsureStage(STAGE_ACTION);
 
-    return SaveManGetCurrentSlot();
+    Ok(SaveManGetCurrentSlot());
 #undef errRet
 }
 
@@ -355,7 +355,7 @@ AER_EXPORT size_t AERSaveGetKeys(size_t bufSize, const char **keyBuf) {
     FoxMapMForEachKey(const char *, SaveEntry, modMap, SaveEntryGetKeysCallback,
                       &ctx);
 
-    return numKeys;
+    Ok(numKeys);
 #undef errRet
 }
 
@@ -374,7 +374,7 @@ AER_EXPORT void AERSaveDestroy(const char *key) {
     SaveEntryDeinit(entry);
     FoxMapMRemove(const char *, SaveEntry, modMap, key);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -391,7 +391,7 @@ AER_EXPORT double AERSaveGetDouble(const char *key) {
     EnsureType(entry, SAVE_DOUBLE);
 
     /* Get entry value. */
-    return entry->value.d;
+    Ok(entry->value.d);
 #undef errRet
 }
 
@@ -416,7 +416,7 @@ AER_EXPORT void AERSaveSetDouble(const char *key, double value) {
     entry->type = SAVE_DOUBLE;
     entry->value.d = value;
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -433,7 +433,7 @@ AER_EXPORT const char *AERSaveGetString(const char *key) {
     EnsureType(entry, SAVE_STRING);
 
     /* Get entry value. */
-    return entry->value.s;
+    Ok(entry->value.s);
 #undef errRet
 }
 
@@ -459,6 +459,6 @@ AER_EXPORT void AERSaveSetString(const char *key, const char *value) {
     size_t valSize = strlen(value) + 1;
     entry->value.s = memcpy(malloc(valSize), value, valSize);
 
-    return;
+    Ok();
 #undef errRet
 }
