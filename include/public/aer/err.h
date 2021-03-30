@@ -32,7 +32,7 @@
 typedef enum AERErrCode {
     /**
      * @brief Flag that informs the MRE that the next public function call is
-     * being error-checked.
+     * being error-checked. Functions will never report this error.
      *
      * @since 1.3.0
      */
@@ -40,9 +40,11 @@ typedef enum AERErrCode {
     /**
      * @brief Function did not report an error.
      *
-     * @deprecated Partially since 1.3.0. This symbol, itself, has not been
+     * @deprecated Partially since 1.3.0. This symbol, itself, is not
      * deprecated, but setting ::aererr to it when error-checking a function
-     * *is* deprecated. Instead, use ::AER_TRY.
+     * *is* deprecated. Instead, use ::AER_TRY. Functions will still report this
+     * if they did not encounter any errors; this functionality is *not*
+     * deprecated.
      *
      * @since 1.0.0
      */
