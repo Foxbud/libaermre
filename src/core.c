@@ -242,7 +242,7 @@ AER_EXPORT uint32_t AERGetNumSteps(void) {
 #define errRet 0
     EnsureStage(STAGE_ACTION);
 
-    return *hldvars.numSteps;
+    Ok(*hldvars.numSteps);
 #undef errRet
 }
 
@@ -250,6 +250,6 @@ AER_EXPORT bool AERGetPaused(void) {
 #define errRet 0
     EnsureStage(STAGE_ACTION);
 
-    return gamePaused;
+    Ok(gamePaused);
 #undef errRet
 }
