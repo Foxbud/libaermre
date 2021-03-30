@@ -5,7 +5,7 @@
         "launchMods": []
     },
     // VSCode settings.
-    "editor.formatOnType": true,
+    "editor.formatOnType": false,
     "editor.formatOnSave": true,
     "editor.detectIndentation": false,
     "editor.tabSize": 4,

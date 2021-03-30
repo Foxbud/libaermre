@@ -22,22 +22,30 @@
 
 /* ----- INTERNAL MACROS ----- */
 
+#define Ok(...)                                                                \
+    do {                                                                       \
+        aererr = AER_OK;                                                       \
+        return __VA_ARGS__;                                                    \
+    } while (0)
+
 #define Ensure(cond, err)                                                      \
     do {                                                                       \
         if (!(cond)) {                                                         \
-            aererr = (err);                                                    \
-            if (ModManHasContext()) {                                          \
-                LogWarn("Potentially recoverable error \"%s\" occurred "       \
-                        "during call to "                                      \
-                        "function \"%s\" by mod \"%s\".",                      \
-                        #err, __func__,                                        \
-                        ModManGetMod(ModManPeekContext())->name);              \
-            } else {                                                           \
-                LogWarn("Potentially recoverable error \"%s\" occurred "       \
-                        "during internal "                                     \
-                        "call to function \"%s\".",                            \
-                        #err, __func__);                                       \
+            if (aererr != AER_TRY) {                                           \
+                if (ModManHasContext()) {                                      \
+                    LogWarn("Potentially unhandled error \"%s\" occurred "     \
+                            "during call to "                                  \
+                            "function \"%s\" by mod \"%s\".",                  \
+                            #err, __func__,                                    \
+                            ModManGetMod(ModManPeekContext())->name);          \
+                } else {                                                       \
+                    LogWarn("Potentially unhandled error \"%s\" occurred "     \
+                            "during internal "                                 \
+                            "call to function \"%s\".",                        \
+                            #err, __func__);                                   \
+                }                                                              \
             }                                                                  \
+            aererr = (err);                                                    \
             return errRet;                                                     \
         }                                                                      \
     } while (0)

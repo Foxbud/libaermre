@@ -382,7 +382,7 @@ AER_EXPORT bool AERConfGetBool(const char *key) {
     EnsureLookup(entry);
     EnsureTypeScalar(entry, CONF_BOOL);
 
-    return entry->value.b;
+    Ok(entry->value.b);
 #undef errRet
 }
 
@@ -397,7 +397,7 @@ AER_EXPORT size_t AERConfGetBools(const char *key, size_t bufSize,
     EnsureLookup(entry);
     EnsureTypeArr(entry, CONF_BOOL);
     if (entry->type == CONF_NULL)
-        return 0;
+        Ok(0);
 
     FoxArray *array = entry->value.a;
     size_t numElems = FoxArrayMSize(bool, array);
@@ -405,7 +405,7 @@ AER_EXPORT size_t AERConfGetBools(const char *key, size_t bufSize,
     for (unsigned int idx = 0; idx < numToWrite; idx++)
         boolBuf[idx] = *FoxArrayMIndex(bool, array, idx);
 
-    return numElems;
+    Ok(numElems);
 #undef errRet
 }
 
@@ -418,7 +418,7 @@ AER_EXPORT int64_t AERConfGetInt(const char *key) {
     EnsureLookup(entry);
     EnsureTypeScalar(entry, CONF_INT);
 
-    return entry->value.i;
+    Ok(entry->value.i);
 #undef errRet
 }
 
@@ -433,7 +433,7 @@ AER_EXPORT size_t AERConfGetInts(const char *key, size_t bufSize,
     EnsureLookup(entry);
     EnsureTypeArr(entry, CONF_INT);
     if (entry->type == CONF_NULL)
-        return 0;
+        Ok(0);
 
     FoxArray *array = entry->value.a;
     size_t numElems = FoxArrayMSize(int64_t, array);
@@ -441,7 +441,7 @@ AER_EXPORT size_t AERConfGetInts(const char *key, size_t bufSize,
     for (unsigned int idx = 0; idx < numToWrite; idx++)
         intBuf[idx] = *FoxArrayMIndex(int64_t, array, idx);
 
-    return numElems;
+    Ok(numElems);
 #undef errRet
 }
 
@@ -454,7 +454,7 @@ AER_EXPORT double AERConfGetDouble(const char *key) {
     EnsureLookup(entry);
     EnsureTypeScalar(entry, CONF_DOUBLE);
 
-    return entry->value.d;
+    Ok(entry->value.d);
 #undef errRet
 }
 
@@ -469,7 +469,7 @@ AER_EXPORT size_t AERConfGetDoubles(const char *key, size_t bufSize,
     EnsureLookup(entry);
     EnsureTypeArr(entry, CONF_DOUBLE);
     if (entry->type == CONF_NULL)
-        return 0;
+        Ok(0);
 
     FoxArray *array = entry->value.a;
     size_t numElems = FoxArrayMSize(double, array);
@@ -477,7 +477,7 @@ AER_EXPORT size_t AERConfGetDoubles(const char *key, size_t bufSize,
     for (unsigned int idx = 0; idx < numToWrite; idx++)
         doubleBuf[idx] = *FoxArrayMIndex(double, array, idx);
 
-    return numElems;
+    Ok(numElems);
 #undef errRet
 }
 
@@ -490,7 +490,7 @@ AER_EXPORT const char *AERConfGetString(const char *key) {
     EnsureLookup(entry);
     EnsureTypeScalar(entry, CONF_STRING);
 
-    return entry->value.s;
+    Ok(entry->value.s);
 #undef errRet
 }
 
@@ -505,7 +505,7 @@ AER_EXPORT size_t AERConfGetStrings(const char *key, size_t bufSize,
     EnsureLookup(entry);
     EnsureTypeArr(entry, CONF_STRING);
     if (entry->type == CONF_NULL)
-        return 0;
+        Ok(0);
 
     FoxArray *array = entry->value.a;
     size_t numElems = FoxArrayMSize(char *, array);
@@ -513,6 +513,6 @@ AER_EXPORT size_t AERConfGetStrings(const char *key, size_t bufSize,
     for (unsigned int idx = 0; idx < numToWrite; idx++)
         strBuf[idx] = *FoxArrayMIndex(char *, array, idx);
 
-    return numElems;
+    Ok(numElems);
 #undef errRet
 }

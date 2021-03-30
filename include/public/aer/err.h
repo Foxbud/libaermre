@@ -31,40 +31,60 @@
  */
 typedef enum AERErrCode {
     /**
-     * @brief Function did not report an error.
+     * @since 1.3.0
      */
-    AER_OK,
+    AER_TRY = -1,
+    /**
+     * @brief Function did not report an error.
+     *
+     * @since 1.0.0
+     */
+    AER_OK = 0,
     /**
      * @brief Function received `NULL` pointer argument.
+     *
+     * @since 1.0.0
      */
-    AER_NULL_ARG,
+    AER_NULL_ARG = 1,
     /**
      * @brief Function called at incorrect stage of runtime execution.
+     *
+     * @since 1.0.0
      */
-    AER_SEQ_BREAK,
+    AER_SEQ_BREAK = 2,
     /**
      * @brief Function unable to allocate necessary memory required for proper
      * execution.
      *
      * @deprecated Since 1.1.0.
+     *
+     * @since 1.0.0
      */
-    AER_OUT_OF_MEM,
+    AER_OUT_OF_MEM = 3,
     /**
      * @brief Function called with an invalid index, ID or key.
+     *
+     * @since 1.0.0
      */
-    AER_FAILED_LOOKUP,
+    AER_FAILED_LOOKUP = 4,
     /**
      * @brief Function unable to parse resource.
+     *
+     * @since 1.0.0
      */
-    AER_FAILED_PARSE,
+    AER_FAILED_PARSE = 5,
     /**
      * @brief Function unable to read file.
+     *
+     * @since 1.0.0
      */
-    AER_BAD_FILE,
+    AER_BAD_FILE = 6,
     /**
      * @brief Function encountered an invalid value or combination of values.
+     *
+     * @since 1.0.0
      */
-    AER_BAD_VAL
+    AER_BAD_VAL = 7
 } AERErrCode;
 
 /* ----- PUBLIC GLOBALS ----- */
