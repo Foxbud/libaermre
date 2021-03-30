@@ -49,56 +49,52 @@ void RandDestructor(void) {
 
 /* ------ PUBLIC FUNCTIONS ----- */
 
-AER_EXPORT uint64_t AERRandUInt(void) {
-    return FoxRandUInt((FoxPRNG *)&randPRNG);
-}
+AER_EXPORT uint64_t AERRandUInt(void) { Ok(FoxRandUInt((FoxPRNG *)&randPRNG)); }
 
 AER_EXPORT uint64_t AERRandUIntRange(uint64_t min, uint64_t max) {
 #define errRet 0
     EnsureMaxExc(min, max);
 
-    return FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max);
+    Ok(FoxRandUIntRange((FoxPRNG *)&randPRNG, min, max));
 #undef errRet
 }
 
-AER_EXPORT int64_t AERRandInt(void) { return FoxRandInt((FoxPRNG *)&randPRNG); }
+AER_EXPORT int64_t AERRandInt(void) { Ok(FoxRandInt((FoxPRNG *)&randPRNG)); }
 
 AER_EXPORT int64_t AERRandIntRange(int64_t min, int64_t max) {
 #define errRet 0
     EnsureMaxExc(min, max);
 
-    return FoxRandIntRange((FoxPRNG *)&randPRNG, min, max);
+    Ok(FoxRandIntRange((FoxPRNG *)&randPRNG, min, max));
 #undef errRet
 }
 
-AER_EXPORT float AERRandFloat(void) {
-    return FoxRandFloat((FoxPRNG *)&randPRNG);
-}
+AER_EXPORT float AERRandFloat(void) { Ok(FoxRandFloat((FoxPRNG *)&randPRNG)); }
 
 AER_EXPORT float AERRandFloatRange(float min, float max) {
 #define errRet 0.0f
     EnsureMaxExc(min, max);
 
-    return FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max);
+    Ok(FoxRandFloatRange((FoxPRNG *)&randPRNG, min, max));
 #undef errRet
 }
 
 AER_EXPORT double AERRandDouble(void) {
-    return FoxRandDouble((FoxPRNG *)&randPRNG);
+    Ok(FoxRandDouble((FoxPRNG *)&randPRNG));
 }
 
 AER_EXPORT double AERRandDoubleRange(double min, double max) {
 #define errRet 0.0
     EnsureMaxExc(min, max);
 
-    return FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max);
+    Ok(FoxRandDoubleRange((FoxPRNG *)&randPRNG, min, max));
 #undef errRet
 }
 
-AER_EXPORT bool AERRandBool(void) { return FoxRandBool((FoxPRNG *)&randPRNG); }
+AER_EXPORT bool AERRandBool(void) { Ok(FoxRandBool((FoxPRNG *)&randPRNG)); }
 
 AER_EXPORT AERRandGen *AERRandGenNew(uint64_t seed) {
-    return FoxXoshiro256SSNew(seed);
+    Ok(FoxXoshiro256SSNew(seed));
 }
 
 AER_EXPORT void AERRandGenFree(AERRandGen *gen) {
@@ -107,7 +103,7 @@ AER_EXPORT void AERRandGenFree(AERRandGen *gen) {
 
     FoxXoshiro256SSFree(gen);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -117,7 +113,7 @@ AER_EXPORT void AERRandGenSeed(AERRandGen *gen, uint64_t seed) {
 
     FoxXoshiro256SSSeed(gen, seed);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -125,7 +121,7 @@ AER_EXPORT uint64_t AERRandGenUInt(AERRandGen *gen) {
 #define errRet 0
     EnsureArg(gen);
 
-    return FoxRandUInt((FoxPRNG *)&gen);
+    Ok(FoxRandUInt((FoxPRNG *)&gen));
 #undef errRet
 }
 
@@ -135,7 +131,7 @@ AER_EXPORT uint64_t AERRandGenUIntRange(AERRandGen *gen, uint64_t min,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    return FoxRandUIntRange((FoxPRNG *)&gen, min, max);
+    Ok(FoxRandUIntRange((FoxPRNG *)&gen, min, max));
 #undef errRet
 }
 
@@ -143,7 +139,7 @@ AER_EXPORT int64_t AERRandGenInt(AERRandGen *gen) {
 #define errRet 0
     EnsureArg(gen);
 
-    return FoxRandFloat((FoxPRNG *)&gen);
+    Ok(FoxRandFloat((FoxPRNG *)&gen));
 #undef errRet
 }
 
@@ -153,7 +149,7 @@ AER_EXPORT int64_t AERRandGenIntRange(AERRandGen *gen, int64_t min,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    return FoxRandIntRange((FoxPRNG *)&gen, min, max);
+    Ok(FoxRandIntRange((FoxPRNG *)&gen, min, max));
 #undef errRet
 }
 
@@ -161,7 +157,7 @@ AER_EXPORT float AERRandGenFloat(AERRandGen *gen) {
 #define errRet 0.0f
     EnsureArg(gen);
 
-    return FoxRandFloat((FoxPRNG *)&gen);
+    Ok(FoxRandFloat((FoxPRNG *)&gen));
 #undef errRet
 }
 
@@ -170,7 +166,7 @@ AER_EXPORT float AERRandGenFloatRange(AERRandGen *gen, float min, float max) {
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    return FoxRandFloatRange((FoxPRNG *)&gen, min, max);
+    Ok(FoxRandFloatRange((FoxPRNG *)&gen, min, max));
 #undef errRet
 }
 
@@ -178,7 +174,7 @@ AER_EXPORT double AERRandGenDouble(AERRandGen *gen) {
 #define errRet 0.0
     EnsureArg(gen);
 
-    return FoxRandDouble((FoxPRNG *)&gen);
+    Ok(FoxRandDouble((FoxPRNG *)&gen));
 #undef errRet
 }
 
@@ -188,7 +184,7 @@ AER_EXPORT double AERRandGenDoubleRange(AERRandGen *gen, double min,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    return FoxRandDoubleRange((FoxPRNG *)&gen, min, max);
+    Ok(FoxRandDoubleRange((FoxPRNG *)&gen, min, max));
 #undef errRet
 }
 
@@ -196,6 +192,6 @@ AER_EXPORT bool AERRandGenBool(AERRandGen *gen) {
 #define errRet false
     EnsureArg(gen);
 
-    return FoxRandBool((FoxPRNG *)&gen);
+    Ok(FoxRandBool((FoxPRNG *)&gen));
 #undef errRet
 }
