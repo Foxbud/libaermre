@@ -57,7 +57,7 @@ void OptionConstructor(void) {
     LogInfo("Initializing options...");
 
     /* Mod names. */
-    aererr = AER_OK;
+    aererr = AER_TRY;
     opts.numModNames = AERConfGetStrings("mods", 0, NULL);
     CheckErrors("mods");
     opts.modNames = malloc(opts.numModNames * sizeof(const char *));
