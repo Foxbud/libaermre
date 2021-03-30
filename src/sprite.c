@@ -93,7 +93,7 @@ AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
 
     LogInfo("Successfully registered sprite to index %i.", spriteIdx);
 
-    return spriteIdx;
+    Ok(spriteIdx);
 #undef errRet
 }
 
@@ -115,7 +115,7 @@ AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
 
     LogInfo("Successfully replaced sprite at index %i.", spriteIdx);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -123,7 +123,7 @@ AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
 #define errRet 0
     EnsureStage(STAGE_SPRITE_REG);
 
-    return hldvars.spriteTable->size;
+    Ok(hldvars.spriteTable->size);
 #undef errRet
 }
 
@@ -136,7 +136,7 @@ AER_EXPORT int32_t AERSpriteGetByName(const char *name) {
         FoxMapMIndex(const char *, int32_t, &spriteNames, name);
     EnsureLookup(spriteIdx);
 
-    return *spriteIdx;
+    Ok(*spriteIdx);
 #undef errRet
 }
 
@@ -147,6 +147,6 @@ AER_EXPORT const char *AERSpriteGetName(int32_t spriteIdx) {
     HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
     EnsureLookup(sprite);
 
-    return sprite->name;
+    Ok(sprite->name);
 #undef errRet
 }
