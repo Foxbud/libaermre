@@ -71,7 +71,7 @@ AER_EXPORT int32_t AERRoomGetCurrent(void) {
 #define errRet AER_ROOM_NULL
     EnsureStage(STAGE_ACTION);
 
-    return *hldvars.roomIndexCurrent;
+    Ok(*hldvars.roomIndexCurrent);
 #undef errRet
 }
 
@@ -82,7 +82,7 @@ AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
 
     hldfuncs.actionRoomGoto(roomIdx, 0);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -94,7 +94,7 @@ AER_EXPORT int32_t AERRoomGetByName(const char *name) {
     int32_t *roomIdx = FoxMapMIndex(const char *, int32_t, &roomNames, name);
     EnsureLookup(roomIdx);
 
-    return *roomIdx;
+    Ok(*roomIdx);
 #undef errRet
 }
 
@@ -105,6 +105,6 @@ AER_EXPORT const char *AERRoomGetName(int32_t roomIdx) {
     HLDRoom *room = HLDRoomLookup(roomIdx);
     EnsureLookup(room);
 
-    return room->name;
+    Ok(room->name);
 #undef errRet
 }
