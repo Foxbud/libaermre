@@ -25,7 +25,7 @@ AER_EXPORT int32_t AERFontGetCurrent(void) {
 #define errRet AER_FONT_NULL
     EnsureStagePast(STAGE_FONT_REG);
 
-    return *hldvars.fontIndexCurrent;
+    Ok(*hldvars.fontIndexCurrent);
 #undef errRet
 }
 
@@ -36,7 +36,7 @@ AER_EXPORT void AERFontSetCurrent(int32_t fontIdx) {
 
     hldfuncs.actionDrawSetFont(fontIdx);
 
-    return;
+    Ok();
 #undef errRet
 }
 
@@ -54,7 +54,7 @@ AER_EXPORT int32_t AERFontRegister(const char *filename, size_t size, bool bold,
 
     LogInfo("Successfully registered font to index %i.", fontIdx);
 
-    return fontIdx;
+    Ok(fontIdx);
 #undef errRet
 }
 
@@ -62,7 +62,7 @@ AER_EXPORT size_t AERFontGetNumRegistered(void) {
 #define errRet 0
     EnsureStage(STAGE_FONT_REG);
 
-    return hldvars.fontTable->size;
+    Ok(hldvars.fontTable->size);
 #undef errRet
 }
 
@@ -73,7 +73,7 @@ AER_EXPORT const char *AERFontGetName(int32_t fontIdx) {
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
 
-    return font->fontname;
+    Ok(font->fontname);
 #undef errRet
 }
 
@@ -84,7 +84,7 @@ AER_EXPORT size_t AERFontGetSize(int32_t fontIdx) {
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
 
-    return font->size;
+    Ok(font->size);
 #undef errRet
 }
 
@@ -95,7 +95,7 @@ AER_EXPORT bool AERFontGetBold(int32_t fontIdx) {
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
 
-    return font->bold;
+    Ok(font->bold);
 #undef errRet
 }
 
@@ -106,7 +106,7 @@ AER_EXPORT bool AERFontGetItalic(int32_t fontIdx) {
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
 
-    return font->italic;
+    Ok(font->italic);
 #undef errRet
 }
 
@@ -117,7 +117,7 @@ AER_EXPORT int32_t AERFontGetFirst(int32_t fontIdx) {
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
 
-    return font->first;
+    Ok(font->first);
 #undef errRet
 }
 
@@ -128,6 +128,6 @@ AER_EXPORT int32_t AERFontGetLast(int32_t fontIdx) {
     HLDFont *font = HLDFontLookup(fontIdx);
     EnsureLookup(font);
 
-    return font->last;
+    Ok(font->last);
 #undef errRet
 }
