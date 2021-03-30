@@ -92,15 +92,7 @@ __attribute__((destructor)) static void CoreDestructor(void) {
     return;
 }
 
-/* ----- UNLISTED FUNCTIONS ----- */
-
-AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
-    HLDRecordEngineRefs(&vars, &funcs);
-
-    InstanceManRecordHLDLocals();
-
-    ModManConstructor();
-    SaveManConstructor();
+static void RegisterAssets(void) {
     size_t numMods = ModManGetNumMods();
 
     /* Build sprite name table. */
@@ -181,7 +173,23 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
     return;
 }
 
+/* ----- UNLISTED FUNCTIONS ----- */
+
+AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
+    HLDRecordEngineRefs(&vars, &funcs);
+
+    InstanceManRecordHLDLocals();
+
+    ModManConstructor();
+    SaveManConstructor();
+
+    return;
+}
+
 AER_EXPORT void AERHookStep(void) {
+    if (*hldvars.numSteps == 1)
+        RegisterAssets();
+
     /* Record user input. */
     InputManRecordUserInput();
 
