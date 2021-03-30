@@ -765,9 +765,34 @@ int32_t AERObjectGetParent(int32_t objIdx);
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
  * @since 1.0.0
+ *
+ * @sa AERObjectIterChildren
  */
 size_t AERObjectGetChildren(int32_t objIdx, bool recursive, size_t bufSize,
                             int32_t *objBuf);
+
+/**
+ * @brief Query an iterator yielding the children of an object.
+ *
+ * This function is the iterator version of AERObjectGetChildren. The iterator
+ * returned by this function should later be destroyed using AERIterDestroy.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] recursive Whether to query only direct (`false`) or both direct
+ * and indirect (`true`) children.
+ *
+ * @return An iterator yielding child objects. See @ref IterUsage for
+ * information about using iterators.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.3.0
+ *
+ * @sa AERObjectGetChildren
+ */
+bool (*AERObjectIterChildren(int32_t objIdx,
+                             bool recursive))(int32_t *childIdx);
 
 /**
  * @brief Query whether or not an object has collision checking enabled.
@@ -777,7 +802,8 @@ size_t AERObjectGetChildren(int32_t objIdx, bool recursive, size_t bufSize,
  * @return Whether object has collision checking enabled or `false` if
  * unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_SEQ_BREAK if called before start of object registration
+ * stage.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
  * @since 1.0.0

@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "aer/err.h"
-#include "internal/err.h"
-#include "internal/export.h"
+#ifndef INTERNAL_ITER_H
+#define INTERNAL_ITER_H
 
-/* ----- PUBLIC GLOBALS ----- */
+/* ----- INTERNAL TYPES ----- */
 
-AER_EXPORT AERErrCode aererr = AER_OK;
+typedef struct IterBaseEnv {
+    void (*destructor)(void *env);
+} IterBaseEnv;
+
+/* ----- INTERNAL FUNCTIONS ----- */
+
+void *IterCreate(void *callback, void *env, void (*destructor)(void *env));
+
+#endif /* INTERNAL_ITER_H */

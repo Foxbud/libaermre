@@ -13,10 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "aer/err.h"
+#include <assert.h>
+
+#include "cclosure.h"
+
+#include "aer/iter.h"
 #include "internal/err.h"
 #include "internal/export.h"
+#include "internal/iter.h"
 
-/* ----- PUBLIC GLOBALS ----- */
+/* ----- INTERNAL FUNCTIONS ----- */
 
-AER_EXPORT AERErrCode aererr = AER_OK;
+void *IterCreate(void *callback, void *env, void (*destructor)(void *env)) {
+    assert(callback);
+    assert(env);
+
+    ((IterBaseEnv *)env)->destructor = destructor;
+    void *iter = CClosureNew(callback, env, false);
+    assert(iter);
+
+    return iter;
+}
+
+/* ----- PUBLIC FUNCTIONS ----- */
+
+AER_EXPORT void AERIterDestroy(void *iter) {
+#define errRet
+    Ensure(CClosureCheck(iter), AER_BAD_VAL);
+
+    IterBaseEnv *env = CClosureFree(iter);
+    env->destructor(env);
+
+    Ok();
+#undef errRet
+}

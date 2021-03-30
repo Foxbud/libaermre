@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "cclosure.h"
+
 #include "foxutils/arraymacs.h"
 #include "foxutils/mapmacs.h"
 #include "foxutils/math.h"
@@ -29,9 +31,19 @@
 #include "internal/event.h"
 #include "internal/export.h"
 #include "internal/hld.h"
+#include "internal/iter.h"
 #include "internal/log.h"
 #include "internal/mod.h"
 #include "internal/object.h"
+
+/* ----- PRIVATE TYPES ----- */
+
+typedef struct IterChildrenEnv {
+    IterBaseEnv base;
+    size_t numChildren;
+    FoxArray *children;
+    size_t nextIdx;
+} IterChildrenEnv;
 
 /* ----- PRIVATE GLOBALS ----- */
 
@@ -42,6 +54,26 @@ static FoxMap flatObjTree = {0};
 static FoxMap objNames = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
+
+static void IterChildrenEnvFree(void *iter) {
+    *(IterChildrenEnv *)iter = (IterChildrenEnv){0};
+    free(iter);
+
+    return;
+}
+
+static bool IterChildrenEnvNext(CClosureCtx ctx, int32_t *childIdx) {
+#define env ((IterChildrenEnv *)ctx.env)
+    if (env->nextIdx >= env->numChildren)
+        return false;
+
+    if (childIdx)
+        *childIdx = *FoxArrayMIndex(int32_t, env->children, env->nextIdx);
+    env->nextIdx++;
+
+    return true;
+#undef env
+}
 
 static void ObjTreeGetAllChildren(FoxArray *directChildren,
                                   FoxArray *allChildren) {
@@ -252,7 +284,7 @@ AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
     EnsureLookup(obj);
 
     FoxArray *children = FoxMapMIndex(
-        int32_t, FoxArray, (recursive ? &flatObjTree : &objTree), objIdx);
+        int32_t, FoxArray, ((recursive) ? &flatObjTree : &objTree), objIdx);
     if (!children)
         Ok(0);
     size_t numChildren = FoxArrayMSize(int32_t, children);
@@ -262,6 +294,26 @@ AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
         objBuf[idx] = *FoxArrayMIndex(int32_t, children, idx);
 
     Ok(numChildren);
+#undef errRet
+}
+
+AER_EXPORT bool (*AERObjectIterChildren(int32_t objIdx,
+                                        bool recursive))(int32_t *childIdx) {
+#define errRet NULL
+    EnsureStage(STAGE_OBJECT_REG);
+
+    HLDObject *obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+
+    IterChildrenEnv *env = malloc(sizeof(IterChildrenEnv));
+    assert(env);
+    env->nextIdx = 0;
+    env->children = FoxMapMIndex(
+        int32_t, FoxArray, ((recursive) ? &flatObjTree : &objTree), objIdx);
+    env->numChildren =
+        (env->children) ? FoxArrayMSize(int32_t, env->children) : 0;
+
+    Ok(IterCreate(IterChildrenEnvNext, env, IterChildrenEnvFree));
 #undef errRet
 }
 
