@@ -86,7 +86,7 @@ AER_EXPORT const bool *AERInputGetKeysPressed(void) {
 #define errRet NULL
     EnsureStage(STAGE_ACTION);
 
-    return keysPressedTable;
+    Ok(keysPressedTable);
 #undef errRet
 }
 
@@ -94,7 +94,7 @@ AER_EXPORT const bool *AERInputGetKeysHeld(void) {
 #define errRet NULL
     EnsureStage(STAGE_ACTION);
 
-    return keysHeldTable;
+    Ok(keysHeldTable);
 #undef errRet
 }
 
@@ -102,7 +102,7 @@ AER_EXPORT const bool *AERInputGetKeysReleased(void) {
 #define errRet NULL
     EnsureStage(STAGE_ACTION);
 
-    return keysReleasedTable;
+    Ok(keysReleasedTable);
 #undef errRet
 }
 
@@ -110,7 +110,7 @@ AER_EXPORT const bool *AERInputGetMouseButtonsPressed(void) {
 #define errRet NULL
     EnsureStage(STAGE_ACTION);
 
-    return mouseButtonsPressedTable;
+    Ok(mouseButtonsPressedTable);
 #undef errRet
 }
 
@@ -118,7 +118,7 @@ AER_EXPORT const bool *AERInputGetMouseButtonsHeld(void) {
 #define errRet NULL
     EnsureStage(STAGE_ACTION);
 
-    return mouseButtonsHeldTable;
+    Ok(mouseButtonsHeldTable);
 #undef errRet
 }
 
@@ -126,7 +126,7 @@ AER_EXPORT const bool *AERInputGetMouseButtonsReleased(void) {
 #define errRet NULL
     EnsureStage(STAGE_ACTION);
 
-    return mouseButtonsReleasedTable;
+    Ok(mouseButtonsReleasedTable);
 #undef errRet
 }
 
@@ -140,6 +140,6 @@ AER_EXPORT void AERInputGetMousePosition(uint32_t *x, uint32_t *y) {
     if (y)
         *y = mousePosY;
 
-    return;
+    Ok();
 #undef errRet
 }
