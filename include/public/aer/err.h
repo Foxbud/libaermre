@@ -31,11 +31,18 @@
  */
 typedef enum AERErrCode {
     /**
+     * @brief Flag that informs the MRE that the next public function call is
+     * being error-checked.
+     *
      * @since 1.3.0
      */
     AER_TRY = -1,
     /**
      * @brief Function did not report an error.
+     *
+     * @deprecated Partially since 1.3.0. This symbol, itself, has not been
+     * deprecated, but setting ::aererr to it when error-checking a function
+     * *is* deprecated. Instead, use ::AER_TRY.
      *
      * @since 1.0.0
      */
@@ -92,7 +99,7 @@ typedef enum AERErrCode {
 /**
  * @brief Error state of most recently called MRE function.
  *
- * @note Always reset this global to ::AER_OK before calling the
+ * @note Always reset this global to ::AER_TRY before calling the
  * function to be error-checked.
  *
  * @since 1.0.0
