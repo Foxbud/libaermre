@@ -1,8 +1,8 @@
 {
     // MRE settings.
     "mre": {
-        // Make sure to surround each mod name with escaped double quotes.
-        "launchMods": []
+        // Names of all extra mods to launch when debugging (must be installed).
+        "extraModNames": []
     },
     // VSCode settings.
     "editor.formatOnType": false,
@@ -56,6 +56,7 @@
     ],
     "files.associations": {
         "*.h": "c",
+        "*.toml.in": "toml",
     },
     "C_Cpp.autoAddFileAssociations": false
 }

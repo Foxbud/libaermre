@@ -102,9 +102,24 @@
         },
         {
             "label": "Prepare Launch",
+            "type": "shell",
+            "command": [
+                "declare EXTRA_MODS=\"${EXTRA_MOD_NAMES//,/ }\" && ",
+                "declare EXTRA_MOD_LIST=\"$(for MOD in $EXTRA_MODS; do echo -n \"\\\"$MOD\\\",\"; done)\" && ",
+                "mkdir -p ${workspaceRoot}/build/extralib ${env:AER_GAMEDIR}/assets/mod ${env:AER_GAMEDIR}/aer && ",
+                "for MOD in $EXTRA_MODS; ",
+                "do ln -sft \"${workspaceRoot}/build/extralib/\" $(find ${env:AER_GAMEDIR}/aer/mods/$MOD/lib -type f,l) && ",
+                "ln -sfT \"${env:AER_GAMEDIR}/aer/mods/$MOD/assets\" \"${env:AER_GAMEDIR}/assets/mod/$MOD\"; done && ",
+                "sed -e \"s/\\${extraModNames}/$EXTRA_MOD_LIST/g\" ",
+                "${workspaceRoot}/.vscode/aer_config.toml.in >${env:AER_GAMEDIR}/aer/conf.toml",
+            ],
+            "options": {
+                "env": {
+                    "EXTRA_MOD_NAMES": "${config:mre.extraModNames}",
+                }
+            },
             "dependsOn": [
-                "Build Debug",
-                "Create AER Configuration"
+                "Build Debug"
             ],
             "presentation": {
                 "echo": true,
@@ -117,63 +132,8 @@
         },
         {
             "label": "Clean Launch",
-            "dependsOn": [
-                "Clean AER Configuration"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "never",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
-            }
-        },
-        {
-            "label": "Ensure AER Directory",
             "type": "shell",
-            "command": "mkdir",
-            "args": [
-                "-p",
-                "${env:AER_GAMEDIR}/aer"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "never",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
-            }
-        },
-        {
-            "label": "Create AER Configuration",
-            "type": "shell",
-            "command": "echo",
-            "args": [
-                "mre.mods = [${config:mre.launchMods}]",
-                ">${env:AER_GAMEDIR}/aer/conf.toml"
-            ],
-            "dependsOn": [
-                "Ensure AER Directory"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "never",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
-            }
-        },
-        {
-            "label": "Clean AER Configuration",
-            "type": "shell",
-            "command": "rm",
-            "args": [
-                "-f",
-                "${env:AER_GAMEDIR}/aer/conf.toml"
-            ],
+            "command": "rm -rf ${workspaceRoot}/build/extralib ${env:AER_GAMEDIR}/assets/mod ${env:AER_GAMEDIR}/aer/conf.toml",
             "presentation": {
                 "echo": true,
                 "reveal": "never",
