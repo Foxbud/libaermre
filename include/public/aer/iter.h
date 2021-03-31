@@ -5,6 +5,18 @@
  *
  * @subsubsection IterUsage Iterator Usage
  *
+ * An iterator is a callback function that returns a boolean and accepts one or
+ * more output parameters:
+ *
+ * @code{.c}
+ * bool iterator(TYPE *element);
+ * @endcode
+ *
+ * Calling the iterator queries the "next" element(s) in the list of elements
+ * that the iterator is iterating over. The returned boolean notifies the caller
+ * wether the next element(s) was return via the output parameter(s) (`true`) or
+ * the end of the iterator was reached (`false`).
+ *
  * @since 1.3.0
  *
  * @sa AERObjectIterChildren
