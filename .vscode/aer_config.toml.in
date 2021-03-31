@@ -1,0 +1,4 @@
+[mre]
+mods = [
+    ${extraModNames}
+]
