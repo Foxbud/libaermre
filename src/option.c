@@ -27,25 +27,26 @@ Options opts = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static void CheckErrors(const char *key) {
+static void CheckErrors(const char* key) {
     switch (aererr) {
-    case AER_OK:
-        break;
+        case AER_OK:
+            break;
 
-    case AER_FAILED_LOOKUP:
-        LogErr("Configuration key \"%s\" is undefined.", key);
-        abort();
-        break;
+        case AER_FAILED_LOOKUP:
+            LogErr("Configuration key \"%s\" is undefined.", key);
+            abort();
+            break;
 
-    case AER_FAILED_PARSE:
-        LogErr("Could not parse configuration key \"%s\".", key);
-        abort();
-        break;
+        case AER_FAILED_PARSE:
+            LogErr("Could not parse configuration key \"%s\".", key);
+            abort();
+            break;
 
-    default:
-        LogErr("Unknown error while trying to read configuration key \"%s\".",
-               key);
-        abort();
+        default:
+            LogErr(
+                "Unknown error while trying to read configuration key \"%s\".",
+                key);
+            abort();
     }
 
     return;
@@ -60,7 +61,7 @@ void OptionConstructor(void) {
     aererr = AER_TRY;
     opts.numModNames = AERConfGetStrings("mods", 0, NULL);
     CheckErrors("mods");
-    opts.modNames = malloc(opts.numModNames * sizeof(const char *));
+    opts.modNames = malloc(opts.numModNames * sizeof(const char*));
     assert(opts.modNames);
     AERConfGetStrings("mods", opts.numModNames, opts.modNames);
     CheckErrors("mods");

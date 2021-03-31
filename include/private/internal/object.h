@@ -24,9 +24,9 @@
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-FoxArray *ObjectManGetDirectChildren(int32_t objIdx);
+FoxArray* ObjectManGetDirectChildren(int32_t objIdx);
 
-FoxArray *ObjectManGetAllChildren(int32_t objIdx);
+FoxArray* ObjectManGetAllChildren(int32_t objIdx);
 
 void ObjectManBuildNameTable(void);
 

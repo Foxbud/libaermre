@@ -21,12 +21,12 @@
 
 /* ----- PRIVATE MACROS ----- */
 
-#define CheckVar(var)                                                          \
-    do {                                                                       \
-        if (!(var)) {                                                          \
-            LogErr("Engine variable failed consistency check \"%s\".", #var);  \
-            abort();                                                           \
-        }                                                                      \
+#define CheckVar(var)                                                         \
+    do {                                                                      \
+        if (!(var)) {                                                         \
+            LogErr("Engine variable failed consistency check \"%s\".", #var); \
+            abort();                                                          \
+        }                                                                     \
     } while (0)
 
 /* ----- INTERNAL GLOBALS ----- */
@@ -37,8 +37,8 @@ HLDFunctions hldfuncs = {0};
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-HLDView *HLDViewLookup(uint32_t viewIdx) {
-    HLDView *result = NULL;
+HLDView* HLDViewLookup(uint32_t viewIdx) {
+    HLDView* result = NULL;
 
     if (viewIdx < 8)
         result = (*hldvars.roomCurrent)->views[viewIdx];
@@ -46,40 +46,40 @@ HLDView *HLDViewLookup(uint32_t viewIdx) {
     return result;
 }
 
-HLDSprite *HLDSpriteLookup(int32_t spriteIdx) {
-    HLDSprite *result = NULL;
+HLDSprite* HLDSpriteLookup(int32_t spriteIdx) {
+    HLDSprite* result = NULL;
 
     if (spriteIdx >= 0 && (uint32_t)spriteIdx < hldvars.spriteTable->size)
-        result = ((HLDSprite **)hldvars.spriteTable->elements)[spriteIdx];
+        result = ((HLDSprite**)hldvars.spriteTable->elements)[spriteIdx];
 
     return result;
 }
 
-HLDFont *HLDFontLookup(int32_t fontIdx) {
-    HLDFont *result = NULL;
+HLDFont* HLDFontLookup(int32_t fontIdx) {
+    HLDFont* result = NULL;
 
     if (fontIdx >= 0 && (uint32_t)fontIdx < hldvars.fontTable->size)
-        result = ((HLDFont **)hldvars.fontTable->elements)[fontIdx];
+        result = ((HLDFont**)hldvars.fontTable->elements)[fontIdx];
 
     return result;
 }
 
-HLDRoom *HLDRoomLookup(int32_t roomIdx) {
-    HLDRoom *result = NULL;
+HLDRoom* HLDRoomLookup(int32_t roomIdx) {
+    HLDRoom* result = NULL;
 
     if (roomIdx >= 0 && (uint32_t)roomIdx < hldvars.roomTable->size)
-        result = ((HLDRoom **)hldvars.roomTable->elements)[roomIdx];
+        result = ((HLDRoom**)hldvars.roomTable->elements)[roomIdx];
 
     return result;
 }
 
-void *HLDOpenHashTableLookup(HLDOpenHashTable *table, int32_t key) {
+void* HLDOpenHashTableLookup(HLDOpenHashTable* table, int32_t key) {
     assert(table != NULL);
-    void *result = NULL;
+    void* result = NULL;
 
     if (key >= 0) {
         uint32_t idx = key & table->keyMask;
-        HLDOpenHashItem *item = table->slots[idx].first;
+        HLDOpenHashItem* item = table->slots[idx].first;
         while (item) {
             if (item->key == key) {
                 result = item->value;
@@ -93,15 +93,15 @@ void *HLDOpenHashTableLookup(HLDOpenHashTable *table, int32_t key) {
     return result;
 }
 
-void *HLDClosedHashTableLookup(HLDClosedHashTable *table, int32_t key) {
+void* HLDClosedHashTableLookup(HLDClosedHashTable* table, int32_t key) {
     assert(table != NULL);
-    void *result = NULL;
+    void* result = NULL;
     uint32_t keyMask = table->keyMask;
 
     if (key >= 0) {
         uint32_t origIdx = key & keyMask;
         uint32_t idx = origIdx;
-        HLDClosedHashSlot *slot = table->slots + idx;
+        HLDClosedHashSlot* slot = table->slots + idx;
         while (slot->value) {
             if (slot->key == key) {
                 result = slot->value;
@@ -118,10 +118,10 @@ void *HLDClosedHashTableLookup(HLDClosedHashTable *table, int32_t key) {
     return result;
 }
 
-HLDEvent *HLDEventNew(HLDNamedFunction *handler) {
+HLDEvent* HLDEventNew(HLDNamedFunction* handler) {
     assert(handler);
 
-    HLDEvent *event = malloc(sizeof(HLDEvent));
+    HLDEvent* event = malloc(sizeof(HLDEvent));
     assert(event);
 
     event->classDef = hldvars.eventClass;
@@ -160,10 +160,10 @@ HLDEvent *HLDEventNew(HLDNamedFunction *handler) {
     return event;
 }
 
-HLDEventWrapper *HLDEventWrapperNew(HLDEvent *event) {
+HLDEventWrapper* HLDEventWrapperNew(HLDEvent* event) {
     assert(event);
 
-    HLDEventWrapper *wrapper = malloc(sizeof(HLDEventWrapper));
+    HLDEventWrapper* wrapper = malloc(sizeof(HLDEventWrapper));
     assert(wrapper);
 
     wrapper->classDef = hldvars.eventWrapperClass;
@@ -174,7 +174,7 @@ HLDEventWrapper *HLDEventWrapperNew(HLDEvent *event) {
     return wrapper;
 }
 
-void HLDRecordEngineRefs(HLDVariables *vars, HLDFunctions *funcs) {
+void HLDRecordEngineRefs(HLDVariables* vars, HLDFunctions* funcs) {
     LogInfo("Checking engine variables...");
 
     CheckVar(vars->numSteps);

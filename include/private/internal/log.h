@@ -18,10 +18,10 @@
 
 /* ----- INTERNAL MACROS ----- */
 
-void LogInfo(const char *fmt, ...);
+void LogInfo(const char* fmt, ...);
 
-void LogWarn(const char *fmt, ...);
+void LogWarn(const char* fmt, ...);
 
-void LogErr(const char *fmt, ...);
+void LogErr(const char* fmt, ...);
 
 #endif /* INTERNAL_LOG_H */

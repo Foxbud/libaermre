@@ -79,7 +79,7 @@ int32_t AERSaveGetCurrentSlot(void);
  *
  * @since 1.2.0
  */
-size_t AERSaveGetKeys(size_t bufSize, const char **keyBuf);
+size_t AERSaveGetKeys(size_t bufSize, const char** keyBuf);
 
 /**
  * @brief Erase a value from the save file.
@@ -96,7 +96,7 @@ size_t AERSaveGetKeys(size_t bufSize, const char **keyBuf);
  *
  * @since 1.2.0
  */
-void AERSaveDestroy(const char *key);
+void AERSaveDestroy(const char* key);
 
 /**
  * @brief Query a double value from the save file.
@@ -116,7 +116,7 @@ void AERSaveDestroy(const char *key);
  *
  * @sa AERSaveSetDouble
  */
-double AERSaveGetDouble(const char *key);
+double AERSaveGetDouble(const char* key);
 
 /**
  * @brief Set a double value in the save file.
@@ -139,7 +139,7 @@ double AERSaveGetDouble(const char *key);
  *
  * @sa AERSaveGetDouble
  */
-void AERSaveSetDouble(const char *key, double value);
+void AERSaveSetDouble(const char* key, double value);
 
 /**
  * @brief Query a string value from the save file.
@@ -162,7 +162,7 @@ void AERSaveSetDouble(const char *key, double value);
  *
  * @sa AERSaveSetString
  */
-const char *AERSaveGetString(const char *key);
+const char* AERSaveGetString(const char* key);
 
 /**
  * @brief Set a string value in the save file.
@@ -184,6 +184,6 @@ const char *AERSaveGetString(const char *key);
  *
  * @sa AERSaveGetString
  */
-void AERSaveSetString(const char *key, const char *value);
+void AERSaveSetString(const char* key, const char* value);
 
 #endif /* AER_SAVE_H */

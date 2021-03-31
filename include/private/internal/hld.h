@@ -24,20 +24,20 @@
 
 /* ----- INTERNAL MACROS ----- */
 
-#define HLDPrimitiveMakeUndefined(name)                                        \
+#define HLDPrimitiveMakeUndefined(name) \
     HLDPrimitive name = {.type = HLD_PRIMITIVE_UNDEFINED}
 
-#define HLDPrimitiveMakeReal(name, initVal)                                    \
+#define HLDPrimitiveMakeReal(name, initVal) \
     HLDPrimitive name = {.value.r = (initVal), .type = HLD_PRIMITIVE_REAL}
 
-#define HLDPrimitiveMakeStringS(name, str, len)                                \
-    HLDPrimitiveString name##InnerValue = {                                    \
-        .chars = (str), .refs = 1, .length = (len)};                           \
-    HLDPrimitive name = {.value.p = &name##InnerValue,                         \
+#define HLDPrimitiveMakeStringS(name, str, len)        \
+    HLDPrimitiveString name##InnerValue = {            \
+        .chars = (str), .refs = 1, .length = (len)};   \
+    HLDPrimitive name = {.value.p = &name##InnerValue, \
                          .type = HLD_PRIMITIVE_STRING}
 
 #define HLDPrimitiveMakeStringH(name, str, len)                                \
-    HLDPrimitiveString *name##InnerValue = malloc(sizeof(HLDPrimitiveString)); \
+    HLDPrimitiveString* name##InnerValue = malloc(sizeof(HLDPrimitiveString)); \
     assert(name##InnerValue);                                                  \
     name##InnerValue->chars = (str);                                           \
     name##InnerValue->refs = 1;                                                \
@@ -45,36 +45,36 @@
     HLDPrimitive name = {.value.p = name##InnerValue,                          \
                          .type = HLD_PRIMITIVE_STRING}
 
-#define HLDAPICallAdv(api, target, other, ...)                                 \
-    ({                                                                         \
-        HLDPrimitive HLDAPICallAdv_argv[] = {__VA_ARGS__};                     \
-        HLDPrimitiveMakeUndefined(HLDAPICallAdv_result);                       \
-        (api)(&HLDAPICallAdv_result, (target), (other),                        \
-              sizeof(HLDAPICallAdv_argv) / sizeof(HLDPrimitive),               \
-              HLDAPICallAdv_argv);                                             \
-        HLDAPICallAdv_result;                                                  \
+#define HLDAPICallAdv(api, target, other, ...)                   \
+    ({                                                           \
+        HLDPrimitive HLDAPICallAdv_argv[] = {__VA_ARGS__};       \
+        HLDPrimitiveMakeUndefined(HLDAPICallAdv_result);         \
+        (api)(&HLDAPICallAdv_result, (target), (other),          \
+              sizeof(HLDAPICallAdv_argv) / sizeof(HLDPrimitive), \
+              HLDAPICallAdv_argv);                               \
+        HLDAPICallAdv_result;                                    \
     })
 
 #define HLDAPICall(api, ...) HLDAPICallAdv((api), NULL, NULL, ##__VA_ARGS__)
 
-#define HLDScriptCallAdv(script, target, other, ...)                           \
-    ({                                                                         \
-        HLDPrimitive *HLDScriptCallAdv_argv[] = {__VA_ARGS__};                 \
-        HLDPrimitiveMakeUndefined(HLDScriptCallAdv_result);                    \
-        (script)((target), (other), &HLDScriptCallAdv_result,                  \
-                 sizeof(HLDScriptCallAdv_argv) / sizeof(HLDPrimitive *),       \
-                 HLDScriptCallAdv_argv);                                       \
-        HLDScriptCallAdv_result;                                               \
+#define HLDScriptCallAdv(script, target, other, ...)                    \
+    ({                                                                  \
+        HLDPrimitive* HLDScriptCallAdv_argv[] = {__VA_ARGS__};          \
+        HLDPrimitiveMakeUndefined(HLDScriptCallAdv_result);             \
+        (script)((target), (other), &HLDScriptCallAdv_result,           \
+                 sizeof(HLDScriptCallAdv_argv) / sizeof(HLDPrimitive*), \
+                 HLDScriptCallAdv_argv);                                \
+        HLDScriptCallAdv_result;                                        \
     })
 
-#define HLDScriptCall(script, ...)                                             \
+#define HLDScriptCall(script, ...) \
     HLDScriptCallAdv((script), NULL, NULL, ##__VA_ARGS__)
 
-#define HLDObjectLookup(objIdx)                                                \
-    ((HLDObject *)HLDOpenHashTableLookup(*hldvars.objectTableHandle, (objIdx)))
+#define HLDObjectLookup(objIdx) \
+    ((HLDObject*)HLDOpenHashTableLookup(*hldvars.objectTableHandle, (objIdx)))
 
-#define HLDInstanceLookup(instId)                                              \
-    ((HLDInstance *)HLDOpenHashTableLookup(hldvars.instanceTable, (instId)))
+#define HLDInstanceLookup(instId) \
+    ((HLDInstance*)HLDOpenHashTableLookup(hldvars.instanceTable, (instId)))
 
 /* ----- INTERNAL TYPES ----- */
 
@@ -112,26 +112,26 @@ typedef enum HLDEventDrawType {
 } HLDEventDrawType;
 
 typedef struct HLDOpenHashItem {
-    struct HLDOpenHashItem *prev;
-    struct HLDOpenHashItem *next;
+    struct HLDOpenHashItem* prev;
+    struct HLDOpenHashItem* next;
     int32_t key;
-    void *value;
+    void* value;
 } HLDOpenHashItem;
 
 typedef struct HLDOpenHashSlot {
-    struct HLDOpenHashItem *first;
-    struct HLDOpenHashItem *last;
+    struct HLDOpenHashItem* first;
+    struct HLDOpenHashItem* last;
 } HLDOpenHashSlot;
 
 typedef struct HLDOpenHashTable {
-    struct HLDOpenHashSlot *slots;
+    struct HLDOpenHashSlot* slots;
     uint32_t keyMask;
     size_t numItems;
 } HLDOpenHashTable;
 
 typedef struct HLDClosedHashSlot {
     int32_t nameIdx;
-    void *value;
+    void* value;
     int32_t key;
 } HLDClosedHashSlot;
 
@@ -140,14 +140,14 @@ typedef struct HLDClosedHashTable {
     size_t numItems;
     uint32_t keyMask;
     uint32_t field_C;
-    struct HLDClosedHashSlot *slots;
+    struct HLDClosedHashSlot* slots;
 } HLDClosedHashTable;
 
 typedef struct HLDLookupTable {
     size_t size;
     uint32_t field_4;
     uint32_t field_8;
-    void *elements;
+    void* elements;
 } HLDLookupTable;
 
 typedef struct HLDVecReal {
@@ -162,11 +162,11 @@ typedef struct HLDVecIntegral {
 
 typedef struct HLDArrayPreSize {
     size_t size;
-    void *elements;
+    void* elements;
 } HLDArrayPreSize;
 
 typedef struct HLDArrayPostSize {
-    void *elements;
+    void* elements;
     size_t size;
 } HLDArrayPostSize;
 
@@ -191,7 +191,7 @@ typedef enum HLDPrimitiveType {
 typedef union __attribute__((aligned(4))) HLDPrimitiveValue {
     uint32_t raw[3];
     double r;
-    void *p;
+    void* p;
     int32_t i32;
     int64_t i64;
     bool b;
@@ -203,33 +203,33 @@ typedef struct HLDPrimitive {
 } HLDPrimitive;
 
 typedef struct HLDPrimitiveString {
-    const char *chars;
+    const char* chars;
     size_t refs;
     size_t length;
 } HLDPrimitiveString;
 
 typedef struct __attribute__((aligned(4))) HLDPrimitiveArray {
     uint32_t field_0;
-    struct HLDArrayPreSize *subArrays;
-    void *field_8;
+    struct HLDArrayPreSize* subArrays;
+    void* field_8;
     uint32_t field_C;
     size_t numSubArrays;
 } HLDPrimitiveArray;
 
 typedef struct HLDEventSubscribers {
-    int32_t *objects;
+    int32_t* objects;
     uint32_t field_4;
 } HLDEventSubscribers;
 
 typedef struct HLDNamedFunction {
-    const char *name;
-    void *function;
+    const char* name;
+    void* function;
 } HLDNamedFunction;
 
 typedef struct HLDNodeDLL {
-    struct HLDNodeDLL *next;
-    struct HLDNodeDLL *prev;
-    void *item;
+    struct HLDNodeDLL* next;
+    struct HLDNodeDLL* prev;
+    void* item;
 } HLDNodeDLL;
 
 typedef struct HLDBoundingBox {
@@ -240,11 +240,11 @@ typedef struct HLDBoundingBox {
 } HLDBoundingBox;
 
 typedef struct HLDEvent {
-    void *classDef;
-    struct HLDEvent *eventNext;
+    void* classDef;
+    struct HLDEvent* eventNext;
     uint32_t field_8;
     uint32_t field_C;
-    void *field_10;
+    void* field_10;
     uint32_t field_14;
     uint32_t field_18;
     uint32_t field_1C;
@@ -262,10 +262,10 @@ typedef struct HLDEvent {
     uint32_t field_4C;
     uint32_t field_50;
     uint32_t field_54;
-    void *field_58;
-    const char *name;
+    void* field_58;
+    const char* name;
     uint32_t handlerIndex;
-    struct HLDNamedFunction *handler;
+    struct HLDNamedFunction* handler;
     uint32_t field_68;
     uint32_t field_6C;
     uint32_t field_70;
@@ -275,9 +275,9 @@ typedef struct HLDEvent {
 } HLDEvent;
 
 typedef struct HLDEventWrapper {
-    void *classDef;
-    struct HLDEvent *event;
-    void *field_08;
+    void* classDef;
+    struct HLDEvent* event;
+    void* field_08;
     uint32_t field_0C;
 } HLDEventWrapper;
 
@@ -297,7 +297,7 @@ typedef struct HLDObject {
     uint32_t depth;
     int32_t parentIndex;
     int32_t maskIndex;
-    const char *name;
+    const char* name;
     int32_t index;
     uint32_t physics;
     uint32_t field_20;
@@ -310,10 +310,10 @@ typedef struct HLDObject {
     uint32_t field_3C;
     uint32_t field_40;
     uint32_t field_44;
-    struct HLDObject *parent;
+    struct HLDObject* parent;
     struct HLDArrayPreSize eventListeners[15];
-    struct HLDNodeDLL *instanceFirst;
-    struct HLDNodeDLL *instanceLast;
+    struct HLDNodeDLL* instanceFirst;
+    struct HLDNodeDLL* instanceLast;
     uint32_t numInstances;
     uint32_t field_D0;
     uint32_t field_D4;
@@ -321,7 +321,7 @@ typedef struct HLDObject {
 } HLDObject;
 
 typedef struct HLDInstance {
-    void *classDef;
+    void* classDef;
     uint32_t field_4;
     uint32_t field_8;
     uint32_t field_C;
@@ -337,7 +337,7 @@ typedef struct HLDInstance {
     uint32_t tangible;
     uint32_t field_2C;
     uint32_t field_30;
-    HLDClosedHashTable *locals;
+    HLDClosedHashTable* locals;
     uint8_t field_38;
     bool visible;
     bool solid;
@@ -351,7 +351,7 @@ typedef struct HLDInstance {
     uint32_t field_48;
     uint32_t id;
     int32_t objectIndex;
-    struct HLDObject *object;
+    struct HLDObject* object;
     uint32_t field_58;
     uint32_t field_5C;
     int32_t spriteIndex;
@@ -401,8 +401,8 @@ typedef struct HLDInstance {
     uint8_t field_149;
     uint8_t field_14A;
     uint8_t field_14B;
-    struct HLDInstance *instanceNext;
-    struct HLDInstance *instancePrev;
+    struct HLDInstance* instanceNext;
+    struct HLDInstance* instancePrev;
     float depth;
     uint32_t field_158;
     uint32_t lastUpdate;
@@ -436,7 +436,7 @@ typedef struct HLDView {
 
 typedef struct HLDRoom {
     uint32_t field_0;
-    struct HLDRoom *self;
+    struct HLDRoom* self;
     uint32_t field_8;
     uint32_t field_C;
     uint32_t field_10;
@@ -453,15 +453,15 @@ typedef struct HLDRoom {
     uint32_t field_3C;
     uint32_t field_40;
     uint32_t field_44;
-    HLDView *views[8];
+    HLDView* views[8];
     uint32_t field_68;
     uint32_t field_6C;
     uint32_t field_70;
     uint32_t field_74;
     uint32_t field_78;
     uint32_t field_7C;
-    struct HLDInstance *instanceFirst;
-    struct HLDInstance *instanceLast;
+    struct HLDInstance* instanceFirst;
+    struct HLDInstance* instanceLast;
     int32_t numInstances;
     uint32_t field_8C;
     uint32_t field_90;
@@ -479,7 +479,7 @@ typedef struct HLDRoom {
     uint32_t field_C0;
     uint32_t field_C4;
     uint32_t field_C8;
-    const char *name;
+    const char* name;
     uint32_t field_D0;
     uint32_t field_D4;
     uint32_t field_D8;
@@ -527,7 +527,7 @@ typedef struct HLDSprite {
     uint32_t field_50;
     uint32_t field_54;
     uint32_t field_58;
-    const char *name;
+    const char* name;
     uint32_t field_60;
     uint32_t field_64;
     uint32_t field_68;
@@ -541,8 +541,8 @@ typedef struct HLDSprite {
 } HLDSprite;
 
 typedef struct HLDFont {
-    void *classDef;
-    const char *fontname;
+    void* classDef;
+    const char* fontname;
     size_t size;
     bool bold;
     bool italic;
@@ -583,15 +583,18 @@ typedef struct HLDFont {
 } HLDFont;
 
 /* Builtin GML function signature. */
-typedef void (*HLDAPICallback)(HLDPrimitive *result, HLDInstance *target,
-                               HLDInstance *other, size_t argc,
-                               HLDPrimitive *argv);
+typedef void (*HLDAPICallback)(HLDPrimitive* result,
+                               HLDInstance* target,
+                               HLDInstance* other,
+                               size_t argc,
+                               HLDPrimitive* argv);
 
 /* Custom Heart Machine function signature. */
-typedef HLDPrimitive *(*HLDScriptCallback)(HLDInstance *target,
-                                           HLDInstance *other,
-                                           HLDPrimitive *result, size_t argc,
-                                           HLDPrimitive **argv);
+typedef HLDPrimitive* (*HLDScriptCallback)(HLDInstance* target,
+                                           HLDInstance* other,
+                                           HLDPrimitive* result,
+                                           size_t argc,
+                                           HLDPrimitive** argv);
 
 /*
  * This struct holds pointers to global variables in the Game Maker
@@ -600,9 +603,9 @@ typedef HLDPrimitive *(*HLDScriptCallback)(HLDInstance *target,
  */
 typedef struct __attribute__((packed)) HLDVariables {
     /* Allocated GML hash tables. */
-    HLDArrayPostSize *maps;
+    HLDArrayPostSize* maps;
     /* Number of steps since start of the game. */
-    int32_t *numSteps;
+    int32_t* numSteps;
     /* Tables of booleans where each index represents a key code. */
     bool (*keysPressedTable)[0x100];
     bool (*keysHeldTable)[0x100];
@@ -612,28 +615,28 @@ typedef struct __attribute__((packed)) HLDVariables {
     bool (*mouseButtonsHeldTable)[0x3];
     bool (*mouseButtonsReleasedTable)[0x3];
     /* Mouse cursor position in pixels. */
-    uint32_t *mousePosX;
-    uint32_t *mousePosY;
+    uint32_t* mousePosX;
+    uint32_t* mousePosY;
     /* Array of all registered rooms. */
-    HLDArrayPreSize *roomTable;
+    HLDArrayPreSize* roomTable;
     /* Index of currently active room. */
-    int32_t *roomIndexCurrent;
+    int32_t* roomIndexCurrent;
     /* Actual room object of currently active room. */
-    HLDRoom **roomCurrent;
+    HLDRoom** roomCurrent;
     /* Array of all registered sprites. */
-    HLDArrayPreSize *spriteTable;
+    HLDArrayPreSize* spriteTable;
     /* Array of all registered fonts. */
-    HLDArrayPreSize *fontTable;
+    HLDArrayPreSize* fontTable;
     /* Index of currently active font. */
-    int32_t *fontIndexCurrent;
+    int32_t* fontIndexCurrent;
     /* Actual font object of currently active font. */
-    HLDFont **fontCurrent;
+    HLDFont** fontCurrent;
     /* Hash table of all registered objects. */
-    HLDOpenHashTable **objectTableHandle;
+    HLDOpenHashTable** objectTableHandle;
     /* Hash table of all in-game instances. */
-    HLDOpenHashTable *instanceTable;
+    HLDOpenHashTable* instanceTable;
     /* Lookup table of all instance local variable names. */
-    HLDLookupTable *instanceLocalTable;
+    HLDLookupTable* instanceLocalTable;
     /*
      * As an optimization, the engine only checks for alarm events on objects
      * listed (or "subscribed") in these arrays.
@@ -644,13 +647,13 @@ typedef struct __attribute__((packed)) HLDVariables {
     size_t (*stepEventSubscriberCounts)[3];
     HLDEventSubscribers (*stepEventSubscribers)[3];
     /* Addresses necessary for creating new events. */
-    void *eventClass;
-    void *eventWrapperClass;
+    void* eventClass;
+    void* eventWrapperClass;
     /*
      * Not certain what this address even references, but the custom events
      * won't work unless some of their fields point to this address.
      */
-    void *unknownEventAddress;
+    void* unknownEventAddress;
 } HLDVariables;
 
 /*
@@ -662,62 +665,101 @@ typedef struct __attribute__((packed)) HLDFunctions {
     /* Go to room. */
     void (*actionRoomGoto)(int32_t roomIdx, int32_t unknown0);
     /* Register a new sprite. */
-    int32_t (*actionSpriteAdd)(const char *fname, size_t imgNum,
-                               int32_t unknown0, int32_t unknown1,
-                               int32_t unknown2, int32_t unknown3,
-                               uint32_t origX, uint32_t origY);
+    int32_t (*actionSpriteAdd)(const char* fname,
+                               size_t imgNum,
+                               int32_t unknown0,
+                               int32_t unknown1,
+                               int32_t unknown2,
+                               int32_t unknown3,
+                               uint32_t origX,
+                               uint32_t origY);
     /* Overwrite an existing sprite with a new one. */
-    void (*actionSpriteReplace)(int32_t spriteIdx, const char *fname,
-                                size_t imgNum, int32_t unknown0,
-                                int32_t unknown1, int32_t unknown2,
-                                int32_t unknown3, uint32_t origX,
+    void (*actionSpriteReplace)(int32_t spriteIdx,
+                                const char* fname,
+                                size_t imgNum,
+                                int32_t unknown0,
+                                int32_t unknown1,
+                                int32_t unknown2,
+                                int32_t unknown3,
+                                uint32_t origX,
                                 uint32_t origY);
     /* Register a new font. */
-    int32_t (*actionFontAdd)(const char *fname, size_t size, bool bold,
-                             bool italic, int32_t first, int32_t last);
+    int32_t (*actionFontAdd)(const char* fname,
+                             size_t size,
+                             bool bold,
+                             bool italic,
+                             int32_t first,
+                             int32_t last);
     /* Register a new object. */
     int32_t (*actionObjectAdd)(void);
     /* Trigger an event as if it occurred "naturally." */
-    int32_t (*actionEventPerform)(HLDInstance *target, HLDInstance *other,
-                                  int32_t targetObjIdx, uint32_t eventType,
+    int32_t (*actionEventPerform)(HLDInstance* target,
+                                  HLDInstance* other,
+                                  int32_t targetObjIdx,
+                                  uint32_t eventType,
                                   int32_t eventNum);
     /* Get the current global draw alpha. */
     float (*actionDrawGetAlpha)(void);
     /* Set the current global draw alpha. */
     void (*actionDrawSetAlpha)(float alpha);
     /* Draw a triangle to the screen. */
-    void (*actionDrawTriangle)(float x1, float y1, float x2, float y2, float x3,
-                               float y3, uint32_t color1, uint32_t color2,
-                               uint32_t color3, bool outline);
+    void (*actionDrawTriangle)(float x1,
+                               float y1,
+                               float x2,
+                               float y2,
+                               float x3,
+                               float y3,
+                               uint32_t color1,
+                               uint32_t color2,
+                               uint32_t color3,
+                               bool outline);
     /* Draw a rectangle to the screen. */
-    void (*actionDrawRectangle)(float left, float top, float right,
-                                float bottom, uint32_t colorNW,
-                                uint32_t colorNE, uint32_t colorSE,
-                                uint32_t colorSW, bool outline);
+    void (*actionDrawRectangle)(float left,
+                                float top,
+                                float right,
+                                float bottom,
+                                uint32_t colorNW,
+                                uint32_t colorNE,
+                                uint32_t colorSE,
+                                uint32_t colorSW,
+                                bool outline);
     /* Draw a string to the screen. */
-    void (*actionDrawText)(float x, float y, const char *text, int32_t height,
-                           uint32_t width, float scaleX, float scaleY,
-                           float angle, uint32_t colorNW, uint32_t colorNE,
-                           uint32_t colorSE, uint32_t colorSW, float alpha);
+    void (*actionDrawText)(float x,
+                           float y,
+                           const char* text,
+                           int32_t height,
+                           uint32_t width,
+                           float scaleX,
+                           float scaleY,
+                           float angle,
+                           uint32_t colorNW,
+                           uint32_t colorNE,
+                           uint32_t colorSE,
+                           uint32_t colorSW,
+                           float alpha);
     /* Draw an instance's sprite. */
-    void (*actionDrawSelf)(HLDInstance *inst);
+    void (*actionDrawSelf)(HLDInstance* inst);
     /* Set the currently active draw font. */
     void (*actionDrawSetFont)(int32_t fontIdx);
     /* Spawn a new instance of an object. */
-    HLDInstance *(*actionInstanceCreate)(int32_t objIdx, float posX,
+    HLDInstance* (*actionInstanceCreate)(int32_t objIdx,
+                                         float posX,
                                          float posY);
     /* Change the object type of an instance. */
-    void (*actionInstanceChange)(HLDInstance *inst, int32_t newObjIdx,
+    void (*actionInstanceChange)(HLDInstance* inst,
+                                 int32_t newObjIdx,
                                  bool doEvents);
     /* Destroy an instance. */
-    void (*actionInstanceDestroy)(HLDInstance *inst0, HLDInstance *inst1,
-                                  int32_t objIdx, bool doEvent);
+    void (*actionInstanceDestroy)(HLDInstance* inst0,
+                                  HLDInstance* inst1,
+                                  int32_t objIdx,
+                                  bool doEvent);
     /* Set instance's position (and update bounding box accordingly). */
-    void (*Instance_setPosition)(HLDInstance *inst, float x, float y);
+    void (*Instance_setPosition)(HLDInstance* inst, float x, float y);
     /* Set instance's mask index. */
-    void (*Instance_setMaskIndex)(HLDInstance *inst, int32_t maskIndex);
+    void (*Instance_setMaskIndex)(HLDInstance* inst, int32_t maskIndex);
     /* Set an instance's direction and speed based on its motion vector. */
-    void (*Instance_setMotionPolarFromCartesian)(HLDInstance *inst);
+    void (*Instance_setMotionPolarFromCartesian)(HLDInstance* inst);
     /* Create a new GML map. Parameters: NULL. */
     HLDAPICallback API_dsMapCreate;
     /* Retrieve value from a GML map. Parameters: id, key. */
@@ -744,22 +786,22 @@ extern HLDFunctions hldfuncs;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-HLDView *HLDViewLookup(uint32_t viewIdx);
+HLDView* HLDViewLookup(uint32_t viewIdx);
 
-HLDSprite *HLDSpriteLookup(int32_t spriteIdx);
+HLDSprite* HLDSpriteLookup(int32_t spriteIdx);
 
-HLDFont *HLDFontLookup(int32_t fontIdx);
+HLDFont* HLDFontLookup(int32_t fontIdx);
 
-HLDRoom *HLDRoomLookup(int32_t roomIdx);
+HLDRoom* HLDRoomLookup(int32_t roomIdx);
 
-void *HLDOpenHashTableLookup(HLDOpenHashTable *table, int32_t key);
+void* HLDOpenHashTableLookup(HLDOpenHashTable* table, int32_t key);
 
-void *HLDClosedHashTableLookup(HLDClosedHashTable *table, int32_t key);
+void* HLDClosedHashTableLookup(HLDClosedHashTable* table, int32_t key);
 
-HLDEvent *HLDEventNew(HLDNamedFunction *handler);
+HLDEvent* HLDEventNew(HLDNamedFunction* handler);
 
-HLDEventWrapper *HLDEventWrapperNew(HLDEvent *event);
+HLDEventWrapper* HLDEventWrapperNew(HLDEvent* event);
 
-void HLDRecordEngineRefs(HLDVariables *vars, HLDFunctions *funcs);
+void HLDRecordEngineRefs(HLDVariables* vars, HLDFunctions* funcs);
 
 #endif /* INTERNAL_HLD_H */

@@ -177,7 +177,7 @@ extern const char AER_DISPLAY_KEYS[];
  *
  * @sa AERInputKey
  */
-const bool *AERInputGetKeysPressed(void);
+const bool* AERInputGetKeysPressed(void);
 
 /**
  * @brief Query the keyboard key(s) that the user has held this step.
@@ -191,7 +191,7 @@ const bool *AERInputGetKeysPressed(void);
  *
  * @sa AERInputKey
  */
-const bool *AERInputGetKeysHeld(void);
+const bool* AERInputGetKeysHeld(void);
 
 /**
  * @brief Query the keyboard key(s) that the user just released this step.
@@ -205,7 +205,7 @@ const bool *AERInputGetKeysHeld(void);
  *
  * @sa AERInputKey
  */
-const bool *AERInputGetKeysReleased(void);
+const bool* AERInputGetKeysReleased(void);
 
 /**
  * @brief Query the mouse button(s) that the user just pressed this step.
@@ -226,7 +226,7 @@ const bool *AERInputGetKeysReleased(void);
  *
  * @since 1.0.0
  */
-const bool *AERInputGetMouseButtonsPressed(void);
+const bool* AERInputGetMouseButtonsPressed(void);
 
 /**
  * @brief Query the mouse button(s) that the user has held this step.
@@ -239,7 +239,7 @@ const bool *AERInputGetMouseButtonsPressed(void);
  *
  * @since 1.0.0
  */
-const bool *AERInputGetMouseButtonsHeld(void);
+const bool* AERInputGetMouseButtonsHeld(void);
 
 /**
  * @brief Query the mouse button(s) that the user just released this step.
@@ -252,7 +252,7 @@ const bool *AERInputGetMouseButtonsHeld(void);
  *
  * @since 1.0.0
  */
-const bool *AERInputGetMouseButtonsReleased(void);
+const bool* AERInputGetMouseButtonsReleased(void);
 
 /**
  * @brief Query the current position of the mouse cursor in pixels.
@@ -271,6 +271,6 @@ const bool *AERInputGetMouseButtonsReleased(void);
  *
  * @since 1.0.0
  */
-void AERInputGetMousePosition(uint32_t *x, uint32_t *y);
+void AERInputGetMousePosition(uint32_t* x, uint32_t* y);
 
 #endif /* AER_INPUT_H */

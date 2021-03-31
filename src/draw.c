@@ -6,19 +6,19 @@
 
 /* ----- PRIVATE MACROS ----- */
 
-#define WrapString(str)                                                        \
-    ({                                                                         \
-        const char *WrapString_str = (str);                                    \
-        uint32_t WrapString_idx;                                               \
-        for (WrapString_idx = 0; WrapString_idx < sizeof(textBuf) - 1;         \
-             WrapString_idx++) {                                               \
-            char WrapString_curChar = WrapString_str[WrapString_idx];          \
-            if (WrapString_curChar == '\0')                                    \
-                break;                                                         \
-            textBuf[WrapString_idx] = WrapString_curChar;                      \
-        }                                                                      \
-        textBuf[WrapString_idx] = '\0';                                        \
-        textBuf;                                                               \
+#define WrapString(str)                                                \
+    ({                                                                 \
+        const char* WrapString_str = (str);                            \
+        uint32_t WrapString_idx;                                       \
+        for (WrapString_idx = 0; WrapString_idx < sizeof(textBuf) - 1; \
+             WrapString_idx++) {                                       \
+            char WrapString_curChar = WrapString_str[WrapString_idx];  \
+            if (WrapString_curChar == '\0')                            \
+                break;                                                 \
+            textBuf[WrapString_idx] = WrapString_curChar;              \
+        }                                                              \
+        textBuf[WrapString_idx] = '\0';                                \
+        textBuf;                                                       \
     })
 
 /* ----- PRIVATE GLOBALS ----- */
@@ -46,8 +46,13 @@ AER_EXPORT void AERDrawSetCurrentAlpha(float alpha) {
 #undef errRet
 }
 
-AER_EXPORT void AERDrawTriangle(float x1, float y1, float x2, float y2,
-                                float x3, float y3, uint32_t color,
+AER_EXPORT void AERDrawTriangle(float x1,
+                                float y1,
+                                float x2,
+                                float y2,
+                                float x3,
+                                float y3,
+                                uint32_t color,
                                 bool outline) {
 #define errRet
     EnsureStageStrict(STAGE_DRAW);
@@ -59,9 +64,15 @@ AER_EXPORT void AERDrawTriangle(float x1, float y1, float x2, float y2,
 #undef errRet
 }
 
-AER_EXPORT void AERDrawTriangleAdv(float x1, float y1, float x2, float y2,
-                                   float x3, float y3, uint32_t color1,
-                                   uint32_t color2, uint32_t color3,
+AER_EXPORT void AERDrawTriangleAdv(float x1,
+                                   float y1,
+                                   float x2,
+                                   float y2,
+                                   float x3,
+                                   float y3,
+                                   uint32_t color1,
+                                   uint32_t color2,
+                                   uint32_t color3,
                                    bool outline) {
 #define errRet
     EnsureStageStrict(STAGE_DRAW);
@@ -73,8 +84,12 @@ AER_EXPORT void AERDrawTriangleAdv(float x1, float y1, float x2, float y2,
 #undef errRet
 }
 
-AER_EXPORT void AERDrawRectangle(float left, float top, float right,
-                                 float bottom, uint32_t color, bool outline) {
+AER_EXPORT void AERDrawRectangle(float left,
+                                 float top,
+                                 float right,
+                                 float bottom,
+                                 uint32_t color,
+                                 bool outline) {
 #define errRet
     EnsureStageStrict(STAGE_DRAW);
 
@@ -85,10 +100,15 @@ AER_EXPORT void AERDrawRectangle(float left, float top, float right,
 #undef errRet
 }
 
-AER_EXPORT void AERDrawRectangleAdv(float left, float top, float right,
-                                    float bottom, uint32_t colorNW,
-                                    uint32_t colorNE, uint32_t colorSE,
-                                    uint32_t colorSW, bool outline) {
+AER_EXPORT void AERDrawRectangleAdv(float left,
+                                    float top,
+                                    float right,
+                                    float bottom,
+                                    uint32_t colorNW,
+                                    uint32_t colorNE,
+                                    uint32_t colorSE,
+                                    uint32_t colorSW,
+                                    bool outline) {
 #define errRet
     EnsureStageStrict(STAGE_DRAW);
 
@@ -99,8 +119,12 @@ AER_EXPORT void AERDrawRectangleAdv(float left, float top, float right,
 #undef errRet
 }
 
-AER_EXPORT void AERDrawText(const char *text, float x, float y, uint32_t width,
-                            float scale, uint32_t color) {
+AER_EXPORT void AERDrawText(const char* text,
+                            float x,
+                            float y,
+                            uint32_t width,
+                            float scale,
+                            uint32_t color) {
 #define errRet
     EnsureStageStrict(STAGE_DRAW);
     EnsureArg(text);
@@ -112,11 +136,19 @@ AER_EXPORT void AERDrawText(const char *text, float x, float y, uint32_t width,
 #undef errRet
 }
 
-AER_EXPORT void AERDrawTextAdv(const char *text, float x, float y,
-                               int32_t height, uint32_t width, float scaleX,
-                               float scaleY, float angle, uint32_t colorNW,
-                               uint32_t colorNE, uint32_t colorSE,
-                               uint32_t colorSW, float alpha) {
+AER_EXPORT void AERDrawTextAdv(const char* text,
+                               float x,
+                               float y,
+                               int32_t height,
+                               uint32_t width,
+                               float scaleX,
+                               float scaleY,
+                               float angle,
+                               uint32_t colorNW,
+                               uint32_t colorNE,
+                               uint32_t colorSE,
+                               uint32_t colorSW,
+                               float alpha) {
 #define errRet
     EnsureStageStrict(STAGE_DRAW);
     EnsureArg(text);

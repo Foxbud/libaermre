@@ -36,9 +36,9 @@ static FoxMap spriteNames = {0};
 void SpriteManBuildNameTable(void) {
     size_t numSprites = hldvars.spriteTable->size;
     for (uint32_t spriteIdx = 0; spriteIdx < numSprites; spriteIdx++) {
-        HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
+        HLDSprite* sprite = HLDSpriteLookup(spriteIdx);
         assert(sprite);
-        *FoxMapMInsert(const char *, int32_t, &spriteNames, sprite->name) =
+        *FoxMapMInsert(const char*, int32_t, &spriteNames, sprite->name) =
             spriteIdx;
     }
 
@@ -58,7 +58,7 @@ void SpriteManDestructor(void) {
     LogInfo("Deinitializing sprite module...");
 
     /* Deinitialize name table. */
-    FoxMapMDeinit(const char *, int32_t, &spriteNames);
+    FoxMapMDeinit(const char*, int32_t, &spriteNames);
     spriteNames = (FoxMap){0};
 
     LogInfo("Done deinitializing sprite module.");
@@ -67,8 +67,10 @@ void SpriteManDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
-                                     size_t numFrames, uint32_t origX,
+AER_EXPORT int32_t AERSpriteRegister(const char* name,
+                                     const char* filename,
+                                     size_t numFrames,
+                                     uint32_t origX,
                                      uint32_t origY) {
 #define errRet AER_SPRITE_NULL
     EnsureArg(name);
@@ -77,17 +79,17 @@ AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
     EnsureStageStrict(STAGE_SPRITE_REG);
     EnsureArg(filename);
     EnsureMin(numFrames, 1);
-    Ensure(!FoxMapMIndex(const char *, int32_t, &spriteNames, name),
+    Ensure(!FoxMapMIndex(const char*, int32_t, &spriteNames, name),
            AER_BAD_VAL);
 
     int32_t spriteIdx = hldfuncs.actionSpriteAdd(
         CoreGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
-    HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
+    HLDSprite* sprite = HLDSpriteLookup(spriteIdx);
     Ensure(sprite, AER_BAD_FILE);
-    *FoxMapMInsert(const char *, int32_t, &spriteNames, name) = spriteIdx;
+    *FoxMapMInsert(const char*, int32_t, &spriteNames, name) = spriteIdx;
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
-    char *tmpName = malloc(strlen(name) + 1);
+    char* tmpName = malloc(strlen(name) + 1);
     assert(tmpName);
     sprite->name = strcpy(tmpName, name);
 
@@ -97,11 +99,13 @@ AER_EXPORT int32_t AERSpriteRegister(const char *name, const char *filename,
 #undef errRet
 }
 
-AER_EXPORT void AERSpriteReplace(int32_t spriteIdx, const char *filename,
-                                 size_t numFrames, uint32_t origX,
+AER_EXPORT void AERSpriteReplace(int32_t spriteIdx,
+                                 const char* filename,
+                                 size_t numFrames,
+                                 uint32_t origX,
                                  uint32_t origY) {
 #define errRet
-    HLDSprite *oldSprite = HLDSpriteLookup(spriteIdx);
+    HLDSprite* oldSprite = HLDSpriteLookup(spriteIdx);
     EnsureLookup(oldSprite);
     LogInfo("Replacing sprite \"%s\" for mod \"%s\"...", oldSprite->name,
             ModManGetMod(ModManPeekContext())->name);
@@ -127,24 +131,23 @@ AER_EXPORT size_t AERSpriteGetNumRegistered(void) {
 #undef errRet
 }
 
-AER_EXPORT int32_t AERSpriteGetByName(const char *name) {
+AER_EXPORT int32_t AERSpriteGetByName(const char* name) {
 #define errRet AER_SPRITE_NULL
     EnsureStage(STAGE_SPRITE_REG);
     EnsureArg(name);
 
-    int32_t *spriteIdx =
-        FoxMapMIndex(const char *, int32_t, &spriteNames, name);
+    int32_t* spriteIdx = FoxMapMIndex(const char*, int32_t, &spriteNames, name);
     EnsureLookup(spriteIdx);
 
     Ok(*spriteIdx);
 #undef errRet
 }
 
-AER_EXPORT const char *AERSpriteGetName(int32_t spriteIdx) {
+AER_EXPORT const char* AERSpriteGetName(int32_t spriteIdx) {
 #define errRet NULL
     EnsureStage(STAGE_SPRITE_REG);
 
-    HLDSprite *sprite = HLDSpriteLookup(spriteIdx);
+    HLDSprite* sprite = HLDSpriteLookup(spriteIdx);
     EnsureLookup(sprite);
 
     Ok(sprite->name);

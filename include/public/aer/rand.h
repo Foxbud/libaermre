@@ -224,7 +224,7 @@ bool AERRandBool(void);
  *
  * @sa AERRandGenFree
  */
-AERRandGen *AERRandGenNew(uint64_t seed);
+AERRandGen* AERRandGenNew(uint64_t seed);
 
 /**
  * @brief Free a self-managed pseudorandom number generator allocated using
@@ -238,7 +238,7 @@ AERRandGen *AERRandGenNew(uint64_t seed);
  *
  * @sa AERRandGenNew
  */
-void AERRandGenFree(AERRandGen *gen);
+void AERRandGenFree(AERRandGen* gen);
 
 /**
  * @brief Re-seed a self-managed pseudorandom number generator.
@@ -250,7 +250,7 @@ void AERRandGenFree(AERRandGen *gen);
  *
  * @since 1.0.0
  */
-void AERRandGenSeed(AERRandGen *gen, uint64_t seed);
+void AERRandGenSeed(AERRandGen* gen, uint64_t seed);
 
 /**
  * @brief Get a pseudorandom unsigned integer on the interval [0, 2^64) using
@@ -266,7 +266,7 @@ void AERRandGenSeed(AERRandGen *gen, uint64_t seed);
  *
  * @sa AERRandUInt
  */
-uint64_t AERRandGenUInt(AERRandGen *gen);
+uint64_t AERRandGenUInt(AERRandGen* gen);
 
 /**
  * @brief Get a pseudorandom unsigned integer on the interval [min, max) using
@@ -290,7 +290,7 @@ uint64_t AERRandGenUInt(AERRandGen *gen);
  *
  * @sa AERRandUIntRange
  */
-uint64_t AERRandGenUIntRange(AERRandGen *gen, uint64_t min, uint64_t max);
+uint64_t AERRandGenUIntRange(AERRandGen* gen, uint64_t min, uint64_t max);
 
 /**
  * @brief Get a pseudorandom signed integer on the interval [-2^63, 2^63) using
@@ -306,7 +306,7 @@ uint64_t AERRandGenUIntRange(AERRandGen *gen, uint64_t min, uint64_t max);
  *
  * @sa AERRandInt
  */
-int64_t AERRandGenInt(AERRandGen *gen);
+int64_t AERRandGenInt(AERRandGen* gen);
 
 /**
  * @brief Get a pseudorandom signed integer on the interval [min, max) using a
@@ -330,7 +330,7 @@ int64_t AERRandGenInt(AERRandGen *gen);
  *
  * @sa AERRandIntRange
  */
-int64_t AERRandGenIntRange(AERRandGen *gen, int64_t min, int64_t max);
+int64_t AERRandGenIntRange(AERRandGen* gen, int64_t min, int64_t max);
 
 /**
  * @brief Get a pseudorandom floating-point value on the interval [0.0f, 1.0f)
@@ -354,7 +354,7 @@ int64_t AERRandGenIntRange(AERRandGen *gen, int64_t min, int64_t max);
  *
  * @sa AERRandFloat
  */
-float AERRandGenFloat(AERRandGen *gen);
+float AERRandGenFloat(AERRandGen* gen);
 
 /**
  * @brief Get a pseudorandom floating-point value on the interval [min, max)
@@ -382,7 +382,7 @@ float AERRandGenFloat(AERRandGen *gen);
  *
  * @sa AERRandFloatRange
  */
-float AERRandGenFloatRange(AERRandGen *gen, float min, float max);
+float AERRandGenFloatRange(AERRandGen* gen, float min, float max);
 
 /**
  * @brief Get a pseudorandom double floating-point value on the interval
@@ -406,7 +406,7 @@ float AERRandGenFloatRange(AERRandGen *gen, float min, float max);
  *
  * @sa AERRandDouble
  */
-double AERRandGenDouble(AERRandGen *gen);
+double AERRandGenDouble(AERRandGen* gen);
 
 /**
  * @brief Get a pseudorandom double floating-point value on the interval
@@ -434,7 +434,7 @@ double AERRandGenDouble(AERRandGen *gen);
  *
  * @sa AERRandDoubleRange
  */
-double AERRandGenDoubleRange(AERRandGen *gen, double min, double max);
+double AERRandGenDoubleRange(AERRandGen* gen, double min, double max);
 
 /**
  * @brief Get a pseudorandom boolean using a self-managed generator.
@@ -449,6 +449,6 @@ double AERRandGenDoubleRange(AERRandGen *gen, double min, double max);
  *
  * @sa AERRandBool
  */
-bool AERRandGenBool(AERRandGen *gen);
+bool AERRandGenBool(AERRandGen* gen);
 
 #endif /* AER_RAND_H */

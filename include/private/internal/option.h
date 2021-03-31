@@ -22,7 +22,7 @@
 
 typedef struct Options {
     size_t numModNames;
-    const char **modNames;
+    const char** modNames;
 } Options;
 
 /* ----- INTERNAL GLOBALS ----- */

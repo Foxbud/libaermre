@@ -37,7 +37,7 @@
 
 /* ----- PRIVATE CONSTANTS ----- */
 
-static const char *ABS_ASSET_PATH_FMT = "assets/mod/%s/%s";
+static const char* ABS_ASSET_PATH_FMT = "assets/mod/%s/%s";
 
 /* ----- PRIVATE GLOBALS ----- */
 
@@ -51,7 +51,7 @@ CoreStage stage = STAGE_INIT;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-const char *CoreGetAbsAssetPath(const char *relAssetPath) {
+const char* CoreGetAbsAssetPath(const char* relAssetPath) {
     assert(relAssetPath);
     assert(ModManHasContext());
 
@@ -107,7 +107,7 @@ static void RegisterAssets(void) {
      */
     for (uint32_t idx = 0; idx < numMods; idx++) {
         int32_t modIdx = (int32_t)(numMods - idx - 1);
-        Mod *mod = ModManGetMod(modIdx);
+        Mod* mod = ModManGetMod(modIdx);
         if (mod->registerSprites) {
             ModManPushContext(modIdx);
             mod->registerSprites();
@@ -120,7 +120,7 @@ static void RegisterAssets(void) {
     stage = STAGE_FONT_REG;
     LogInfo("Registering mod fonts...");
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        Mod *mod = ModManGetMod(modIdx);
+        Mod* mod = ModManGetMod(modIdx);
         if (mod->registerFonts) {
             ModManPushContext(modIdx);
             mod->registerFonts();
@@ -136,7 +136,7 @@ static void RegisterAssets(void) {
     stage = STAGE_OBJECT_REG;
     LogInfo("Registering mod objects...");
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        Mod *mod = ModManGetMod(modIdx);
+        Mod* mod = ModManGetMod(modIdx);
         if (mod->registerObjects) {
             ModManPushContext(modIdx);
             mod->registerObjects();
@@ -153,7 +153,7 @@ static void RegisterAssets(void) {
     stage = STAGE_LISTENER_REG;
     LogInfo("Registering mod event listeners...");
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        Mod *mod = ModManGetMod(modIdx);
+        Mod* mod = ModManGetMod(modIdx);
         if (mod->registerObjectListeners) {
             ModManPushContext(modIdx);
             mod->registerObjectListeners();
@@ -220,7 +220,8 @@ AER_EXPORT void AERHookStep(void) {
     return;
 }
 
-AER_EXPORT void AERHookEvent(HLDObject *targetObject, HLDEventType eventType,
+AER_EXPORT void AERHookEvent(HLDObject* targetObject,
+                             HLDEventType eventType,
                              int32_t eventNum) {
     currentEvent = (EventKey){
         .type = eventType, .num = eventNum, .objIdx = targetObject->index};
@@ -228,7 +229,7 @@ AER_EXPORT void AERHookEvent(HLDObject *targetObject, HLDEventType eventType,
     return;
 }
 
-AER_EXPORT void AERHookLoadData(HLDPrimitive *dataMapId) {
+AER_EXPORT void AERHookLoadData(HLDPrimitive* dataMapId) {
     SaveManLoadData(dataMapId);
 
     ModManExecuteGameLoadListeners(SaveManGetCurrentSlot());
@@ -236,7 +237,7 @@ AER_EXPORT void AERHookLoadData(HLDPrimitive *dataMapId) {
     return;
 }
 
-AER_EXPORT void AERHookSaveData(HLDPrimitive *dataMapId) {
+AER_EXPORT void AERHookSaveData(HLDPrimitive* dataMapId) {
     ModManExecuteGameSaveListeners(SaveManGetCurrentSlot());
 
     SaveManSaveData(dataMapId);

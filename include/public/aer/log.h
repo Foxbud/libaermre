@@ -34,7 +34,7 @@
  *
  * @since 1.0.0
  */
-void AERLogInfo(const char *fmt, ...);
+void AERLogInfo(const char* fmt, ...);
 
 /**
  * @brief Log a warning message to the console.
@@ -46,7 +46,7 @@ void AERLogInfo(const char *fmt, ...);
  *
  * @since 1.0.0
  */
-void AERLogWarn(const char *fmt, ...);
+void AERLogWarn(const char* fmt, ...);
 
 /**
  * @brief Log an error message to the console.
@@ -60,6 +60,6 @@ void AERLogWarn(const char *fmt, ...);
  *
  * @since 1.0.0
  */
-void AERLogErr(const char *fmt, ...);
+void AERLogErr(const char* fmt, ...);
 
 #endif /* AER_LOG_H */

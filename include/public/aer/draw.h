@@ -93,8 +93,14 @@ void AERDrawSetCurrentAlpha(float alpha);
  *
  * @sa AERDrawTriangleAdv
  */
-void AERDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3,
-                     uint32_t color, bool outline);
+void AERDrawTriangle(float x1,
+                     float y1,
+                     float x2,
+                     float y2,
+                     float x3,
+                     float y3,
+                     uint32_t color,
+                     bool outline);
 
 /**
  * @brief Draw a triangle to the screen.
@@ -123,9 +129,16 @@ void AERDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3,
  *
  * @sa AERDrawTriangle
  */
-void AERDrawTriangleAdv(float x1, float y1, float x2, float y2, float x3,
-                        float y3, uint32_t color1, uint32_t color2,
-                        uint32_t color3, bool outline);
+void AERDrawTriangleAdv(float x1,
+                        float y1,
+                        float x2,
+                        float y2,
+                        float x3,
+                        float y3,
+                        uint32_t color1,
+                        uint32_t color2,
+                        uint32_t color3,
+                        bool outline);
 
 /**
  * @brief Draw a rectangle to the screen.
@@ -146,8 +159,12 @@ void AERDrawTriangleAdv(float x1, float y1, float x2, float y2, float x3,
  *
  * @sa AERDrawRectangleAdv
  */
-void AERDrawRectangle(float left, float top, float right, float bottom,
-                      uint32_t color, bool outline);
+void AERDrawRectangle(float left,
+                      float top,
+                      float right,
+                      float bottom,
+                      uint32_t color,
+                      bool outline);
 
 /**
  * @brief Draw a rectangle to the screen.
@@ -177,9 +194,15 @@ void AERDrawRectangle(float left, float top, float right, float bottom,
  *
  * @sa AERDrawRectangle
  */
-void AERDrawRectangleAdv(float left, float top, float right, float bottom,
-                         uint32_t colorNW, uint32_t colorNE, uint32_t colorSE,
-                         uint32_t colorSW, bool outline);
+void AERDrawRectangleAdv(float left,
+                         float top,
+                         float right,
+                         float bottom,
+                         uint32_t colorNW,
+                         uint32_t colorNE,
+                         uint32_t colorSE,
+                         uint32_t colorSW,
+                         bool outline);
 
 /**
  * @brief Draw text to the screen.
@@ -203,8 +226,12 @@ void AERDrawRectangleAdv(float left, float top, float right, float bottom,
  *
  * @sa AERDrawTextAdv
  */
-void AERDrawText(const char *text, float x, float y, uint32_t width,
-                 float scale, uint32_t color);
+void AERDrawText(const char* text,
+                 float x,
+                 float y,
+                 uint32_t width,
+                 float scale,
+                 uint32_t color);
 
 /**
  * @brief Draw text to the screen.
@@ -246,9 +273,18 @@ void AERDrawText(const char *text, float x, float y, uint32_t width,
  *
  * @sa AERDrawText
  */
-void AERDrawTextAdv(const char *text, float x, float y, int32_t height,
-                    uint32_t width, float scaleX, float scaleY, float angle,
-                    uint32_t colorNW, uint32_t colorNE, uint32_t colorSE,
-                    uint32_t colorSW, float alpha);
+void AERDrawTextAdv(const char* text,
+                    float x,
+                    float y,
+                    int32_t height,
+                    uint32_t width,
+                    float scaleX,
+                    float scaleY,
+                    float angle,
+                    uint32_t colorNW,
+                    uint32_t colorNE,
+                    uint32_t colorSE,
+                    uint32_t colorSW,
+                    float alpha);
 
 #endif /* AER_DRAW_H */

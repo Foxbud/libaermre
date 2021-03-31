@@ -682,9 +682,14 @@ typedef enum AERObjectIndex {
  *
  * @sa AERModDef::registerObjects
  */
-int32_t AERObjectRegister(const char *name, int32_t parentIdx,
-                          int32_t spriteIdx, int32_t maskIdx, int32_t depth,
-                          bool visible, bool collisions, bool persistent);
+int32_t AERObjectRegister(const char* name,
+                          int32_t parentIdx,
+                          int32_t spriteIdx,
+                          int32_t maskIdx,
+                          int32_t depth,
+                          bool visible,
+                          bool collisions,
+                          bool persistent);
 
 /**
  * @brief Query the total number of vanilla and mod objects registered.
@@ -710,7 +715,7 @@ size_t AERObjectGetNumRegistered(void);
  *
  * @since 1.1.0
  */
-int32_t AERObjectGetByName(const char *name);
+int32_t AERObjectGetByName(const char* name);
 
 /**
  * @brief Query the name of an object.
@@ -724,7 +729,7 @@ int32_t AERObjectGetByName(const char *name);
  *
  * @since 1.0.0
  */
-const char *AERObjectGetName(int32_t objIdx);
+const char* AERObjectGetName(int32_t objIdx);
 
 /**
  * @brief Query the parent of an object.
@@ -766,8 +771,10 @@ int32_t AERObjectGetParent(int32_t objIdx);
  *
  * @since 1.0.0
  */
-size_t AERObjectGetChildren(int32_t objIdx, bool recursive, size_t bufSize,
-                            int32_t *objBuf);
+size_t AERObjectGetChildren(int32_t objIdx,
+                            bool recursive,
+                            size_t bufSize,
+                            int32_t* objBuf);
 
 /**
  * @brief Query whether or not an object has collision checking enabled.
@@ -820,9 +827,9 @@ void AERObjectSetCollisions(int32_t objIdx, bool collisions);
  * @sa AERInstanceCreate
  */
 void AERObjectAttachCreateListener(int32_t objIdx,
-                                   bool (*listener)(AEREvent *event,
-                                                    AERInstance *target,
-                                                    AERInstance *other));
+                                   bool (*listener)(AEREvent* event,
+                                                    AERInstance* target,
+                                                    AERInstance* other));
 
 /**
  * @brief Attach a destruction event listener to an object.
@@ -848,9 +855,9 @@ void AERObjectAttachCreateListener(int32_t objIdx,
  * @sa AERInstanceDelete
  */
 void AERObjectAttachDestroyListener(int32_t objIdx,
-                                    bool (*listener)(AEREvent *event,
-                                                     AERInstance *target,
-                                                     AERInstance *other));
+                                    bool (*listener)(AEREvent* event,
+                                                     AERInstance* target,
+                                                     AERInstance* other));
 
 /**
  * @brief Attach an alarm event listener to an object.
@@ -875,10 +882,11 @@ void AERObjectAttachDestroyListener(int32_t objIdx,
  * @sa AERInstanceGetAlarm
  * @sa AERInstanceSetAlarm
  */
-void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
-                                  bool (*listener)(AEREvent *event,
-                                                   AERInstance *target,
-                                                   AERInstance *other));
+void AERObjectAttachAlarmListener(int32_t objIdx,
+                                  uint32_t alarmIdx,
+                                  bool (*listener)(AEREvent* event,
+                                                   AERInstance* target,
+                                                   AERInstance* other));
 
 /**
  * @brief Attach a step event listener to an object.
@@ -899,9 +907,9 @@ void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
  * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachStepListener(int32_t objIdx,
-                                 bool (*listener)(AEREvent *event,
-                                                  AERInstance *target,
-                                                  AERInstance *other));
+                                 bool (*listener)(AEREvent* event,
+                                                  AERInstance* target,
+                                                  AERInstance* other));
 
 /**
  * @brief Attach a pre-step event listener to an object.
@@ -924,9 +932,9 @@ void AERObjectAttachStepListener(int32_t objIdx,
  * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachPreStepListener(int32_t objIdx,
-                                    bool (*listener)(AEREvent *event,
-                                                     AERInstance *target,
-                                                     AERInstance *other));
+                                    bool (*listener)(AEREvent* event,
+                                                     AERInstance* target,
+                                                     AERInstance* other));
 
 /**
  * @brief Attach a post-step event listener to an object.
@@ -947,9 +955,9 @@ void AERObjectAttachPreStepListener(int32_t objIdx,
  * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachPostStepListener(int32_t objIdx,
-                                     bool (*listener)(AEREvent *event,
-                                                      AERInstance *target,
-                                                      AERInstance *other));
+                                     bool (*listener)(AEREvent* event,
+                                                      AERInstance* target,
+                                                      AERInstance* other));
 
 /**
  * @brief Attach a collision event listener to an object.
@@ -976,10 +984,11 @@ void AERObjectAttachPostStepListener(int32_t objIdx,
  * @sa AERObjectGetCollisions
  * @sa AERObjectSetCollisions
  */
-void AERObjectAttachCollisionListener(int32_t targetObjIdx, int32_t otherObjIdx,
-                                      bool (*listener)(AEREvent *event,
-                                                       AERInstance *target,
-                                                       AERInstance *other));
+void AERObjectAttachCollisionListener(int32_t targetObjIdx,
+                                      int32_t otherObjIdx,
+                                      bool (*listener)(AEREvent* event,
+                                                       AERInstance* target,
+                                                       AERInstance* other));
 
 /**
  * @brief Attach an animation-end event listener to an object.
@@ -1004,9 +1013,9 @@ void AERObjectAttachCollisionListener(int32_t targetObjIdx, int32_t otherObjIdx,
  * @sa AERInstanceSetSpriteSpeed
  */
 void AERObjectAttachAnimationEndListener(int32_t objIdx,
-                                         bool (*listener)(AEREvent *event,
-                                                          AERInstance *target,
-                                                          AERInstance *other));
+                                         bool (*listener)(AEREvent* event,
+                                                          AERInstance* target,
+                                                          AERInstance* other));
 
 /**
  * @brief Attach a draw event listener to an object.
@@ -1033,9 +1042,9 @@ void AERObjectAttachAnimationEndListener(int32_t objIdx,
  * @sa draw.h
  */
 void AERObjectAttachDrawListener(int32_t objIdx,
-                                 bool (*listener)(AEREvent *event,
-                                                  AERInstance *target,
-                                                  AERInstance *other));
+                                 bool (*listener)(AEREvent* event,
+                                                  AERInstance* target,
+                                                  AERInstance* other));
 
 /**
  * @brief Attach a GUI-draw event listener to an object.
@@ -1057,8 +1066,8 @@ void AERObjectAttachDrawListener(int32_t objIdx,
  * @sa draw.h
  */
 void AERObjectAttachGUIDrawListener(int32_t objIdx,
-                                    bool (*listener)(AEREvent *event,
-                                                     AERInstance *target,
-                                                     AERInstance *other));
+                                    bool (*listener)(AEREvent* event,
+                                                     AERInstance* target,
+                                                     AERInstance* other));
 
 #endif /* AER_OBJECT_H */

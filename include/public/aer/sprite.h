@@ -3445,8 +3445,11 @@ typedef enum AERSpriteIndex {
  *
  * @sa AERSpriteReplace
  */
-int32_t AERSpriteRegister(const char *name, const char *filename,
-                          size_t numFrames, uint32_t origX, uint32_t origY);
+int32_t AERSpriteRegister(const char* name,
+                          const char* filename,
+                          size_t numFrames,
+                          uint32_t origX,
+                          uint32_t origY);
 
 /**
  * @brief Override a vanilla sprite with a custom sprite.
@@ -3467,8 +3470,11 @@ int32_t AERSpriteRegister(const char *name, const char *filename,
  *
  * @sa AERSpriteRegister
  */
-void AERSpriteReplace(int32_t spriteIdx, const char *filename, size_t numFrames,
-                      uint32_t origX, uint32_t origY);
+void AERSpriteReplace(int32_t spriteIdx,
+                      const char* filename,
+                      size_t numFrames,
+                      uint32_t origX,
+                      uint32_t origY);
 
 /**
  * @brief Query the total number of vanilla and mod sprites registered.
@@ -3494,7 +3500,7 @@ size_t AERSpriteGetNumRegistered(void);
  *
  * @since 1.3.0
  */
-int32_t AERSpriteGetByName(const char *name);
+int32_t AERSpriteGetByName(const char* name);
 
 /**
  * @brief Query the name of a sprite.
@@ -3508,6 +3514,6 @@ int32_t AERSpriteGetByName(const char *name);
  *
  * @since 1.0.0
  */
-const char *AERSpriteGetName(int32_t spriteIdx);
+const char* AERSpriteGetName(int32_t spriteIdx);
 
 #endif /* AER_SPRITE_H */

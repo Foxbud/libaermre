@@ -356,7 +356,7 @@ void AERRoomGoto(int32_t roomIdx);
  *
  * @since 1.3.0
  */
-int32_t AERRoomGetByName(const char *name);
+int32_t AERRoomGetByName(const char* name);
 
 /**
  * @brief Query the name of a room.
@@ -370,6 +370,6 @@ int32_t AERRoomGetByName(const char *name);
  *
  * @since 1.3.0
  */
-const char *AERRoomGetName(int32_t roomIdx);
+const char* AERRoomGetName(int32_t roomIdx);
 
 #endif /* AER_ROOM_H */

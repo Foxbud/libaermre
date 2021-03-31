@@ -34,9 +34,11 @@ extern EventKey currentEvent;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void EventManRegisterEventListener(HLDObject *obj, EventKey key,
-                                   bool (*listener)(AEREvent *, AERInstance *,
-                                                    AERInstance *));
+void EventManRegisterEventListener(HLDObject* obj,
+                                   EventKey key,
+                                   bool (*listener)(AEREvent*,
+                                                    AERInstance*,
+                                                    AERInstance*));
 
 void EventManMaskSubscriptionArrays(void);
 

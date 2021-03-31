@@ -51,33 +51,34 @@
                     ModManGetMod(ModManPeekContext())->name,                   \
                     sizeof(GetAbsKey_buf), GetAbsKey_buf);                     \
             } else {                                                           \
-                LogErr("Key overflow while constructing internal "             \
-                       "configuration key. "                                   \
-                       "Key must be less than %zu characters in length, "      \
-                       "but key was \"%s\".",                                  \
-                       sizeof(GetAbsKey_buf), GetAbsKey_buf);                  \
+                LogErr(                                                        \
+                    "Key overflow while constructing internal "                \
+                    "configuration key. "                                      \
+                    "Key must be less than %zu characters in length, "         \
+                    "but key was \"%s\".",                                     \
+                    sizeof(GetAbsKey_buf), GetAbsKey_buf);                     \
             }                                                                  \
             abort();                                                           \
         }                                                                      \
         GetAbsKey_buf;                                                         \
     })
 
-#define EnsureTypeScalar(entry, expType)                                       \
-    do {                                                                       \
-        ConfEntry *EnsureTypeScalar_entry = (entry);                           \
-        Ensure((EnsureTypeScalar_entry->type == (expType) &&                   \
-                !EnsureTypeScalar_entry->isArray),                             \
-               AER_FAILED_PARSE);                                              \
+#define EnsureTypeScalar(entry, expType)                     \
+    do {                                                     \
+        ConfEntry* EnsureTypeScalar_entry = (entry);         \
+        Ensure((EnsureTypeScalar_entry->type == (expType) && \
+                !EnsureTypeScalar_entry->isArray),           \
+               AER_FAILED_PARSE);                            \
     } while (0)
 
-#define EnsureTypeArr(entry, expType)                                          \
-    do {                                                                       \
-        ConfEntry *EnsureTypeArr_entry = (entry);                              \
-        ConfType EnsureTypeArr_type = EnsureTypeArr_entry->type;               \
-        Ensure(((EnsureTypeArr_type == (expType) ||                            \
-                 EnsureTypeArr_type == CONF_NULL) &&                           \
-                EnsureTypeArr_entry->isArray),                                 \
-               AER_FAILED_PARSE);                                              \
+#define EnsureTypeArr(entry, expType)                            \
+    do {                                                         \
+        ConfEntry* EnsureTypeArr_entry = (entry);                \
+        ConfType EnsureTypeArr_type = EnsureTypeArr_entry->type; \
+        Ensure(((EnsureTypeArr_type == (expType) ||              \
+                 EnsureTypeArr_type == CONF_NULL) &&             \
+                EnsureTypeArr_entry->isArray),                   \
+               AER_FAILED_PARSE);                                \
     } while (0)
 
 /* ----- PRIVATE TYPES ----- */
@@ -97,16 +98,16 @@ typedef struct ConfEntry {
         bool b;
         int64_t i;
         double d;
-        char *s;
-        FoxArray *a;
+        char* s;
+        FoxArray* a;
     } value;
 } ConfEntry;
 
 /* ----- PRIVATE CONSTANTS ----- */
 
-static const char *CONF_FILE = "aer/conf.toml";
+static const char* CONF_FILE = "aer/conf.toml";
 
-static const char *INTERNAL_CONF_NAME = "mre";
+static const char* INTERNAL_CONF_NAME = "mre";
 
 /* ----- PRIVATE GLOBALS ----- */
 
@@ -118,7 +119,7 @@ static FoxArray workingBreaks = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static void PushKey(const char *key) {
+static void PushKey(const char* key) {
     uint32_t keyIdx = 0;
     uint32_t workingIdx = 0;
     if (!FoxArrayMEmpty(uint32_t, &workingBreaks)) {
@@ -128,10 +129,11 @@ static void PushKey(const char *key) {
     do {
         if (workingIdx >= sizeof(workingKey)) {
             workingKey[sizeof(workingKey) - 1] = '\0';
-            LogErr("Key overflow while parsing configuration data. "
-                   "Key must be less than %zu characters in length, "
-                   "but key was \"%s\".",
-                   sizeof(workingKey), workingKey);
+            LogErr(
+                "Key overflow while parsing configuration data. "
+                "Key must be less than %zu characters in length, "
+                "but key was \"%s\".",
+                sizeof(workingKey), workingKey);
             abort();
         }
     } while ((workingKey[workingIdx++] = key[keyIdx++]) != '\0');
@@ -148,10 +150,9 @@ static void PopKey(void) {
     return;
 }
 
-static void ParseValueFromTable(toml_table_t *table, const char *key) {
+static void ParseValueFromTable(toml_table_t* table, const char* key) {
     /* Create configuration entry. */
-    ConfEntry *entry =
-        FoxMapMInsert(const char *, ConfEntry, &conf, workingKey);
+    ConfEntry* entry = FoxMapMInsert(const char*, ConfEntry, &conf, workingKey);
     entry->isArray = false;
     toml_datum_t datum;
 
@@ -187,8 +188,9 @@ static void ParseValueFromTable(toml_table_t *table, const char *key) {
     return;
 }
 
-static toml_datum_t ParseValueFromArray(toml_array_t *array, uint32_t idx,
-                                        ConfType *type) {
+static toml_datum_t ParseValueFromArray(toml_array_t* array,
+                                        uint32_t idx,
+                                        ConfType* type) {
     toml_datum_t result;
 
     /* Boolean. */
@@ -205,23 +207,23 @@ static toml_datum_t ParseValueFromArray(toml_array_t *array, uint32_t idx,
         *type = CONF_STRING;
     /* Invalid. */
     else {
-        LogErr("Array at configuration key \"%s\" "
-               "had unsupported type at index %zu. "
-               "Supported array types are boolean, integer, double and string.",
-               workingKey, idx);
+        LogErr(
+            "Array at configuration key \"%s\" "
+            "had unsupported type at index %zu. "
+            "Supported array types are boolean, integer, double and string.",
+            workingKey, idx);
         abort();
     }
 
     return result;
 }
 
-static void ParseArray(toml_array_t *array) {
+static void ParseArray(toml_array_t* array) {
     /* Create configuration entry. */
-    ConfEntry *entry =
-        FoxMapMInsert(const char *, ConfEntry, &conf, workingKey);
+    ConfEntry* entry = FoxMapMInsert(const char*, ConfEntry, &conf, workingKey);
     entry->isArray = true;
     ConfType entType = CONF_NULL;
-    FoxArray *entArr = NULL;
+    FoxArray* entArr = NULL;
 
     /* Parse each array index. */
     size_t numElems = toml_array_nelem(array);
@@ -231,39 +233,39 @@ static void ParseArray(toml_array_t *array) {
         /* Initialize entry array on first iteration. */
         if (idx == 0) {
             switch (entType) {
-            case CONF_BOOL:
-                entArr = FoxArrayMNewExt(bool, numElems);
-                break;
-            case CONF_INT:
-                entArr = FoxArrayMNewExt(int64_t, numElems);
-                break;
-            case CONF_DOUBLE:
-                entArr = FoxArrayMNewExt(double, numElems);
-                break;
-            case CONF_STRING:
-                entArr = FoxArrayMNewExt(char *, numElems);
-                break;
-            default:
-                break;
+                case CONF_BOOL:
+                    entArr = FoxArrayMNewExt(bool, numElems);
+                    break;
+                case CONF_INT:
+                    entArr = FoxArrayMNewExt(int64_t, numElems);
+                    break;
+                case CONF_DOUBLE:
+                    entArr = FoxArrayMNewExt(double, numElems);
+                    break;
+                case CONF_STRING:
+                    entArr = FoxArrayMNewExt(char*, numElems);
+                    break;
+                default:
+                    break;
             }
         }
 
         /* Add value to entry array. */
         switch (entType) {
-        case CONF_BOOL:
-            *FoxArrayMPush(bool, entArr) = datum.u.b;
-            break;
-        case CONF_INT:
-            *FoxArrayMPush(int64_t, entArr) = datum.u.i;
-            break;
-        case CONF_DOUBLE:
-            *FoxArrayMPush(double, entArr) = datum.u.d;
-            break;
-        case CONF_STRING:
-            *FoxArrayMPush(char *, entArr) = datum.u.s;
-            break;
-        default:
-            break;
+            case CONF_BOOL:
+                *FoxArrayMPush(bool, entArr) = datum.u.b;
+                break;
+            case CONF_INT:
+                *FoxArrayMPush(int64_t, entArr) = datum.u.i;
+                break;
+            case CONF_DOUBLE:
+                *FoxArrayMPush(double, entArr) = datum.u.d;
+                break;
+            case CONF_STRING:
+                *FoxArrayMPush(char*, entArr) = datum.u.s;
+                break;
+            default:
+                break;
         }
     }
 
@@ -274,11 +276,11 @@ static void ParseArray(toml_array_t *array) {
     return;
 }
 
-static void ParseTable(toml_table_t *table) {
+static void ParseTable(toml_table_t* table) {
     /* Parse each table key. */
-    const char *key;
-    toml_table_t *nextTable;
-    toml_array_t *nextArray;
+    const char* key;
+    toml_table_t* nextTable;
+    toml_array_t* nextArray;
     for (uint32_t idx = 0;; idx++) {
         if (!(key = toml_key_in(table, idx)))
             break;
@@ -300,16 +302,16 @@ static void ParseTable(toml_table_t *table) {
     return;
 }
 
-static bool ConfEntryDeinitCallback(ConfEntry *entry, void *ctx) {
+static bool ConfEntryDeinitCallback(ConfEntry* entry, void* ctx) {
     (void)ctx;
 
     ConfType type = entry->type;
     if (entry->isArray && type != CONF_NULL) {
-        FoxArray *array = entry->value.a;
+        FoxArray* array = entry->value.a;
         if (type == CONF_STRING) {
-            size_t numStrings = FoxArrayMSize(char *, array);
+            size_t numStrings = FoxArrayMSize(char*, array);
             for (uint32_t idx = 0; idx < numStrings; idx++) {
-                free(FoxArrayMPop(char *, array));
+                free(FoxArrayMPop(char*, array));
             }
         }
         FoxArrayFree(array);
@@ -332,7 +334,7 @@ void ConfConstructor(void) {
     FoxArrayMInit(uint32_t, &workingBreaks);
 
     /* Open configuration file. */
-    FILE *fp;
+    FILE* fp;
     if (!(fp = fopen(CONF_FILE, "r"))) {
         LogErr("Could not open configuration file \"%s\".", CONF_FILE);
         abort();
@@ -340,12 +342,13 @@ void ConfConstructor(void) {
 
     /* Parse file. */
     char errBuf[256];
-    toml_table_t *data = toml_parse_file(fp, errBuf, sizeof(errBuf));
+    toml_table_t* data = toml_parse_file(fp, errBuf, sizeof(errBuf));
     fclose(fp);
     if (!data) {
-        LogErr("Could not parse configuration file. "
-               "Reported error: \"%s\".",
-               errBuf);
+        LogErr(
+            "Could not parse configuration file. "
+            "Reported error: \"%s\".",
+            errBuf);
         abort();
     }
 
@@ -362,9 +365,9 @@ void ConfConstructor(void) {
 void ConfDestructor(void) {
     LogInfo("Deinitializing configuration module...");
 
-    FoxMapMForEachElement(const char *, ConfEntry, &conf,
+    FoxMapMForEachElement(const char*, ConfEntry, &conf,
                           ConfEntryDeinitCallback, NULL);
-    FoxMapMDeinit(const char *, ConfEntry, &conf);
+    FoxMapMDeinit(const char*, ConfEntry, &conf);
     FoxArrayMDeinit(uint32_t, &workingBreaks);
 
     LogInfo("Done deinitializing configuration module.");
@@ -373,12 +376,12 @@ void ConfDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AER_EXPORT bool AERConfGetBool(const char *key) {
+AER_EXPORT bool AERConfGetBool(const char* key) {
 #define errRet false
     EnsureArg(key);
 
-    char *absKey = GetAbsKey(key);
-    ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
+    char* absKey = GetAbsKey(key);
+    ConfEntry* entry = FoxMapMIndex(const char*, ConfEntry, &conf, absKey);
     EnsureLookup(entry);
     EnsureTypeScalar(entry, CONF_BOOL);
 
@@ -386,20 +389,21 @@ AER_EXPORT bool AERConfGetBool(const char *key) {
 #undef errRet
 }
 
-AER_EXPORT size_t AERConfGetBools(const char *key, size_t bufSize,
-                                  bool *boolBuf) {
+AER_EXPORT size_t AERConfGetBools(const char* key,
+                                  size_t bufSize,
+                                  bool* boolBuf) {
 #define errRet 0
     EnsureArg(key);
     EnsureArgBuf(boolBuf, bufSize);
 
-    char *absKey = GetAbsKey(key);
-    ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
+    char* absKey = GetAbsKey(key);
+    ConfEntry* entry = FoxMapMIndex(const char*, ConfEntry, &conf, absKey);
     EnsureLookup(entry);
     EnsureTypeArr(entry, CONF_BOOL);
     if (entry->type == CONF_NULL)
         Ok(0);
 
-    FoxArray *array = entry->value.a;
+    FoxArray* array = entry->value.a;
     size_t numElems = FoxArrayMSize(bool, array);
     size_t numToWrite = FoxMin(bufSize, numElems);
     for (unsigned int idx = 0; idx < numToWrite; idx++)
@@ -409,12 +413,12 @@ AER_EXPORT size_t AERConfGetBools(const char *key, size_t bufSize,
 #undef errRet
 }
 
-AER_EXPORT int64_t AERConfGetInt(const char *key) {
+AER_EXPORT int64_t AERConfGetInt(const char* key) {
 #define errRet 0
     EnsureArg(key);
 
-    char *absKey = GetAbsKey(key);
-    ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
+    char* absKey = GetAbsKey(key);
+    ConfEntry* entry = FoxMapMIndex(const char*, ConfEntry, &conf, absKey);
     EnsureLookup(entry);
     EnsureTypeScalar(entry, CONF_INT);
 
@@ -422,20 +426,21 @@ AER_EXPORT int64_t AERConfGetInt(const char *key) {
 #undef errRet
 }
 
-AER_EXPORT size_t AERConfGetInts(const char *key, size_t bufSize,
-                                 int64_t *intBuf) {
+AER_EXPORT size_t AERConfGetInts(const char* key,
+                                 size_t bufSize,
+                                 int64_t* intBuf) {
 #define errRet 0
     EnsureArg(key);
     EnsureArgBuf(intBuf, bufSize);
 
-    char *absKey = GetAbsKey(key);
-    ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
+    char* absKey = GetAbsKey(key);
+    ConfEntry* entry = FoxMapMIndex(const char*, ConfEntry, &conf, absKey);
     EnsureLookup(entry);
     EnsureTypeArr(entry, CONF_INT);
     if (entry->type == CONF_NULL)
         Ok(0);
 
-    FoxArray *array = entry->value.a;
+    FoxArray* array = entry->value.a;
     size_t numElems = FoxArrayMSize(int64_t, array);
     size_t numToWrite = FoxMin(bufSize, numElems);
     for (unsigned int idx = 0; idx < numToWrite; idx++)
@@ -445,12 +450,12 @@ AER_EXPORT size_t AERConfGetInts(const char *key, size_t bufSize,
 #undef errRet
 }
 
-AER_EXPORT double AERConfGetDouble(const char *key) {
+AER_EXPORT double AERConfGetDouble(const char* key) {
 #define errRet 0.0
     EnsureArg(key);
 
-    char *absKey = GetAbsKey(key);
-    ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
+    char* absKey = GetAbsKey(key);
+    ConfEntry* entry = FoxMapMIndex(const char*, ConfEntry, &conf, absKey);
     EnsureLookup(entry);
     EnsureTypeScalar(entry, CONF_DOUBLE);
 
@@ -458,20 +463,21 @@ AER_EXPORT double AERConfGetDouble(const char *key) {
 #undef errRet
 }
 
-AER_EXPORT size_t AERConfGetDoubles(const char *key, size_t bufSize,
-                                    double *doubleBuf) {
+AER_EXPORT size_t AERConfGetDoubles(const char* key,
+                                    size_t bufSize,
+                                    double* doubleBuf) {
 #define errRet 0
     EnsureArg(key);
     EnsureArgBuf(doubleBuf, bufSize);
 
-    char *absKey = GetAbsKey(key);
-    ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
+    char* absKey = GetAbsKey(key);
+    ConfEntry* entry = FoxMapMIndex(const char*, ConfEntry, &conf, absKey);
     EnsureLookup(entry);
     EnsureTypeArr(entry, CONF_DOUBLE);
     if (entry->type == CONF_NULL)
         Ok(0);
 
-    FoxArray *array = entry->value.a;
+    FoxArray* array = entry->value.a;
     size_t numElems = FoxArrayMSize(double, array);
     size_t numToWrite = FoxMin(bufSize, numElems);
     for (unsigned int idx = 0; idx < numToWrite; idx++)
@@ -481,12 +487,12 @@ AER_EXPORT size_t AERConfGetDoubles(const char *key, size_t bufSize,
 #undef errRet
 }
 
-AER_EXPORT const char *AERConfGetString(const char *key) {
+AER_EXPORT const char* AERConfGetString(const char* key) {
 #define errRet NULL
     EnsureArg(key);
 
-    char *absKey = GetAbsKey(key);
-    ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
+    char* absKey = GetAbsKey(key);
+    ConfEntry* entry = FoxMapMIndex(const char*, ConfEntry, &conf, absKey);
     EnsureLookup(entry);
     EnsureTypeScalar(entry, CONF_STRING);
 
@@ -494,24 +500,25 @@ AER_EXPORT const char *AERConfGetString(const char *key) {
 #undef errRet
 }
 
-AER_EXPORT size_t AERConfGetStrings(const char *key, size_t bufSize,
-                                    const char **strBuf) {
+AER_EXPORT size_t AERConfGetStrings(const char* key,
+                                    size_t bufSize,
+                                    const char** strBuf) {
 #define errRet 0
     EnsureArg(key);
     EnsureArgBuf(strBuf, bufSize);
 
-    char *absKey = GetAbsKey(key);
-    ConfEntry *entry = FoxMapMIndex(const char *, ConfEntry, &conf, absKey);
+    char* absKey = GetAbsKey(key);
+    ConfEntry* entry = FoxMapMIndex(const char*, ConfEntry, &conf, absKey);
     EnsureLookup(entry);
     EnsureTypeArr(entry, CONF_STRING);
     if (entry->type == CONF_NULL)
         Ok(0);
 
-    FoxArray *array = entry->value.a;
-    size_t numElems = FoxArrayMSize(char *, array);
+    FoxArray* array = entry->value.a;
+    size_t numElems = FoxArrayMSize(char*, array);
     size_t numToWrite = FoxMin(bufSize, numElems);
     for (unsigned int idx = 0; idx < numToWrite; idx++)
-        strBuf[idx] = *FoxArrayMIndex(char *, array, idx);
+        strBuf[idx] = *FoxArrayMIndex(char*, array, idx);
 
     Ok(numElems);
 #undef errRet

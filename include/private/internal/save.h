@@ -24,9 +24,9 @@
 
 int32_t SaveManGetCurrentSlot(void);
 
-void SaveManLoadData(HLDPrimitive *dataMapId);
+void SaveManLoadData(HLDPrimitive* dataMapId);
 
-void SaveManSaveData(HLDPrimitive *dataMapId);
+void SaveManSaveData(HLDPrimitive* dataMapId);
 
 void SaveManConstructor(void);
 

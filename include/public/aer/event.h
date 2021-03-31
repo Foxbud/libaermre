@@ -56,8 +56,9 @@ typedef struct AEREvent {
      *
      * @memberof AEREvent
      */
-    bool (*handle)(struct AEREvent *event, AERInstance *target,
-                   AERInstance *other);
+    bool (*handle)(struct AEREvent* event,
+                   AERInstance* target,
+                   AERInstance* other);
 } AEREvent;
 
 #endif /* AER_EVENT_H */

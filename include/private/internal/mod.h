@@ -27,9 +27,9 @@
 /* ----- INTERNAL TYPES ----- */
 
 typedef struct Mod {
-    void *libHandle;
+    void* libHandle;
     int32_t idx;
-    const char *name;
+    const char* name;
     void (*constructor)(void);
     void (*destructor)(void);
     void (*registerSprites)(void);
@@ -51,7 +51,7 @@ extern const int32_t MOD_NULL;
 
 size_t ModManGetNumMods(void);
 
-Mod *ModManGetMod(int32_t modIdx);
+Mod* ModManGetMod(int32_t modIdx);
 
 void ModManExecuteGameStepListeners(void);
 

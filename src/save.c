@@ -36,15 +36,15 @@
 
 #define HLD_MAIN_MAP_KEY "mod"
 
-#define SaveEntryDeinit(entry)                                                 \
-    do {                                                                       \
-        SaveEntry *SaveEntryDeinit_entry = (entry);                            \
-        if (SaveEntryDeinit_entry->type == SAVE_STRING)                        \
-            free(SaveEntryDeinit_entry->value.s);                              \
-        *SaveEntryDeinit_entry = (SaveEntry){0};                               \
+#define SaveEntryDeinit(entry)                          \
+    do {                                                \
+        SaveEntry* SaveEntryDeinit_entry = (entry);     \
+        if (SaveEntryDeinit_entry->type == SAVE_STRING) \
+            free(SaveEntryDeinit_entry->value.s);       \
+        *SaveEntryDeinit_entry = (SaveEntry){0};        \
     } while (0)
 
-#define EnsureType(entry, expType)                                             \
+#define EnsureType(entry, expType) \
     Ensure(((entry)->type == (expType)), AER_FAILED_PARSE);
 
 /* ----- PRIVATE TYPES ----- */
@@ -55,17 +55,17 @@ typedef struct SaveEntry {
     SaveType type;
     union {
         double d;
-        char *s;
+        char* s;
     } value;
 } SaveEntry;
 
 typedef struct SaveEntryRecordContext {
-    const char *modName;
+    const char* modName;
     HLDPrimitive hldModMapId;
 } SaveEntryRecordContext;
 
 typedef struct SaveEntryGetKeysContext {
-    const char **const keyBuf;
+    const char** const keyBuf;
     size_t numToWrite;
 } SaveEntryGetKeysContext;
 
@@ -75,7 +75,7 @@ static FoxArray modMaps = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static bool SaveEntryDeinitCallback(SaveEntry *entry, void *ctx) {
+static bool SaveEntryDeinitCallback(SaveEntry* entry, void* ctx) {
     (void)ctx;
 
     SaveEntryDeinit(entry);
@@ -83,34 +83,36 @@ static bool SaveEntryDeinitCallback(SaveEntry *entry, void *ctx) {
     return true;
 }
 
-static bool SaveEntryRecordCallback(const char **key, SaveEntry *entry,
-                                    SaveEntryRecordContext *ctx) {
+static bool SaveEntryRecordCallback(const char** key,
+                                    SaveEntry* entry,
+                                    SaveEntryRecordContext* ctx) {
     /* Copy value to HLD primitive. */
     HLDPrimitiveMakeUndefined(hldVal);
     switch (entry->type) {
-    case SAVE_DOUBLE: {
-        /* Copy double value. */
-        HLDPrimitiveMakeReal(tmpVal, entry->value.d);
-        hldVal = tmpVal;
-        break;
-    }
+        case SAVE_DOUBLE: {
+            /* Copy double value. */
+            HLDPrimitiveMakeReal(tmpVal, entry->value.d);
+            hldVal = tmpVal;
+            break;
+        }
 
-    case SAVE_STRING: {
-        /* Copy string value. */
-        size_t valLen = strlen(entry->value.s);
-        HLDPrimitiveMakeStringH(
-            tmpVal, memcpy(malloc(valLen + 1), entry->value.s, valLen + 1),
-            valLen);
-        hldVal = tmpVal;
-        break;
-    }
+        case SAVE_STRING: {
+            /* Copy string value. */
+            size_t valLen = strlen(entry->value.s);
+            HLDPrimitiveMakeStringH(
+                tmpVal, memcpy(malloc(valLen + 1), entry->value.s, valLen + 1),
+                valLen);
+            hldVal = tmpVal;
+            break;
+        }
 
-    default:
-        /* Illegal value. */
-        LogErr("Encountered illegal SaveEntry type %i while "
-               "saving key \"%s\" of \"%s\" mod's data!",
-               entry->type, *key, ctx->modName);
-        abort();
+        default:
+            /* Illegal value. */
+            LogErr(
+                "Encountered illegal SaveEntry type %i while "
+                "saving key \"%s\" of \"%s\" mod's data!",
+                entry->type, *key, ctx->modName);
+            abort();
     }
 
     /* Insert value into hld sub-map. */
@@ -122,8 +124,8 @@ static bool SaveEntryRecordCallback(const char **key, SaveEntry *entry,
     return true;
 }
 
-static bool SaveEntryGetKeysCallback(const char **key,
-                                     SaveEntryGetKeysContext *ctx) {
+static bool SaveEntryGetKeysCallback(const char** key,
+                                     SaveEntryGetKeysContext* ctx) {
     if (ctx->numToWrite == 0)
         return false;
 
@@ -135,10 +137,10 @@ static bool SaveEntryGetKeysCallback(const char **key,
 static void ResetModMaps(void) {
     size_t numMods = FoxArrayMSize(FoxMap, &modMaps);
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        FoxMap *map = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
-        FoxMapMForEachElement(const char *, SaveEntry, map,
+        FoxMap* map = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        FoxMapMForEachElement(const char*, SaveEntry, map,
                               SaveEntryDeinitCallback, NULL);
-        FoxMapMDeinit(const char *, SaveEntry, map);
+        FoxMapMDeinit(const char*, SaveEntry, map);
         FoxStringMapMInit(SaveEntry, map);
     }
 
@@ -149,19 +151,19 @@ static void ResetModMaps(void) {
 
 int32_t SaveManGetCurrentSlot(void) {
     /* Get data instance. */
-    HLDObject *dataObj = HLDObjectLookup(AER_OBJECT_DATA);
+    HLDObject* dataObj = HLDObjectLookup(AER_OBJECT_DATA);
     assert(dataObj->numInstances == 1);
-    HLDInstance *dataInst = dataObj->instanceFirst->item;
+    HLDInstance* dataInst = dataObj->instanceFirst->item;
 
     /* Get save slot local. */
-    HLDPrimitive *saveSlotLocal = HLDClosedHashTableLookup(
+    HLDPrimitive* saveSlotLocal = HLDClosedHashTableLookup(
         dataInst->locals, 0x4a0 /* "currentSaveFileNo" */);
     assert(saveSlotLocal);
 
     return (int32_t)saveSlotLocal->value.r;
 }
 
-void SaveManLoadData(HLDPrimitive *hldDataMapId) {
+void SaveManLoadData(HLDPrimitive* hldDataMapId) {
     LogInfo("Loading mod data...");
     ResetModMaps();
 
@@ -180,7 +182,7 @@ void SaveManLoadData(HLDPrimitive *hldDataMapId) {
     size_t numMods = FoxArrayMSize(FoxMap, &modMaps);
     size_t numModsWithData = 0;
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        const char *modName = ModManGetMod(modIdx)->name;
+        const char* modName = ModManGetMod(modIdx)->name;
         HLDPrimitiveMakeStringS(hldModMapKey, modName, strlen(modName));
         HLDPrimitive hldModMapId =
             HLDAPICall(hldfuncs.API_dsMapFindValue, hldMainMapId, hldModMapKey);
@@ -190,45 +192,46 @@ void SaveManLoadData(HLDPrimitive *hldDataMapId) {
         numModsWithData++;
 
         /* Copy entries from HLD map to our map. */
-        FoxMap *modMap = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
-        HLDOpenHashTable *hldModMap =
-            *((HLDOpenHashTable ***)
+        FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        HLDOpenHashTable* hldModMap =
+            *((HLDOpenHashTable***)
                   hldvars.maps->elements)[(int32_t)hldModMapId.value.r];
         uint32_t entriesLeft = hldModMap->numItems;
-        HLDOpenHashSlot *curSlot = hldModMap->slots;
+        HLDOpenHashSlot* curSlot = hldModMap->slots;
         while (entriesLeft > 0) {
-            HLDOpenHashItem *item = (curSlot++)->first;
+            HLDOpenHashItem* item = (curSlot++)->first;
             while (item) {
                 struct {
                     HLDPrimitive key;
                     HLDPrimitive value;
-                } *wrapper = item->value;
+                }* wrapper = item->value;
                 assert(wrapper->key.type == HLD_PRIMITIVE_STRING);
-                const char *entryKey =
-                    ((HLDPrimitiveString *)wrapper->key.value.p)->chars;
-                SaveEntry *entry =
-                    FoxMapMInsert(const char *, SaveEntry, modMap, entryKey);
+                const char* entryKey =
+                    ((HLDPrimitiveString*)wrapper->key.value.p)->chars;
+                SaveEntry* entry =
+                    FoxMapMInsert(const char*, SaveEntry, modMap, entryKey);
                 switch (wrapper->value.type) {
-                case HLD_PRIMITIVE_REAL:
-                    /* Copy double value. */
-                    entry->type = SAVE_DOUBLE;
-                    entry->value.d = wrapper->value.value.r;
-                    break;
+                    case HLD_PRIMITIVE_REAL:
+                        /* Copy double value. */
+                        entry->type = SAVE_DOUBLE;
+                        entry->value.d = wrapper->value.value.r;
+                        break;
 
-                case HLD_PRIMITIVE_STRING:
-                    /* Copy string value. */
-                    entry->type = SAVE_STRING;
-                    HLDPrimitiveString *str = wrapper->value.value.p;
-                    entry->value.s = memcpy(malloc(str->length + 1), str->chars,
-                                            str->length + 1);
-                    break;
+                    case HLD_PRIMITIVE_STRING:
+                        /* Copy string value. */
+                        entry->type = SAVE_STRING;
+                        HLDPrimitiveString* str = wrapper->value.value.p;
+                        entry->value.s = memcpy(malloc(str->length + 1),
+                                                str->chars, str->length + 1);
+                        break;
 
-                default:
-                    /* Illegal value. */
-                    LogErr("Encountered illegal HLDPrimitive type %i while "
-                           "loading key \"%s\" of \"%s\" mod's data!",
-                           wrapper->value.type, entryKey, modName);
-                    abort();
+                    default:
+                        /* Illegal value. */
+                        LogErr(
+                            "Encountered illegal HLDPrimitive type %i while "
+                            "loading key \"%s\" of \"%s\" mod's data!",
+                            wrapper->value.type, entryKey, modName);
+                        abort();
                 }
                 if (--entriesLeft == 0)
                     break;
@@ -243,15 +246,15 @@ void SaveManLoadData(HLDPrimitive *hldDataMapId) {
     return;
 }
 
-void SaveManSaveData(HLDPrimitive *hldDataMapId) {
+void SaveManSaveData(HLDPrimitive* hldDataMapId) {
     LogInfo("Saving mod data...");
 
     /* Determine whether any mod data to save. */
     bool isModData = false;
     size_t numMods = FoxArrayMSize(FoxMap, &modMaps);
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        FoxMap *modMap = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
-        if ((isModData = !FoxMapMEmpty(const char *, SaveEntry, modMap)))
+        FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        if ((isModData = !FoxMapMEmpty(const char*, SaveEntry, modMap)))
             break;
     }
     if (!isModData) {
@@ -271,15 +274,15 @@ void SaveManSaveData(HLDPrimitive *hldDataMapId) {
     /* Create HLD sub-maps for each mod's data. */
     size_t numModsWithData = 0;
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        FoxMap *modMap = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
         /* Skip if no mod data. */
-        if (FoxMapMEmpty(const char *, SaveEntry, modMap))
+        if (FoxMapMEmpty(const char*, SaveEntry, modMap))
             continue;
         numModsWithData++;
 
         /* Create HLD sub-map. */
         HLDPrimitive hldModMapId = HLDAPICall(hldfuncs.API_dsMapCreate);
-        const char *modName = ModManGetMod(modIdx)->name;
+        const char* modName = ModManGetMod(modIdx)->name;
         size_t modNameLen = strlen(modName);
         HLDPrimitiveMakeStringH(
             hldModMapKey,
@@ -291,7 +294,7 @@ void SaveManSaveData(HLDPrimitive *hldDataMapId) {
         /* Record values to HLD sub-map. */
         SaveEntryRecordContext ctx = {.hldModMapId = hldModMapId,
                                       .modName = modName};
-        FoxMapMForEachPair(const char *, SaveEntry, modMap,
+        FoxMapMForEachPair(const char*, SaveEntry, modMap,
                            SaveEntryRecordCallback, &ctx);
     }
 
@@ -318,10 +321,10 @@ void SaveManDestructor(void) {
 
     size_t numMods = FoxArrayMSize(FoxMap, &modMaps);
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        FoxMap *map = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
-        FoxMapMForEachElement(const char *, SaveEntry, map,
+        FoxMap* map = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        FoxMapMForEachElement(const char*, SaveEntry, map,
                               SaveEntryDeinitCallback, NULL);
-        FoxMapMDeinit(const char *, SaveEntry, map);
+        FoxMapMDeinit(const char*, SaveEntry, map);
     }
     FoxArrayMDeinit(FoxMap, &modMaps);
 
@@ -339,54 +342,54 @@ AER_EXPORT int32_t AERSaveGetCurrentSlot(void) {
 #undef errRet
 }
 
-AER_EXPORT size_t AERSaveGetKeys(size_t bufSize, const char **keyBuf) {
+AER_EXPORT size_t AERSaveGetKeys(size_t bufSize, const char** keyBuf) {
 #define errRet 0
     EnsureStage(STAGE_ACTION);
     EnsureArgBuf(keyBuf, bufSize);
 
     /* Get mod map. */
     assert(ModManHasContext());
-    FoxMap *modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
 
     /* Write keys to buffer. */
-    size_t numKeys = FoxMapMSize(const char *, SaveEntry, modMap);
+    size_t numKeys = FoxMapMSize(const char*, SaveEntry, modMap);
     SaveEntryGetKeysContext ctx = {.keyBuf = keyBuf,
                                    .numToWrite = FoxMin(numKeys, bufSize)};
-    FoxMapMForEachKey(const char *, SaveEntry, modMap, SaveEntryGetKeysCallback,
+    FoxMapMForEachKey(const char*, SaveEntry, modMap, SaveEntryGetKeysCallback,
                       &ctx);
 
     Ok(numKeys);
 #undef errRet
 }
 
-AER_EXPORT void AERSaveDestroy(const char *key) {
+AER_EXPORT void AERSaveDestroy(const char* key) {
 #define errRet
     EnsureStage(STAGE_ACTION);
     EnsureArg(key);
 
     /* Get entry. */
     assert(ModManHasContext());
-    FoxMap *modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
-    SaveEntry *entry = FoxMapMIndex(const char *, SaveEntry, modMap, key);
+    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     EnsureLookup(entry);
 
     /* Destroy entry. */
     SaveEntryDeinit(entry);
-    FoxMapMRemove(const char *, SaveEntry, modMap, key);
+    FoxMapMRemove(const char*, SaveEntry, modMap, key);
 
     Ok();
 #undef errRet
 }
 
-AER_EXPORT double AERSaveGetDouble(const char *key) {
+AER_EXPORT double AERSaveGetDouble(const char* key) {
 #define errRet 0.0
     EnsureStage(STAGE_ACTION);
     EnsureArg(key);
 
     /* Get entry. */
     assert(ModManHasContext());
-    FoxMap *modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
-    SaveEntry *entry = FoxMapMIndex(const char *, SaveEntry, modMap, key);
+    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     EnsureLookup(entry);
     EnsureType(entry, SAVE_DOUBLE);
 
@@ -395,7 +398,7 @@ AER_EXPORT double AERSaveGetDouble(const char *key) {
 #undef errRet
 }
 
-AER_EXPORT void AERSaveSetDouble(const char *key, double value) {
+AER_EXPORT void AERSaveSetDouble(const char* key, double value) {
 #define errRet
     EnsureStage(STAGE_ACTION);
     EnsureArg(key);
@@ -403,14 +406,14 @@ AER_EXPORT void AERSaveSetDouble(const char *key, double value) {
 
     /* Get entry. */
     assert(ModManHasContext());
-    FoxMap *modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
-    SaveEntry *entry = FoxMapMIndex(const char *, SaveEntry, modMap, key);
+    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     if (entry)
         /* Reset entry. */
         SaveEntryDeinit(entry);
     else
         /* Create entry. */
-        entry = FoxMapMInsert(const char *, SaveEntry, modMap, key);
+        entry = FoxMapMInsert(const char*, SaveEntry, modMap, key);
 
     /* Set entry value. */
     entry->type = SAVE_DOUBLE;
@@ -420,15 +423,15 @@ AER_EXPORT void AERSaveSetDouble(const char *key, double value) {
 #undef errRet
 }
 
-AER_EXPORT const char *AERSaveGetString(const char *key) {
+AER_EXPORT const char* AERSaveGetString(const char* key) {
 #define errRet NULL
     EnsureStage(STAGE_ACTION);
     EnsureArg(key);
 
     /* Get entry. */
     assert(ModManHasContext());
-    FoxMap *modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
-    SaveEntry *entry = FoxMapMIndex(const char *, SaveEntry, modMap, key);
+    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     EnsureLookup(entry);
     EnsureType(entry, SAVE_STRING);
 
@@ -437,7 +440,7 @@ AER_EXPORT const char *AERSaveGetString(const char *key) {
 #undef errRet
 }
 
-AER_EXPORT void AERSaveSetString(const char *key, const char *value) {
+AER_EXPORT void AERSaveSetString(const char* key, const char* value) {
 #define errRet
     EnsureStage(STAGE_ACTION);
     EnsureArg(key);
@@ -445,14 +448,14 @@ AER_EXPORT void AERSaveSetString(const char *key, const char *value) {
 
     /* Get entry. */
     assert(ModManHasContext());
-    FoxMap *modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
-    SaveEntry *entry = FoxMapMIndex(const char *, SaveEntry, modMap, key);
+    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     if (entry)
         /* Reset entry. */
         SaveEntryDeinit(entry);
     else
         /* Create entry. */
-        entry = FoxMapMInsert(const char *, SaveEntry, modMap, key);
+        entry = FoxMapMInsert(const char*, SaveEntry, modMap, key);
 
     /* Set entry value. */
     entry->type = SAVE_STRING;

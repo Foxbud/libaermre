@@ -17,37 +17,40 @@
 #define INTERNAL_ERR_H
 
 #include "aer/err.h"
+#include "internal/core.h"
 #include "internal/log.h"
 #include "internal/mod.h"
 
 /* ----- INTERNAL MACROS ----- */
 
-#define Ok(...)                                                                \
-    do {                                                                       \
-        aererr = AER_OK;                                                       \
-        return __VA_ARGS__;                                                    \
+#define Ok(...)             \
+    do {                    \
+        aererr = AER_OK;    \
+        return __VA_ARGS__; \
     } while (0)
 
-#define Ensure(cond, err)                                                      \
-    do {                                                                       \
-        if (!(cond)) {                                                         \
-            if (aererr != AER_TRY) {                                           \
-                if (ModManHasContext()) {                                      \
-                    LogWarn("Potentially unhandled error \"%s\" occurred "     \
-                            "during call to "                                  \
-                            "function \"%s\" by mod \"%s\".",                  \
-                            #err, __func__,                                    \
-                            ModManGetMod(ModManPeekContext())->name);          \
-                } else {                                                       \
-                    LogWarn("Potentially unhandled error \"%s\" occurred "     \
-                            "during internal "                                 \
-                            "call to function \"%s\".",                        \
-                            #err, __func__);                                   \
-                }                                                              \
-            }                                                                  \
-            aererr = (err);                                                    \
-            return errRet;                                                     \
-        }                                                                      \
+#define Ensure(cond, err)                                              \
+    do {                                                               \
+        if (!(cond)) {                                                 \
+            if (aererr != AER_TRY) {                                   \
+                if (ModManHasContext()) {                              \
+                    LogWarn(                                           \
+                        "Potentially unhandled error \"%s\" occurred " \
+                        "during call to "                              \
+                        "function \"%s\" by mod \"%s\".",              \
+                        #err, __func__,                                \
+                        ModManGetMod(ModManPeekContext())->name);      \
+                } else {                                               \
+                    LogWarn(                                           \
+                        "Potentially unhandled error \"%s\" occurred " \
+                        "during internal "                             \
+                        "call to function \"%s\".",                    \
+                        #err, __func__);                               \
+                }                                                      \
+            }                                                          \
+            aererr = (err);                                            \
+            return errRet;                                             \
+        }                                                              \
     } while (0)
 
 #define EnsureArg(arg) Ensure((arg), AER_NULL_ARG)
@@ -64,20 +67,20 @@
 
 #define EnsureMaxExc(val, max) Ensure(((val) < (typeof(val))(max)), AER_BAD_VAL)
 
-#define EnsureRange(val, min, max)                                             \
-    do {                                                                       \
-        typeof(val) EnsureRange_val = (val);                                   \
-        Ensure((EnsureRange_val >= (typeof(val))(min) &&                       \
-                EnsureRange_val <= (typeof(val))(max)),                        \
-               AER_BAD_VAL);                                                   \
+#define EnsureRange(val, min, max)                       \
+    do {                                                 \
+        typeof(val) EnsureRange_val = (val);             \
+        Ensure((EnsureRange_val >= (typeof(val))(min) && \
+                EnsureRange_val <= (typeof(val))(max)),  \
+               AER_BAD_VAL);                             \
     } while (0)
 
-#define EnsureRangeExc(val, min, max)                                          \
-    do {                                                                       \
-        typeof(val) EnsureRangeExc_val = (val);                                \
-        Ensure((EnsureRangeExc_val > (typeof(val))(min) &&                     \
-                EnsureRangeExc_val < (typeof(val))(max)),                      \
-               AER_BAD_VAL);                                                   \
+#define EnsureRangeExc(val, min, max)                      \
+    do {                                                   \
+        typeof(val) EnsureRangeExc_val = (val);            \
+        Ensure((EnsureRangeExc_val > (typeof(val))(min) && \
+                EnsureRangeExc_val < (typeof(val))(max)),  \
+               AER_BAD_VAL);                               \
     } while (0)
 
 #define EnsureProba(val) EnsureRange((val), 0.0f, 1.0f)
