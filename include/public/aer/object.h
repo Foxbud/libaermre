@@ -832,6 +832,33 @@ bool AERObjectGetPersistent(int32_t objIdx);
 void AERObjectSetPersistent(int32_t objIdx, bool persistent);
 
 /**
+ * @brief Query the default visibility of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ *
+ * @return Default visibility or `false` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.3.0
+ */
+bool AERObjectGetVisible(int32_t objIdx);
+
+/**
+ * @brief Set the default visibility of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] visible Default visibility.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.3.0
+ */
+void AERObjectSetVisible(int32_t objIdx, bool visible);
+
+/**
  * @brief Attach a creation event listener to an object.
  *
  * This event listener is called whenever an instance of the object

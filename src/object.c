@@ -317,6 +317,29 @@ AER_EXPORT void AERObjectSetPersistent(int32_t objIdx, bool persistent) {
 #undef errRet
 }
 
+AER_EXPORT bool AERObjectGetVisible(int32_t objIdx) {
+#define errRet false
+    EnsureStage(STAGE_OBJECT_REG);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+
+    Ok(obj->flags.visible);
+#undef errRet
+}
+
+AER_EXPORT void AERObjectSetVisible(int32_t objIdx, bool visible) {
+#define errRet
+    EnsureStage(STAGE_OBJECT_REG);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+    obj->flags.visible = visible;
+
+    Ok();
+#undef errRet
+}
+
 AER_EXPORT void AERObjectAttachCreateListener(int32_t objIdx,
                                               bool (*listener)(AEREvent*,
                                                                AERInstance*,
