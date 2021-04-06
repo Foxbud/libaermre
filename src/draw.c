@@ -72,6 +72,36 @@ void AERDrawLineAdv(float x1,
 #undef errRet
 }
 
+AER_EXPORT void AERDrawEllipse(float left,
+                               float top,
+                               float right,
+                               float bottom,
+                               uint32_t color,
+                               bool outline) {
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
+
+    hldfuncs.actionDrawEllipse(left, top, right, bottom, color, color, outline);
+
+    Ok();
+}
+
+AER_EXPORT void AERDrawEllipseAdv(float left,
+                                  float top,
+                                  float right,
+                                  float bottom,
+                                  uint32_t colorCenter,
+                                  uint32_t colorEdge,
+                                  bool outline) {
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
+
+    hldfuncs.actionDrawEllipse(left, top, right, bottom, colorCenter, colorEdge,
+                               outline);
+
+    Ok();
+}
+
 AER_EXPORT void AERDrawTriangle(float x1,
                                 float y1,
                                 float x2,

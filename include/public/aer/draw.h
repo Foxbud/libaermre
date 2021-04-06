@@ -111,7 +111,7 @@ void AERDrawLine(float x1, float y1, float x2, float y2, uint32_t color);
  *
  * @since 1.3.0
  *
- * @sa AERDrawLineAdv
+ * @sa AERDrawLine
  */
 void AERDrawLineAdv(float x1,
                     float y1,
@@ -120,6 +120,64 @@ void AERDrawLineAdv(float x1,
                     float width,
                     uint32_t color1,
                     uint32_t color2);
+
+/**
+ * @brief Draw an ellipse to the screen.
+ *
+ * @param[in] left X-intercept of the left side of ellipse (in room space).
+ * @param[in] top Y-intercept of the top side of ellipse (in room space).
+ * @param[in] right X-intercept of the right side of ellipse (in room space).
+ * @param[in] bottom Y-intercept of the bottom side of ellipse (in room
+ * space).
+ * @param[in] color Color of the ellipse. See @ref DrawColors for more
+ * infomation.
+ * @param[in] outline Whether to render a solid ellipse (`false`) or a `1`
+ * pixel wide outline of an ellipse (`true`).
+ *
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ *
+ * @since 1.3.0
+ *
+ * @sa AERDrawEllipseAdv
+ */
+void AERDrawEllipse(float left,
+                    float top,
+                    float right,
+                    float bottom,
+                    uint32_t color,
+                    bool outline);
+
+/**
+ * @brief Draw an ellipse to the screen.
+ *
+ * If more than one color is provided, then the engine will render a smooth
+ * gradient.
+ *
+ * @param[in] left X-intercept of the left side of ellipse (in room space).
+ * @param[in] top Y-intercept of the top side of ellipse (in room space).
+ * @param[in] right X-intercept of the right side of ellipse (in room space).
+ * @param[in] bottom Y-intercept of the bottom side of ellipse (in room
+ * space).
+ * @param[in] colorCenter Color of the center ellipse. See @ref DrawColors for
+ * more infomation.
+ * @param[in] colorEdge Color of the edge ellipse. See @ref DrawColors for more
+ * infomation.
+ * @param[in] outline Whether to render a solid ellipse (`false`) or a `1`
+ * pixel wide outline of an ellipse (`true`).
+ *
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ *
+ * @since 1.3.0
+ *
+ * @sa AERDrawEllipse
+ */
+void AERDrawEllipseAdv(float left,
+                       float top,
+                       float right,
+                       float bottom,
+                       uint32_t colorCenter,
+                       uint32_t colorEdge,
+                       bool outline);
 
 /**
  * @brief Draw a triangle to the screen.

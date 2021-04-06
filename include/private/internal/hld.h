@@ -714,6 +714,14 @@ typedef struct __attribute__((packed)) HLDFunctions {
                            float width,
                            uint32_t color1,
                            uint32_t color2);
+    /* Draw an ellipse to the screen. */
+    void (*actionDrawEllipse)(float left,
+                              float top,
+                              float right,
+                              float bottom,
+                              uint32_t colorCenter,
+                              uint32_t colorEdge,
+                              bool outline);
     /* Draw a triangle to the screen. */
     void (*actionDrawTriangle)(float x1,
                                float y1,
