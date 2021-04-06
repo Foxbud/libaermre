@@ -51,7 +51,7 @@
                         #err, __func__);                               \
                 }                                                      \
                 if (opts.promoteUnhandledErrors) {                     \
-                    LogErr("Promoting potentially unhandled error!");  \
+                    LogErr("Promoting potentially unhandled error.");  \
                     abort();                                           \
                 }                                                      \
             }                                                          \

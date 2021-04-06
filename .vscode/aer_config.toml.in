@@ -1,5 +1,6 @@
 [mre]
 mods = [
     ${extraModNames}
+    "blah"
 ]
 error.promote_unhandled = true

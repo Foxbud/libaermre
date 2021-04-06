@@ -47,11 +47,11 @@ void OptionConstructor(void) {
         case AER_FAILED_PARSE:
             LogErr(
                 "Required configuration key \"%s\" must be an array of "
-                "strings!",
+                "strings.",
                 key);
             abort();
         default:
-            LogErr("Required configuration key \"%s\" is undefined!", key);
+            LogErr("Required configuration key \"%s\" is undefined.", key);
             abort();
     }
 
@@ -67,7 +67,7 @@ void OptionConstructor(void) {
                 key, opts.promoteUnhandledErrors);
             break;
         case AER_FAILED_PARSE:
-            LogErr("Optional configuration key \"%s\" must be a boolean!", key);
+            LogErr("Optional configuration key \"%s\" must be a boolean.", key);
             abort();
         default:
             LogInfo(

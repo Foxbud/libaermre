@@ -79,8 +79,11 @@ static void ModInit(Mod* mod, int32_t idx, const char* name) {
     if (!(mod->libHandle = libHandle)) {
         LogErr(
             "While loading mod \"%s\", could not load corresponding library "
-            "\"%s\". Make sure its directory is in the \"LD_LIBRARY_PATH\" "
-            "environment variable.",
+            "\"%s\".\n"
+            "If you are using this mod, make sure its directory is in "
+            "the \"LD_LIBRARY_PATH\" environment variable.\n"
+            "If you are developing this mod, make sure all of the symbols it "
+            "references are defined.",
             name, libname);
         abort();
     }
