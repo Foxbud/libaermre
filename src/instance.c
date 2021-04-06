@@ -334,6 +334,26 @@ AER_EXPORT int32_t AERInstanceGetObject(AERInstance* inst) {
 #undef errRet
 }
 
+AER_EXPORT bool AERInstanceGetDeactivated(AERInstance* inst) {
+#define errRet false
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+
+    Ok(((HLDInstance*)inst)->deactivated);
+#undef errRet
+}
+
+AER_EXPORT void AERInstanceSetDeactivated(AERInstance* inst, bool deactivated) {
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+
+    ((HLDInstance*)inst)->deactivated = deactivated;
+
+    Ok();
+#undef errRet
+}
+
 AER_EXPORT void AERInstanceGetPosition(AERInstance* inst, float* x, float* y) {
 #define errRet
 #define inst ((HLDInstance*)inst)

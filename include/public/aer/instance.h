@@ -275,6 +275,33 @@ int32_t AERInstanceGetId(AERInstance* inst);
 int32_t AERInstanceGetObject(AERInstance* inst);
 
 /**
+ * @brief Query whether or not an instance is deactivated.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Whether or not instance is deactivated or `false` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.3.0
+ */
+bool AERInstanceGetDeactivated(AERInstance* inst);
+
+/**
+ * @brief Set the deactivation state of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] deactivated Deactivation state.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.3.0
+ */
+void AERInstanceSetDeactivated(AERInstance* inst, bool deactivated);
+
+/**
  * @brief Query the position of an instance in the current room.
  *
  * If only one component of the position is needed, then the argument for the
