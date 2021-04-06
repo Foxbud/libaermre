@@ -27,6 +27,8 @@
 
 /* ----- PUBLIC TYPES ----- */
 
+/* Hack required to get Doxygen to parse deprecated symbols correctly. */
+#define AER_KEY_ERASE AER_KEY_ERASE __attribute__((deprecated))
 /**
  * @brief Indexes for keypresses in input lookup table.
  *
@@ -36,9 +38,20 @@ typedef enum AERInputKey {
     AER_KEY_INTERRUPT = 0x3,
     AER_KEY_BACKSPACE = 0x8,
     AER_KEY_TAB = 0x9,
+    /**
+     * @since 1.3.0
+     */
+    AER_KEY_ERASE_AFTER = 0xb,
     AER_KEY_ENTER = 0xd,
     AER_KEY_CAPSLOCK = 0x14,
+    /**
+     * @deprecated Since 1.3.0. Use ::AER_KEY_ERASE_BEFORE instead.
+     */
     AER_KEY_ERASE = 0x15,
+    /**
+     * @since 1.3.0
+     */
+    AER_KEY_ERASE_BEFORE = 0x15,
     AER_KEY_ESCAPE = 0x1b,
     AER_KEY_SPACE = 0x20,
     AER_KEY_PAGEUP = 0x21,
@@ -153,6 +166,8 @@ typedef enum AERInputKey {
     AER_KEY_HASH = 0xde,
     AER_KEY_BACKTICK = 0xdf
 } AERInputKey;
+/* Hack required to get Doxygen to parse deprecated symbols correctly. */
+#undef AER_KEY_ERASE
 
 /* ----- PUBLIC CONSTANTS ----- */
 
