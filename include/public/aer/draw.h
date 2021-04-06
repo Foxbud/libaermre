@@ -74,6 +74,54 @@ float AERDrawGetCurrentAlpha(void);
 void AERDrawSetCurrentAlpha(float alpha);
 
 /**
+ * @brief Draw a line to the screen.
+ *
+ * @param[in] x1 Horizontal position of line start (in room space).
+ * @param[in] y1 Vertical position of line start (in room space).
+ * @param[in] x2 Horizontal position of line end (in room space).
+ * @param[in] y2 Vertical position of line end (in room space).
+ * @param[in] color Color of the line. See @ref DrawColors for more
+ * infomation.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ *
+ * @since 1.3.0
+ *
+ * @sa AERDrawLineAdv
+ */
+void AERDrawLine(float x1, float y1, float x2, float y2, uint32_t color);
+
+/**
+ * @brief Draw a line to the screen.
+ *
+ * If more than one color is provided, then the engine will render a smooth
+ * gradient.
+ *
+ * @param[in] x1 Horizontal position of line start (in room space).
+ * @param[in] y1 Vertical position of line start (in room space).
+ * @param[in] x2 Horizontal position of line end (in room space).
+ * @param[in] y2 Vertical position of line end (in room space).
+ * @param[in] width Line width in pixels.
+ * @param[in] color1 Color of the start of the line. See @ref DrawColors for
+ * more infomation.
+ * @param[in] color2 Color of the end of the line. See @ref DrawColors for
+ * more infomation.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ *
+ * @since 1.3.0
+ *
+ * @sa AERDrawLineAdv
+ */
+void AERDrawLineAdv(float x1,
+                    float y1,
+                    float x2,
+                    float y2,
+                    float width,
+                    uint32_t color1,
+                    uint32_t color2);
+
+/**
  * @brief Draw a triangle to the screen.
  *
  * @param[in] x1 Horizontal position of first vertex (in room space).
