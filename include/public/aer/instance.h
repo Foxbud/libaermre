@@ -302,6 +302,33 @@ bool AERInstanceGetDeactivated(AERInstance* inst);
 void AERInstanceSetDeactivated(AERInstance* inst, bool deactivated);
 
 /**
+ * @brief Query the persistence of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ *
+ * @return Instance persistence or `false` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.3.0
+ */
+bool AERInstanceGetPersistent(AERInstance* inst);
+
+/**
+ * @brief Set the persistence of an instance.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] persistent Persistence.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ *
+ * @since 1.3.0
+ */
+void AERInstanceSetPersistent(AERInstance* inst, bool persistent);
+
+/**
  * @brief Query the position of an instance in the current room.
  *
  * If only one component of the position is needed, then the argument for the

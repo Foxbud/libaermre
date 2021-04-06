@@ -354,6 +354,26 @@ AER_EXPORT void AERInstanceSetDeactivated(AERInstance* inst, bool deactivated) {
 #undef errRet
 }
 
+AER_EXPORT bool AERInstanceGetPersistent(AERInstance* inst) {
+#define errRet false
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+
+    Ok(((HLDInstance*)inst)->persistent);
+#undef errRet
+}
+
+AER_EXPORT void AERInstanceSetPersistent(AERInstance* inst, bool persistent) {
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+
+    ((HLDInstance*)inst)->persistent = persistent;
+
+    Ok();
+#undef errRet
+}
+
 AER_EXPORT void AERInstanceGetPosition(AERInstance* inst, float* x, float* y) {
 #define errRet
 #define inst ((HLDInstance*)inst)
