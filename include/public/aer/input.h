@@ -273,13 +273,11 @@ const bool* AERInputGetMouseButtonsHeld(void);
 const bool* AERInputGetMouseButtonsReleased(void);
 
 /**
- * @brief Query the current position of the mouse cursor in pixels.
+ * @brief Query the current position of the mouse cursor in pixels relative to
+ * the game window.
  *
  * If only one component of the position is needed, then the argument for the
  * unneeded component may be `NULL`.
- *
- * @note This function returns coordinates relative to the game window,
- * not the current room.
  *
  * @param[out] x Horizontal position.
  * @param[out] y Vertical position.
@@ -287,8 +285,44 @@ const bool* AERInputGetMouseButtonsReleased(void);
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if both arguments `x` and `y` are `NULL`.
  *
+ * @since 1.3.0
+ *
+ * @sa AERInputGetMousePositionVirtual
+ */
+void AERInputGetMousePositionRaw(uint32_t* x, uint32_t* y);
+
+#define void __attribute__((deprecated)) void
+/**
+ * @brief This function is a deprecated alias for @ref
+ * AERInputGetMousePositionRaw.
+ *
+ * @deprecated Since 1.3.0. Use @ref AERInputGetMousePositionRaw instead.
+ *
  * @since 1.0.0
+ *
+ * @sa AERInputGetMousePositionRaw
+ * @sa AERInputGetMousePositionVirtual
  */
 void AERInputGetMousePosition(uint32_t* x, uint32_t* y);
+#undef void
+
+/**
+ * @brief Query the current position of the mouse cursor in pixels relative to
+ * the current room.
+ *
+ * If only one component of the position is needed, then the argument for the
+ * unneeded component may be `NULL`.
+ *
+ * @param[out] x Horizontal position.
+ * @param[out] y Vertical position.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if both arguments `x` and `y` are `NULL`.
+ *
+ * @since 1.3.0
+ *
+ * @sa AERInputGetMousePositionRaw
+ */
+void AERInputGetMousePositionVirtual(float* x, float* y);
 
 #endif /* AER_INPUT_H */

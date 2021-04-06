@@ -662,6 +662,10 @@ typedef struct __attribute__((packed)) HLDVariables {
  * into the game's executable.
  */
 typedef struct __attribute__((packed)) HLDFunctions {
+    /* Mouse x position relative to current room. */
+    int32_t (*actionMouseGetX)(int32_t unknown0);
+    /* Mouse y position relative to current room. */
+    int32_t (*actionMouseGetY)(int32_t unknown0);
     /* Go to room. */
     void (*actionRoomGoto)(int32_t roomIdx, int32_t unknown0);
     /* Register a new sprite. */

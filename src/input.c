@@ -130,7 +130,7 @@ AER_EXPORT const bool* AERInputGetMouseButtonsReleased(void) {
 #undef errRet
 }
 
-AER_EXPORT void AERInputGetMousePosition(uint32_t* x, uint32_t* y) {
+AER_EXPORT void AERInputGetMousePositionRaw(uint32_t* x, uint32_t* y) {
 #define errRet
     EnsureStage(STAGE_ACTION);
     EnsureArg(x || y);
@@ -139,6 +139,23 @@ AER_EXPORT void AERInputGetMousePosition(uint32_t* x, uint32_t* y) {
         *x = mousePosX;
     if (y)
         *y = mousePosY;
+
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT __attribute__((alias("AERInputGetMousePositionRaw"))) void
+AERInputGetMousePosition(uint32_t* x, uint32_t* y);
+
+AER_EXPORT void AERInputGetMousePositionVirtual(float* x, float* y) {
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(x || y);
+
+    if (x)
+        *x = (float)hldfuncs.actionMouseGetX(0);
+    if (y)
+        *y = (float)hldfuncs.actionMouseGetY(0);
 
     Ok();
 #undef errRet
