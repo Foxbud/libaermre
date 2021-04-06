@@ -3,6 +3,7 @@
         "twxs.cmake",
         "xaver.clang-format",
         "ms-vscode.cpptools",
-        "streetsidesoftware.code-spell-checker"
+        "streetsidesoftware.code-spell-checker",
+        "be5invis.toml"
     ]
 }

@@ -16,6 +16,7 @@
 #ifndef INTERNAL_OPTION_H
 #define INTERNAL_OPTION_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 /* ----- INTERNAL TYPES ----- */
@@ -23,6 +24,7 @@
 typedef struct Options {
     size_t numModNames;
     const char** modNames;
+    bool promoteUnhandledErrors;
 } Options;
 
 /* ----- INTERNAL GLOBALS ----- */

@@ -2,3 +2,4 @@
 mods = [
     ${extraModNames}
 ]
+error.promote_unhandled = true

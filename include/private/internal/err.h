@@ -16,10 +16,13 @@
 #ifndef INTERNAL_ERR_H
 #define INTERNAL_ERR_H
 
+#include <stdlib.h>
+
 #include "aer/err.h"
 #include "internal/core.h"
 #include "internal/log.h"
 #include "internal/mod.h"
+#include "internal/option.h"
 
 /* ----- INTERNAL MACROS ----- */
 
@@ -46,6 +49,10 @@
                         "during internal "                             \
                         "call to function \"%s\".",                    \
                         #err, __func__);                               \
+                }                                                      \
+                if (opts.promoteUnhandledErrors) {                     \
+                    LogErr("Promoting potentially unhandled error!");  \
+                    abort();                                           \
                 }                                                      \
             }                                                          \
             aererr = (err);                                            \
