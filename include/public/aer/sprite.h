@@ -27,9 +27,11 @@
 
 /* ----- PUBLIC TYPES ----- */
 
-/* Hack required to get Doxygen to parse deprecated symbols correctly. */
+/* @deprecated Since 1.2.0. */
 #define AER_SPRITE_SPRITE3368 AER_SPRITE_SPRITE3368 __attribute__((deprecated))
+/* @deprecated Since 1.2.0. */
 #define AER_SPRITE_SPRITE3369 AER_SPRITE_SPRITE3369 __attribute__((deprecated))
+/* @deprecated Since 1.2.0. */
 #define AER_SPRITE_SPRITE3370 AER_SPRITE_SPRITE3370 __attribute__((deprecated))
 /**
  * @brief Vanilla sprites.
@@ -3423,7 +3425,6 @@ typedef enum AERSpriteIndex {
      */
     AER_SPRITE_SPRITE3370 = 0xd2a
 } AERSpriteIndex;
-/* Hack required to get Doxygen to parse deprecated symbols correctly. */
 #undef AER_SPRITE_SPRITE3368
 #undef AER_SPRITE_SPRITE3369
 #undef AER_SPRITE_SPRITE3370

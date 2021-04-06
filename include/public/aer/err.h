@@ -24,7 +24,7 @@
 
 /* ----- PUBLIC TYPES ----- */
 
-/* Hack required to get Doxygen to parse deprecated symbols correctly. */
+/* @deprecated Since 1.1.0. */
 #define AER_OUT_OF_MEM AER_OUT_OF_MEM __attribute__((deprecated))
 /**
  * @brief Possible values of ::aererr.
@@ -97,7 +97,6 @@ typedef enum AERErrCode {
      */
     AER_BAD_VAL = 7
 } AERErrCode;
-/* Hack required to get Doxygen to parse deprecated symbols correctly. */
 #undef AER_OUT_OF_MEM
 
 /* ----- PUBLIC GLOBALS ----- */
