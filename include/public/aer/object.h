@@ -805,6 +805,33 @@ bool AERObjectGetCollisions(int32_t objIdx);
 void AERObjectSetCollisions(int32_t objIdx, bool collisions);
 
 /**
+ * @brief Query the default persistence of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ *
+ * @return Default persistence or `false` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.3.0
+ */
+bool AERObjectGetPersistent(int32_t objIdx);
+
+/**
+ * @brief Set the default persistence of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] persistent Default persistence.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.3.0
+ */
+void AERObjectSetPersistent(int32_t objIdx, bool persistent);
+
+/**
  * @brief Attach a creation event listener to an object.
  *
  * This event listener is called whenever an instance of the object

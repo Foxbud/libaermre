@@ -294,6 +294,29 @@ AER_EXPORT void AERObjectSetCollisions(int32_t objIdx, bool collisions) {
 #undef errRet
 }
 
+AER_EXPORT bool AERObjectGetPersistent(int32_t objIdx) {
+#define errRet false
+    EnsureStage(STAGE_OBJECT_REG);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+
+    Ok(obj->flags.persistent);
+#undef errRet
+}
+
+AER_EXPORT void AERObjectSetPersistent(int32_t objIdx, bool persistent) {
+#define errRet
+    EnsureStage(STAGE_OBJECT_REG);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+    obj->flags.persistent = persistent;
+
+    Ok();
+#undef errRet
+}
+
 AER_EXPORT void AERObjectAttachCreateListener(int32_t objIdx,
                                               bool (*listener)(AEREvent*,
                                                                AERInstance*,

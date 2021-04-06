@@ -306,7 +306,7 @@ void AERInstanceSetDeactivated(AERInstance* inst, bool deactivated);
  *
  * @param[in] inst Instance of interest.
  *
- * @return Instance persistence or `false` if unsuccessful.
+ * @return Persistence or `false` if unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
