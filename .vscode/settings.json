@@ -2,7 +2,9 @@
     // MRE settings.
     "mre": {
         // Names of all extra mods to launch when debugging (must be installed).
-        "extraModNames": []
+        "extraModNames": [
+            "bugcon"
+        ]
     },
     // VSCode settings.
     "editor.formatOnType": false,
@@ -69,5 +71,8 @@
         "*.h": "c",
         "*.toml.in": "toml",
     },
-    "C_Cpp.autoAddFileAssociations": false
+    "C_Cpp.autoAddFileAssociations": false,
+    "[toml]": {
+        "editor.formatOnSave": false
+    },
 }
