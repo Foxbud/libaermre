@@ -13,28 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERNAL_CORE_H
-#define INTERNAL_CORE_H
-
-/* ----- INTERNAL TYPES ----- */
-
-typedef enum CoreStage {
-    STAGE_INIT,
-    STAGE_SPRITE_REG,
-    STAGE_FONT_REG,
-    STAGE_SAMPLE_REG,
-    STAGE_OBJECT_REG,
-    STAGE_LISTENER_REG,
-    STAGE_ACTION,
-    STAGE_DRAW
-} CoreStage;
-
-/* ----- INTERNAL GLOBALS ----- */
-
-extern CoreStage stage;
+#ifndef INTERNAL_AUDIO_H
+#define INTERNAL_AUDIO_H
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-const char* CoreGetAbsAssetPath(const char* relAssetPath);
+void AudioManBuildSampleNameTable(void);
 
-#endif /* INTERNAL_CORE_H */
+void AudioManConstructor(void);
+
+void AudioManDestructor(void);
+
+#endif /* INTERNAL_AUDIO_H */

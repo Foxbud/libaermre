@@ -203,6 +203,17 @@ void HLDRecordEngineRefs(HLDVariables* vars, HLDFunctions* funcs) {
     CheckVar(vars->spriteTable->elements);
     CheckVar(vars->spriteTable->size == 0xd2b);
 
+    CheckVar(vars->nextPlaybackId);
+    CheckVar(*vars->nextPlaybackId == 400001);
+
+    CheckVar(vars->sampleTable);
+    CheckVar(vars->sampleTable->elements);
+    CheckVar(vars->sampleTable->size == 0x2a5);
+
+    CheckVar(vars->sampleNameTable);
+    CheckVar(vars->sampleNameTable->elements);
+    CheckVar(vars->sampleNameTable->size == 0x2a5);
+
     CheckVar(vars->objectTableHandle);
     CheckVar(*vars->objectTableHandle);
     CheckVar((*vars->objectTableHandle)->slots);

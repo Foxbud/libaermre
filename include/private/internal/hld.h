@@ -625,6 +625,12 @@ typedef struct __attribute__((packed)) HLDVariables {
     HLDRoom** roomCurrent;
     /* Array of all registered sprites. */
     HLDArrayPreSize* spriteTable;
+    /* Id of next audio playback. */
+    int32_t* nextPlaybackId;
+    /* Array of all registered audio samples. */
+    HLDArrayPreSize* sampleTable;
+    /* Array of all audio sample names. */
+    HLDArrayPreSize* sampleNameTable;
     /* Array of all registered fonts. */
     HLDArrayPreSize* fontTable;
     /* Index of currently active font. */
@@ -687,6 +693,10 @@ typedef struct __attribute__((packed)) HLDFunctions {
                                 int32_t unknown3,
                                 uint32_t origX,
                                 uint32_t origY);
+    /* Play an audio sample. */
+    int32_t (*actionAudioPlaySound)(int32_t sampleIdx,
+                                    double priority,
+                                    bool loop);
     /* Register a new font. */
     int32_t (*actionFontAdd)(const char* fname,
                              size_t size,

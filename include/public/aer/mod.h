@@ -271,6 +271,20 @@ typedef struct AERModDef {
      * @memberof AERModDef
      */
     void (*gameLoadListener)(int32_t curSlotIdx);
+    /**
+     * @var registerAudioSamples
+     *
+     * @brief Callback function which registers a mod's audio samples.
+     *
+     * @note May be `NULL` if mod does not register any audio samples.
+     *
+     * @since 1.3.0
+     *
+     * @sa AERAudioSampleRegister
+     *
+     * @memberof AERModDef
+     */
+    void (*registerAudioSamples)(void);
 } AERModDef;
 
 #endif /* AER_MOD_H */

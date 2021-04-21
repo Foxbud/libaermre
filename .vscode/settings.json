@@ -69,5 +69,8 @@
         "*.h": "c",
         "*.toml.in": "toml",
     },
-    "C_Cpp.autoAddFileAssociations": false
+    "C_Cpp.autoAddFileAssociations": false,
+    "[toml]": {
+        "editor.formatOnSave": false
+    },
 }

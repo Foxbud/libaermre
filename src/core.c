@@ -18,6 +18,7 @@
 
 #include "aer/core.h"
 #include "aer/object.h"
+#include "internal/audio.h"
 #include "internal/conf.h"
 #include "internal/core.h"
 #include "internal/err.h"
@@ -69,6 +70,7 @@ __attribute__((constructor)) static void CoreConstructor(void) {
     RandConstructor();
     EventManConstructor();
     SpriteManConstructor();
+    AudioManConstructor();
     ObjectManConstructor();
     RoomManConstructor();
     InstanceManConstructor();
@@ -83,6 +85,7 @@ __attribute__((destructor)) static void CoreDestructor(void) {
     ModManDestructor();
     RoomManDestructor();
     ObjectManDestructor();
+    AudioManDestructor();
     SpriteManDestructor();
     EventManDestructor();
     RandDestructor();
@@ -129,6 +132,27 @@ static void RegisterAssets(void) {
     }
     LogInfo("Done.");
 
+    /* Build audio sample name table. */
+    AudioManBuildSampleNameTable();
+
+    /* Register audio samples. */
+    stage = STAGE_SAMPLE_REG;
+    LogInfo("Registering mod audio samples...");
+    /*
+     * Reverse order so that higher-priority mods' sample replacements take
+     * precedence over those of lower-priority mods.
+     */
+    for (uint32_t idx = 0; idx < numMods; idx++) {
+        int32_t modIdx = (int32_t)(numMods - idx - 1);
+        Mod* mod = ModManGetMod(modIdx);
+        if (mod->registerAudioSamples) {
+            ModManPushContext(modIdx);
+            mod->registerAudioSamples();
+            ModManPopContext();
+        }
+    }
+    LogInfo("Done.");
+
     /* Build object name table. */
     ObjectManBuildNameTable();
 
@@ -149,7 +173,7 @@ static void RegisterAssets(void) {
     ObjectManBuildInheritanceTrees();
     EventManMaskSubscriptionArrays();
 
-    /* Register listeners. */
+    /* Register object listeners. */
     stage = STAGE_LISTENER_REG;
     LogInfo("Registering mod event listeners...");
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {

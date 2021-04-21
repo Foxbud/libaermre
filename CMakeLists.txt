@@ -53,23 +53,24 @@ configure_file(
 
 # Add MRE library target.
 add_library(aermre SHARED
-   src/conf.c
-   src/core.c
-   src/draw.c
-   src/err.c
-   src/event.c
-   src/font.c
-   src/hld.c
-   src/input.c
-   src/instance.c
-   src/log.c
-   src/mod.c
-   src/object.c
-   src/option.c
-   src/rand.c
-   src/room.c
-   src/save.c
-   src/sprite.c
+    src/audio.c
+    src/conf.c
+    src/core.c
+    src/draw.c
+    src/err.c
+    src/event.c
+    src/font.c
+    src/hld.c
+    src/input.c
+    src/instance.c
+    src/log.c
+    src/mod.c
+    src/object.c
+    src/option.c
+    src/rand.c
+    src/room.c
+    src/save.c
+    src/sprite.c
 )
 generate_export_header(aermre
     BASE_NAME AER

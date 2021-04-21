@@ -131,6 +131,7 @@ static void ModInit(Mod* mod, int32_t idx, const char* name) {
     /* Record registration callbacks. */
     mod->registerSprites = def.registerSprites;
     mod->registerFonts = def.registerFonts;
+    mod->registerAudioSamples = def.registerAudioSamples;
     mod->registerObjects = def.registerObjects;
     mod->registerObjectListeners = def.registerObjectListeners;
 

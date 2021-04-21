@@ -34,6 +34,7 @@ typedef struct Mod {
     void (*destructor)(void);
     void (*registerSprites)(void);
     void (*registerFonts)(void);
+    void (*registerAudioSamples)(void);
     void (*registerObjects)(void);
     void (*registerObjectListeners)(void);
 } Mod;
