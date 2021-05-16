@@ -3,3 +3,8 @@ mods = [
     ${extraModNames}
 ]
 error.promote_unhandled = true
+
+[bugcon]
+console.startup_commands = [
+    "roomgoto rm_title",
+]
