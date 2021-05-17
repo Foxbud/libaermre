@@ -278,7 +278,7 @@ typedef struct AERModDef {
      *
      * @note May be `NULL` if mod does not register any audio samples.
      *
-     * @since 1.3.0
+     * @since 1.4.0
      *
      * @sa AERAudioSampleRegister
      *

@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
+#include <string.h>
+
 #include "foxutils/stringmapmacs.h"
 
+#include "aer/audio.h"
+#include "internal/err.h"
+#include "internal/export.h"
 #include "internal/hld.h"
 #include "internal/log.h"
+#include "internal/mod.h"
 
 /* ----- PRIVATE CONSTANTS ----- */
 
-// static const int32_t FIRST_PLAYBACK_ID = 400001;
+static const int32_t FIRST_PLAYBACK_ID = 400001;
 
 /* ----- PRIVATE GLOBALS ----- */
 
@@ -57,4 +64,75 @@ void AudioManDestructor(void) {
 
     LogInfo("Done deinitializing audio module.");
     return;
+}
+
+/* ----- PUBLIC FUNCTIONS ----- */
+
+AER_EXPORT int32_t AERAudioSampleRegister(const char* filename,
+                                          const char* name) {
+#define errRet AER_SAMPLE_NULL
+    EnsureArg(filename);
+    EnsureArg(name);
+    LogInfo("Registering audio sample \"%s\" for mod \"%s\"...", filename,
+            ModManGetMod(ModManPeekContext())->name);
+    EnsureStageStrict(STAGE_SAMPLE_REG);
+
+    int32_t sampleIdx =
+        hldfuncs.actionAudioCreateStream(CoreGetAbsAssetPath(filename));
+    Ensure(HLDSampleLookup(sampleIdx), AER_BAD_FILE);
+
+    /* The engine expects a freeable (dynamically allocated) string for name. */
+    char* tmpName = malloc(strlen(name) + 1);
+    assert(tmpName);
+    ((const char**)hldvars.sampleNameTable->elements)[sampleIdx] =
+        strcpy(tmpName, name);
+
+    LogInfo("Successfully registered audio sample to index %i.", sampleIdx);
+
+    Ok(sampleIdx);
+#undef errRet
+}
+
+AER_EXPORT size_t AERAudioSampleGetNumRegistered(void) {
+#define errRet 0
+    EnsureStage(STAGE_SAMPLE_REG);
+
+    Ok(hldvars.sampleTable->size);
+#undef errRet
+}
+
+AER_EXPORT int32_t AERAudioSampleGetByName(const char* name) {
+#define errRet AER_SAMPLE_NULL
+    EnsureStage(STAGE_SAMPLE_REG);
+    EnsureArg(name);
+
+    int32_t* sampleIdx = FoxMapMIndex(const char*, int32_t, &sampleNames, name);
+    EnsureLookup(sampleIdx);
+
+    Ok(*sampleIdx);
+#undef errRet
+}
+
+AER_EXPORT const char* AERAudioSampleGetName(int32_t sampleIdx) {
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
+    EnsureLookup(HLDSampleLookup(sampleIdx));
+
+    Ok(((const char**)hldvars.sampleNameTable->elements)[sampleIdx]);
+#undef errRet
+}
+
+AER_EXPORT int32_t AERAudioSamplePlay(int32_t sampleIdx,
+                                      double priority,
+                                      bool loop) {
+#define errRet -1
+    EnsureStage(STAGE_ACTION);
+    EnsureLookup(HLDSampleLookup(sampleIdx));
+
+    int32_t playbackId =
+        hldfuncs.actionAudioPlaySound(sampleIdx, priority, loop);
+    assert(playbackId >= FIRST_PLAYBACK_ID);
+
+    Ok(playbackId);
+#undef errRet
 }

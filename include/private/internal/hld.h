@@ -582,6 +582,39 @@ typedef struct HLDFont {
     uint32_t field_8C;
 } HLDFont;
 
+typedef struct HLDSample {
+    const char* filename;
+    float field_4;
+    float field_8;
+    uint32_t field_C;
+    uint32_t field_10;
+    uint32_t field_14;
+    uint32_t field_18;
+    uint32_t field_1C;
+    uint32_t field_20;
+    bool type;
+    uint8_t field_25;
+    uint8_t field_26;
+    uint8_t field_27;
+    uint32_t field_28;
+    uint32_t field_2C;
+    uint32_t field_30;
+    uint32_t field_34;
+    uint32_t field_38;
+    uint32_t field_3C;
+    uint32_t field_40;
+    uint32_t field_44;
+    float field_48;
+    uint32_t field_4C;
+    uint32_t field_50;
+    uint32_t field_54;
+    uint32_t field_58;
+    uint8_t field_5C;
+    uint8_t field_5D;
+    uint8_t field_5E;
+    uint8_t field_5F;
+} HLDSample;
+
 /* Builtin GML function signature. */
 typedef void (*HLDAPICallback)(HLDPrimitive* result,
                                HLDInstance* target,
@@ -693,6 +726,8 @@ typedef struct __attribute__((packed)) HLDFunctions {
                                 int32_t unknown3,
                                 uint32_t origX,
                                 uint32_t origY);
+    /* Register a new audio sample. */
+    int32_t (*actionAudioCreateStream)(const char* fname);
     /* Play an audio sample. */
     int32_t (*actionAudioPlaySound)(int32_t sampleIdx,
                                     double priority,
@@ -821,6 +856,8 @@ HLDView* HLDViewLookup(uint32_t viewIdx);
 HLDSprite* HLDSpriteLookup(int32_t spriteIdx);
 
 HLDFont* HLDFontLookup(int32_t fontIdx);
+
+HLDSample* HLDSampleLookup(int32_t sampleIdx);
 
 HLDRoom* HLDRoomLookup(int32_t roomIdx);
 

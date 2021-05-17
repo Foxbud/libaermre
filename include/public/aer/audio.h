@@ -31,7 +31,7 @@
 /**
  * @brief Vanilla audio samples.
  *
- * @since 1.3.0
+ * @since 1.4.0
  */
 typedef enum AERAudioSampleIndex {
     /**
@@ -720,13 +720,13 @@ typedef enum AERAudioSampleIndex {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-// int32_t AERAudioSampleRegister(const char* filename, const char* name);
+int32_t AERAudioSampleRegister(const char* filename, const char* name);
 
-// size_t AERAudioSampleGetNumRegistered(void);
+size_t AERAudioSampleGetNumRegistered(void);
 
-// int32_t AERAudioSampleGetByName(const char* name);
+int32_t AERAudioSampleGetByName(const char* name);
 
-// const char* AERAudioSampleGetName(int32_t sampleIdx);
+const char* AERAudioSampleGetName(int32_t sampleIdx);
 
 int32_t AERAudioSamplePlay(int32_t sampleIdx, double priority, bool loop);
 

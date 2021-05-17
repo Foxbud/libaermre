@@ -40,8 +40,9 @@ HLDFunctions hldfuncs = {0};
 HLDView* HLDViewLookup(uint32_t viewIdx) {
     HLDView* result = NULL;
 
-    if (viewIdx < 8)
+    if (viewIdx < 8) {
         result = (*hldvars.roomCurrent)->views[viewIdx];
+    }
 
     return result;
 }
@@ -49,8 +50,9 @@ HLDView* HLDViewLookup(uint32_t viewIdx) {
 HLDSprite* HLDSpriteLookup(int32_t spriteIdx) {
     HLDSprite* result = NULL;
 
-    if (spriteIdx >= 0 && (uint32_t)spriteIdx < hldvars.spriteTable->size)
+    if (spriteIdx >= 0 && (uint32_t)spriteIdx < hldvars.spriteTable->size) {
         result = ((HLDSprite**)hldvars.spriteTable->elements)[spriteIdx];
+    }
 
     return result;
 }
@@ -58,8 +60,19 @@ HLDSprite* HLDSpriteLookup(int32_t spriteIdx) {
 HLDFont* HLDFontLookup(int32_t fontIdx) {
     HLDFont* result = NULL;
 
-    if (fontIdx >= 0 && (uint32_t)fontIdx < hldvars.fontTable->size)
+    if (fontIdx >= 0 && (uint32_t)fontIdx < hldvars.fontTable->size) {
         result = ((HLDFont**)hldvars.fontTable->elements)[fontIdx];
+    }
+
+    return result;
+}
+
+HLDSample* HLDSampleLookup(int32_t sampleIdx) {
+    HLDSample* result = NULL;
+
+    if (sampleIdx >= 0 && (uint32_t)sampleIdx < hldvars.sampleTable->size) {
+        result = ((HLDSample**)hldvars.sampleTable->elements)[sampleIdx];
+    }
 
     return result;
 }
