@@ -27,6 +27,39 @@
 
 static FoxXoshiro256SS randPRNG = {0};
 
+/* ----- PRIVATE FUNCTIONS ----- */
+
+static inline void MemSwap(size_t size,
+                           uint8_t* restrict bufA,
+                           uint8_t* restrict bufB) {
+    for (size_t idx = 0; idx < size; idx++) {
+        /*
+         * Temporary variable method of swapping is technically faster than XOR
+         * swapping in this situation due to memory accesses.
+         */
+        uint8_t tmp = bufA[idx];
+        bufA[idx] = bufB[idx];
+        bufB[idx] = tmp;
+    }
+
+    return;
+}
+
+static inline void Shuffle(FoxPRNG* prng,
+                           size_t elemSize,
+                           size_t bufSize,
+                           void* elemBuf) {
+    for (size_t idx = bufSize - 1; idx > 0; idx--) {
+        size_t newIdx = FoxRandUIntRange(prng, 0, idx + 1);
+        if (newIdx != idx) {
+            MemSwap(elemSize, elemBuf + elemSize * idx,
+                    elemBuf + elemSize * newIdx);
+        }
+    }
+
+    return;
+}
+
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void RandConstructor(void) {
@@ -99,6 +132,17 @@ AER_EXPORT double AERRandDoubleRange(double min, double max) {
 
 AER_EXPORT bool AERRandBool(void) {
     Ok(FoxRandBool((FoxPRNG*)&randPRNG));
+}
+
+AER_EXPORT void AERRandShuffle(size_t elemSize, size_t bufSize, void* elemBuf) {
+#define errRet
+    EnsureArg(elemBuf);
+    EnsureMinExc(elemSize, 0);
+
+    Shuffle((FoxPRNG*)&randPRNG, elemSize, bufSize, elemBuf);
+
+    Ok();
+#undef errRet
 }
 
 AER_EXPORT AERRandGen* AERRandGenNew(uint64_t seed) {
@@ -204,5 +248,20 @@ AER_EXPORT bool AERRandGenBool(AERRandGen* gen) {
     EnsureArg(gen);
 
     Ok(FoxRandBool((FoxPRNG*)&gen));
+#undef errRet
+}
+
+AER_EXPORT void AERRandGenShuffle(AERRandGen* gen,
+                                  size_t elemSize,
+                                  size_t bufSize,
+                                  void* elemBuf) {
+#define errRet
+    EnsureArg(gen);
+    EnsureArg(elemBuf);
+    EnsureMinExc(elemSize, 0);
+
+    Shuffle((FoxPRNG*)gen, elemSize, bufSize, elemBuf);
+
+    Ok();
 #undef errRet
 }

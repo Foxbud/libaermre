@@ -23,6 +23,7 @@
 #define AER_RAND_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /* ----- PUBLIC TYPES ----- */
@@ -209,6 +210,8 @@ double AERRandDoubleRange(double min, double max);
  * @sa AERRandGenBool
  */
 bool AERRandBool(void);
+
+void AERRandShuffle(size_t elemSize, size_t bufSize, void* elemBuf);
 
 /**
  * @brief Allocate and initialize a new self-managed pseudorandom number
@@ -450,5 +453,10 @@ double AERRandGenDoubleRange(AERRandGen* gen, double min, double max);
  * @sa AERRandBool
  */
 bool AERRandGenBool(AERRandGen* gen);
+
+void AERRandGenShuffle(AERRandGen* gen,
+                       size_t elemSize,
+                       size_t bufSize,
+                       void* elemBuf);
 
 #endif /* AER_RAND_H */
