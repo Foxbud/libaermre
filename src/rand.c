@@ -129,7 +129,7 @@ AER_EXPORT uint64_t AERRandGenUInt(AERRandGen* gen) {
 #define errRet 0
     EnsureArg(gen);
 
-    Ok(FoxRandUInt((FoxPRNG*)&gen));
+    Ok(FoxRandUInt((FoxPRNG*)gen));
 #undef errRet
 }
 
@@ -140,7 +140,7 @@ AER_EXPORT uint64_t AERRandGenUIntRange(AERRandGen* gen,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    Ok(FoxRandUIntRange((FoxPRNG*)&gen, min, max));
+    Ok(FoxRandUIntRange((FoxPRNG*)gen, min, max));
 #undef errRet
 }
 
@@ -148,7 +148,7 @@ AER_EXPORT int64_t AERRandGenInt(AERRandGen* gen) {
 #define errRet 0
     EnsureArg(gen);
 
-    Ok(FoxRandFloat((FoxPRNG*)&gen));
+    Ok(FoxRandFloat((FoxPRNG*)gen));
 #undef errRet
 }
 
@@ -159,7 +159,7 @@ AER_EXPORT int64_t AERRandGenIntRange(AERRandGen* gen,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    Ok(FoxRandIntRange((FoxPRNG*)&gen, min, max));
+    Ok(FoxRandIntRange((FoxPRNG*)gen, min, max));
 #undef errRet
 }
 
@@ -167,7 +167,7 @@ AER_EXPORT float AERRandGenFloat(AERRandGen* gen) {
 #define errRet 0.0f
     EnsureArg(gen);
 
-    Ok(FoxRandFloat((FoxPRNG*)&gen));
+    Ok(FoxRandFloat((FoxPRNG*)gen));
 #undef errRet
 }
 
@@ -176,7 +176,7 @@ AER_EXPORT float AERRandGenFloatRange(AERRandGen* gen, float min, float max) {
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    Ok(FoxRandFloatRange((FoxPRNG*)&gen, min, max));
+    Ok(FoxRandFloatRange((FoxPRNG*)gen, min, max));
 #undef errRet
 }
 
@@ -184,7 +184,7 @@ AER_EXPORT double AERRandGenDouble(AERRandGen* gen) {
 #define errRet 0.0
     EnsureArg(gen);
 
-    Ok(FoxRandDouble((FoxPRNG*)&gen));
+    Ok(FoxRandDouble((FoxPRNG*)gen));
 #undef errRet
 }
 
@@ -195,7 +195,7 @@ AER_EXPORT double AERRandGenDoubleRange(AERRandGen* gen,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    Ok(FoxRandDoubleRange((FoxPRNG*)&gen, min, max));
+    Ok(FoxRandDoubleRange((FoxPRNG*)gen, min, max));
 #undef errRet
 }
 
@@ -203,6 +203,6 @@ AER_EXPORT bool AERRandGenBool(AERRandGen* gen) {
 #define errRet false
     EnsureArg(gen);
 
-    Ok(FoxRandBool((FoxPRNG*)&gen));
+    Ok(FoxRandBool((FoxPRNG*)gen));
 #undef errRet
 }
