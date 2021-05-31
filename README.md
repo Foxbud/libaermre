@@ -38,4 +38,4 @@ see directory `ACKNOWLEDGEMENTS`.
 
 ## Special Thanks
 
-Special thanks to Josiah Bills for helping designing the API and providing valuable feedback.
+Special thanks to Josiah Bills for help designing the API and providing valuable feedback.

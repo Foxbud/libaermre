@@ -27,6 +27,39 @@
 
 static FoxXoshiro256SS randPRNG = {0};
 
+/* ----- PRIVATE FUNCTIONS ----- */
+
+static inline void MemSwap(size_t size,
+                           uint8_t* restrict bufA,
+                           uint8_t* restrict bufB) {
+    for (size_t idx = 0; idx < size; idx++) {
+        /*
+         * Temporary variable method of swapping is technically faster than XOR
+         * swapping in this situation due to memory accesses.
+         */
+        uint8_t tmp = bufA[idx];
+        bufA[idx] = bufB[idx];
+        bufB[idx] = tmp;
+    }
+
+    return;
+}
+
+static inline void Shuffle(FoxPRNG* prng,
+                           size_t elemSize,
+                           size_t bufSize,
+                           void* elemBuf) {
+    for (size_t idx = bufSize - 1; idx > 0; idx--) {
+        size_t newIdx = FoxRandUIntRange(prng, 0, idx + 1);
+        if (newIdx != idx) {
+            MemSwap(elemSize, elemBuf + elemSize * idx,
+                    elemBuf + elemSize * newIdx);
+        }
+    }
+
+    return;
+}
+
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void RandConstructor(void) {
@@ -101,6 +134,17 @@ AER_EXPORT bool AERRandBool(void) {
     Ok(FoxRandBool((FoxPRNG*)&randPRNG));
 }
 
+AER_EXPORT void AERRandShuffle(size_t elemSize, size_t bufSize, void* elemBuf) {
+#define errRet
+    EnsureArg(elemBuf);
+    EnsureMinExc(elemSize, 0);
+
+    Shuffle((FoxPRNG*)&randPRNG, elemSize, bufSize, elemBuf);
+
+    Ok();
+#undef errRet
+}
+
 AER_EXPORT AERRandGen* AERRandGenNew(uint64_t seed) {
     Ok(FoxXoshiro256SSNew(seed));
 }
@@ -129,7 +173,7 @@ AER_EXPORT uint64_t AERRandGenUInt(AERRandGen* gen) {
 #define errRet 0
     EnsureArg(gen);
 
-    Ok(FoxRandUInt((FoxPRNG*)&gen));
+    Ok(FoxRandUInt((FoxPRNG*)gen));
 #undef errRet
 }
 
@@ -140,7 +184,7 @@ AER_EXPORT uint64_t AERRandGenUIntRange(AERRandGen* gen,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    Ok(FoxRandUIntRange((FoxPRNG*)&gen, min, max));
+    Ok(FoxRandUIntRange((FoxPRNG*)gen, min, max));
 #undef errRet
 }
 
@@ -148,7 +192,7 @@ AER_EXPORT int64_t AERRandGenInt(AERRandGen* gen) {
 #define errRet 0
     EnsureArg(gen);
 
-    Ok(FoxRandFloat((FoxPRNG*)&gen));
+    Ok(FoxRandFloat((FoxPRNG*)gen));
 #undef errRet
 }
 
@@ -159,7 +203,7 @@ AER_EXPORT int64_t AERRandGenIntRange(AERRandGen* gen,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    Ok(FoxRandIntRange((FoxPRNG*)&gen, min, max));
+    Ok(FoxRandIntRange((FoxPRNG*)gen, min, max));
 #undef errRet
 }
 
@@ -167,7 +211,7 @@ AER_EXPORT float AERRandGenFloat(AERRandGen* gen) {
 #define errRet 0.0f
     EnsureArg(gen);
 
-    Ok(FoxRandFloat((FoxPRNG*)&gen));
+    Ok(FoxRandFloat((FoxPRNG*)gen));
 #undef errRet
 }
 
@@ -176,7 +220,7 @@ AER_EXPORT float AERRandGenFloatRange(AERRandGen* gen, float min, float max) {
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    Ok(FoxRandFloatRange((FoxPRNG*)&gen, min, max));
+    Ok(FoxRandFloatRange((FoxPRNG*)gen, min, max));
 #undef errRet
 }
 
@@ -184,7 +228,7 @@ AER_EXPORT double AERRandGenDouble(AERRandGen* gen) {
 #define errRet 0.0
     EnsureArg(gen);
 
-    Ok(FoxRandDouble((FoxPRNG*)&gen));
+    Ok(FoxRandDouble((FoxPRNG*)gen));
 #undef errRet
 }
 
@@ -195,7 +239,7 @@ AER_EXPORT double AERRandGenDoubleRange(AERRandGen* gen,
     EnsureArg(gen);
     EnsureMaxExc(min, max);
 
-    Ok(FoxRandDoubleRange((FoxPRNG*)&gen, min, max));
+    Ok(FoxRandDoubleRange((FoxPRNG*)gen, min, max));
 #undef errRet
 }
 
@@ -203,6 +247,21 @@ AER_EXPORT bool AERRandGenBool(AERRandGen* gen) {
 #define errRet false
     EnsureArg(gen);
 
-    Ok(FoxRandBool((FoxPRNG*)&gen));
+    Ok(FoxRandBool((FoxPRNG*)gen));
+#undef errRet
+}
+
+AER_EXPORT void AERRandGenShuffle(AERRandGen* gen,
+                                  size_t elemSize,
+                                  size_t bufSize,
+                                  void* elemBuf) {
+#define errRet
+    EnsureArg(gen);
+    EnsureArg(elemBuf);
+    EnsureMinExc(elemSize, 0);
+
+    Shuffle((FoxPRNG*)gen, elemSize, bufSize, elemBuf);
+
+    Ok();
 #undef errRet
 }
