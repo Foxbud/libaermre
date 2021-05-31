@@ -25,13 +25,13 @@
 #include "internal/log.h"
 #include "internal/mod.h"
 
-/* ----- PRIVATE CONSTANTS ----- */
-
-static const int32_t FIRST_PLAYBACK_ID = 400001;
-
 /* ----- PRIVATE GLOBALS ----- */
 
 static FoxMap sampleNames = {0};
+
+static size_t streamNameTableCap = 0;
+
+static char** streamNameTable = NULL;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
@@ -78,7 +78,8 @@ AER_EXPORT int32_t AERAudioSampleRegister(const char* filename,
     EnsureStageStrict(STAGE_SAMPLE_REG);
 
     int32_t sampleIdx =
-        hldfuncs.actionAudioCreateStream(CoreGetAbsAssetPath(filename));
+        hldfuncs.actionAudioCreateStream(CoreGetAbsAssetPath(filename)) -
+        hldconsts.firstStreamIdx + hldvars.sampleTable->size;
     Ensure(HLDSampleLookup(sampleIdx), AER_BAD_FILE);
 
     /* The engine expects a freeable (dynamically allocated) string for name. */

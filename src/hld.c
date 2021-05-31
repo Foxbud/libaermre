@@ -68,13 +68,24 @@ HLDFont* HLDFontLookup(int32_t fontIdx) {
 }
 
 HLDSample* HLDSampleLookup(int32_t sampleIdx) {
-    HLDSample* result = NULL;
+    HLDArrayPreSize samples = *hldvars.sampleTable;
+    HLDArrayPreSize streams = *hldvars.streamTable;
 
-    if (sampleIdx >= 0 && (uint32_t)sampleIdx < hldvars.sampleTable->size) {
-        result = ((HLDSample**)hldvars.sampleTable->elements)[sampleIdx];
+    if (sampleIdx < 0 || (uint32_t)sampleIdx >= samples.size + streams.size) {
+        return NULL;
     }
 
-    return result;
+    int32_t streamIdx = sampleIdx - samples.size;
+    bool isStream = streamIdx < 0;
+
+    /* Branchless conditionals. */
+    int32_t idx =
+        (int32_t)!isStream * sampleIdx + (int32_t)isStream * streamIdx;
+    HLDSample** table =
+        (HLDSample**)((size_t)!isStream * (size_t)samples.elements +
+                      (size_t)isStream * (size_t)streams.elements);
+
+    return table[idx];
 }
 
 HLDRoom* HLDRoomLookup(int32_t roomIdx) {
@@ -187,7 +198,9 @@ HLDEventWrapper* HLDEventWrapperNew(HLDEvent* event) {
     return wrapper;
 }
 
-void HLDRecordEngineRefs(HLDVariables* vars, HLDFunctions* funcs) {
+void HLDRecordEngineVals(HLDConstants* consts,
+                         HLDVariables* vars,
+                         HLDFunctions* funcs) {
     LogInfo("Checking engine variables...");
 
     CheckVar(vars->numSteps);
@@ -227,6 +240,10 @@ void HLDRecordEngineRefs(HLDVariables* vars, HLDFunctions* funcs) {
     CheckVar(vars->sampleNameTable->elements);
     CheckVar(vars->sampleNameTable->size == 0x2a5);
 
+    CheckVar(vars->streamTable);
+    CheckVar(vars->streamTable->elements);
+    CheckVar(vars->streamTable->size == 0);
+
     CheckVar(vars->objectTableHandle);
     CheckVar(*vars->objectTableHandle);
     CheckVar((*vars->objectTableHandle)->slots);
@@ -252,11 +269,12 @@ void HLDRecordEngineRefs(HLDVariables* vars, HLDFunctions* funcs) {
 
     LogInfo("Done checking engine variables.");
 
-    LogInfo("Recording engine references...");
+    LogInfo("Recording engine values...");
 
+    hldconsts = *consts;
     hldvars = *vars;
     hldfuncs = *funcs;
 
-    LogInfo("Done recording engine references...");
+    LogInfo("Done recording engine values...");
     return;
 }

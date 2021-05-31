@@ -199,8 +199,10 @@ static void RegisterAssets(void) {
 
 /* ----- UNLISTED FUNCTIONS ----- */
 
-AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
-    HLDRecordEngineRefs(&vars, &funcs);
+AER_EXPORT void AERHookInit(HLDConstants consts,
+                            HLDVariables vars,
+                            HLDFunctions funcs) {
+    HLDRecordEngineVals(&consts, &vars, &funcs);
 
     InstanceManRecordHLDLocals();
 

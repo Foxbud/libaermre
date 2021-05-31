@@ -630,6 +630,18 @@ typedef HLDPrimitive* (*HLDScriptCallback)(HLDInstance* target,
                                            HLDPrimitive** argv);
 
 /*
+ *
+ * This struct holds constants of the Game Maker engine. These constants are
+ * passed into the MRE from the hooks injected into the game's executable.
+ */
+typedef struct __attribute__((packed)) HLDConstants {
+    /* First audio stream index. */
+    int32_t firstStreamIdx;
+    /* First audio playback id. */
+    int32_t firstPlaybackId;
+} HLDConstants;
+
+/*
  * This struct holds pointers to global variables in the Game Maker
  * engine. These pointers are passed into the MRE from the hooks injected
  * into the game's executable.
@@ -660,10 +672,12 @@ typedef struct __attribute__((packed)) HLDVariables {
     HLDArrayPreSize* spriteTable;
     /* Id of next audio playback. */
     int32_t* nextPlaybackId;
-    /* Array of all registered audio samples. */
+    /* Array of all registered vanilla audio samples. */
     HLDArrayPreSize* sampleTable;
     /* Array of all audio sample names. */
     HLDArrayPreSize* sampleNameTable;
+    /* Array of all registered mod audio samples. */
+    HLDArrayPreSize* streamTable;
     /* Array of all registered fonts. */
     HLDArrayPreSize* fontTable;
     /* Index of currently active font. */
@@ -845,6 +859,8 @@ typedef struct __attribute__((packed)) HLDFunctions {
 
 /* ----- INTERNAL GLOBALS ----- */
 
+extern HLDConstants hldconsts;
+
 extern HLDVariables hldvars;
 
 extern HLDFunctions hldfuncs;
@@ -869,6 +885,8 @@ HLDEvent* HLDEventNew(HLDNamedFunction* handler);
 
 HLDEventWrapper* HLDEventWrapperNew(HLDEvent* event);
 
-void HLDRecordEngineRefs(HLDVariables* vars, HLDFunctions* funcs);
+void HLDRecordEngineVals(HLDConstants* consts,
+                         HLDVariables* vars,
+                         HLDFunctions* funcs);
 
 #endif /* INTERNAL_HLD_H */

@@ -3,7 +3,7 @@
  *
  * @brief Utilities for querying and manipulating audio samples and playback.
  *
- * @since 1.3.0
+ * @since {{MRE_NEXT_MINOR}}
  *
  * @copyright 2021 the libaermre authors
  *
@@ -31,7 +31,7 @@
 /**
  * @brief Vanilla audio samples.
  *
- * @since 1.4.0
+ * @since {{MRE_NEXT_MINOR}}
  */
 typedef enum AERAudioSampleIndex {
     /**
@@ -721,6 +721,8 @@ typedef enum AERAudioSampleIndex {
 /* ----- PUBLIC FUNCTIONS ----- */
 
 int32_t AERAudioSampleRegister(const char* filename, const char* name);
+
+// AERAudioSampleReplace
 
 size_t AERAudioSampleGetNumRegistered(void);
 
