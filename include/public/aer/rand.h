@@ -211,6 +211,21 @@ double AERRandDoubleRange(double min, double max);
  */
 bool AERRandBool(void);
 
+/**
+ * @brief Shuffle an array of arbitrary elements using the automatically-seeded
+ * global generator.
+ *
+ * @param[in] elemSize Size of each buffer element in bytes.
+ * @param[in] bufSize Size of buffer in elements.
+ * @param[in,out] elemBuf Buffer of elements to shuffle.
+ *
+ * @throw ::AER_BAD_VAL if argument `elemSize` is `0`.
+ * @throw ::AER_NULL_ARG if argument `elemBuf` is `NULL`.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERRandGenShuffle
+ */
 void AERRandShuffle(size_t elemSize, size_t bufSize, void* elemBuf);
 
 /**
@@ -454,6 +469,21 @@ double AERRandGenDoubleRange(AERRandGen* gen, double min, double max);
  */
 bool AERRandGenBool(AERRandGen* gen);
 
+/**
+ * @brief Shuffle an array of arbitrary elements using a self-managed generator.
+ *
+ * @param[in] gen Generator of interest.
+ * @param[in] elemSize Size of each buffer element in bytes.
+ * @param[in] bufSize Size of buffer in elements.
+ * @param[in,out] elemBuf Buffer of elements to shuffle.
+ *
+ * @throw ::AER_BAD_VAL if argument `elemSize` is `0`.
+ * @throw ::AER_NULL_ARG if either argument `gen` or `elemBuf` is `NULL`.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERRandShuffle
+ */
 void AERRandGenShuffle(AERRandGen* gen,
                        size_t elemSize,
                        size_t bufSize,
