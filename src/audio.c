@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "foxutils/arraymacs.h"
 #include "foxutils/stringmapmacs.h"
 
 #include "aer/audio.h"
@@ -25,17 +27,35 @@
 #include "internal/log.h"
 #include "internal/mod.h"
 
+/* ----- PRIVATE TYPES ----- */
+
+typedef struct SampleInfo {
+    char* name;
+    int32_t realIdx;
+} SampleInfo;
+
 /* ----- PRIVATE GLOBALS ----- */
 
 static FoxMap sampleNames = {0};
 
-static size_t streamNameTableCap = 0;
+static FoxArray sampleIdxToNameLUT = {0};
 
-static char** streamNameTable = NULL;
+/* ----- PRIVATE FUNCTIONS ----- */
+
+static void RecordSampleName(const char* name) {
+    int32_t virtIdx = (int32_t)FoxArrayMSize(const char*, &sampleIdxToNameLUT);
+    size_t strSize = strlen(name);
+
+    *FoxMapMInsert(const char*, int32_t, &sampleNames, name) = virtIdx;
+    *FoxArrayMPush(const char*, &sampleIdxToNameLUT) =
+        memcpy(malloc(strSize), name, strSize);
+
+    return;
+}
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void AudioManBuildSampleNameTable(void) {
+void AudioManBuildSampleNameTables(void) {
     size_t numSamples = hldvars.sampleNameTable->size;
     const char** elements = hldvars.sampleNameTable->elements;
     for (uint32_t sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
@@ -50,6 +70,7 @@ void AudioManConstructor(void) {
     LogInfo("Initializing audio module...");
 
     FoxStringMapMInit(int32_t, &sampleNames);
+    FoxArrayMInit(const char*, &sampleIdxToNameLUT);
 
     LogInfo("Done initializing audio module.");
     return;
@@ -58,9 +79,15 @@ void AudioManConstructor(void) {
 void AudioManDestructor(void) {
     LogInfo("Deinitializing audio module...");
 
-    /* Deinitialize name table. */
     FoxMapMDeinit(const char*, int32_t, &sampleNames);
     sampleNames = (FoxMap){0};
+
+    size_t numSamples = FoxArrayMSize(const char*, &sampleIdxToNameLUT);
+    for (size_t idx = 0; idx < numSamples; idx++) {
+        free(FoxArrayMPop(const char*, &sampleIdxToNameLUT));
+    }
+    FoxArrayMDeinit(const char*, &sampleIdxToNameLUT);
+    sampleIdxToNameLUT = (FoxArray){0};
 
     LogInfo("Done deinitializing audio module.");
     return;

@@ -18,7 +18,7 @@
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void AudioManBuildSampleNameTable(void);
+void AudioManBuildSampleNameTables(void);
 
 void AudioManConstructor(void);
 

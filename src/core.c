@@ -133,7 +133,7 @@ static void RegisterAssets(void) {
     LogInfo("Done.");
 
     /* Build audio sample name table. */
-    AudioManBuildSampleNameTable();
+    AudioManBuildSampleNameTables();
 
     /* Register audio samples. */
     stage = STAGE_SAMPLE_REG;
