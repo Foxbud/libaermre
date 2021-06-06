@@ -73,6 +73,25 @@ float AERDrawGetCurrentAlpha(void);
  */
 void AERDrawSetCurrentAlpha(float alpha);
 
+// void AERDrawSprite();
+
+void AERDrawSpriteAdv(int32_t spriteIdx,
+                      uint32_t frame,
+                      int32_t left,
+                      int32_t top,
+                      int32_t width,
+                      int32_t height,
+                      float x,
+                      float y,
+                      float scaleX,
+                      float scaleY,
+                      float angle,
+                      uint32_t blendNW,
+                      uint32_t blendNE,
+                      uint32_t blendSE,
+                      uint32_t blendSW,
+                      float alpha);
+
 /**
  * @brief Draw a line to the screen.
  *
