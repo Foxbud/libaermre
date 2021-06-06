@@ -77,7 +77,11 @@ AER_EXPORT void AERDrawSpriteAdv(int32_t spriteIdx,
 #undef errRet
 }
 
-void AERDrawLine(float x1, float y1, float x2, float y2, uint32_t color) {
+AER_EXPORT void AERDrawLine(float x1,
+                            float y1,
+                            float x2,
+                            float y2,
+                            uint32_t color) {
 #define errRet
     EnsureStageStrict(STAGE_DRAW);
 
@@ -87,13 +91,13 @@ void AERDrawLine(float x1, float y1, float x2, float y2, uint32_t color) {
 #undef errRet
 }
 
-void AERDrawLineAdv(float x1,
-                    float y1,
-                    float x2,
-                    float y2,
-                    float width,
-                    uint32_t color1,
-                    uint32_t color2) {
+AER_EXPORT void AERDrawLineAdv(float x1,
+                               float y1,
+                               float x2,
+                               float y2,
+                               float width,
+                               uint32_t color1,
+                               uint32_t color2) {
 #define errRet
     EnsureStageStrict(STAGE_DRAW);
 
