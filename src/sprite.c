@@ -153,3 +153,66 @@ AER_EXPORT const char* AERSpriteGetName(int32_t spriteIdx) {
     Ok(sprite->name);
 #undef errRet
 }
+
+AER_EXPORT size_t AERSpriteGetNumFrames(int32_t spriteIdx) {
+#define errRet 0
+    EnsureStage(STAGE_SPRITE_REG);
+
+    HLDSprite* sprite = HLDSpriteLookup(spriteIdx);
+    EnsureLookup(sprite);
+
+    Ok(sprite->numImages);
+#undef errRet
+}
+
+AER_EXPORT
+void AERSpriteGetSize(int32_t spriteIdx, size_t* width, size_t* height) {
+#define errRet
+    EnsureStage(STAGE_SPRITE_REG);
+    EnsureArg(width || height);
+
+    HLDSprite* sprite = HLDSpriteLookup(spriteIdx);
+    EnsureLookup(sprite);
+
+    if (width) {
+        *width = sprite->size.x;
+    }
+    if (height) {
+        *height = sprite->size.y;
+    }
+
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT void AERSpriteGetOrigin(int32_t spriteIdx, int32_t* x, int32_t* y) {
+#define errRet
+    EnsureStage(STAGE_SPRITE_REG);
+    EnsureArg(x || y);
+
+    HLDSprite* sprite = HLDSpriteLookup(spriteIdx);
+    EnsureLookup(sprite);
+
+    if (x) {
+        *x = sprite->origin.x;
+    }
+    if (y) {
+        *y = sprite->origin.y;
+    }
+
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT void AERSpriteSetOrigin(int32_t spriteIdx, int32_t x, int32_t y) {
+#define errRet
+    EnsureStage(STAGE_SPRITE_REG);
+
+    HLDSprite* sprite = HLDSpriteLookup(spriteIdx);
+    EnsureLookup(sprite);
+
+    sprite->origin = (HLDVecIntegral){.x = x, .y = y};
+
+    Ok();
+#undef errRet
+}

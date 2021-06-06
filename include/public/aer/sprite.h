@@ -3525,4 +3525,68 @@ int32_t AERSpriteGetByName(const char* name);
  */
 const char* AERSpriteGetName(int32_t spriteIdx);
 
+/**
+ * @brief Query the number of animation frames of a sprite.
+ *
+ * @param[in] spriteIdx Sprite of interest.
+ *
+ * @return Number of animation frames or `0` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ */
+size_t AERSpriteGetNumFrames(int32_t spriteIdx);
+
+/**
+ * @brief Query the size of a sprite in pixels.
+ *
+ * If only one component of the size is needed, then the argument for the
+ * unneeded component may be `NULL`.
+ *
+ * @param[in] spriteIdx Sprite of interest.
+ * @param[out] width Width in pixels.
+ * @param[out] height Height in pixels.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
+ * @throw ::AER_NULL_ARG if both arguments `width` and `height` are `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ */
+void AERSpriteGetSize(int32_t spriteIdx, size_t* width, size_t* height);
+
+/**
+ * @brief Query the origin of a sprite in pixels.
+ *
+ * If only one component of the origin is needed, then the argument for the
+ * unneeded component may be `NULL`.
+ *
+ * @param[in] spriteIdx Sprite of interest.
+ * @param[out] x Horizontal origin in pixels.
+ * @param[out] y Vertical origin in pixels.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
+ * @throw ::AER_NULL_ARG if both arguments `x` and `y` are `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ */
+void AERSpriteGetOrigin(int32_t spriteIdx, int32_t* x, int32_t* y);
+
+/**
+ * @brief Set the origin of a sprite in pixels.
+ *
+ * @param[in] spriteIdx Sprite of interest.
+ * @param[in] x Horizontal origin in pixels.
+ * @param[in] y Vertical origin in pixels.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ */
+void AERSpriteSetOrigin(int32_t spriteIdx, int32_t x, int32_t y);
+
 #endif /* AER_SPRITE_H */

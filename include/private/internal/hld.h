@@ -504,17 +504,15 @@ typedef struct HLDRoom {
 } HLDRoom;
 
 typedef struct HLDSprite {
-    uint32_t field_0;
+    void* classDef;
     uint32_t field_4;
     uint32_t field_8;
     uint32_t field_C;
     uint32_t field_10;
     uint32_t field_14;
     uint32_t numImages;
-    uint32_t field_1C;
-    uint32_t field_20;
-    uint32_t field_24;
-    uint32_t field_28;
+    struct HLDVecIntegral size;
+    struct HLDVecIntegral origin;
     uint32_t field_2C;
     uint32_t field_30;
     uint32_t field_34;
@@ -528,7 +526,7 @@ typedef struct HLDSprite {
     uint32_t field_54;
     uint32_t field_58;
     const char* name;
-    uint32_t field_60;
+    uint32_t index;
     uint32_t field_64;
     uint32_t field_68;
     float speed;
