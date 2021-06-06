@@ -3434,6 +3434,11 @@ typedef enum AERSpriteIndex {
 /**
  * @brief Register a custom sprite.
  *
+ * @bug The coordinates defining the origin of a sprite may be negative despite
+ * the fact that both arguments `origX` and `origY` are unsigned. They are being
+ * left as unsigned to preserve API compatibility. To pass a negative value for
+ * a component of the origin, cast it to `uint32_t`.
+ *
  * @param[in] name Name to assign to sprite.
  * @param[in] filename Path to sprite file relative to asset directory.
  * @param[in] numFrames If animated sprite, number of animation frames.
@@ -3462,6 +3467,11 @@ int32_t AERSpriteRegister(const char* name,
 
 /**
  * @brief Override a vanilla sprite with a custom sprite.
+ *
+ * @bug The coordinates defining the origin of a sprite may be negative despite
+ * the fact that both arguments `origX` and `origY` are unsigned. They are being
+ * left as unsigned to preserve API compatibility. To pass a negative value for
+ * a component of the origin, cast it to `uint32_t`.
  *
  * @param[in] spriteIdx Index of vanilla sprite to override.
  * @param[in] filename Path to sprite file relative to asset directory.
@@ -3558,7 +3568,7 @@ size_t AERSpriteGetNumFrames(int32_t spriteIdx);
 void AERSpriteGetSize(int32_t spriteIdx, size_t* width, size_t* height);
 
 /**
- * @brief Query the origin of a sprite in pixels.
+ * @brief Query the origin (center) of a sprite in pixels.
  *
  * If only one component of the origin is needed, then the argument for the
  * unneeded component may be `NULL`.
@@ -3576,7 +3586,7 @@ void AERSpriteGetSize(int32_t spriteIdx, size_t* width, size_t* height);
 void AERSpriteGetOrigin(int32_t spriteIdx, int32_t* x, int32_t* y);
 
 /**
- * @brief Set the origin of a sprite in pixels.
+ * @brief Set the origin (center) of a sprite in pixels.
  *
  * @param[in] spriteIdx Sprite of interest.
  * @param[in] x Horizontal origin in pixels.
