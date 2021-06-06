@@ -676,7 +676,7 @@ typedef enum AERObjectIndex {
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `parentIdx` is an invalid object
  * or either argument `spriteIdx` or `maskIdx` is an invalid sprite.
- * @throw ::AER_BAD_VAL if argument 'name' already in use by another object.
+ * @throw ::AER_BAD_VAL if argument `name` already in use by another object.
  *
  * @since 1.0.0
  *
