@@ -73,7 +73,12 @@ float AERDrawGetCurrentAlpha(void);
  */
 void AERDrawSetCurrentAlpha(float alpha);
 
-// void AERDrawSprite();
+void AERDrawSprite(int32_t spriteIdx,
+                   uint32_t frame,
+                   float x,
+                   float y,
+                   float scale,
+                   uint32_t blend);
 
 void AERDrawSpriteAdv(int32_t spriteIdx,
                       uint32_t frame,

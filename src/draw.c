@@ -46,6 +46,28 @@ AER_EXPORT void AERDrawSetCurrentAlpha(float alpha) {
 #undef errRet
 }
 
+AER_EXPORT void AERDrawSprite(int32_t spriteIdx,
+                              uint32_t frame,
+                              float x,
+                              float y,
+                              float scale,
+                              uint32_t blend) {
+#define errRet
+    EnsureStageStrict(STAGE_DRAW);
+    HLDSprite* sprite = HLDSpriteLookup(spriteIdx);
+    EnsureLookup(sprite);
+    EnsureMaxExc(frame, sprite->numImages);
+
+    HLDVecIntegral spriteSize = sprite->size;
+
+    hldfuncs.actionDrawSpriteGeneral(sprite, frame, 0.0f, 0.0f, spriteSize.x,
+                                     spriteSize.y, x, y, scale, scale, 0.0f,
+                                     blend, blend, blend, blend, 1.0f);
+
+    Ok();
+#undef errRet
+}
+
 AER_EXPORT void AERDrawSpriteAdv(int32_t spriteIdx,
                                  uint32_t frame,
                                  int32_t left,
@@ -70,8 +92,8 @@ AER_EXPORT void AERDrawSpriteAdv(int32_t spriteIdx,
     EnsureProba(alpha);
 
     hldfuncs.actionDrawSpriteGeneral(
-        spriteIdx, frame, (float)left, (float)top, (float)width, (float)height,
-        x, y, scaleX, scaleY, angle, blendNW, blendNE, blendSE, blendSW, alpha);
+        sprite, frame, (float)left, (float)top, (float)width, (float)height, x,
+        y, scaleX, scaleY, angle, blendNW, blendNE, blendSE, blendSW, alpha);
 
     Ok();
 #undef errRet

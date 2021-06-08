@@ -705,7 +705,7 @@ typedef struct __attribute__((packed)) HLDFunctions {
     /* Set the current global draw alpha. */
     void (*actionDrawSetAlpha)(float alpha);
     /* Draw a sprite to the screen. */
-    void (*actionDrawSpriteGeneral)(int32_t spriteIdx,
+    void (*actionDrawSpriteGeneral)(HLDSprite* sprite,
                                     uint32_t imgNum,
                                     float left,
                                     float top,
