@@ -73,6 +73,26 @@ float AERDrawGetCurrentAlpha(void);
  */
 void AERDrawSetCurrentAlpha(float alpha);
 
+/**
+ * @brief Draw a sprite to the screen.
+ *
+ * @param[in] spriteIdx Sprite to draw.
+ * @param[in] frame Frame of sprite to draw.
+ * @param[in] x Horizontal position at which to draw sprite.
+ * @param[in] y Vertical position at which to draw sprite.
+ * @param[in] scale Horizontal and vertical scale of text.
+ * @param[in] blend Color to blend with sprite. See @ref DrawColors for more
+ * infomation.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ * @throw ::AER_BAD_VAL if argument `frame` is greater than or equal to the
+ * number of frames in sprite.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERDrawSpriteAdv
+ */
 void AERDrawSprite(int32_t spriteIdx,
                    uint32_t frame,
                    float x,
@@ -80,6 +100,43 @@ void AERDrawSprite(int32_t spriteIdx,
                    float scale,
                    uint32_t blend);
 
+/**
+ * @brief Draw a sprite to the screen.
+ *
+ * If more than one blend color is provided, then the engine will render a
+ * smooth gradient.
+ *
+ * @param[in] spriteIdx Sprite to draw.
+ * @param[in] frame Frame of sprite to draw.
+ * @param[in] left Horizontal offset into sprite to draw in pixels.
+ * @param[in] top Vertical offset into sprite to draw in pixels.
+ * @param[in] width Horizontal component of sprite to draw in pixels.
+ * @param[in] height Vertical component of sprite to draw in pixels.
+ * @param[in] x Horizontal position at which to draw sprite.
+ * @param[in] y Vertical position at which to draw sprite.
+ * @param[in] scaleX Horizontal scale of sprite.
+ * @param[in] scaleY Vertical scale of sprite.
+ * @param[in] angle Sprite offset angle in degrees.
+ * @param[in] blendNW Blend color of northwest corner. See @ref DrawColors for
+ * more infomation.
+ * @param[in] blendNE Blend color of northeast corner. See @ref DrawColors for
+ * more infomation.
+ * @param[in] blendSE Blend color of southeast corner. See @ref DrawColors for
+ * more infomation.
+ * @param[in] blendSW Blend color of southwest corner. See @ref DrawColors for
+ * more infomation.
+ * @param[in] alpha Sprite alpha (transparency).
+ *
+ * @throw ::AER_SEQ_BREAK if called outside draw stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ * @throw ::AER_BAD_VAL if argument `alpha` is less than `0.0f` or greater
+ * than `1.0f` or if argument `frame` is greater than or equal to the
+ * number of frames in sprite.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERDrawSprite
+ */
 void AERDrawSpriteAdv(int32_t spriteIdx,
                       uint32_t frame,
                       int32_t left,
@@ -100,10 +157,10 @@ void AERDrawSpriteAdv(int32_t spriteIdx,
 /**
  * @brief Draw a line to the screen.
  *
- * @param[in] x1 Horizontal position of line start (in room space).
- * @param[in] y1 Vertical position of line start (in room space).
- * @param[in] x2 Horizontal position of line end (in room space).
- * @param[in] y2 Vertical position of line end (in room space).
+ * @param[in] x1 Horizontal position of line start.
+ * @param[in] y1 Vertical position of line start.
+ * @param[in] x2 Horizontal position of line end.
+ * @param[in] y2 Vertical position of line end.
  * @param[in] color Color of the line. See @ref DrawColors for more
  * infomation.
  *
@@ -121,10 +178,10 @@ void AERDrawLine(float x1, float y1, float x2, float y2, uint32_t color);
  * If more than one color is provided, then the engine will render a smooth
  * gradient.
  *
- * @param[in] x1 Horizontal position of line start (in room space).
- * @param[in] y1 Vertical position of line start (in room space).
- * @param[in] x2 Horizontal position of line end (in room space).
- * @param[in] y2 Vertical position of line end (in room space).
+ * @param[in] x1 Horizontal position of line start.
+ * @param[in] y1 Vertical position of line start.
+ * @param[in] x2 Horizontal position of line end.
+ * @param[in] y2 Vertical position of line end.
  * @param[in] width Line width in pixels.
  * @param[in] color1 Color of the start of the line. See @ref DrawColors for
  * more infomation.
@@ -148,11 +205,10 @@ void AERDrawLineAdv(float x1,
 /**
  * @brief Draw an ellipse to the screen.
  *
- * @param[in] left X-intercept of the left side of ellipse (in room space).
- * @param[in] top Y-intercept of the top side of ellipse (in room space).
- * @param[in] right X-intercept of the right side of ellipse (in room space).
- * @param[in] bottom Y-intercept of the bottom side of ellipse (in room
- * space).
+ * @param[in] left X-intercept of the left side of ellipse.
+ * @param[in] top Y-intercept of the top side of ellipse.
+ * @param[in] right X-intercept of the right side of ellipse.
+ * @param[in] bottom Y-intercept of the bottom side of ellipse.
  * @param[in] color Color of the ellipse. See @ref DrawColors for more
  * infomation.
  * @param[in] outline Whether to render a solid ellipse (`false`) or a `1`
@@ -177,11 +233,10 @@ void AERDrawEllipse(float left,
  * If more than one color is provided, then the engine will render a smooth
  * gradient.
  *
- * @param[in] left X-intercept of the left side of ellipse (in room space).
- * @param[in] top Y-intercept of the top side of ellipse (in room space).
- * @param[in] right X-intercept of the right side of ellipse (in room space).
- * @param[in] bottom Y-intercept of the bottom side of ellipse (in room
- * space).
+ * @param[in] left X-intercept of the left side of ellipse.
+ * @param[in] top Y-intercept of the top side of ellipse.
+ * @param[in] right X-intercept of the right side of ellipse.
+ * @param[in] bottom Y-intercept of the bottom side of ellipse.
  * @param[in] colorCenter Color of the center ellipse. See @ref DrawColors for
  * more infomation.
  * @param[in] colorEdge Color of the edge ellipse. See @ref DrawColors for more
@@ -206,12 +261,12 @@ void AERDrawEllipseAdv(float left,
 /**
  * @brief Draw a triangle to the screen.
  *
- * @param[in] x1 Horizontal position of first vertex (in room space).
- * @param[in] y1 Vertical position of first vertex (in room space).
- * @param[in] x2 Horizontal position of second vertex (in room space).
- * @param[in] y2 Vertical position of second vertex (in room space).
- * @param[in] x3 Horizontal position of third vertex (in room space).
- * @param[in] y3 Vertical position of third vertex (in room space).
+ * @param[in] x1 Horizontal position of first vertex.
+ * @param[in] y1 Vertical position of first vertex.
+ * @param[in] x2 Horizontal position of second vertex.
+ * @param[in] y2 Vertical position of second vertex.
+ * @param[in] x3 Horizontal position of third vertex.
+ * @param[in] y3 Vertical position of third vertex.
  * @param[in] color Color of the triangle. See @ref DrawColors for more
  * infomation.
  * @param[in] outline Whether to render a solid triangle (`false`) or a `1`
@@ -238,12 +293,12 @@ void AERDrawTriangle(float x1,
  * If more than one color is provided, then the engine will render a smooth
  * gradient.
  *
- * @param[in] x1 Horizontal position of first vertex (in room space).
- * @param[in] y1 Vertical position of first vertex (in room space).
- * @param[in] x2 Horizontal position of second vertex (in room space).
- * @param[in] y2 Vertical position of second vertex (in room space).
- * @param[in] x3 Horizontal position of third vertex (in room space).
- * @param[in] y3 Vertical position of third vertex (in room space).
+ * @param[in] x1 Horizontal position of first vertex.
+ * @param[in] y1 Vertical position of first vertex.
+ * @param[in] x2 Horizontal position of second vertex.
+ * @param[in] y2 Vertical position of second vertex.
+ * @param[in] x3 Horizontal position of third vertex.
+ * @param[in] y3 Vertical position of third vertex.
  * @param[in] color1 Color of first vertex. See @ref DrawColors for more
  * infomation.
  * @param[in] color2 Color of second vertex. See @ref DrawColors for more
@@ -273,11 +328,10 @@ void AERDrawTriangleAdv(float x1,
 /**
  * @brief Draw a rectangle to the screen.
  *
- * @param[in] left X-intercept of the left side of rectangle (in room space).
- * @param[in] top Y-intercept of the top side of rectangle (in room space).
- * @param[in] right X-intercept of the right side of rectangle (in room space).
- * @param[in] bottom Y-intercept of the bottom side of rectangle (in room
- * space).
+ * @param[in] left X-intercept of the left side of rectangle.
+ * @param[in] top Y-intercept of the top side of rectangle.
+ * @param[in] right X-intercept of the right side of rectangle.
+ * @param[in] bottom Y-intercept of the bottom side of rectangle.
  * @param[in] color Color of the rectangle. See @ref DrawColors for more
  * infomation.
  * @param[in] outline Whether to render a solid rectangle (`false`) or a `1`
@@ -302,11 +356,10 @@ void AERDrawRectangle(float left,
  * If more than one color is provided, then the engine will render a smooth
  * gradient.
  *
- * @param[in] left X-intercept of the left side of rectangle (in room space).
- * @param[in] top Y-intercept of the top side of rectangle (in room space).
- * @param[in] right X-intercept of the right side of rectangle (in room space).
- * @param[in] bottom Y-intercept of the bottom side of rectangle (in room
- * space).
+ * @param[in] left X-intercept of the left side of rectangle.
+ * @param[in] top Y-intercept of the top side of rectangle.
+ * @param[in] right X-intercept of the right side of rectangle.
+ * @param[in] bottom Y-intercept of the bottom side of rectangle.
  * @param[in] colorNW Color of northwest vertex. See @ref DrawColors for more
  * infomation.
  * @param[in] colorNE Color of northeast vertex. See @ref DrawColors for more
@@ -341,8 +394,8 @@ void AERDrawRectangleAdv(float left,
  *
  * @param[in] text String to draw. Maximum size is 8192 characters including
  * null terminator (will not cause error if larger).
- * @param[in] x Horizontal position at which to draw text (in room space).
- * @param[in] y Vertical position at which to draw text (in room space).
+ * @param[in] x Horizontal position at which to draw text.
+ * @param[in] y Vertical position at which to draw text.
  * @param[in] width Maximum line width before line break in pixels (not
  * characters).
  * @param[in] scale Horizontal and vertical scale of text.
@@ -376,8 +429,8 @@ void AERDrawText(const char* text,
  *
  * @param[in] text String to draw. Maximum size is 8192 characters including
  * null terminator (will not cause error if larger).
- * @param[in] x Horizontal position at which to draw text (in room space).
- * @param[in] y Vertical position at which to draw text (in room space).
+ * @param[in] x Horizontal position at which to draw text.
+ * @param[in] y Vertical position at which to draw text.
  * @param[in] height Space between each line of text in pixels.
  * @param[in] width Maximum line width before line break in pixels (not
  * characters).
