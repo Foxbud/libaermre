@@ -155,16 +155,16 @@ static void ModInit(Mod* mod, int32_t idx, const char* name) {
         *FoxArrayMPush(void*, &gameStepListeners) = def.gameStepListener;
     }
     if (def.gamePauseListener) {
-        *FoxArrayMPush(void*, &gameStepListeners) = def.gamePauseListener;
+        *FoxArrayMPush(void*, &gamePauseListeners) = def.gamePauseListener;
     }
     if (def.gameSaveListener) {
-        *FoxArrayMPush(void*, &gameStepListeners) = def.gameSaveListener;
+        *FoxArrayMPush(void*, &gameSaveListeners) = def.gameSaveListener;
     }
     if (def.gameLoadListener) {
-        *FoxArrayMPush(void*, &gameStepListeners) = def.gameLoadListener;
+        *FoxArrayMPush(void*, &gameLoadListeners) = def.gameLoadListener;
     }
     if (def.roomChangeListener) {
-        *FoxArrayMPush(void*, &gameStepListeners) = def.roomChangeListener;
+        *FoxArrayMPush(void*, &roomChangeListeners) = def.roomChangeListener;
     }
 
     /* Record mod library management callbacks. */
@@ -215,7 +215,7 @@ Mod* ModManGetOwningMod(void* sym) {
 }
 
 void ModManExecuteGameStepListeners(void) {
-    size_t numListeners = FoxArrayMSize(ModListener, &gameStepListeners);
+    size_t numListeners = FoxArrayMSize(void*, &gameStepListeners);
     for (uint32_t idx = 0; idx < numListeners; idx++) {
         void (*listener)(void) =
             *FoxArrayMIndex(void*, &gameStepListeners, idx);
@@ -226,7 +226,7 @@ void ModManExecuteGameStepListeners(void) {
 }
 
 void ModManExecuteGamePauseListeners(bool paused) {
-    size_t numListeners = FoxArrayMSize(ModListener, &gamePauseListeners);
+    size_t numListeners = FoxArrayMSize(void*, &gamePauseListeners);
     for (uint32_t idx = 0; idx < numListeners; idx++) {
         void (*listener)(bool) =
             *FoxArrayMIndex(void*, &gamePauseListeners, idx);
@@ -237,7 +237,7 @@ void ModManExecuteGamePauseListeners(bool paused) {
 }
 
 void ModManExecuteGameSaveListeners(int32_t curSlotIdx) {
-    size_t numListeners = FoxArrayMSize(ModListener, &gameSaveListeners);
+    size_t numListeners = FoxArrayMSize(void*, &gameSaveListeners);
     for (uint32_t idx = 0; idx < numListeners; idx++) {
         void (*listener)(int32_t) =
             *FoxArrayMIndex(void*, &gameSaveListeners, idx);
@@ -248,7 +248,7 @@ void ModManExecuteGameSaveListeners(int32_t curSlotIdx) {
 }
 
 void ModManExecuteGameLoadListeners(int32_t curSlotIdx) {
-    size_t numListeners = FoxArrayMSize(ModListener, &gameLoadListeners);
+    size_t numListeners = FoxArrayMSize(void*, &gameLoadListeners);
     for (uint32_t idx = 0; idx < numListeners; idx++) {
         void (*listener)(int32_t) =
             *FoxArrayMIndex(void*, &gameLoadListeners, idx);
@@ -259,7 +259,7 @@ void ModManExecuteGameLoadListeners(int32_t curSlotIdx) {
 }
 
 void ModManExecuteRoomChangeListeners(int32_t newRoomIdx, int32_t prevRoomIdx) {
-    size_t numListeners = FoxArrayMSize(ModListener, &roomChangeListeners);
+    size_t numListeners = FoxArrayMSize(void*, &roomChangeListeners);
     for (uint32_t idx = 0; idx < numListeners; idx++) {
         void (*listener)(int32_t, int32_t) =
             *FoxArrayMIndex(void*, &roomChangeListeners, idx);
