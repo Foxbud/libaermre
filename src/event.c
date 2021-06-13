@@ -67,7 +67,7 @@ static void EventTrapInit(EventTrap* trap,
 
     trap->eventType = eventType;
     trap->origListener = origListener;
-    FoxArrayMInitExt(ModListener, &trap->modListeners, 2);
+    FoxArrayMInitExt(void*, &trap->modListeners, 2);
 
     return;
 }
@@ -77,15 +77,15 @@ static void EventTrapDeinit(EventTrap* trap) {
 
     trap->eventType = 0;
     trap->origListener = NULL;
-    FoxArrayMDeinit(ModListener, &trap->modListeners);
+    FoxArrayMDeinit(void*, &trap->modListeners);
 
     return;
 }
 
-static void EventTrapAddListener(EventTrap* trap, ModListener listener) {
+static void EventTrapAddListener(EventTrap* trap, void* listener) {
     assert(trap);
 
-    *FoxArrayMPush(ModListener, &trap->modListeners) = listener;
+    *FoxArrayMPush(void*, &trap->modListeners) = listener;
 
     return;
 }
@@ -109,12 +109,9 @@ static bool EventTrapIterNext(EventTrapIter* iter,
     EventTrap* trap = iter->trap;
     FoxArray* modListeners = &trap->modListeners;
     if (iter->nextIdx < FoxArrayMSize(ModListener, modListeners)) {
-        ModListener* listener =
-            FoxArrayMIndex(ModListener, modListeners, iter->nextIdx++);
-        ModManPushContext(listener->modIdx);
-        result = ((bool (*)(EventTrapIter*, HLDInstance*,
-                            HLDInstance*))listener->func)(iter, target, other);
-        ModManPopContext();
+        bool (*listener)(EventTrapIter*, HLDInstance*, HLDInstance*) =
+            *FoxArrayMIndex(void*, modListeners, iter->nextIdx++);
+        result = listener(iter, target, other);
     } else {
         trap->origListener(target, other);
     }
@@ -412,8 +409,7 @@ void EventManRegisterEventListener(HLDObject* obj,
         *trap = EntrapEvent(obj, key.type, key.num);
     }
 
-    EventTrapAddListener(trap, (ModListener){.func = (void (*)(void))listener,
-                                             .modIdx = ModManPeekContext()});
+    EventTrapAddListener(trap, listener);
 
     return;
 }

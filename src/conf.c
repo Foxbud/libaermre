@@ -34,33 +34,35 @@
 
 /* ----- PRIVATE MACROS ----- */
 
-#define GetAbsKey(key)                                                         \
-    ({                                                                         \
-        char GetAbsKey_buf[192];                                               \
-        if ((size_t)snprintf(GetAbsKey_buf, sizeof(GetAbsKey_buf), "%s.%s",    \
-                             ((ModManHasContext())                             \
-                                  ? ModManGetMod(ModManPeekContext())->name    \
-                                  : INTERNAL_CONF_NAME),                       \
-                             (key)) >= sizeof(GetAbsKey_buf)) {                \
-            if (ModManHasContext()) {                                          \
-                LogErr(                                                        \
-                    "Key overflow while constructing configuration key for "   \
-                    "mod "                                                     \
-                    "\"%s\". Key must be less than %zu characters in length, " \
-                    "but key was \"%s\".",                                     \
-                    ModManGetMod(ModManPeekContext())->name,                   \
-                    sizeof(GetAbsKey_buf), GetAbsKey_buf);                     \
-            } else {                                                           \
-                LogErr(                                                        \
-                    "Key overflow while constructing internal "                \
-                    "configuration key. "                                      \
-                    "Key must be less than %zu characters in length, "         \
-                    "but key was \"%s\".",                                     \
-                    sizeof(GetAbsKey_buf), GetAbsKey_buf);                     \
-            }                                                                  \
-            abort();                                                           \
-        }                                                                      \
-        GetAbsKey_buf;                                                         \
+#define GetAbsKey(key)                                                        \
+    ({                                                                        \
+        char GetAbsKey_buf[192];                                              \
+        Mod* GetAbsKey_mod = ModManGetCurrentMod();                           \
+        const char* GetAbsKey_modName =                                       \
+            GetAbsKey_mod ? GetAbsKey_mod->name : INTERNAL_CONF_NAME;         \
+        if ((size_t)snprintf(GetAbsKey_buf, sizeof(GetAbsKey_buf), "%s.%s",   \
+                             GetAbsKey_modName,                               \
+                             (key)) >= sizeof(GetAbsKey_buf)) {               \
+            if (GetAbsKey_mod) {                                              \
+                LogErr(                                                       \
+                    "Key overflow while constructing configuration key "      \
+                    "for "                                                    \
+                    "mod "                                                    \
+                    "\"%s\". Key must be less than %zu characters in "        \
+                    "length, "                                                \
+                    "but key was \"%s\".",                                    \
+                    GetAbsKey_modName, sizeof(GetAbsKey_buf), GetAbsKey_buf); \
+            } else {                                                          \
+                LogErr(                                                       \
+                    "Key overflow while constructing internal "               \
+                    "configuration key. "                                     \
+                    "Key must be less than %zu characters in length, "        \
+                    "but key was \"%s\".",                                    \
+                    sizeof(GetAbsKey_buf), GetAbsKey_buf);                    \
+            }                                                                 \
+            abort();                                                          \
+        }                                                                     \
+        GetAbsKey_buf;                                                        \
     })
 
 #define EnsureTypeScalar(entry, expType)                     \

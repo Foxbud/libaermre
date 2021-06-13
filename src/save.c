@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "foxutils/arraymacs.h"
 #include "foxutils/math.h"
 #include "foxutils/stringmapmacs.h"
 
@@ -71,7 +70,7 @@ typedef struct SaveEntryGetKeysContext {
 
 /* ----- PRIVATE GLOBALS ----- */
 
-static FoxArray modMaps = {0};
+static FoxMap* modMaps = NULL;
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
@@ -135,9 +134,9 @@ static bool SaveEntryGetKeysCallback(const char** key,
 }
 
 static void ResetModMaps(void) {
-    size_t numMods = FoxArrayMSize(FoxMap, &modMaps);
+    size_t numMods = ModManGetNumMods();
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        FoxMap* map = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        FoxMap* map = modMaps + modIdx;
         FoxMapMForEachElement(const char*, SaveEntry, map,
                               SaveEntryDeinitCallback, NULL);
         FoxMapMDeinit(const char*, SaveEntry, map);
@@ -179,7 +178,7 @@ void SaveManLoadData(HLDPrimitive* hldDataMapId) {
     assert(hldMainMapId.type == HLD_PRIMITIVE_REAL);
 
     /* Update each mod's map. */
-    size_t numMods = FoxArrayMSize(FoxMap, &modMaps);
+    size_t numMods = ModManGetNumMods();
     size_t numModsWithData = 0;
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
         const char* modName = ModManGetMod(modIdx)->name;
@@ -192,7 +191,7 @@ void SaveManLoadData(HLDPrimitive* hldDataMapId) {
         numModsWithData++;
 
         /* Copy entries from HLD map to our map. */
-        FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        FoxMap* modMap = modMaps + modIdx;
         HLDOpenHashTable* hldModMap =
             *((HLDOpenHashTable***)
                   hldvars.maps->elements)[(int32_t)hldModMapId.value.r];
@@ -251,9 +250,9 @@ void SaveManSaveData(HLDPrimitive* hldDataMapId) {
 
     /* Determine whether any mod data to save. */
     bool isModData = false;
-    size_t numMods = FoxArrayMSize(FoxMap, &modMaps);
+    size_t numMods = ModManGetNumMods();
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        FoxMap* modMap = modMaps + modIdx;
         if ((isModData = !FoxMapMEmpty(const char*, SaveEntry, modMap)))
             break;
     }
@@ -274,7 +273,7 @@ void SaveManSaveData(HLDPrimitive* hldDataMapId) {
     /* Create HLD sub-maps for each mod's data. */
     size_t numModsWithData = 0;
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        FoxMap* modMap = modMaps + modIdx;
         /* Skip if no mod data. */
         if (FoxMapMEmpty(const char*, SaveEntry, modMap))
             continue;
@@ -307,9 +306,9 @@ void SaveManConstructor(void) {
     LogInfo("Initializing save module...");
 
     size_t numMods = ModManGetNumMods();
-    FoxArrayMInit(FoxMap, &modMaps);
+    modMaps = malloc(numMods * sizeof(FoxMap));
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        FoxStringMapMInit(SaveEntry, FoxArrayMPush(FoxMap, &modMaps));
+        FoxStringMapMInit(SaveEntry, modMaps + modIdx);
     }
 
     LogInfo("Done initializing save module.");
@@ -319,14 +318,14 @@ void SaveManConstructor(void) {
 void SaveManDestructor(void) {
     LogInfo("Deinitializing save module...");
 
-    size_t numMods = FoxArrayMSize(FoxMap, &modMaps);
+    size_t numMods = ModManGetNumMods();
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
-        FoxMap* map = FoxArrayMIndex(FoxMap, &modMaps, modIdx);
+        FoxMap* map = modMaps + modIdx;
         FoxMapMForEachElement(const char*, SaveEntry, map,
                               SaveEntryDeinitCallback, NULL);
         FoxMapMDeinit(const char*, SaveEntry, map);
     }
-    FoxArrayMDeinit(FoxMap, &modMaps);
+    free(modMaps);
 
     LogInfo("Done deinitializing save module.");
     return;
@@ -348,8 +347,9 @@ AER_EXPORT size_t AERSaveGetKeys(size_t bufSize, const char** keyBuf) {
     EnsureArgBuf(keyBuf, bufSize);
 
     /* Get mod map. */
-    assert(ModManHasContext());
-    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    Mod* mod = ModManGetCurrentMod();
+    assert(mod);
+    FoxMap* modMap = modMaps + mod->idx;
 
     /* Write keys to buffer. */
     size_t numKeys = FoxMapMSize(const char*, SaveEntry, modMap);
@@ -368,8 +368,9 @@ AER_EXPORT void AERSaveDestroy(const char* key) {
     EnsureArg(key);
 
     /* Get entry. */
-    assert(ModManHasContext());
-    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    Mod* mod = ModManGetCurrentMod();
+    assert(mod);
+    FoxMap* modMap = modMaps + mod->idx;
     SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     EnsureLookup(entry);
 
@@ -387,8 +388,9 @@ AER_EXPORT double AERSaveGetDouble(const char* key) {
     EnsureArg(key);
 
     /* Get entry. */
-    assert(ModManHasContext());
-    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    Mod* mod = ModManGetCurrentMod();
+    assert(mod);
+    FoxMap* modMap = modMaps + mod->idx;
     SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     EnsureLookup(entry);
     EnsureType(entry, SAVE_DOUBLE);
@@ -405,8 +407,9 @@ AER_EXPORT void AERSaveSetDouble(const char* key, double value) {
     Ensure(isfinite(value), AER_BAD_VAL);
 
     /* Get entry. */
-    assert(ModManHasContext());
-    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    Mod* mod = ModManGetCurrentMod();
+    assert(mod);
+    FoxMap* modMap = modMaps + mod->idx;
     SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     if (entry)
         /* Reset entry. */
@@ -429,8 +432,9 @@ AER_EXPORT const char* AERSaveGetString(const char* key) {
     EnsureArg(key);
 
     /* Get entry. */
-    assert(ModManHasContext());
-    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    Mod* mod = ModManGetCurrentMod();
+    assert(mod);
+    FoxMap* modMap = modMaps + mod->idx;
     SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     EnsureLookup(entry);
     EnsureType(entry, SAVE_STRING);
@@ -447,8 +451,9 @@ AER_EXPORT void AERSaveSetString(const char* key, const char* value) {
     EnsureArg(value);
 
     /* Get entry. */
-    assert(ModManHasContext());
-    FoxMap* modMap = FoxArrayMIndex(FoxMap, &modMaps, ModManPeekContext());
+    Mod* mod = ModManGetCurrentMod();
+    assert(mod);
+    FoxMap* modMap = modMaps + mod->idx;
     SaveEntry* entry = FoxMapMIndex(const char*, SaveEntry, modMap, key);
     if (entry)
         /* Reset entry. */

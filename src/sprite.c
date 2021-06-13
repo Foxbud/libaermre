@@ -74,16 +74,17 @@ AER_EXPORT int32_t AERSpriteRegister(const char* name,
                                      uint32_t origY) {
 #define errRet AER_SPRITE_NULL
     EnsureArg(name);
-    LogInfo("Registering sprite \"%s\" for mod \"%s\"...", name,
-            ModManGetMod(ModManPeekContext())->name);
+    const char* modName = ModManGetCurrentMod()->name;
+    LogInfo("Registering sprite \"%s\" for mod \"%s\"...", name, modName);
     EnsureStageStrict(STAGE_SPRITE_REG);
     EnsureArg(filename);
     EnsureMin(numFrames, 1);
     Ensure(!FoxMapMIndex(const char*, int32_t, &spriteNames, name),
            AER_BAD_VAL);
 
-    int32_t spriteIdx = hldfuncs.actionSpriteAdd(
-        CoreGetAbsAssetPath(filename), numFrames, 0, 0, 0, 0, origX, origY);
+    int32_t spriteIdx =
+        hldfuncs.actionSpriteAdd(CoreGetAbsAssetPath(modName, filename),
+                                 numFrames, 0, 0, 0, 0, origX, origY);
     HLDSprite* sprite = HLDSpriteLookup(spriteIdx);
     Ensure(sprite, AER_BAD_FILE);
     *FoxMapMInsert(const char*, int32_t, &spriteNames, name) = spriteIdx;
@@ -107,13 +108,15 @@ AER_EXPORT void AERSpriteReplace(int32_t spriteIdx,
 #define errRet
     HLDSprite* oldSprite = HLDSpriteLookup(spriteIdx);
     EnsureLookup(oldSprite);
+    const char* modName = ModManGetCurrentMod()->name;
     LogInfo("Replacing sprite \"%s\" for mod \"%s\"...", oldSprite->name,
-            ModManGetMod(ModManPeekContext())->name);
+            modName);
     EnsureStageStrict(STAGE_SPRITE_REG);
     EnsureArg(filename);
     EnsureMin(numFrames, 1);
 
-    hldfuncs.actionSpriteReplace(spriteIdx, CoreGetAbsAssetPath(filename),
+    hldfuncs.actionSpriteReplace(spriteIdx,
+                                 CoreGetAbsAssetPath(modName, filename),
                                  numFrames, 0, 0, 0, 0, origX, origY);
     /* TODO Check if replacement was successful. */
 

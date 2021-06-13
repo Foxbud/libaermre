@@ -170,7 +170,7 @@ AER_EXPORT int32_t AERObjectRegister(const char* name,
 #define errRet AER_OBJECT_NULL
     EnsureArg(name);
     LogInfo("Registering object \"%s\" for mod \"%s\"...", name,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
     EnsureStageStrict(STAGE_OBJECT_REG);
 
     HLDObject* parent = HLDObjectLookup(parentIdx);
@@ -346,7 +346,7 @@ AER_EXPORT void AERObjectAttachCreateListener(int32_t objIdx,
                                                                AERInstance*)) {
 #define errRet
     LogInfo("Attaching create listener to object %i for mod \"%s\"...", objIdx,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
@@ -369,7 +369,7 @@ AER_EXPORT void AERObjectAttachDestroyListener(int32_t objIdx,
                                                                 AERInstance*)) {
 #define errRet
     LogInfo("Attaching destroy listener to object %i for mod \"%s\"...", objIdx,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
@@ -392,7 +392,7 @@ AER_EXPORT void AERObjectAttachAlarmListener(int32_t objIdx,
                                                               AERInstance*)) {
 #define errRet
     LogInfo("Attaching alarm %u listener to object %i for mod \"%s\"...",
-            alarmIdx, objIdx, ModManGetMod(ModManPeekContext())->name);
+            alarmIdx, objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
@@ -415,7 +415,7 @@ AER_EXPORT void AERObjectAttachStepListener(int32_t objIdx,
                                                              AERInstance*)) {
 #define errRet
     LogInfo("Attaching step listener to object %i for mod \"%s\"...", objIdx,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
@@ -438,7 +438,7 @@ AER_EXPORT void AERObjectAttachPreStepListener(int32_t objIdx,
                                                                 AERInstance*)) {
 #define errRet
     LogInfo("Attaching pre-step listener to object %i for mod \"%s\"...",
-            objIdx, ModManGetMod(ModManPeekContext())->name);
+            objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
@@ -460,7 +460,7 @@ AER_EXPORT void AERObjectAttachPostStepListener(
     bool (*listener)(AEREvent*, AERInstance*, AERInstance*)) {
 #define errRet
     LogInfo("Attaching post-step listener to object %i for mod \"%s\"...",
-            objIdx, ModManGetMod(ModManPeekContext())->name);
+            objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
@@ -483,7 +483,7 @@ AER_EXPORT void AERObjectAttachCollisionListener(
     bool (*listener)(AEREvent*, AERInstance*, AERInstance*)) {
 #define errRet
     LogInfo("Attaching %i collision listener to object %i for mod \"%s\"...",
-            otherObjIdx, targetObjIdx, ModManGetMod(ModManPeekContext())->name);
+            otherObjIdx, targetObjIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
@@ -507,7 +507,7 @@ AER_EXPORT void AERObjectAttachAnimationEndListener(
     bool (*listener)(AEREvent*, AERInstance*, AERInstance*)) {
 #define errRet
     LogInfo("Attaching animation end listener to object %i for mod \"%s\"...",
-            objIdx, ModManGetMod(ModManPeekContext())->name);
+            objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
@@ -532,7 +532,7 @@ AER_EXPORT void AERObjectAttachDrawListener(
                      AERInstance* other)) {
 #define errRet
     LogInfo("Attaching draw listener to object %i for mod \"%s\"...", objIdx,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
@@ -556,7 +556,7 @@ AER_EXPORT void AERObjectAttachGUIDrawListener(
                      AERInstance* other)) {
 #define errRet
     LogInfo("Attaching GUI-draw listener to object %i for mod \"%s\"...",
-            objIdx, ModManGetMod(ModManPeekContext())->name);
+            objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);

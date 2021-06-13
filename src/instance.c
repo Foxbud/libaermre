@@ -65,11 +65,11 @@ static FoxMap modLocals = {0};
 static bool ModLocalKeyInit(ModLocalKey* key,
                             int32_t instId,
                             const char* name,
-                            bool public) {
+                            int32_t modIdx) {
     assert(key);
     assert(name);
 
-    key->modIdx = (public) ? MOD_NULL : ModManPeekContext();
+    key->modIdx = modIdx;
     key->instId = instId;
 
     char* keyName = key->name;
@@ -811,7 +811,8 @@ AER_EXPORT AERLocal* AERInstanceCreateModLocal(
     EnsureArg(name);
 
     ModLocalKey key;
-    Ensure(ModLocalKeyInit(&key, ((HLDInstance*)inst)->id, name, public),
+    Ensure(ModLocalKeyInit(&key, ((HLDInstance*)inst)->id, name,
+                           public ? MOD_NULL : ModManGetCurrentMod()->idx),
            AER_BAD_VAL);
     EnsureLookup(!FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key));
 
@@ -831,7 +832,8 @@ AER_EXPORT void AERInstanceDestroyModLocal(AERInstance* inst,
     EnsureArg(name);
 
     ModLocalKey key;
-    Ensure(ModLocalKeyInit(&key, ((HLDInstance*)inst)->id, name, public),
+    Ensure(ModLocalKeyInit(&key, ((HLDInstance*)inst)->id, name,
+                           public ? MOD_NULL : ModManGetCurrentMod()->idx),
            AER_BAD_VAL);
 
     ModLocalVal* val = FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key);
@@ -853,7 +855,8 @@ AER_EXPORT AERLocal AERInstanceDeleteModLocal(AERInstance* inst,
     EnsureArg(name);
 
     ModLocalKey key;
-    Ensure(ModLocalKeyInit(&key, ((HLDInstance*)inst)->id, name, public),
+    Ensure(ModLocalKeyInit(&key, ((HLDInstance*)inst)->id, name,
+                           public ? MOD_NULL : ModManGetCurrentMod()->idx),
            AER_BAD_VAL);
     EnsureLookup(FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key));
 
@@ -870,7 +873,8 @@ AER_EXPORT AERLocal* AERInstanceGetModLocal(AERInstance* inst,
     EnsureArg(name);
 
     ModLocalKey key;
-    Ensure(ModLocalKeyInit(&key, ((HLDInstance*)inst)->id, name, public),
+    Ensure(ModLocalKeyInit(&key, ((HLDInstance*)inst)->id, name,
+                           public ? MOD_NULL : ModManGetCurrentMod()->idx),
            AER_BAD_VAL);
 
     ModLocalVal* val = FoxMapMIndex(ModLocalKey, ModLocalVal, &modLocals, key);

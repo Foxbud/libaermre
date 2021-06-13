@@ -36,8 +36,11 @@
         msgBuf;                                                      \
     })
 
-#define GetCurrentModName() \
-    ((ModManHasContext()) ? ModManGetMod(ModManPeekContext())->name : "?")
+#define GetCurrentModName()                                        \
+    ({                                                             \
+        Mod* GetCurrentModName_mod = ModManGetCurrentMod();        \
+        GetCurrentModName_mod ? GetCurrentModName_mod->name : "?"; \
+    })
 
 /* ----- PRIVATE TYPES ----- */
 

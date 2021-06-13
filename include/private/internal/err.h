@@ -36,13 +36,13 @@
     do {                                                               \
         if (!(cond)) {                                                 \
             if (aererr != AER_TRY) {                                   \
-                if (ModManHasContext()) {                              \
+                Mod* Ensure_mod = ModManGetCurrentMod();               \
+                if (Ensure_mod) {                                      \
                     LogWarn(                                           \
                         "Potentially unhandled error \"%s\" occurred " \
                         "during call to "                              \
                         "function \"%s\" by mod \"%s\".",              \
-                        #err, __func__,                                \
-                        ModManGetMod(ModManPeekContext())->name);      \
+                        #err, __func__, Ensure_mod->name);             \
                 } else {                                               \
                     LogWarn(                                           \
                         "Potentially unhandled error \"%s\" occurred " \

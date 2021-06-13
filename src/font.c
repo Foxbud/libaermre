@@ -48,12 +48,15 @@ AER_EXPORT int32_t AERFontRegister(const char* filename,
                                    int32_t last) {
 #define errRet AER_FONT_NULL
     EnsureArg(filename);
+    Mod* curMod = ModManGetCurrentMod();
+    assert(curMod);
     LogInfo("Registering font \"%s\" for mod \"%s\"...", filename,
-            ModManGetMod(ModManPeekContext())->name);
+            curMod->name);
     EnsureStageStrict(STAGE_FONT_REG);
 
-    int32_t fontIdx = hldfuncs.actionFontAdd(CoreGetAbsAssetPath(filename),
-                                             size, bold, italic, first, last);
+    int32_t fontIdx =
+        hldfuncs.actionFontAdd(CoreGetAbsAssetPath(curMod->name, filename),
+                               size, bold, italic, first, last);
     Ensure(HLDFontLookup(fontIdx), AER_BAD_FILE);
 
     LogInfo("Successfully registered font to index %i.", fontIdx);

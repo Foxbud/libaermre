@@ -51,12 +51,12 @@ CoreStage stage = STAGE_INIT;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-const char* CoreGetAbsAssetPath(const char* relAssetPath) {
+const char* CoreGetAbsAssetPath(const char* modName, const char* relAssetPath) {
+    assert(modName);
     assert(relAssetPath);
-    assert(ModManHasContext());
 
-    snprintf(assetPathBuf, sizeof(assetPathBuf), ABS_ASSET_PATH_FMT,
-             ModManGetMod(ModManPeekContext())->name, relAssetPath);
+    snprintf(assetPathBuf, sizeof(assetPathBuf), ABS_ASSET_PATH_FMT, modName,
+             relAssetPath);
 
     return assetPathBuf;
 }
@@ -64,6 +64,7 @@ const char* CoreGetAbsAssetPath(const char* relAssetPath) {
 __attribute__((constructor)) static void CoreConstructor(void) {
     LogInfo("Action-Event-Response (AER) Mod Runtime Environment (MRE)");
 
+    ModManConstructor();
     ConfConstructor();
     OptionConstructor();
     RandConstructor();
@@ -78,9 +79,8 @@ __attribute__((constructor)) static void CoreConstructor(void) {
 
 __attribute__((destructor)) static void CoreDestructor(void) {
     InstanceManDestructor();
-
     SaveManDestructor();
-    ModManDestructor();
+    ModManUnloadMods();
     RoomManDestructor();
     ObjectManDestructor();
     SpriteManDestructor();
@@ -88,6 +88,7 @@ __attribute__((destructor)) static void CoreDestructor(void) {
     RandDestructor();
     OptionDestructor();
     ConfDestructor();
+    ModManDestructor();
 
     return;
 }
@@ -109,9 +110,7 @@ static void RegisterAssets(void) {
         int32_t modIdx = (int32_t)(numMods - idx - 1);
         Mod* mod = ModManGetMod(modIdx);
         if (mod->registerSprites) {
-            ModManPushContext(modIdx);
             mod->registerSprites();
-            ModManPopContext();
         }
     }
     LogInfo("Done.");
@@ -122,9 +121,7 @@ static void RegisterAssets(void) {
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
         Mod* mod = ModManGetMod(modIdx);
         if (mod->registerFonts) {
-            ModManPushContext(modIdx);
             mod->registerFonts();
-            ModManPopContext();
         }
     }
     LogInfo("Done.");
@@ -138,9 +135,7 @@ static void RegisterAssets(void) {
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
         Mod* mod = ModManGetMod(modIdx);
         if (mod->registerObjects) {
-            ModManPushContext(modIdx);
             mod->registerObjects();
-            ModManPopContext();
         }
     }
     LogInfo("Done.");
@@ -155,9 +150,7 @@ static void RegisterAssets(void) {
     for (uint32_t modIdx = 0; modIdx < numMods; modIdx++) {
         Mod* mod = ModManGetMod(modIdx);
         if (mod->registerObjectListeners) {
-            ModManPushContext(modIdx);
             mod->registerObjectListeners();
-            ModManPopContext();
         }
     }
     LogInfo("Done.");
@@ -180,7 +173,7 @@ AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
 
     InstanceManRecordHLDLocals();
 
-    ModManConstructor();
+    ModManLoadMods();
     SaveManConstructor();
 
     return;
