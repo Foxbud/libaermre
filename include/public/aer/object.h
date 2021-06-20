@@ -18,13 +18,13 @@
  * collision events, argument `other` is set to the instance that the target
  * instance collided with to trigger the event.
  *
- * The argument `event` has a member callback `handle` which "handles" the
- * event. That is to say that calling this function with the arguments that the
- * current event listener received has the effect of calling the next event
- * listener attached to this object event by a mod with lower priority. However,
- * if the current listener happens to be the last in the chain, then calling
- * `handle` will execute the vanilla listener for this event. Regardless, it
- * should not matter to the current event listener which of these is the case.
+ * The argument `event` contains the context necessary for "handling" the event.
+ * Its `handle` member represents the next mod event listener attached to the
+ * currently executing object event, and its `next` member represets the event
+ * context that should be passed to `handle`. However, if the current listener
+ * happens to be the last in the chain, then calling `handle` will execute the
+ * vanilla listener for this event. Regardless, it should not matter to the
+ * current event listener which of these is the case.
  *
  * This means that each listener in the chain is given the option of whether or
  * not to actually handle the event. If a listener chooses not to call `handle`,
@@ -44,12 +44,12 @@
  * @code{.c}
  * bool listener(AEREvent *event, AERInstance *target, AERInstance *other) {
  *   // Code without side effects that (un)conditionally cancels the event.
- *   if (this_condition || that_condition)
+ *   if (thisCondition || thatCondition)
  *     // `event->handle` not called, so return `false`.
  *     return false;
  *
  *   // Call next listener in chain.
- *   if (!event->handle(event, target, other))
+ *   if (!event->handle(event->next, target, other))
  *     // Event not handled, so cease futher processing and return `false`.
  *     return false;
  *
@@ -61,7 +61,7 @@
  * }
  * @endcode
  *
- * *Special thanks to Josiah Bills for helping design this section of the API.*
+ * *Special thanks to Josiah Bills for help design this section of the API.*
  *
  * @since 1.0.0
  *

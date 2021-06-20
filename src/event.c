@@ -125,6 +125,7 @@ static void EventTrapIterInit(EventTrapIter* iter, EventTrap* trap) {
 
     iter->base.handle =
         ((bool (*)(AEREvent*, AERInstance*, AERInstance*))EventTrapIterNext);
+    iter->base.next = (AEREvent*)iter;
     iter->trap = trap;
     iter->nextIdx = 0;
 
@@ -135,6 +136,7 @@ static void EventTrapIterDeinit(EventTrapIter* iter) {
     assert(iter);
 
     iter->base.handle = NULL;
+    iter->base.next = NULL;
     iter->trap = NULL;
     iter->nextIdx = 0;
 
