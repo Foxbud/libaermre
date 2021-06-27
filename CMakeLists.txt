@@ -14,13 +14,13 @@ cmake_minimum_required(VERSION 3.12)
 # limitations under the License.
 
 project(AERMRE
-    VERSION 1.4.1
+    VERSION 1.5.0
     DESCRIPTION "AER modding framework for Hyper Light Drifter."
     LANGUAGES C
 )
 
 # Handle pre-release version.
-set(PRE_RELEASE FALSE)
+set(PRE_RELEASE TRUE)
 if(PRE_RELEASE)
     set(EXTENDED_PROJECT_VERSION "${CMAKE_PROJECT_VERSION}-pre")
 else()
