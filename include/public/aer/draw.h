@@ -89,7 +89,7 @@ void AERDrawSetCurrentAlpha(float alpha);
  * @throw ::AER_BAD_VAL if argument `frame` is greater than or equal to the
  * number of frames in sprite.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.4.0
  *
  * @sa AERDrawSpriteAdv
  */
@@ -133,7 +133,7 @@ void AERDrawSprite(int32_t spriteIdx,
  * than `1.0f` or if argument `frame` is greater than or equal to the
  * number of frames in sprite.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.4.0
  *
  * @sa AERDrawSprite
  */

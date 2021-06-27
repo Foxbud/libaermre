@@ -64,7 +64,7 @@ typedef struct AEREvent {
      *
      * @brief Event context for the `handle` event listener.
      *
-     * @since {{MRE_NEXT_MINOR}}
+     * @since 1.4.0
      *
      * @memberof AEREvent
      */

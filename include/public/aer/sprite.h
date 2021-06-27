@@ -3545,7 +3545,7 @@ const char* AERSpriteGetName(int32_t spriteIdx);
  * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.4.0
  */
 size_t AERSpriteGetNumFrames(int32_t spriteIdx);
 
@@ -3563,7 +3563,7 @@ size_t AERSpriteGetNumFrames(int32_t spriteIdx);
  * @throw ::AER_NULL_ARG if both arguments `width` and `height` are `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.4.0
  */
 void AERSpriteGetSize(int32_t spriteIdx, size_t* width, size_t* height);
 
@@ -3581,7 +3581,7 @@ void AERSpriteGetSize(int32_t spriteIdx, size_t* width, size_t* height);
  * @throw ::AER_NULL_ARG if both arguments `x` and `y` are `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.4.0
  */
 void AERSpriteGetOrigin(int32_t spriteIdx, int32_t* x, int32_t* y);
 
@@ -3595,7 +3595,7 @@ void AERSpriteGetOrigin(int32_t spriteIdx, int32_t* x, int32_t* y);
  * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
  * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.4.0
  */
 void AERSpriteSetOrigin(int32_t spriteIdx, int32_t x, int32_t y);
 

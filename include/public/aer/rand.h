@@ -222,7 +222,7 @@ bool AERRandBool(void);
  * @throw ::AER_BAD_VAL if argument `elemSize` is `0`.
  * @throw ::AER_NULL_ARG if argument `elemBuf` is `NULL`.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.4.0
  *
  * @sa AERRandGenShuffle
  */
@@ -480,7 +480,7 @@ bool AERRandGenBool(AERRandGen* gen);
  * @throw ::AER_BAD_VAL if argument `elemSize` is `0`.
  * @throw ::AER_NULL_ARG if either argument `gen` or `elemBuf` is `NULL`.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.4.0
  *
  * @sa AERRandShuffle
  */
