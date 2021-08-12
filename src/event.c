@@ -361,7 +361,7 @@ static EventTrap EntrapEvent(HLDObject* obj,
     /* Update object with new event array. */
     obj->eventListeners[eventType] = newArr;
 
-    /* Get wrapper, event and handler. */
+    /* Get wrapper, event, and handler. */
     HLDEventWrapper* wrapper = ((HLDEventWrapper**)newArr.elements)[eventNum];
     HLDEvent* event;
     HLDNamedFunction* oldHandler;
