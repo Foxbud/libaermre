@@ -45,6 +45,12 @@ typedef struct EventTrapIter {
     uint32_t nextIdx;
 } EventTrapIter;
 
+typedef struct RecursiveRegisterSubscribersContext {
+    size_t* subCount;
+    HLDEventSubscribers subArr;
+    EventKey key;
+} RecursiveRegisterSubscribersContext;
+
 /* ----- PRIVATE GLOBALS ----- */
 
 static HLDNamedFunction eventHandler = {0};
@@ -204,18 +210,37 @@ static void PerformDefaultEvent(HLDInstance* target, HLDInstance* other) {
     return;
 }
 
+static bool RecursiveRegisterSubscribersCallback(
+    const int32_t* objIdx,
+    RecursiveRegisterSubscribersContext* ctx) {
+    ctx->key.objIdx = *objIdx;
+    if (FoxMapMIndex(EventKey, uint8_t, &eventSubscribers, ctx->key))
+        return true;
+
+    uint32_t arrIdx = (*ctx->subCount)++;
+    ctx->subArr.objects[arrIdx] = *objIdx;
+    FoxMapMInsert(EventKey, uint8_t, &eventSubscribers, ctx->key);
+
+    FoxMap* children = ObjectManGetDirectChildren(*objIdx);
+    if (children) {
+        FoxMapMForEachKey(int32_t, int32_t, children,
+                          RecursiveRegisterSubscribersCallback, ctx);
+    }
+
+    return true;
+}
+
 static void RegisterEventSubscriber(EventKey key) {
-    size_t* subCount;
-    HLDEventSubscribers subArr;
+    RecursiveRegisterSubscribersContext ctx;
     switch (key.type) {
         case HLD_EVENT_ALARM:
-            subCount = (*hldvars.alarmEventSubscriberCounts) + key.num;
-            subArr = (*hldvars.alarmEventSubscribers)[key.num];
+            ctx.subCount = (*hldvars.alarmEventSubscriberCounts) + key.num;
+            ctx.subArr = (*hldvars.alarmEventSubscribers)[key.num];
             break;
 
         case HLD_EVENT_STEP:
-            subCount = (*hldvars.stepEventSubscriberCounts) + key.num;
-            subArr = (*hldvars.stepEventSubscribers)[key.num];
+            ctx.subCount = (*hldvars.stepEventSubscriberCounts) + key.num;
+            ctx.subArr = (*hldvars.stepEventSubscribers)[key.num];
             break;
 
         default:
@@ -224,24 +249,8 @@ static void RegisterEventSubscriber(EventKey key) {
             abort();
     }
 
-    if (!FoxMapMIndex(EventKey, uint8_t, &eventSubscribers, key)) {
-        uint32_t arrIdx = (*subCount)++;
-        subArr.objects[arrIdx] = key.objIdx;
-        FoxMapMInsert(EventKey, uint8_t, &eventSubscribers, key);
-
-        FoxArray* allChildren = ObjectManGetAllChildren(key.objIdx);
-        if (allChildren) {
-            size_t numChildren = FoxArrayMSize(int32_t, allChildren);
-            for (uint32_t childIdx = 0; childIdx < numChildren; childIdx++) {
-                key.objIdx = childIdx;
-                if (!FoxMapMIndex(EventKey, uint8_t, &eventSubscribers, key)) {
-                    arrIdx = (*subCount)++;
-                    subArr.objects[arrIdx] = key.objIdx;
-                    FoxMapMInsert(EventKey, uint8_t, &eventSubscribers, key);
-                }
-            }
-        }
-    }
+    int32_t objIdx = key.objIdx;
+    RecursiveRegisterSubscribersCallback(&objIdx, &ctx);
 
     return;
 }
