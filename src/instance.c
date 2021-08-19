@@ -54,6 +54,13 @@ typedef struct ModLocalVal {
     void (*destructor)(AERLocal*);
 } ModLocalVal;
 
+typedef struct GetByObjectContext {
+    size_t numInsts;
+    size_t bufIdx;
+    const size_t bufSize;
+    HLDInstance** const instBuf;
+} GetByObjectContext;
+
 /* ----- PRIVATE GLOBALS ----- */
 
 static FoxMap hldLocals = {0};
@@ -61,6 +68,22 @@ static FoxMap hldLocals = {0};
 static FoxMap modLocals = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
+
+static bool GetByObjectCallback(const int32_t* objIdx,
+                                GetByObjectContext* ctx) {
+    HLDObject* obj = HLDObjectLookup(*objIdx);
+    if (!obj)
+        return false;
+
+    ctx->numInsts += obj->numInstances;
+    HLDNodeDLL* node = obj->instanceFirst;
+    while (node && ctx->bufIdx < ctx->bufSize) {
+        ctx->instBuf[ctx->bufIdx++] = node->item;
+        node = node->next;
+    }
+
+    return true;
+}
 
 static bool ModLocalKeyInit(ModLocalKey* key,
                             int32_t instId,
@@ -191,34 +214,23 @@ AER_EXPORT size_t AERInstanceGetByObject(int32_t objIdx,
     EnsureStage(STAGE_ACTION);
     EnsureArgBuf(instBuf, bufSize);
 
-    HLDObject* obj = HLDObjectLookup(objIdx);
-    EnsureLookup(obj);
-
-    size_t numInsts = obj->numInstances;
-    uint32_t bufIdx = 0;
-    HLDNodeDLL* node = obj->instanceFirst;
-    while (node && bufIdx < bufSize) {
-        instBuf[bufIdx++] = (AERInstance*)node->item;
-        node = node->next;
-    }
+    GetByObjectContext ctx = {
+        .numInsts = 0,
+        .bufIdx = 0,
+        .bufSize = bufSize,
+        .instBuf = (HLDInstance**)instBuf,
+    };
+    EnsureLookup(GetByObjectCallback(&objIdx, &ctx));
 
     if (recursive) {
-        FoxArray* children = ObjectManGetAllChildren(objIdx);
+        FoxMap* children = ObjectManGetAllChildren(objIdx);
         if (children) {
-            size_t numChildren = FoxArrayMSize(int32_t, children);
-            for (uint32_t idx = 0; idx < numChildren; idx++) {
-                obj = HLDObjectLookup(*FoxArrayMIndex(int32_t, children, idx));
-                numInsts += obj->numInstances;
-                node = obj->instanceFirst;
-                while (node && bufIdx < bufSize) {
-                    instBuf[bufIdx++] = (AERInstance*)node->item;
-                    node = node->next;
-                }
-            }
+            FoxMapMForEachKey(int32_t, int32_t, children, GetByObjectCallback,
+                              &ctx);
         }
     }
 
-    Ok(numInsts);
+    Ok(ctx.numInsts);
 #undef errRet
 }
 
