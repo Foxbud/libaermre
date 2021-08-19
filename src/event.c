@@ -231,7 +231,7 @@ static bool RecursiveRegisterSubscribersCallback(
 }
 
 static void RegisterEventSubscriber(EventKey key) {
-    RecursiveRegisterSubscribersContext ctx;
+    RecursiveRegisterSubscribersContext ctx = {.key = key};
     switch (key.type) {
         case HLD_EVENT_ALARM:
             ctx.subCount = (*hldvars.alarmEventSubscriberCounts) + key.num;
