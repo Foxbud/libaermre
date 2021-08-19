@@ -55,7 +55,6 @@ static FoxMap objNames = {0};
 /* ----- PRIVATE FUNCTIONS ----- */
 
 static bool ObjTreeGetAllChildrenCallback(const int32_t* objIdx,
-                                          int32_t* depth,
                                           ObjTreeGetAllChildrenContext* ctx) {
     ObjTreeGetAllChildrenContext curCtx = {
         .allChildren = ctx->allChildren,
@@ -66,8 +65,8 @@ static bool ObjTreeGetAllChildrenCallback(const int32_t* objIdx,
         curCtx.depth;
     FoxMap* nextGen = FoxMapMIndex(int32_t, FoxMap, &objTree, *objIdx);
     if (nextGen) {
-        FoxMapMForEachPair(int32_t, int32_t, nextGen,
-                           ObjTreeGetAllChildrenCallback, &curCtx);
+        FoxMapMForEachKey(int32_t, int32_t, nextGen,
+                          ObjTreeGetAllChildrenCallback, &curCtx);
     }
 
     return true;
@@ -84,8 +83,8 @@ static bool ObjTreeBuildFlatObjTreeCallback(const int32_t* objIdx,
     };
 
     FoxMapMInit(int32_t, int32_t, initCtx.allChildren);
-    FoxMapMForEachPair(int32_t, int32_t, directChildren,
-                       ObjTreeGetAllChildrenCallback, &initCtx);
+    FoxMapMForEachKey(int32_t, int32_t, directChildren,
+                      ObjTreeGetAllChildrenCallback, &initCtx);
 
     return true;
 }
@@ -294,7 +293,7 @@ AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx,
     if (numToWrite > 0) {
         ObjTreeCopyChildrenContext ctx = {
             .objBuf = objBuf,
-            .bufPos = children + numToWrite,
+            .bufPos = objBuf + numToWrite,
         };
         FoxMapMForEachKey(int32_t, int32_t, children,
                           ObjTreeCopyChildrenCallback, &ctx);
