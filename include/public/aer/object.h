@@ -777,6 +777,23 @@ size_t AERObjectGetChildren(int32_t objIdx,
                             int32_t* objBuf);
 
 /**
+ * @brief
+ *
+ * @param[in] childIdx
+ * @param[in] parentIdx
+ *
+ * @return Whether child object is compatible with parent object or `false` if
+ * unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if either argument `childIdx` or `parentIdx` is an
+ * invalid object.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ */
+bool AERObjectCompatibleWith(int32_t childIdx, int32_t parentIdx);
+
+/**
  * @brief Query whether or not an object has collision checking enabled.
  *
  * @param[in] objIdx Object of interest.

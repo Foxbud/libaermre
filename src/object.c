@@ -303,6 +303,20 @@ AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx,
 #undef errRet
 }
 
+AER_EXPORT bool AERObjectCompatibleWith(int32_t childIdx, int32_t parentIdx) {
+#define errRet false
+    EnsureStage(STAGE_OBJECT_REG);
+    EnsureLookup(HLDObjectLookup(childIdx) && HLDObjectLookup(parentIdx));
+
+    if (parentIdx == childIdx)
+        Ok(true);
+
+    FoxMap* children = ObjectManGetAllChildren(parentIdx);
+
+    Ok(children && FoxMapMIndex(int32_t, int32_t, children, childIdx));
+#undef errRet
+}
+
 AER_EXPORT bool AERObjectGetCollisions(int32_t objIdx) {
 #define errRet false
     EnsureStage(STAGE_OBJECT_REG);
