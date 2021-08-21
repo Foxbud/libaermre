@@ -303,17 +303,39 @@ AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx,
 #undef errRet
 }
 
-AER_EXPORT bool AERObjectCompatibleWith(int32_t childIdx, int32_t parentIdx) {
+AER_EXPORT int32_t AERObjectRelationTo(int32_t targetIdx, int32_t otherIdx) {
+#define errRet 0
+    EnsureStage(STAGE_OBJECT_REG);
+
+    FoxMap* children;
+    int32_t* depth;
+
+    if ((children = FoxMapMIndex(int32_t, FoxMap, &flatObjTree, otherIdx)) &&
+        (depth = FoxMapMIndex(int32_t, int32_t, children, targetIdx)))
+        Ok(*depth);
+
+    if ((children = FoxMapMIndex(int32_t, FoxMap, &flatObjTree, targetIdx)) &&
+        (depth = FoxMapMIndex(int32_t, int32_t, children, otherIdx)))
+        Ok(-*depth);
+
+    EnsureLookup(HLDObjectLookup(targetIdx) && HLDObjectLookup(otherIdx));
+    if (otherIdx == targetIdx)
+        Ok(0);
+
+    Err(AER_BAD_VAL);
+#undef errRet
+}
+
+AER_EXPORT bool AERObjectCompatibleWith(int32_t targetIdx, int32_t otherIdx) {
 #define errRet false
     EnsureStage(STAGE_OBJECT_REG);
-    EnsureLookup(HLDObjectLookup(childIdx) && HLDObjectLookup(parentIdx));
 
-    if (parentIdx == childIdx)
+    FoxMap* children = FoxMapMIndex(int32_t, FoxMap, &flatObjTree, otherIdx);
+    if (children && FoxMapMIndex(int32_t, int32_t, children, targetIdx))
         Ok(true);
 
-    FoxMap* children = ObjectManGetAllChildren(parentIdx);
-
-    Ok(children && FoxMapMIndex(int32_t, int32_t, children, childIdx));
+    EnsureLookup(HLDObjectLookup(targetIdx) && HLDObjectLookup(otherIdx));
+    Ok(otherIdx == targetIdx);
 #undef errRet
 }
 

@@ -777,21 +777,49 @@ size_t AERObjectGetChildren(int32_t objIdx,
                             int32_t* objBuf);
 
 /**
- * @brief
+ * @brief Query the relational distance between two objects.
  *
- * @param[in] childIdx
- * @param[in] parentIdx
+ * In this context, "relational distance" means how many parent-child
+ * generations are between target object and other object. A distance of `0`
+ * means that target and other are the same object. A positive distance means
+ * that target is a decendant of other. A negative distance means that other is
+ * a decendant of target.
  *
- * @return Whether child object is compatible with parent object or `false` if
+ * @param[in] targetIdx Object of interest.
+ * @param[in] otherIdx Object to compare against.
+ *
+ * @return Distance between target object and other object or `0` if
  * unsuccessful.
  *
  * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
- * @throw ::AER_FAILED_LOOKUP if either argument `childIdx` or `parentIdx` is an
+ * @throw ::AER_FAILED_LOOKUP if either argument `targetIdx` or `otherIdx` is an
+ * invalid object.
+ * @throw ::AER_BAD_VAL if arguments `targetIdx` and `otherIdx` are not related.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERObjectCompatibleWith
+ */
+int32_t AERObjectRelationTo(int32_t targetIdx, int32_t otherIdx);
+
+/**
+ * @brief Query whether an object is or inherits from another object.
+ *
+ * @param[in] targetIdx Object of interest.
+ * @param[in] otherIdx Object to compare against.
+ *
+ * @return Whether target object is compatible with other object or `false` if
+ * unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if either argument `targetIdx` or `otherIdx` is an
  * invalid object.
  *
  * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERObjectRelationTo
  */
-bool AERObjectCompatibleWith(int32_t childIdx, int32_t parentIdx);
+bool AERObjectCompatibleWith(int32_t targetIdx, int32_t otherIdx);
 
 /**
  * @brief Query whether or not an object has collision checking enabled.

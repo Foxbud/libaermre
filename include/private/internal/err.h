@@ -32,32 +32,37 @@
         return __VA_ARGS__; \
     } while (0)
 
-#define Ensure(cond, err)                                              \
-    do {                                                               \
-        if (!(cond)) {                                                 \
-            if (aererr != AER_TRY) {                                   \
-                Mod* Ensure_mod = ModManGetCurrentMod();               \
-                if (Ensure_mod) {                                      \
-                    LogWarn(                                           \
-                        "Potentially unhandled error \"%s\" occurred " \
-                        "during call to "                              \
-                        "function \"%s\" by mod \"%s\".",              \
-                        #err, __func__, Ensure_mod->name);             \
-                } else {                                               \
-                    LogWarn(                                           \
-                        "Potentially unhandled error \"%s\" occurred " \
-                        "during internal "                             \
-                        "call to function \"%s\".",                    \
-                        #err, __func__);                               \
-                }                                                      \
-                if (opts.promoteUnhandledErrors) {                     \
-                    LogErr("Promoting potentially unhandled error.");  \
-                    abort();                                           \
-                }                                                      \
-            }                                                          \
-            aererr = (err);                                            \
-            return errRet;                                             \
-        }                                                              \
+#define Err(err)                                                   \
+    do {                                                           \
+        if (aererr != AER_TRY) {                                   \
+            Mod* Err_mod = ModManGetCurrentMod();                  \
+            if (Err_mod) {                                         \
+                LogWarn(                                           \
+                    "Potentially unhandled error \"%s\" occurred " \
+                    "during call to "                              \
+                    "function \"%s\" by mod \"%s\".",              \
+                    #err, __func__, Err_mod->name);                \
+            } else {                                               \
+                LogWarn(                                           \
+                    "Potentially unhandled error \"%s\" occurred " \
+                    "during internal "                             \
+                    "call to function \"%s\".",                    \
+                    #err, __func__);                               \
+            }                                                      \
+            if (opts.promoteUnhandledErrors) {                     \
+                LogErr("Promoting potentially unhandled error.");  \
+                abort();                                           \
+            }                                                      \
+        }                                                          \
+        aererr = (err);                                            \
+        return errRet;                                             \
+    } while (0)
+
+#define Ensure(cond, err) \
+    do {                  \
+        if (!(cond)) {    \
+            Err(err);     \
+        }                 \
     } while (0)
 
 #define EnsureArg(arg) Ensure((arg), AER_NULL_ARG)
