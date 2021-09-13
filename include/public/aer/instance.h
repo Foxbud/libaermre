@@ -274,6 +274,8 @@ int32_t AERInstanceGetId(AERInstance* inst);
  */
 int32_t AERInstanceGetObject(AERInstance* inst);
 
+bool AERInstanceCompatibleWith(AERInstance* inst, int32_t objIdx);
+
 /**
  * @brief Query whether or not an instance is deactivated.
  *

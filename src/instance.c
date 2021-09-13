@@ -346,6 +346,21 @@ AER_EXPORT int32_t AERInstanceGetObject(AERInstance* inst) {
 #undef errRet
 }
 
+AER_EXPORT bool AERInstanceCompatibleWith(AERInstance* inst, int32_t objIdx) {
+#define errRet false
+    EnsureStage(STAGE_ACTION);
+    EnsureArg(inst);
+
+    int32_t instObjIdx = ((HLDInstance*)inst)->objectIndex;
+    FoxMap* children = ObjectManGetAllChildren(objIdx);
+    if (children && FoxMapMIndex(int32_t, int32_t, children, instObjIdx))
+        Ok(true);
+
+    EnsureLookup(HLDObjectLookup(objIdx));
+    Ok(objIdx == instObjIdx);
+#undef errRet
+}
+
 AER_EXPORT bool AERInstanceGetDeactivated(AERInstance* inst) {
 #define errRet false
     EnsureStage(STAGE_ACTION);
