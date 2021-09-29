@@ -61,7 +61,7 @@
  * }
  * @endcode
  *
- * *Special thanks to Josiah Bills for help design this section of the API.*
+ * *Special thanks to Josiah Bills for help designing this section of the API.*
  *
  * @since 1.0.0
  *
