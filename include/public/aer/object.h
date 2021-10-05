@@ -818,6 +818,7 @@ int32_t AERObjectRelationTo(int32_t targetIdx, int32_t otherIdx);
  * @since {{MRE_NEXT_MINOR}}
  *
  * @sa AERObjectRelationTo
+ * @sa AERInstanceCompatibleWith
  */
 bool AERObjectCompatibleWith(int32_t targetIdx, int32_t otherIdx);
 

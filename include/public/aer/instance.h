@@ -274,6 +274,23 @@ int32_t AERInstanceGetId(AERInstance* inst);
  */
 int32_t AERInstanceGetObject(AERInstance* inst);
 
+/**
+ * @brief Query whether an instance's object is or inherits from another object.
+ *
+ * @param[in] inst Instance of interest.
+ * @param[in] objIdx Object to compare against.
+ *
+ * @return Whether instance's object is compatible with other object or `false`
+ * if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERObjectCompatibleWith
+ */
 bool AERInstanceCompatibleWith(AERInstance* inst, int32_t objIdx);
 
 /**
