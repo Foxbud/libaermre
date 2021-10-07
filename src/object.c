@@ -570,6 +570,56 @@ AER_EXPORT void AERObjectAttachCollisionListener(
 #undef errRet
 }
 
+AER_EXPORT void AERObjectAttachRoomStartListener(
+    int32_t objIdx,
+    bool (*listener)(AEREvent* event,
+                     AERInstance* target,
+                     AERInstance* other)) {
+#define errRet
+    LogInfo("Attaching room start listener to object %i for mod \"%s\"...",
+            objIdx, ModManGetCurrentMod()->name);
+
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+
+    EventKey key = {.type = HLD_EVENT_OTHER,
+                    .num = HLD_EVENT_OTHER_ROOM_START,
+                    .objIdx = objIdx};
+    EventManRegisterEventListener(obj, key, listener);
+
+    LogInfo("Successfully attached room start listener.");
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT void AERObjectAttachRoomEndListener(
+    int32_t objIdx,
+    bool (*listener)(AEREvent* event,
+                     AERInstance* target,
+                     AERInstance* other)) {
+#define errRet
+    LogInfo("Attaching room end listener to object %i for mod \"%s\"...",
+            objIdx, ModManGetCurrentMod()->name);
+
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+
+    EventKey key = {.type = HLD_EVENT_OTHER,
+                    .num = HLD_EVENT_OTHER_ROOM_END,
+                    .objIdx = objIdx};
+    EventManRegisterEventListener(obj, key, listener);
+
+    LogInfo("Successfully attached room end listener.");
+    Ok();
+#undef errRet
+}
+
 AER_EXPORT void AERObjectAttachAnimationEndListener(
     int32_t objIdx,
     bool (*listener)(AEREvent*, AERInstance*, AERInstance*)) {

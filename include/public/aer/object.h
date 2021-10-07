@@ -1090,6 +1090,16 @@ void AERObjectAttachCollisionListener(int32_t targetObjIdx,
                                                        AERInstance* target,
                                                        AERInstance* other));
 
+void AERObjectAttachRoomStartListener(int32_t objIdx,
+                                      bool (*listener)(AEREvent* event,
+                                                       AERInstance* target,
+                                                       AERInstance* other));
+
+void AERObjectAttachRoomEndListener(int32_t objIdx,
+                                    bool (*listener)(AEREvent* event,
+                                                     AERInstance* target,
+                                                     AERInstance* other));
+
 /**
  * @brief Attach an animation-end event listener to an object.
  *
