@@ -64,7 +64,9 @@ void ModManExecuteGameSaveListeners(int32_t curSlotIdx);
 
 void ModManExecuteGameLoadListeners(int32_t curSlotIdx);
 
-void ModManExecuteRoomChangeListeners(int32_t newRoomIdx, int32_t prevRoomIdx);
+void ModManExecuteRoomStartListeners(int32_t newRoomIdx, int32_t prevRoomIdx);
+
+void ModManExecuteRoomEndListeners(int32_t newRoomIdx, int32_t prevRoomIdx);
 
 void ModManLoadMods(void);
 

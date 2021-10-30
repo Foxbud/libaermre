@@ -24,7 +24,6 @@
 
 /* ----- PUBLIC TYPES ----- */
 
-/* @deprecated Since 1.1.0. */
 #define AER_OUT_OF_MEM AER_OUT_OF_MEM __attribute__((deprecated))
 /**
  * @brief Possible values of ::aererr.

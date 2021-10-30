@@ -30,7 +30,7 @@ static FoxMap roomNames = {0};
 
 /* ----- INTERNAL GLOBALS ----- */
 
-int32_t roomIndexPrevious = AER_ROOM__INIT;
+int32_t roomIndexPrevious = AER_ROOM_NULL;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
@@ -78,9 +78,36 @@ AER_EXPORT int32_t AERRoomGetCurrent(void) {
 AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
 #define errRet
     EnsureStage(STAGE_ACTION);
+    Ensure(roomIndexPrevious == AER_ROOM_NULL, AER_SEQ_BREAK);
     EnsureLookup(HLDRoomLookup(roomIdx));
 
     hldfuncs.actionRoomGoto(roomIdx, 0);
+
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT void AERRoomEnterWithPosition(int32_t roomIdx,
+                                         float x,
+                                         float y,
+                                         bool fade) {
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    Ensure(roomIndexPrevious == AER_ROOM_NULL, AER_SEQ_BREAK);
+    EnsureLookup(HLDRoomLookup(roomIdx));
+
+    HLDPrimitiveMakeReal(roomIdxArg, (double)roomIdx);
+    HLDPrimitiveMakeReal(fadeArg, fade ? 1.0 : 2.0);
+    HLDPrimitiveMakeArrayS(posArg, 2);
+    HLDPrimitiveMakeStringS(typeArg, "xy", 2);
+
+    posArgInnerElements[0] =
+        (HLDPrimitive){.value.r = (double)x, .type = HLD_PRIMITIVE_REAL};
+    posArgInnerElements[1] =
+        (HLDPrimitive){.value.r = (double)y, .type = HLD_PRIMITIVE_REAL};
+
+    HLDScriptCall(hldfuncs.Script_GoToRoom, &roomIdxArg, &fadeArg, &posArg,
+                  &typeArg);
 
     Ok();
 #undef errRet

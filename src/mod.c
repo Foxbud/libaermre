@@ -62,7 +62,9 @@ static FoxArray gameSaveListeners = {0};
 
 static FoxArray gameLoadListeners = {0};
 
-static FoxArray roomChangeListeners = {0};
+static FoxArray roomStartListeners = {0};
+
+static FoxArray roomEndListeners = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
@@ -163,8 +165,13 @@ static void ModInit(Mod* mod, int32_t idx, const char* name) {
     if (def.gameLoadListener) {
         *FoxArrayMPush(void*, &gameLoadListeners) = def.gameLoadListener;
     }
-    if (def.roomChangeListener) {
-        *FoxArrayMPush(void*, &roomChangeListeners) = def.roomChangeListener;
+    if (def.roomEndListener) {
+        *FoxArrayMPush(void*, &roomEndListeners) = def.roomEndListener;
+    }
+    if (def.roomStartListener) {
+        *FoxArrayMPush(void*, &roomStartListeners) = def.roomStartListener;
+    } else if (def.roomChangeListener) {
+        *FoxArrayMPush(void*, &roomStartListeners) = def.roomChangeListener;
     }
 
     /* Record mod library management callbacks. */
@@ -258,11 +265,22 @@ void ModManExecuteGameLoadListeners(int32_t curSlotIdx) {
     return;
 }
 
-void ModManExecuteRoomChangeListeners(int32_t newRoomIdx, int32_t prevRoomIdx) {
-    size_t numListeners = FoxArrayMSize(void*, &roomChangeListeners);
+void ModManExecuteRoomStartListeners(int32_t newRoomIdx, int32_t prevRoomIdx) {
+    size_t numListeners = FoxArrayMSize(void*, &roomStartListeners);
     for (uint32_t idx = 0; idx < numListeners; idx++) {
         void (*listener)(int32_t, int32_t) =
-            *FoxArrayMIndex(void*, &roomChangeListeners, idx);
+            *FoxArrayMIndex(void*, &roomStartListeners, idx);
+        listener(newRoomIdx, prevRoomIdx);
+    }
+
+    return;
+}
+
+void ModManExecuteRoomEndListeners(int32_t newRoomIdx, int32_t prevRoomIdx) {
+    size_t numListeners = FoxArrayMSize(void*, &roomEndListeners);
+    for (uint32_t idx = 0; idx < numListeners; idx++) {
+        void (*listener)(int32_t, int32_t) =
+            *FoxArrayMIndex(void*, &roomEndListeners, idx);
         listener(newRoomIdx, prevRoomIdx);
     }
 
@@ -312,7 +330,8 @@ void ModManConstructor(void) {
     FoxArrayMInit(void*, &gamePauseListeners);
     FoxArrayMInit(void*, &gameSaveListeners);
     FoxArrayMInit(void*, &gameLoadListeners);
-    FoxArrayMInit(void*, &roomChangeListeners);
+    FoxArrayMInit(void*, &roomStartListeners);
+    FoxArrayMInit(void*, &roomEndListeners);
 
     LogInfo("Done initializing mod manager.", opts.numModNames);
     return;
@@ -327,7 +346,8 @@ void ModManDestructor(void) {
     FoxArrayMDeinit(void*, &gamePauseListeners);
     FoxArrayMDeinit(void*, &gameSaveListeners);
     FoxArrayMDeinit(void*, &gameLoadListeners);
-    FoxArrayMDeinit(void*, &roomChangeListeners);
+    FoxArrayMDeinit(void*, &roomStartListeners);
+    FoxArrayMDeinit(void*, &roomEndListeners);
 
     LogInfo("Done deinitializing mod manager.");
     return;

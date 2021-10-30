@@ -22,6 +22,7 @@
 #ifndef AER_ROOM_H
 #define AER_ROOM_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -342,6 +343,8 @@ int32_t AERRoomGetCurrent(void);
  * @since 1.0.0
  */
 void AERRoomGoto(int32_t roomIdx);
+
+void AERRoomEnterWithPosition(int32_t roomIdx, float x, float y, bool fade);
 
 /**
  * @brief Query the room with a specific name.

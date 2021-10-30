@@ -18,6 +18,7 @@
 
 #include "aer/core.h"
 #include "aer/object.h"
+#include "aer/room.h"
 #include "internal/conf.h"
 #include "internal/core.h"
 #include "internal/err.h"
@@ -196,15 +197,15 @@ AER_EXPORT void AERHookStep(void) {
     }
 
     /* Check if room changed. */
-    int32_t roomIdxCur = *hldvars.roomIndexCurrent;
-    if (roomIdxCur != roomIndexPrevious) {
+    if (roomIndexPrevious != AER_ROOM_NULL) {
+        int32_t prevRoomIdx = roomIndexPrevious;
+        roomIndexPrevious = AER_ROOM_NULL;
+
         /* Prune orphaned mod instance locals. */
         InstanceManPruneModLocals();
 
-        /* Call room change listeners. */
-        ModManExecuteRoomChangeListeners(roomIdxCur, roomIndexPrevious);
-
-        roomIndexPrevious = roomIdxCur;
+        /* Call room start listeners. */
+        ModManExecuteRoomStartListeners(*hldvars.roomIndexCurrent, prevRoomIdx);
     }
 
     /* Call game step listeners. */
@@ -234,6 +235,16 @@ AER_EXPORT void AERHookSaveData(HLDPrimitive* dataMapId) {
     ModManExecuteGameSaveListeners(SaveManGetCurrentSlot());
 
     SaveManSaveData(dataMapId);
+
+    return;
+}
+
+AER_EXPORT void AERHookRoomChange(int32_t roomIdx) {
+    if (stage == STAGE_INIT)
+        return;
+
+    roomIndexPrevious = *hldvars.roomIndexCurrent;
+    ModManExecuteRoomEndListeners(roomIdx, roomIndexPrevious);
 
     return;
 }

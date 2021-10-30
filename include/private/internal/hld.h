@@ -45,6 +45,15 @@
     HLDPrimitive name = {.value.p = name##InnerValue,                          \
                          .type = HLD_PRIMITIVE_STRING}
 
+#define HLDPrimitiveMakeArrayS(name, len)                                  \
+    HLDPrimitive name##InnerElements[(len)];                               \
+    HLDArrayPreSize name##InnerArray = {.size = (len),                     \
+                                        .elements = &name##InnerElements}; \
+    HLDPrimitiveArray name##InnerValue = {                                 \
+        .refs = 1, .subArrays = &name##InnerArray, .numSubArrays = 1};     \
+    HLDPrimitive name = {.value.p = &name##InnerValue,                     \
+                         .type = HLD_PRIMITIVE_ARRAY}
+
 #define HLDAPICallAdv(api, target, other, ...)                   \
     ({                                                           \
         HLDPrimitive HLDAPICallAdv_argv[] = {__VA_ARGS__};       \
@@ -218,7 +227,7 @@ typedef struct HLDPrimitiveString {
 } HLDPrimitiveString;
 
 typedef struct __attribute__((aligned(4))) HLDPrimitiveArray {
-    uint32_t field_0;
+    size_t refs;
     struct HLDArrayPreSize* subArrays;
     void* field_8;
     uint32_t field_C;
@@ -815,6 +824,11 @@ typedef struct __attribute__((packed)) HLDFunctions {
      * Parameters: id, key, val.
      */
     HLDAPICallback API_dsMapAddMap;
+    /*
+     * Custom Heat Machine fuction that changes to a specific room and spawns
+     * the player.
+     */
+    HLDScriptCallback Script_GoToRoom;
     /*
      * Custom Heart Machine function that sets an instance's draw depth based
      * on its y position and the current room's height.

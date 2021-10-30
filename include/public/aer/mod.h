@@ -271,6 +271,8 @@ typedef struct AERModDef {
      * @memberof AERModDef
      */
     void (*gameLoadListener)(int32_t curSlotIdx);
+    void (*roomStartListener)(int32_t newRoomIdx, int32_t prevRoomIdx);
+    void (*roomEndListener)(int32_t newRoomIdx, int32_t prevRoomIdx);
 } AERModDef;
 
 #endif /* AER_MOD_H */
