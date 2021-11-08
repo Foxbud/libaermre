@@ -4,7 +4,7 @@
         // Names of all extra mods to launch when debugging (must be installed).
         "extraModNames": [
             "bugcon",
-            "balloons"
+            "balloons",
         ]
     },
     // VSCode settings.

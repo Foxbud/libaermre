@@ -196,18 +196,6 @@ AER_EXPORT void AERHookStep(void) {
         ModManExecuteGamePauseListeners(paused);
     }
 
-    /* Check if room changed. */
-    if (roomIndexPrevious != AER_ROOM_NULL) {
-        int32_t prevRoomIdx = roomIndexPrevious;
-        roomIndexPrevious = AER_ROOM_NULL;
-
-        /* Prune orphaned mod instance locals. */
-        InstanceManPruneModLocals();
-
-        /* Call room start listeners. */
-        ModManExecuteRoomStartListeners(*hldvars.roomIndexCurrent, prevRoomIdx);
-    }
-
     /* Call game step listeners. */
     ModManExecuteGameStepListeners();
 
@@ -239,12 +227,49 @@ AER_EXPORT void AERHookSaveData(HLDPrimitive* dataMapId) {
     return;
 }
 
-AER_EXPORT void AERHookRoomChange(int32_t roomIdx) {
+AER_EXPORT void AERHookRoomStart(HLDEventType type, int32_t num) {
+    (void)type;
+    (void)num;
+
     if (stage == STAGE_INIT)
         return;
 
-    roomIndexPrevious = *hldvars.roomIndexCurrent;
-    ModManExecuteRoomEndListeners(roomIdx, roomIndexPrevious);
+    /* Call room start listeners. */
+    ModManExecuteRoomStartListeners(roomIndexCurrent, roomIndexOther);
+
+    /* Record that room change is done. */
+    roomIndexOther = AER_ROOM_NULL;
+
+    /* Prune orphaned mod instance locals. */
+    InstanceManPruneModLocals();
+
+    return;
+}
+
+AER_EXPORT void AERHookRoomEnd(HLDEventType type, int32_t num) {
+    (void)type;
+    (void)num;
+
+    if (stage == STAGE_INIT)
+        return;
+
+    /* Call room end listeners. */
+    ModManExecuteRoomEndListeners(roomIndexOther, roomIndexCurrent);
+
+    /* Swap room indices. */
+    roomIndexCurrent ^= roomIndexOther;
+    roomIndexOther ^= roomIndexCurrent;
+    roomIndexCurrent ^= roomIndexOther;
+
+    return;
+}
+
+AER_EXPORT void AERHookRoomChange(int32_t newRoomIdx) {
+    if (stage == STAGE_INIT)
+        return;
+
+    /* Record that room change is happening. */
+    roomIndexOther = newRoomIdx;
 
     return;
 }

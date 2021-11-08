@@ -344,7 +344,9 @@ int32_t AERRoomGetCurrent(void);
  */
 void AERRoomGoto(int32_t roomIdx);
 
-void AERRoomEnterWithPosition(int32_t roomIdx, float x, float y, bool fade);
+void AERRoomEnter(int32_t roomIdx, bool fade);
+
+void AERRoomEnterWithPosition(int32_t roomIdx, bool fade, float x, float y);
 
 /**
  * @brief Query the room with a specific name.
