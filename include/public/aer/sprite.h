@@ -27,11 +27,8 @@
 
 /* ----- PUBLIC TYPES ----- */
 
-/* @deprecated Since 1.2.0. */
 #define AER_SPRITE_SPRITE3368 AER_SPRITE_SPRITE3368 __attribute__((deprecated))
-/* @deprecated Since 1.2.0. */
 #define AER_SPRITE_SPRITE3369 AER_SPRITE_SPRITE3369 __attribute__((deprecated))
-/* @deprecated Since 1.2.0. */
 #define AER_SPRITE_SPRITE3370 AER_SPRITE_SPRITE3370 __attribute__((deprecated))
 /**
  * @brief Vanilla sprites.

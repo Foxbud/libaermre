@@ -174,30 +174,25 @@ typedef struct AERModDef {
      * @memberof AERModDef
      */
     void (*gamePauseListener)(bool paused);
+#define void __attribute__((deprecated)) void
     /**
      * @var roomChangeListener
      *
-     * @brief Mod's room change pseudo-event listener.
+     * @brief This member is a deprecated alias for @ref
+     * AERModDef::roomStartListener.
      *
-     * If provided and the active game room changes, the MRE will call this
-     * function at the very start of the new room's first step
-     * (immediately before calling gameStepListener).
-     *
-     * This event does not exist in the GameMaker engine; the MRE
-     * provides it as a convenience to mod developers.
-     *
-     * @warning Will **not** be called if active room is reset.
-     *
-     * @note May be `NULL`.
-     *
-     * @param[in] newRoomIdx Index of new (current) room.
-     * @param[in] prevRoomIdx Index of previous room.
+     * @deprecated Since {{MRE_NEXT_MINOR}}. Use @ref
+     * AERModDef::roomStartListener instead.
      *
      * @since 1.0.0
+     *
+     * @sa AERModDef::roomStartListener
+     * @sa AERModDef::roomEndListener
      *
      * @memberof AERModDef
      */
     void (*roomChangeListener)(int32_t newRoomIdx, int32_t prevRoomIdx);
+#undef void
     /**
      * @var registerFonts
      *
@@ -271,7 +266,25 @@ typedef struct AERModDef {
      * @memberof AERModDef
      */
     void (*gameLoadListener)(int32_t curSlotIdx);
+    /**
+     * @var roomStartListener
+     *
+     * @since {{MRE_NEXT_MINOR}}
+     *
+     * @sa AERModDef::roomEndListener
+     *
+     * @memberof AERModDef
+     */
     void (*roomStartListener)(int32_t newRoomIdx, int32_t prevRoomIdx);
+    /**
+     * @var roomEndListener
+     *
+     * @since {{MRE_NEXT_MINOR}}
+     *
+     * @sa AERModDef::roomStartListener
+     *
+     * @memberof AERModDef
+     */
     void (*roomEndListener)(int32_t newRoomIdx, int32_t prevRoomIdx);
 } AERModDef;
 

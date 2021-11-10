@@ -170,9 +170,14 @@ static void ModInit(Mod* mod, int32_t idx, const char* name) {
     }
     if (def.roomStartListener) {
         *FoxArrayMPush(void*, &roomStartListeners) = def.roomStartListener;
+        /* We have to use `roomChangeListener` for the sake of compatability, so
+         * allow this one use of a deprecated struct member. */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     } else if (def.roomChangeListener) {
         *FoxArrayMPush(void*, &roomStartListeners) = def.roomChangeListener;
     }
+#pragma GCC diagnostic pop
 
     /* Record mod library management callbacks. */
     mod->constructor = def.constructor;

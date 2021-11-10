@@ -283,7 +283,7 @@ int32_t AERInstanceGetObject(AERInstance* inst);
  * @return Whether instance's object is compatible with other object or `false`
  * if unsuccessful.
  *
- * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
