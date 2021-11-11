@@ -179,6 +179,8 @@ void HLDRecordEngineRefs(HLDVariables* vars, HLDFunctions* funcs) {
 
     CheckVar(vars->numSteps);
 
+    CheckVar(vars->deltaTime);
+
     CheckVar(vars->keysPressedTable);
     CheckVar(vars->keysHeldTable);
     CheckVar(vars->keysReleasedTable);

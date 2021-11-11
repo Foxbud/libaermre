@@ -206,7 +206,10 @@ AER_EXPORT void AERHookEvent(HLDObject* targetObject,
                              HLDEventType eventType,
                              int32_t eventNum) {
     currentEvent = (EventKey){
-        .type = eventType, .num = eventNum, .objIdx = targetObject->index};
+        .type = eventType,
+        .num = eventNum,
+        .objIdx = targetObject->index,
+    };
 
     return;
 }
@@ -281,6 +284,15 @@ AER_EXPORT uint32_t AERGetNumSteps(void) {
     EnsureStage(STAGE_ACTION);
 
     Ok(*hldvars.numSteps);
+#undef errRet
+}
+
+AER_EXPORT double AERGetDeltaTime(void) {
+#define errRet 0.0
+    EnsureStage(STAGE_ACTION);
+
+    /* Convert microseconds to seconds. */
+    Ok(*hldvars.deltaTime * 0.000001);
 #undef errRet
 }
 

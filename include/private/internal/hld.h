@@ -622,6 +622,8 @@ typedef struct __attribute__((packed)) HLDVariables {
     HLDArrayPostSize* maps;
     /* Number of steps since start of the game. */
     int32_t* numSteps;
+    /* Runtime of previous step in microseconds. */
+    int64_t* deltaTime;
     /* Tables of booleans where each index represents a key code. */
     bool (*keysPressedTable)[0x100];
     bool (*keysHeldTable)[0x100];

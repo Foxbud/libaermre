@@ -40,6 +40,19 @@
 uint32_t AERGetNumSteps(void);
 
 /**
+ * @brief Query the runtime of the previous step in seconds.
+ *
+ * The value returned by this function has microsecond precision.
+ *
+ * @return Runtime in seconds or `0` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ */
+double AERGetDeltaTime(void);
+
+/**
  * @brief Query the pause state of the game.
  *
  * @return `true` if game is paused or `false` if unsuccessful or game is not
