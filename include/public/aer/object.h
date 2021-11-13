@@ -65,6 +65,8 @@
  *
  * @since 1.0.0
  *
+ * @sa @ref ObjIndex
+ *
  * @copyright 2021 the libaermre authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

@@ -17,10 +17,10 @@
     "C_Cpp.default.intelliSenseMode": "gcc-x86",
     "C_Cpp.loggingLevel": "Warning",
     "cSpell.words": [
-        "AERMRE",
         "aer",
         "aererr",
         "aeris",
+        "AERMRE",
         "aerpatch",
         "api",
         "arrs",
@@ -65,6 +65,7 @@
         "rsquare",
         "sprite",
         "ss",
+        "subpage",
         "uncategorized",
         "unpaused",
         "xoshiro"
