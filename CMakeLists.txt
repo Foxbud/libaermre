@@ -134,8 +134,15 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_TYPEDEF_HIDES_STRUCT TRUE)
     set(DOXYGEN_ENABLE_PREPROCESSING FALSE)
     set(DOXYGEN_STRIP_FROM_PATH "include/public")
+    set(DOXYGEN_SEARCHENGINE FALSE)
+    set(DOXYGEN_DISABLE_INDEX TRUE)
+    set(DOXYGEN_GENERATE_TREEVIEW TRUE)
+    set(DOXYGEN_HTML_EXTRA_STYLESHEET
+        "doxygen-awesome/doxygen-awesome.css"
+        "doxygen-awesome/doxygen-awesome-sidebar-only.css"
+    )
     doxygen_add_docs(docs
         "${CMAKE_CURRENT_SOURCE_DIR}/include/public"
-        "${CMAKE_CURRENT_SOURCE_DIR}/doc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/docs"
     )
 endif()
