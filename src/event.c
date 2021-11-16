@@ -59,6 +59,8 @@ static FoxMap eventTraps = {0};
 
 static FoxMap eventSubscribers = {0};
 
+static int32_t* drawEventTargets = NULL;
+
 /* ----- INTERNAL GLOBALS ----- */
 
 EventKey currentEvent = {0};
@@ -69,7 +71,6 @@ static void EventTrapInit(EventTrap* trap,
                           HLDEventType eventType,
                           void (*origListener)(HLDInstance*, HLDInstance*)) {
     assert(trap);
-    assert(origListener);
 
     trap->eventType = eventType;
     trap->origListener = origListener;
@@ -118,7 +119,7 @@ static bool EventTrapIterNext(EventTrapIter* iter,
         bool (*listener)(EventTrapIter*, HLDInstance*, HLDInstance*) =
             *FoxArrayMIndex(void*, modListeners, iter->nextIdx++);
         result = listener(iter, target, other);
-    } else {
+    } else if (trap->origListener) {
         trap->origListener(target, other);
     }
 
@@ -185,27 +186,22 @@ static void CommonEventListener(HLDInstance* target, HLDInstance* other) {
     return;
 }
 
-static void PerformDefaultEvent(HLDInstance* target, HLDInstance* other) {
-    switch (currentEvent.type) {
-        case HLD_EVENT_DRAW: {
-            /* Draw self and do NOT perform parent event. */
-            if (currentEvent.num == HLD_EVENT_DRAW_NORMAL &&
-                HLDSpriteLookup(target->spriteIndex))
-                hldfuncs.actionDrawSelf(target);
-            break;
-        }
+static void DefaultEventPerformParent(HLDInstance* target, HLDInstance* other) {
+    HLDObject* obj = HLDObjectLookup(currentEvent.objIdx);
+    int32_t parentObjIdx = obj->parentIndex;
+    if (parentObjIdx >= 0 &&
+        (uint32_t)parentObjIdx < (*hldvars.objectTableHandle)->numItems)
+        hldfuncs.actionEventPerform(target, other, parentObjIdx,
+                                    currentEvent.type, currentEvent.num);
 
-        default: {
-            /* Perform parent event. */
-            HLDObject* obj = HLDObjectLookup(currentEvent.objIdx);
-            int32_t parentObjIdx = obj->parentIndex;
-            if (parentObjIdx >= 0 &&
-                (uint32_t)parentObjIdx < (*hldvars.objectTableHandle)->numItems)
-                hldfuncs.actionEventPerform(target, other, parentObjIdx,
-                                            currentEvent.type,
-                                            currentEvent.num);
-        }
-    }
+    return;
+}
+
+static void DefaultEventDrawSelf(HLDInstance* target, HLDInstance* other) {
+    (void)other;
+
+    if (HLDSpriteLookup(target->spriteIndex))
+        hldfuncs.actionDrawSelf(target);
 
     return;
 }
@@ -385,13 +381,24 @@ static EventTrap EntrapEvent(HLDObject* obj,
         ((HLDEventWrapper**)newArr.elements)[eventNum] = wrapper;
     }
 
+    /* Determine original event listener to execute. */
+    void (*origListener)(HLDInstance*, HLDInstance*) =
+        DefaultEventPerformParent;
+    if (oldHandler) {
+        origListener = oldHandler->function;
+    } else if (eventType == HLD_EVENT_DRAW) {
+        if (eventNum == HLD_EVENT_DRAW_NORMAL) {
+            if (drawEventTargets[obj->index] == -1) {
+                origListener = DefaultEventDrawSelf;
+            }
+        } else {
+            origListener = NULL;
+        }
+    }
+
     /* Create event trap. */
     EventTrap trap;
-    EventTrapInit(
-        &trap, eventType,
-        (oldHandler)
-            ? ((void (*)(HLDInstance*, HLDInstance*))oldHandler->function)
-            : (PerformDefaultEvent));
+    EventTrapInit(&trap, eventType, origListener);
 
     return trap;
 }
@@ -423,6 +430,40 @@ void EventManRegisterEventListener(HLDObject* obj,
     EventTrapAddListener(trap, listener);
 
     return;
+}
+
+void EventManRecordDrawTargets(void) {
+#define numDrawTypes (sizeof(HLD_EVENT_DRAW_TYPES) / sizeof(HLDEventDrawType))
+    /* Initialize target table. */
+    size_t numObjs = (*hldvars.objectTableHandle)->numItems;
+    drawEventTargets = malloc(numObjs * sizeof(int32_t));
+    assert(drawEventTargets);
+
+    /* Record draw targets for each object. */
+    for (int32_t objIdx = 0; (size_t)objIdx < numObjs; objIdx++) {
+        HLDObject* obj = HLDObjectLookup(objIdx);
+        assert(obj);
+        HLDArrayPreSize listeners = obj->eventListeners[HLD_EVENT_DRAW];
+
+        /* Check for custom HM draw listener. */
+        if (listeners.size > HLD_EVENT_DRAW_NORMAL &&
+            ((HLDEventWrapper**)listeners.elements)[HLD_EVENT_DRAW_NORMAL]) {
+            drawEventTargets[objIdx] = objIdx;
+        }
+
+        /* Check for default draw listener. */
+        else if (obj->parentIndex < 0) {
+            drawEventTargets[objIdx] = -1;
+        }
+
+        /* Use parent's target. */
+        else {
+            drawEventTargets[objIdx] = drawEventTargets[obj->parentIndex];
+        }
+    }
+
+    return;
+#undef numDrawTypes
 }
 
 void EventManMaskSubscriptionArrays(void) {
@@ -473,6 +514,11 @@ void EventManDestructor(void) {
             free(subArr->objects);
             subArr->objects = NULL;
         }
+    }
+
+    if (drawEventTargets) {
+        free(drawEventTargets);
+        drawEventTargets = NULL;
     }
 
     FoxMapMDeinit(EventKey, uint8_t, &eventSubscribers);
