@@ -40,6 +40,8 @@ void EventManRegisterEventListener(HLDObject* obj,
                                                     AERInstance*,
                                                     AERInstance*));
 
+void EventManRecordDrawTargets(void);
+
 void EventManMaskSubscriptionArrays(void);
 
 void EventManSortSubscriptionArrays(void);

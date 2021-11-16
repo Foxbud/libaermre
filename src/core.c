@@ -140,8 +140,10 @@ static void RegisterAssets(void) {
     }
     LogInfo("Done.");
 
-    /* Build object inheritance trees and mask event subscribers. */
+    /* Build object inheritance trees, record draw event targets, and mask event
+     * subscribers. */
     ObjectManBuildInheritanceTrees();
+    EventManRecordDrawTargets();
     EventManMaskSubscriptionArrays();
 
     /* Register listeners. */
