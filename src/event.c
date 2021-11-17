@@ -300,6 +300,37 @@ static HLDArrayPreSize ReallocEventArr(HLDArrayPreSize oldArr, size_t newSize) {
     return newArr;
 }
 
+static void (*DetermineOriginalListener(HLDNamedFunction* oldHandler,
+                                        int32_t objIdx,
+                                        HLDEventType eventType,
+                                        int32_t eventNum))(HLDInstance*,
+                                                           HLDInstance*) {
+    /* If existing HM listener, use that in all cases. */
+    if (oldHandler) {
+        return oldHandler->function;
+    }
+
+    /* Otherwise, it depends on event type. */
+    switch (eventType) {
+        case HLD_EVENT_DRAW:
+            /* For draw event, it depends on event number. */
+            if (eventNum == HLD_EVENT_DRAW_NORMAL) {
+                /* If target draw event, perform parent event. */
+                if (drawEventTargets[objIdx] >= 0) {
+                    return DefaultEventPerformParent;
+                }
+                /* Otherwise, draw self. */
+                return DefaultEventDrawSelf;
+            }
+            /* If any other draw event number, perform no default event. */
+            return NULL;
+
+        default:
+            /* For all other event types, perform parent event. */
+            return DefaultEventPerformParent;
+    }
+}
+
 static EventTrap EntrapEvent(HLDObject* obj,
                              HLDEventType eventType,
                              int32_t eventNum) {
@@ -372,24 +403,11 @@ static EventTrap EntrapEvent(HLDObject* obj,
         ((HLDEventWrapper**)newArr.elements)[eventNum] = wrapper;
     }
 
-    /* Determine original event listener to execute. */
-    void (*origListener)(HLDInstance*, HLDInstance*) =
-        DefaultEventPerformParent;
-    if (oldHandler) {
-        origListener = oldHandler->function;
-    } else if (eventType == HLD_EVENT_DRAW) {
-        if (eventNum == HLD_EVENT_DRAW_NORMAL) {
-            if (drawEventTargets[obj->index] == -1) {
-                origListener = DefaultEventDrawSelf;
-            }
-        } else {
-            origListener = NULL;
-        }
-    }
-
     /* Create event trap. */
     EventTrap trap;
-    EventTrapInit(&trap, eventType, origListener);
+    EventTrapInit(
+        &trap, eventType,
+        DetermineOriginalListener(oldHandler, obj->index, eventType, eventNum));
 
     return trap;
 }
