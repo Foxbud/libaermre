@@ -1132,13 +1132,25 @@ void AERObjectAttachAnimationEndListener(int32_t objIdx,
 /**
  * @brief Attach a draw event listener to an object.
  *
- * Draw events behave a bit differently from all the other types of events. The
- * biggest difference is that draw events are **not** inherited.
+ * The draw event has unique default behavior. If an object does not have a
+ * vanilla draw listener and none of its parents do either, then the object will
+ * draw itself to the screen without executing any mod event listeners attached
+ * to parent object draw events.
  *
- * The draw event is one of the more performance taxing events in the engine, so
- * it would be a good idea to treat it as a "read-only" event. That is to say
- * that draw listeners should not change any game state, only read state and
- * draw to the screen.
+ * If, on the other hand, an object does not have a vanilla draw listener, but
+ * at least one of its parents does, then the object will not draw itself to the
+ * screen and instead recursively execute parent draw events until the "nearest"
+ * parent vanilla draw listener has been executed.
+ *
+ * Finally, in the case that an object does have a vanilla draw listener, then
+ * that will be executed without executing any parent draw listeners.
+ *
+ * This is one of the more performance taxing events in the engine, so it would
+ * be a good idea to treat it as a "read-only" event. That is to say that draw
+ * listeners should not change any game state, only read state and draw to the
+ * screen.
+ *
+ * @note This event is only triggered for visible instances.
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
@@ -1162,7 +1174,10 @@ void AERObjectAttachDrawListener(int32_t objIdx,
  * @brief Attach a GUI-draw event listener to an object.
  *
  * The GUI-draw event is similar to the normal draw event, but it draws
- * directly to the screen-space after all of the normal draw events.
+ * directly to screen-space after all of the normal draw events, and it is
+ * never inherited.
+ *
+ * @note This event is only triggered for visible instances.
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
