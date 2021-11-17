@@ -412,21 +412,6 @@ static EventTrap EntrapEvent(HLDObject* obj,
         ((HLDEventWrapper**)newArr.elements)[eventNum] = wrapper;
     }
 
-    /* Determine original event listener to execute. */
-    void (*origListener)(HLDInstance*, HLDInstance*) =
-        DefaultEventPerformParent;
-    if (oldHandler) {
-        origListener = oldHandler->function;
-    } else if (eventType == HLD_EVENT_DRAW) {
-        if (eventNum == HLD_EVENT_DRAW_NORMAL) {
-            if (drawEventTargets[obj->index] == -1) {
-                origListener = DefaultEventDrawSelf;
-            }
-        } else {
-            origListener = NULL;
-        }
-    }
-
     /* Create event trap. */
     EventTrap trap;
     EventTrapInit(
