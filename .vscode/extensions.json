@@ -5,5 +5,8 @@
         "ms-vscode.cpptools",
         "streetsidesoftware.code-spell-checker",
         "be5invis.toml"
+    ],
+    "unwantedRecommendations": [
+        "ms-vscode.cmake-tools"
     ]
 }
