@@ -1092,11 +1092,62 @@ void AERObjectAttachCollisionListener(int32_t targetObjIdx,
                                                        AERInstance* target,
                                                        AERInstance* other));
 
+/**
+ * @brief Attach a room-start event listener to an object.
+ *
+ * This event listener is called whenever an instance of the object has been
+ * pre-populated in a room and that room is (re)started.
+ *
+ * @note This event listener is also called when the current room is reset.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs. For
+ * more information see @ref ObjListeners.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERModDef::registerObjectListeners
+ * @sa AERModDef::roomStartListener
+ * @sa AERObjectAttachRoomEndListener
+ * @sa AERRoomGoto
+ * @sa AERRoomEnter
+ * @sa AERRoomEnterWithPosition
+ */
 void AERObjectAttachRoomStartListener(int32_t objIdx,
                                       bool (*listener)(AEREvent* event,
                                                        AERInstance* target,
                                                        AERInstance* other));
 
+/**
+ * @brief Attach a room-end event listener to an object.
+ *
+ * This event listener is called whenever a room is ending and an instance of
+ * the object exists in that room.
+ *
+ * @note This event listener is also called  when the current room is reset and
+ * when the game ends.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs. For
+ * more information see @ref ObjListeners.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERModDef::registerObjectListeners
+ * @sa AERModDef::roomEndListener
+ * @sa AERObjectAttachRoomStartListener
+ * @sa AERRoomGoto
+ * @sa AERRoomEnter
+ * @sa AERRoomEnterWithPosition
+ */
 void AERObjectAttachRoomEndListener(int32_t objIdx,
                                     bool (*listener)(AEREvent* event,
                                                      AERInstance* target,

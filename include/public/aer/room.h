@@ -335,12 +335,20 @@ int32_t AERRoomGetCurrent(void);
 /**
  * @brief Change the currently active room to a new one.
  *
+ * This is a low-level engine function that will not spawn an instance of
+ * ::AER_OBJECT_CHAR in the target room. AERRoomEnter is preferrable in the
+ * majority of usecases.
+ *
  * @param[in] roomIdx Index of new room.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called outside action stage or if a room change is
+ * already in progress.
  * @throw ::AER_FAILED_LOOKUP if argument `roomIdx` is an invalid room.
  *
  * @since 1.0.0
+ *
+ * @sa AERRoomEnter
+ * @sa AERRoomEnterWithPosition
  */
 void AERRoomGoto(int32_t roomIdx);
 

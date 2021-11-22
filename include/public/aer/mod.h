@@ -271,9 +271,25 @@ typedef struct AERModDef {
     /**
      * @var roomStartListener
      *
+     * @brief Mod's room-start pseudo-event listener.
+     *
+     * If provided and the game switches to a new room, the MRE will call this
+     * function once the new room is the current room, immediately after all
+     * object room-start listeners have been called.
+     *
+     * @note This function is also called when the current room is reset.
+     *
+     * @note May be `NULL`.
+     *
+     * @param[in] newRoomIdx Index of current, new room that was just switched
+     * to.
+     * @param[in] prevRoomIdx Index of previous room that was switched away
+     * from.
+     *
      * @since {{MRE_NEXT_MINOR}}
      *
      * @sa AERModDef::roomEndListener
+     * @sa AERObjectAttachRoomStartListener
      *
      * @memberof AERModDef
      */
@@ -281,9 +297,25 @@ typedef struct AERModDef {
     /**
      * @var roomEndListener
      *
+     * @brief Mod's room-end pseudo-event listener.
+     *
+     * If provided and the game switches to a new room, the MRE will call this
+     * function immediately before the new room is the current room but
+     * immediately after all object room-end listeners have been called.
+     *
+     * @note This function is also called when the current room is reset and
+     * when the game ends.
+     *
+     * @note May be `NULL`.
+     *
+     * @param[in] newRoomIdx Index of new room that is about to be switched to.
+     * @param[in] prevRoomIdx Index of current room that is about to be switched
+     * away from.
+     *
      * @since {{MRE_NEXT_MINOR}}
      *
      * @sa AERModDef::roomStartListener
+     * @sa AERObjectAttachRoomEndListener
      *
      * @memberof AERModDef
      */
