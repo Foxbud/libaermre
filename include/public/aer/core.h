@@ -48,7 +48,7 @@ uint32_t AERGetNumSteps(void);
  *
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.5.0
  */
 double AERGetDeltaTime(void);
 

@@ -20,7 +20,7 @@ project(AERMRE
 )
 
 # Handle pre-release version.
-set(PRE_RELEASE TRUE)
+set(PRE_RELEASE FALSE)
 if(PRE_RELEASE)
     set(EXTENDED_PROJECT_VERSION "${CMAKE_PROJECT_VERSION}-pre")
 else()

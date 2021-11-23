@@ -183,7 +183,7 @@ typedef struct AERModDef {
      * @brief This member is a deprecated alias for @ref
      * AERModDef::roomStartListener.
      *
-     * @deprecated Since {{MRE_NEXT_MINOR}}. Use @ref
+     * @deprecated Since 1.5.0. Use @ref
      * AERModDef::roomStartListener instead.
      *
      * @since 1.0.0
@@ -286,7 +286,7 @@ typedef struct AERModDef {
      * @param[in] prevRoomIdx Index of previous room that was switched away
      * from.
      *
-     * @since {{MRE_NEXT_MINOR}}
+     * @since 1.5.0
      *
      * @sa AERModDef::roomEndListener
      * @sa AERObjectAttachRoomStartListener
@@ -312,7 +312,7 @@ typedef struct AERModDef {
      * @param[in] prevRoomIdx Index of current room that is about to be switched
      * away from.
      *
-     * @since {{MRE_NEXT_MINOR}}
+     * @since 1.5.0
      *
      * @sa AERModDef::roomStartListener
      * @sa AERObjectAttachRoomEndListener

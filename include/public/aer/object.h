@@ -798,7 +798,7 @@ size_t AERObjectGetChildren(int32_t objIdx,
  * invalid object.
  * @throw ::AER_BAD_VAL if arguments `targetIdx` and `otherIdx` are not related.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.5.0
  *
  * @sa AERObjectCompatibleWith
  */
@@ -817,7 +817,7 @@ int32_t AERObjectRelationTo(int32_t targetIdx, int32_t otherIdx);
  * @throw ::AER_FAILED_LOOKUP if either argument `targetIdx` or `otherIdx` is an
  * invalid object.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.5.0
  *
  * @sa AERObjectRelationTo
  * @sa AERInstanceCompatibleWith
@@ -1108,7 +1108,7 @@ void AERObjectAttachCollisionListener(int32_t targetObjIdx,
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.5.0
  *
  * @sa AERModDef::registerObjectListeners
  * @sa AERModDef::roomStartListener
@@ -1139,7 +1139,7 @@ void AERObjectAttachRoomStartListener(int32_t objIdx,
  * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.5.0
  *
  * @sa AERModDef::registerObjectListeners
  * @sa AERModDef::roomEndListener

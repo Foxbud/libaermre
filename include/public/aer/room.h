@@ -368,7 +368,7 @@ void AERRoomGoto(int32_t roomIdx);
  * already in progress.
  * @throw ::AER_FAILED_LOOKUP if argument `roomIdx` is an invalid room.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.5.0
  *
  * @sa AERRoomEnterWithPosition
  * @sa AERRoomGoto
@@ -394,7 +394,7 @@ void AERRoomEnter(int32_t roomIdx, bool fade);
  * already in progress.
  * @throw ::AER_FAILED_LOOKUP if argument `roomIdx` is an invalid room.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.5.0
  *
  * @sa AERRoomEnter
  * @sa AERRoomGoto

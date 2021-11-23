@@ -287,7 +287,7 @@ int32_t AERInstanceGetObject(AERInstance* inst);
  * @throw ::AER_NULL_ARG if argument `inst` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
  *
- * @since {{MRE_NEXT_MINOR}}
+ * @since 1.5.0
  *
  * @sa AERObjectCompatibleWith
  */
