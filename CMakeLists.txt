@@ -82,7 +82,7 @@ generate_export_header(aermre
 )
 set_target_properties(aermre PROPERTIES
     C_VISIBILITY_PRESET hidden
-    CMAKE_VISIBILITY_INLINES_HIDDEN TRUE
+    VISIBILITY_INLINES_HIDDEN TRUE
 )
 target_include_directories(aermre
     PRIVATE 
