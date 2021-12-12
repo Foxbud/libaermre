@@ -197,7 +197,7 @@ void HLDRecordEngineRefs(HLDVariables* vars, HLDFunctions* funcs) {
     CheckVar(vars->roomTable->size == 0x114);
 
     CheckVar(vars->roomIndexCurrent);
-    CheckVar(*vars->roomIndexCurrent == 2);
+    CheckVar(*vars->roomIndexCurrent == 0);
 
     CheckVar(vars->roomCurrent);
     CheckVar(*vars->roomCurrent);

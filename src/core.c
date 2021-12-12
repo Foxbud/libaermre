@@ -94,8 +94,15 @@ __attribute__((destructor)) static void CoreDestructor(void) {
     return;
 }
 
-static void RegisterAssets(void) {
+/* ----- UNLISTED FUNCTIONS ----- */
+
+AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
+    HLDRecordEngineRefs(&vars, &funcs);
+
+    InstanceManRecordHLDLocals();
+    ModManLoadMods();
     size_t numMods = ModManGetNumMods();
+    SaveManConstructor();
 
     /* Build sprite name table. */
     SpriteManBuildNameTable();
@@ -169,23 +176,7 @@ static void RegisterAssets(void) {
     return;
 }
 
-/* ----- UNLISTED FUNCTIONS ----- */
-
-AER_EXPORT void AERHookInit(HLDVariables vars, HLDFunctions funcs) {
-    HLDRecordEngineRefs(&vars, &funcs);
-
-    InstanceManRecordHLDLocals();
-
-    ModManLoadMods();
-    SaveManConstructor();
-
-    return;
-}
-
 AER_EXPORT void AERHookStep(void) {
-    if (*hldvars.numSteps == 1)
-        RegisterAssets();
-
     /* Record user input. */
     InputManRecordUserInput();
 
@@ -236,17 +227,19 @@ AER_EXPORT void AERHookRoomStart(HLDEventType type, int32_t num) {
     (void)type;
     (void)num;
 
-    if (stage == STAGE_INIT)
+    /* Skip first room change. */
+    if (*hldvars.roomIndexCurrent == AER_ROOM__INIT)
         return;
-
-    /* Call room start listeners. */
-    ModManExecuteRoomStartListeners(roomIndexCurrent, roomIndexOther);
-
-    /* Record that room change is done. */
-    roomIndexOther = AER_ROOM_NULL;
 
     /* Prune orphaned mod instance locals. */
     InstanceManPruneModLocals();
+
+    /* Record that room change is done. */
+    int32_t roomIndexPrev = roomIndexAux;
+    roomIndexAux = AER_ROOM_NULL;
+
+    /* Call room start listeners. */
+    ModManExecuteRoomStartListeners(*hldvars.roomIndexCurrent, roomIndexPrev);
 
     return;
 }
@@ -255,26 +248,22 @@ AER_EXPORT void AERHookRoomEnd(HLDEventType type, int32_t num) {
     (void)type;
     (void)num;
 
-    if (stage == STAGE_INIT)
-        return;
-
     /* Call room end listeners. */
-    ModManExecuteRoomEndListeners(roomIndexOther, roomIndexCurrent);
+    ModManExecuteRoomEndListeners(roomIndexAux, *hldvars.roomIndexCurrent);
 
-    /* Swap room indices. */
-    roomIndexCurrent ^= roomIndexOther;
-    roomIndexOther ^= roomIndexCurrent;
-    roomIndexCurrent ^= roomIndexOther;
+    /* Swap room indicies. */
+    roomIndexAux = *hldvars.roomIndexCurrent;
 
     return;
 }
 
 AER_EXPORT void AERHookRoomChange(int32_t newRoomIdx) {
-    if (stage == STAGE_INIT)
+    /* Skip first room change. */
+    if (*hldvars.roomIndexCurrent == AER_ROOM__INIT)
         return;
 
     /* Record that room change is happening. */
-    roomIndexOther = newRoomIdx;
+    roomIndexAux = newRoomIdx;
 
     return;
 }
