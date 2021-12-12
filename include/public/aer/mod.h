@@ -274,7 +274,7 @@ typedef struct AERModDef {
      * @brief Mod's room-start pseudo-event listener.
      *
      * If provided and the game switches to a new room, the MRE will call this
-     * function once the new room is the current room, immediately after all
+     * function once the new room is the current room, immediately before all
      * object room-start listeners have been called.
      *
      * @note This function is also called when the current room is reset.

@@ -30,9 +30,7 @@ static FoxMap roomNames = {0};
 
 /* ----- INTERNAL GLOBALS ----- */
 
-int32_t roomIndexCurrent = AER_ROOM_AUTOSAVEMESSAGE;
-
-int32_t roomIndexOther = AER_ROOM_NULL;
+int32_t roomIndexAux = AER_ROOM_AUTOSAVEMESSAGE;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
@@ -73,14 +71,14 @@ AER_EXPORT int32_t AERRoomGetCurrent(void) {
 #define errRet AER_ROOM_NULL
     EnsureStage(STAGE_ACTION);
 
-    Ok(roomIndexCurrent);
+    Ok(*hldvars.roomIndexCurrent);
 #undef errRet
 }
 
 AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
 #define errRet
     EnsureStage(STAGE_ACTION);
-    Ensure(roomIndexOther == AER_ROOM_NULL, AER_SEQ_BREAK);
+    Ensure(roomIndexAux == AER_ROOM_NULL, AER_SEQ_BREAK);
     EnsureLookup(HLDRoomLookup(roomIdx));
 
     hldfuncs.actionRoomGoto(roomIdx, 0);
@@ -92,7 +90,7 @@ AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
 AER_EXPORT void AERRoomEnter(int32_t roomIdx, bool fade) {
 #define errRet
     EnsureStage(STAGE_ACTION);
-    Ensure(roomIndexOther == AER_ROOM_NULL, AER_SEQ_BREAK);
+    Ensure(roomIndexAux == AER_ROOM_NULL, AER_SEQ_BREAK);
     EnsureLookup(HLDRoomLookup(roomIdx));
 
     HLDPrimitiveMakeReal(roomIdxArg, (double)roomIdx);
@@ -112,7 +110,7 @@ AER_EXPORT void AERRoomEnterWithPosition(int32_t roomIdx,
                                          float y) {
 #define errRet
     EnsureStage(STAGE_ACTION);
-    Ensure(roomIndexOther == AER_ROOM_NULL, AER_SEQ_BREAK);
+    Ensure(roomIndexAux == AER_ROOM_NULL, AER_SEQ_BREAK);
     EnsureLookup(HLDRoomLookup(roomIdx));
 
     HLDPrimitiveMakeReal(roomIdxArg, (double)roomIdx);

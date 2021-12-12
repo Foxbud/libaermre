@@ -20,9 +20,7 @@
 
 /* ----- INTERNAL GLOBALS ----- */
 
-extern int32_t roomIndexCurrent;
-
-extern int32_t roomIndexOther;
+extern int32_t roomIndexAux;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 

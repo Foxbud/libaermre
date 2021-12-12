@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 3.12)
 # limitations under the License.
 
 project(AERMRE
-    VERSION 1.5.0
+    VERSION 1.5.1
     DESCRIPTION "AER modding framework for Hyper Light Drifter."
     LANGUAGES C
 )
@@ -82,7 +82,7 @@ generate_export_header(aermre
 )
 set_target_properties(aermre PROPERTIES
     C_VISIBILITY_PRESET hidden
-    CMAKE_VISIBILITY_INLINES_HIDDEN TRUE
+    VISIBILITY_INLINES_HIDDEN TRUE
 )
 target_include_directories(aermre
     PRIVATE 
