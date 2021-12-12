@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 3.12)
 # limitations under the License.
 
 project(AERMRE
-    VERSION 1.5.1
+    VERSION 1.6.0
     DESCRIPTION "AER modding framework for Hyper Light Drifter."
     LANGUAGES C
 )
