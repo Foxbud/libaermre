@@ -232,7 +232,7 @@ void AERRandShuffle(size_t elemSize, size_t bufSize, void* elemBuf);
  * @brief Allocate and initialize a new self-managed pseudorandom number
  * generator.
  *
- * When no longer needed, free this generator using AERRandGenFree.
+ * When no longer needed, free this generator using @ref AERRandGenFree.
  *
  * @param[in] seed Initial generator seed.
  *
@@ -246,7 +246,7 @@ AERRandGen* AERRandGenNew(uint64_t seed);
 
 /**
  * @brief Free a self-managed pseudorandom number generator allocated using
- * AERRandGenNew.
+ * @ref AERRandGenNew.
  *
  * @param[in] gen Generator of interest.
  *
