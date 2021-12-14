@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 #include "aer/err.h"
-#include "internal/err.h"
 #include "internal/export.h"
 
 /* ----- PUBLIC GLOBALS ----- */

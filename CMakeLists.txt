@@ -16,8 +16,7 @@ cmake_minimum_required(VERSION 3.19)
 project(AERMRE
     VERSION 1.3.0
     DESCRIPTION "AER modding framework for Hyper Light Drifter."
-    LANGUAGES C
-)
+    LANGUAGES C)
 
 # Handle pre-release version.
 set(PRE_RELEASE TRUE)
@@ -28,18 +27,11 @@ else()
 endif()
 
 # Set cmake defaults.
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH}
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
-    "$ENV{HOME}/.local/lib32/cmake"
-    "/usr/lib32/cmake"
-    "/usr/local/lib32/cmake"
-)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "libaermre-${EXTENDED_PROJECT_VERSION}"
-        CACHE PATH "..." FORCE
-    )
+        CACHE PATH "..." FORCE)
 endif()
 
 # Include CPack.
@@ -50,10 +42,6 @@ include(CPack)
 # Include GenerateExportHeader.
 include(GenerateExportHeader)
 
-# Include CClosure.
-include(CClosure/CClosureTargets)
-
-# Find packages.
 find_package(Foxutils REQUIRED)
 find_package(Tomlc99 REQUIRED)
 find_package(Doxygen)
@@ -61,8 +49,7 @@ find_package(Doxygen)
 # Configure files.
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/VERSION.txt.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/VERSION.txt"
-@ONLY)
+    "${CMAKE_CURRENT_BINARY_DIR}/VERSION.txt" @ONLY)
 
 # Add MRE library target.
 add_library(aermre SHARED
@@ -75,7 +62,6 @@ add_library(aermre SHARED
    src/hld.c
    src/input.c
    src/instance.c
-   src/iter.c
    src/log.c
    src/mod.c
    src/object.c
@@ -87,55 +73,45 @@ add_library(aermre SHARED
 )
 generate_export_header(aermre
     BASE_NAME AER
-    EXPORT_FILE_NAME include/private/internal/export.h
-)
+    EXPORT_FILE_NAME include/private/internal/export.h)
 set_target_properties(aermre PROPERTIES
     C_VISIBILITY_PRESET hidden
-    CMAKE_VISIBILITY_INLINES_HIDDEN TRUE
-)
+    CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 target_include_directories(aermre
     PRIVATE 
     "${CMAKE_CURRENT_SOURCE_DIR}/include/private"
     "${CMAKE_CURRENT_BINARY_DIR}/include/private"
     PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/public>"
-    "$<INSTALL_INTERFACE:include>"
-)
+    "$<INSTALL_INTERFACE:include>")
 target_compile_options(aermre 
     PRIVATE -m32 -Wall -Wextra -Werror -Wfatal-errors
 )
 target_link_options(aermre
-    PRIVATE -m32 -rdynamic
-)
+    PRIVATE -m32
+    PRIVATE -rdynamic)
 target_link_libraries(aermre
     PRIVATE Foxutils::foxutils
-    PRIVATE Tomlc99::tomlc99
-    PRIVATE CClosure::cclosure_static
-)
+    PRIVATE Tomlc99::tomlc99)
 
 # Add installation target.
 install(TARGETS aermre
     EXPORT AERMRETargets
-    LIBRARY DESTINATION lib
-)
+    LIBRARY DESTINATION lib)
 install(EXPORT AERMRETargets
     FILE AERMRETargets.cmake
     NAMESPACE AERMRE::
-    DESTINATION lib/cmake
-)
+    DESTINATION lib/cmake)
 install(FILES
     AUTHORS.txt
     LICENSE.txt
     NOTICE.txt
     "${CMAKE_CURRENT_BINARY_DIR}/VERSION.txt"
-    DESTINATION "."
-)
+    DESTINATION ".")
 install(DIRECTORY ACKNOWLEDGMENTS
-    DESTINATION "."
-)
+    DESTINATION ".")
 install(DIRECTORY include/public/aer
-    DESTINATION include
-)
+    DESTINATION include)
 
 if(DOXYGEN_FOUND)
     set(DOXYGEN_PROJECT_NUMBER "${EXTENDED_PROJECT_VERSION}")
@@ -145,7 +121,6 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_ENABLE_PREPROCESSING FALSE)
     set(DOXYGEN_STRIP_FROM_PATH "include/public")
     doxygen_add_docs(docs
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/public"
-        "${CMAKE_CURRENT_SOURCE_DIR}/doc"
-    )
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/public"
+    "${CMAKE_CURRENT_SOURCE_DIR}/doc")
 endif()
