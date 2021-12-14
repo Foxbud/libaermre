@@ -27,6 +27,9 @@
 
 /* ----- PUBLIC TYPES ----- */
 
+#define AER_SPRITE_SPRITE3368 AER_SPRITE_SPRITE3368 __attribute__((deprecated))
+#define AER_SPRITE_SPRITE3369 AER_SPRITE_SPRITE3369 __attribute__((deprecated))
+#define AER_SPRITE_SPRITE3370 AER_SPRITE_SPRITE3370 __attribute__((deprecated))
 /**
  * @brief Vanilla sprites.
  *
@@ -3419,11 +3422,19 @@ typedef enum AERSpriteIndex {
      */
     AER_SPRITE_SPRITE3370 = 0xd2a
 } AERSpriteIndex;
+#undef AER_SPRITE_SPRITE3368
+#undef AER_SPRITE_SPRITE3369
+#undef AER_SPRITE_SPRITE3370
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
 /**
  * @brief Register a custom sprite.
+ *
+ * @bug The coordinates defining the origin of a sprite may be negative despite
+ * the fact that both arguments `origX` and `origY` are unsigned. They are being
+ * left as unsigned to preserve API compatibility. To pass a negative value for
+ * a component of the origin, cast it to `uint32_t`.
  *
  * @param[in] name Name to assign to sprite.
  * @param[in] filename Path to sprite file relative to asset directory.
@@ -3445,11 +3456,19 @@ typedef enum AERSpriteIndex {
  *
  * @sa AERSpriteReplace
  */
-int32_t AERSpriteRegister(const char *name, const char *filename,
-                          size_t numFrames, uint32_t origX, uint32_t origY);
+int32_t AERSpriteRegister(const char* name,
+                          const char* filename,
+                          size_t numFrames,
+                          uint32_t origX,
+                          uint32_t origY);
 
 /**
  * @brief Override a vanilla sprite with a custom sprite.
+ *
+ * @bug The coordinates defining the origin of a sprite may be negative despite
+ * the fact that both arguments `origX` and `origY` are unsigned. They are being
+ * left as unsigned to preserve API compatibility. To pass a negative value for
+ * a component of the origin, cast it to `uint32_t`.
  *
  * @param[in] spriteIdx Index of vanilla sprite to override.
  * @param[in] filename Path to sprite file relative to asset directory.
@@ -3467,8 +3486,11 @@ int32_t AERSpriteRegister(const char *name, const char *filename,
  *
  * @sa AERSpriteRegister
  */
-void AERSpriteReplace(int32_t spriteIdx, const char *filename, size_t numFrames,
-                      uint32_t origX, uint32_t origY);
+void AERSpriteReplace(int32_t spriteIdx,
+                      const char* filename,
+                      size_t numFrames,
+                      uint32_t origX,
+                      uint32_t origY);
 
 /**
  * @brief Query the total number of vanilla and mod sprites registered.
@@ -3494,7 +3516,7 @@ size_t AERSpriteGetNumRegistered(void);
  *
  * @since 1.3.0
  */
-int32_t AERSpriteGetByName(const char *name);
+int32_t AERSpriteGetByName(const char* name);
 
 /**
  * @brief Query the name of a sprite.
@@ -3508,6 +3530,70 @@ int32_t AERSpriteGetByName(const char *name);
  *
  * @since 1.0.0
  */
-const char *AERSpriteGetName(int32_t spriteIdx);
+const char* AERSpriteGetName(int32_t spriteIdx);
+
+/**
+ * @brief Query the number of animation frames of a sprite.
+ *
+ * @param[in] spriteIdx Sprite of interest.
+ *
+ * @return Number of animation frames or `0` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since 1.4.0
+ */
+size_t AERSpriteGetNumFrames(int32_t spriteIdx);
+
+/**
+ * @brief Query the size of a sprite in pixels.
+ *
+ * If only one component of the size is needed, then the argument for the
+ * unneeded component may be `NULL`.
+ *
+ * @param[in] spriteIdx Sprite of interest.
+ * @param[out] width Width in pixels.
+ * @param[out] height Height in pixels.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
+ * @throw ::AER_NULL_ARG if both arguments `width` and `height` are `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since 1.4.0
+ */
+void AERSpriteGetSize(int32_t spriteIdx, size_t* width, size_t* height);
+
+/**
+ * @brief Query the origin (center) of a sprite in pixels.
+ *
+ * If only one component of the origin is needed, then the argument for the
+ * unneeded component may be `NULL`.
+ *
+ * @param[in] spriteIdx Sprite of interest.
+ * @param[out] x Horizontal origin in pixels.
+ * @param[out] y Vertical origin in pixels.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
+ * @throw ::AER_NULL_ARG if both arguments `x` and `y` are `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since 1.4.0
+ */
+void AERSpriteGetOrigin(int32_t spriteIdx, int32_t* x, int32_t* y);
+
+/**
+ * @brief Set the origin (center) of a sprite in pixels.
+ *
+ * @param[in] spriteIdx Sprite of interest.
+ * @param[in] x Horizontal origin in pixels.
+ * @param[in] y Vertical origin in pixels.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of sprite registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `spriteIdx` is an invalid sprite.
+ *
+ * @since 1.4.0
+ */
+void AERSpriteSetOrigin(int32_t spriteIdx, int32_t x, int32_t y);
 
 #endif /* AER_SPRITE_H */

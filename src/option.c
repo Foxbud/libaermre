@@ -25,45 +25,56 @@
 
 Options opts = {0};
 
-/* ----- PRIVATE FUNCTIONS ----- */
-
-static void CheckErrors(const char *key) {
-    switch (aererr) {
-    case AER_OK:
-        break;
-
-    case AER_FAILED_LOOKUP:
-        LogErr("Configuration key \"%s\" is undefined.", key);
-        abort();
-        break;
-
-    case AER_FAILED_PARSE:
-        LogErr("Could not parse configuration key \"%s\".", key);
-        abort();
-        break;
-
-    default:
-        LogErr("Unknown error while trying to read configuration key \"%s\".",
-               key);
-        abort();
-    }
-
-    return;
-}
-
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void OptionConstructor(void) {
     LogInfo("Initializing options...");
+    const char* key = NULL;
 
-    /* Mod names. */
+    /* Required keys. */
+
+    key = "mods";
     aererr = AER_TRY;
-    opts.numModNames = AERConfGetStrings("mods", 0, NULL);
-    CheckErrors("mods");
-    opts.modNames = malloc(opts.numModNames * sizeof(const char *));
+    opts.numModNames = AERConfGetStrings(key, 0, NULL);
+    opts.modNames = malloc(opts.numModNames * sizeof(const char*));
     assert(opts.modNames);
-    AERConfGetStrings("mods", opts.numModNames, opts.modNames);
-    CheckErrors("mods");
+    aererr = AER_TRY;
+    AERConfGetStrings(key, opts.numModNames, opts.modNames);
+    switch (aererr) {
+        case AER_OK:
+            LogInfo("Found required configuration key \"%s\".", key);
+            break;
+        case AER_FAILED_PARSE:
+            LogErr(
+                "Required configuration key \"%s\" must be an array of "
+                "strings.",
+                key);
+            abort();
+        default:
+            LogErr("Required configuration key \"%s\" is undefined.", key);
+            abort();
+    }
+
+    /* Optional keys. */
+
+    key = "error.promote_unhandled";
+    aererr = AER_TRY;
+    opts.promoteUnhandledErrors = AERConfGetBool(key);
+    switch (aererr) {
+        case AER_OK:
+            LogInfo(
+                "Found optional configuration key \"%s\" with value \"%i\".",
+                key, opts.promoteUnhandledErrors);
+            break;
+        case AER_FAILED_PARSE:
+            LogErr("Optional configuration key \"%s\" must be a boolean.", key);
+            abort();
+        default:
+            LogInfo(
+                "Optional configuration key \"%s\" is undefined. Using default "
+                "value \"%i\".",
+                key, (opts.promoteUnhandledErrors = false));
+    }
 
     LogInfo("Done initializing options.");
     return;

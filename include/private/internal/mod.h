@@ -24,12 +24,18 @@
 
 #include "internal/hld.h"
 
+/* ----- INTERNAL MACROS ----- */
+
+#define ModManGetCurrentMod() \
+    ModManGetOwningMod(       \
+        __builtin_extract_return_addr(__builtin_return_address(0)))
+
 /* ----- INTERNAL TYPES ----- */
 
 typedef struct Mod {
-    void *libHandle;
+    void* libHandle;
     int32_t idx;
-    const char *name;
+    const char* name;
     void (*constructor)(void);
     void (*destructor)(void);
     void (*registerSprites)(void);
@@ -37,11 +43,6 @@ typedef struct Mod {
     void (*registerObjects)(void);
     void (*registerObjectListeners)(void);
 } Mod;
-
-typedef struct ModListener {
-    void (*func)(void);
-    int32_t modIdx;
-} ModListener;
 
 /* ----- INTERNAL CONSTANTS ----- */
 
@@ -51,7 +52,9 @@ extern const int32_t MOD_NULL;
 
 size_t ModManGetNumMods(void);
 
-Mod *ModManGetMod(int32_t modIdx);
+Mod* ModManGetMod(int32_t modIdx);
+
+Mod* ModManGetOwningMod(void* sym);
 
 void ModManExecuteGameStepListeners(void);
 
@@ -61,15 +64,13 @@ void ModManExecuteGameSaveListeners(int32_t curSlotIdx);
 
 void ModManExecuteGameLoadListeners(int32_t curSlotIdx);
 
-void ModManExecuteRoomChangeListeners(int32_t newRoomIdx, int32_t prevRoomIdx);
+void ModManExecuteRoomStartListeners(int32_t newRoomIdx, int32_t prevRoomIdx);
 
-bool ModManHasContext(void);
+void ModManExecuteRoomEndListeners(int32_t newRoomIdx, int32_t prevRoomIdx);
 
-void ModManPushContext(int32_t modIdx);
+void ModManLoadMods(void);
 
-int32_t ModManPeekContext(void);
-
-int32_t ModManPopContext(void);
+void ModManUnloadMods(void);
 
 void ModManConstructor(void);
 

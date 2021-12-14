@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "foxutils/arraymacs.h"
 #include "foxutils/mapmacs.h"
 #include "foxutils/math.h"
 #include "foxutils/stringmapmacs.h"
@@ -33,6 +32,18 @@
 #include "internal/mod.h"
 #include "internal/object.h"
 
+/* ----- PRIVATE TYPES ----- */
+
+typedef struct ObjTreeGetAllChildrenContext {
+    FoxMap* allChildren;
+    int32_t depth;
+} ObjTreeGetAllChildrenContext;
+
+typedef struct ObjTreeCopyChildrenContext {
+    int32_t* objBuf;
+    int32_t* bufPos;
+} ObjTreeCopyChildrenContext;
+
 /* ----- PRIVATE GLOBALS ----- */
 
 static FoxMap objTree = {0};
@@ -43,58 +54,72 @@ static FoxMap objNames = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static void ObjTreeGetAllChildren(FoxArray *directChildren,
-                                  FoxArray *allChildren) {
-    size_t numDirectChildren = FoxArrayMSize(int32_t, directChildren);
-    for (uint32_t idx = 0; idx < numDirectChildren; idx++) {
-        int32_t childIdx = *FoxArrayMIndex(int32_t, directChildren, idx);
-        *FoxArrayMPush(int32_t, allChildren) = childIdx;
-        FoxArray *nextChildren =
-            FoxMapMIndex(int32_t, FoxArray, &objTree, childIdx);
-        if (nextChildren)
-            ObjTreeGetAllChildren(nextChildren, allChildren);
+static bool ObjTreeGetAllChildrenCallback(const int32_t* objIdx,
+                                          ObjTreeGetAllChildrenContext* ctx) {
+    ObjTreeGetAllChildrenContext curCtx = {
+        .allChildren = ctx->allChildren,
+        .depth = ctx->depth + 1,
+    };
+
+    *FoxMapMInsert(int32_t, int32_t, curCtx.allChildren, *objIdx) =
+        curCtx.depth;
+    FoxMap* nextGen = FoxMapMIndex(int32_t, FoxMap, &objTree, *objIdx);
+    if (nextGen) {
+        FoxMapMForEachKey(int32_t, int32_t, nextGen,
+                          ObjTreeGetAllChildrenCallback, &curCtx);
     }
-
-    return;
-}
-
-static bool ObjTreeBuildFlatObjTreeCallback(const int32_t *objIdx,
-                                            FoxArray *directChildren,
-                                            void *ctx) {
-    (void)ctx;
-
-    FoxArray *allChildren =
-        FoxMapMInsert(int32_t, FoxArray, &flatObjTree, *objIdx);
-    FoxArrayMInit(int32_t, allChildren);
-    ObjTreeGetAllChildren(directChildren, allChildren);
 
     return true;
 }
 
-static bool ObjTreeChildrenDeinitCallback(FoxArray *children, void *ctx) {
+static bool ObjTreeBuildFlatObjTreeCallback(const int32_t* objIdx,
+                                            FoxMap* directChildren,
+                                            void* ctx) {
     (void)ctx;
 
-    FoxArrayMDeinit(int32_t, children);
+    ObjTreeGetAllChildrenContext initCtx = {
+        .allChildren = FoxMapMInsert(int32_t, FoxMap, &flatObjTree, *objIdx),
+        .depth = 0,
+    };
+
+    FoxMapMInit(int32_t, int32_t, initCtx.allChildren);
+    FoxMapMForEachKey(int32_t, int32_t, directChildren,
+                      ObjTreeGetAllChildrenCallback, &initCtx);
+
+    return true;
+}
+
+static bool ObjTreeCopyChildrenCallback(const int32_t* objIdx,
+                                        ObjTreeCopyChildrenContext* ctx) {
+    *(--ctx->bufPos) = *objIdx;
+
+    return ctx->bufPos > ctx->objBuf;
+}
+
+static bool ObjTreeChildrenDeinitCallback(FoxMap* children, void* ctx) {
+    (void)ctx;
+
+    FoxMapMDeinit(int32_t, int32_t, children);
 
     return true;
 }
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-FoxArray *ObjectManGetDirectChildren(int32_t objIdx) {
-    return FoxMapMIndex(int32_t, FoxArray, &objTree, objIdx);
+FoxMap* ObjectManGetDirectChildren(int32_t objIdx) {
+    return FoxMapMIndex(int32_t, FoxMap, &objTree, objIdx);
 }
 
-FoxArray *ObjectManGetAllChildren(int32_t objIdx) {
-    return FoxMapMIndex(int32_t, FoxArray, &flatObjTree, objIdx);
+FoxMap* ObjectManGetAllChildren(int32_t objIdx) {
+    return FoxMapMIndex(int32_t, FoxMap, &flatObjTree, objIdx);
 }
 
 void ObjectManBuildNameTable(void) {
     size_t numObjs = (*hldvars.objectTableHandle)->numItems;
     for (uint32_t objIdx = 0; objIdx < numObjs; objIdx++) {
-        HLDObject *obj = HLDObjectLookup(objIdx);
+        HLDObject* obj = HLDObjectLookup(objIdx);
         assert(obj);
-        *FoxMapMInsert(const char *, int32_t, &objNames, obj->name) = objIdx;
+        *FoxMapMInsert(const char*, int32_t, &objNames, obj->name) = objIdx;
     }
 
     return;
@@ -103,21 +128,22 @@ void ObjectManBuildNameTable(void) {
 void ObjectManBuildInheritanceTrees(void) {
     /* Build object tree. */
     size_t numObjs = (*hldvars.objectTableHandle)->numItems;
-    for (uint32_t objIdx = 0; objIdx < numObjs; objIdx++) {
-        HLDObject *obj = HLDObjectLookup(objIdx);
+    for (size_t objIdx = 0; objIdx < numObjs; objIdx++) {
+        HLDObject* obj = HLDObjectLookup(objIdx);
         assert(obj);
         int32_t parentIdx = obj->parentIndex;
-        FoxArray *directChildren =
-            FoxMapMIndex(int32_t, FoxArray, &objTree, parentIdx);
-        if (!directChildren)
-            FoxArrayMInit(
-                int32_t, (directChildren = FoxMapMInsert(int32_t, FoxArray,
-                                                         &objTree, parentIdx)));
-        *FoxArrayMPush(int32_t, directChildren) = objIdx;
+        FoxMap* directChildren =
+            FoxMapMIndex(int32_t, FoxMap, &objTree, parentIdx);
+        if (!directChildren) {
+            directChildren =
+                FoxMapMInsert(int32_t, FoxMap, &objTree, parentIdx);
+            FoxMapMInit(int32_t, int32_t, directChildren);
+        }
+        *FoxMapMInsert(int32_t, int32_t, directChildren, objIdx) = 1;
     }
 
     /* Build flat object tree. */
-    FoxMapMForEachPair(int32_t, FoxArray, &objTree,
+    FoxMapMForEachPair(int32_t, FoxMap, &objTree,
                        ObjTreeBuildFlatObjTreeCallback, NULL);
 
     return;
@@ -126,8 +152,8 @@ void ObjectManBuildInheritanceTrees(void) {
 void ObjectManConstructor(void) {
     LogInfo("Initializing object module...");
 
-    FoxMapMInit(int32_t, FoxArray, &objTree);
-    FoxMapMInit(int32_t, FoxArray, &flatObjTree);
+    FoxMapMInit(int32_t, FoxMap, &objTree);
+    FoxMapMInit(int32_t, FoxMap, &flatObjTree);
     FoxStringMapMInit(int32_t, &objNames);
 
     LogInfo("Done initializing object module.");
@@ -138,19 +164,19 @@ void ObjectManDestructor(void) {
     LogInfo("Deinitializing object module...");
 
     /* Deinitialize object tree. */
-    FoxMapMForEachElement(int32_t, FoxArray, &objTree,
+    FoxMapMForEachElement(int32_t, FoxMap, &objTree,
                           ObjTreeChildrenDeinitCallback, NULL);
-    FoxMapMDeinit(int32_t, FoxArray, &objTree);
+    FoxMapMDeinit(int32_t, FoxMap, &objTree);
     objTree = (FoxMap){0};
 
     /* Deinitialize flat object tree. */
-    FoxMapMForEachElement(int32_t, FoxArray, &flatObjTree,
+    FoxMapMForEachElement(int32_t, FoxMap, &flatObjTree,
                           ObjTreeChildrenDeinitCallback, NULL);
-    FoxMapMDeinit(int32_t, FoxArray, &flatObjTree);
+    FoxMapMDeinit(int32_t, FoxMap, &flatObjTree);
     flatObjTree = (FoxMap){0};
 
     /* Deinitialize name table. */
-    FoxMapMDeinit(const char *, int32_t, &objNames);
+    FoxMapMDeinit(const char*, int32_t, &objNames);
     objNames = (FoxMap){0};
 
     LogInfo("Done deinitializing object module.");
@@ -159,30 +185,34 @@ void ObjectManDestructor(void) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AER_EXPORT int32_t AERObjectRegister(const char *name, int32_t parentIdx,
-                                     int32_t spriteIdx, int32_t maskIdx,
-                                     int32_t depth, bool visible,
-                                     bool collisions, bool persistent) {
+AER_EXPORT int32_t AERObjectRegister(const char* name,
+                                     int32_t parentIdx,
+                                     int32_t spriteIdx,
+                                     int32_t maskIdx,
+                                     int32_t depth,
+                                     bool visible,
+                                     bool collisions,
+                                     bool persistent) {
 #define errRet AER_OBJECT_NULL
     EnsureArg(name);
     LogInfo("Registering object \"%s\" for mod \"%s\"...", name,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
     EnsureStageStrict(STAGE_OBJECT_REG);
 
-    HLDObject *parent = HLDObjectLookup(parentIdx);
+    HLDObject* parent = HLDObjectLookup(parentIdx);
     EnsureLookup(parent);
 
     EnsureLookup(spriteIdx == AER_SPRITE_NULL || HLDSpriteLookup(spriteIdx));
     EnsureLookup(maskIdx == AER_SPRITE_NULL || HLDSpriteLookup(maskIdx));
-    Ensure(!FoxMapMIndex(const char *, int32_t, &objNames, name), AER_BAD_VAL);
+    Ensure(!FoxMapMIndex(const char*, int32_t, &objNames, name), AER_BAD_VAL);
 
     int32_t objIdx = hldfuncs.actionObjectAdd();
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     assert(obj);
-    *FoxMapMInsert(const char *, int32_t, &objNames, name) = objIdx;
+    *FoxMapMInsert(const char*, int32_t, &objNames, name) = objIdx;
 
     /* The engine expects a freeable (dynamically allocated) string for name. */
-    char *tmpName = malloc(strlen(name) + 1);
+    char* tmpName = malloc(strlen(name) + 1);
     assert(tmpName);
     obj->name = strcpy(tmpName, name);
 
@@ -208,23 +238,23 @@ AER_EXPORT size_t AERObjectGetNumRegistered(void) {
 #undef errRet
 }
 
-AER_EXPORT int32_t AERObjectGetByName(const char *name) {
+AER_EXPORT int32_t AERObjectGetByName(const char* name) {
 #define errRet AER_OBJECT_NULL
     EnsureStage(STAGE_OBJECT_REG);
     EnsureArg(name);
 
-    int32_t *objIdx = FoxMapMIndex(const char *, int32_t, &objNames, name);
+    int32_t* objIdx = FoxMapMIndex(const char*, int32_t, &objNames, name);
     EnsureLookup(objIdx);
 
     Ok(*objIdx);
 #undef errRet
 }
 
-AER_EXPORT const char *AERObjectGetName(int32_t objIdx) {
+AER_EXPORT const char* AERObjectGetName(int32_t objIdx) {
 #define errRet NULL
     EnsureStage(STAGE_OBJECT_REG);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     Ok(obj->name);
@@ -235,33 +265,77 @@ AER_EXPORT int32_t AERObjectGetParent(int32_t objIdx) {
 #define errRet AER_OBJECT_NULL
     EnsureStage(STAGE_OBJECT_REG);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     Ok(obj->parentIndex);
 #undef errRet
 }
 
-AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx, bool recursive,
-                                       size_t bufSize, int32_t *objBuf) {
+AER_EXPORT size_t AERObjectGetChildren(int32_t objIdx,
+                                       bool recursive,
+                                       size_t bufSize,
+                                       int32_t* objBuf) {
 #define errRet 0
     EnsureStage(STAGE_OBJECT_REG);
     EnsureArgBuf(objBuf, bufSize);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
-    FoxArray *children = FoxMapMIndex(
-        int32_t, FoxArray, (recursive ? &flatObjTree : &objTree), objIdx);
+    FoxMap* children = FoxMapMIndex(
+        int32_t, FoxMap, (recursive ? &flatObjTree : &objTree), objIdx);
     if (!children)
         Ok(0);
-    size_t numChildren = FoxArrayMSize(int32_t, children);
+    size_t numChildren = FoxMapMSize(int32_t, int32_t, children);
 
     size_t numToWrite = FoxMin(numChildren, bufSize);
-    for (uint32_t idx = 0; idx < numToWrite; idx++)
-        objBuf[idx] = *FoxArrayMIndex(int32_t, children, idx);
+    if (numToWrite > 0) {
+        ObjTreeCopyChildrenContext ctx = {
+            .objBuf = objBuf,
+            .bufPos = objBuf + numToWrite,
+        };
+        FoxMapMForEachKey(int32_t, int32_t, children,
+                          ObjTreeCopyChildrenCallback, &ctx);
+    }
 
     Ok(numChildren);
+#undef errRet
+}
+
+AER_EXPORT int32_t AERObjectRelationTo(int32_t targetIdx, int32_t otherIdx) {
+#define errRet 0
+    EnsureStage(STAGE_OBJECT_REG);
+
+    FoxMap* children;
+    int32_t* depth;
+
+    if ((children = FoxMapMIndex(int32_t, FoxMap, &flatObjTree, otherIdx)) &&
+        (depth = FoxMapMIndex(int32_t, int32_t, children, targetIdx)))
+        Ok(*depth);
+
+    if ((children = FoxMapMIndex(int32_t, FoxMap, &flatObjTree, targetIdx)) &&
+        (depth = FoxMapMIndex(int32_t, int32_t, children, otherIdx)))
+        Ok(-*depth);
+
+    EnsureLookup(HLDObjectLookup(targetIdx) && HLDObjectLookup(otherIdx));
+    if (otherIdx == targetIdx)
+        Ok(0);
+
+    Err(AER_BAD_VAL);
+#undef errRet
+}
+
+AER_EXPORT bool AERObjectCompatibleWith(int32_t targetIdx, int32_t otherIdx) {
+#define errRet false
+    EnsureStage(STAGE_OBJECT_REG);
+
+    FoxMap* children = FoxMapMIndex(int32_t, FoxMap, &flatObjTree, otherIdx);
+    if (children && FoxMapMIndex(int32_t, int32_t, children, targetIdx))
+        Ok(true);
+
+    EnsureLookup(HLDObjectLookup(targetIdx) && HLDObjectLookup(otherIdx));
+    Ok(otherIdx == targetIdx);
 #undef errRet
 }
 
@@ -269,7 +343,7 @@ AER_EXPORT bool AERObjectGetCollisions(int32_t objIdx) {
 #define errRet false
     EnsureStage(STAGE_OBJECT_REG);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     Ok(obj->flags.collisions);
@@ -280,7 +354,7 @@ AER_EXPORT void AERObjectSetCollisions(int32_t objIdx, bool collisions) {
 #define errRet
     EnsureStage(STAGE_OBJECT_REG);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
     obj->flags.collisions = collisions;
 
@@ -288,18 +362,64 @@ AER_EXPORT void AERObjectSetCollisions(int32_t objIdx, bool collisions) {
 #undef errRet
 }
 
+AER_EXPORT bool AERObjectGetPersistent(int32_t objIdx) {
+#define errRet false
+    EnsureStage(STAGE_OBJECT_REG);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+
+    Ok(obj->flags.persistent);
+#undef errRet
+}
+
+AER_EXPORT void AERObjectSetPersistent(int32_t objIdx, bool persistent) {
+#define errRet
+    EnsureStage(STAGE_OBJECT_REG);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+    obj->flags.persistent = persistent;
+
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT bool AERObjectGetVisible(int32_t objIdx) {
+#define errRet false
+    EnsureStage(STAGE_OBJECT_REG);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+
+    Ok(obj->flags.visible);
+#undef errRet
+}
+
+AER_EXPORT void AERObjectSetVisible(int32_t objIdx, bool visible) {
+#define errRet
+    EnsureStage(STAGE_OBJECT_REG);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+    obj->flags.visible = visible;
+
+    Ok();
+#undef errRet
+}
+
 AER_EXPORT void AERObjectAttachCreateListener(int32_t objIdx,
-                                              bool (*listener)(AEREvent *,
-                                                               AERInstance *,
-                                                               AERInstance *)) {
+                                              bool (*listener)(AEREvent*,
+                                                               AERInstance*,
+                                                               AERInstance*)) {
 #define errRet
     LogInfo("Attaching create listener to object %i for mod \"%s\"...", objIdx,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     EventKey key =
@@ -311,17 +431,18 @@ AER_EXPORT void AERObjectAttachCreateListener(int32_t objIdx,
 #undef errRet
 }
 
-AER_EXPORT void AERObjectAttachDestroyListener(
-    int32_t objIdx,
-    bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+AER_EXPORT void AERObjectAttachDestroyListener(int32_t objIdx,
+                                               bool (*listener)(AEREvent*,
+                                                                AERInstance*,
+                                                                AERInstance*)) {
 #define errRet
     LogInfo("Attaching destroy listener to object %i for mod \"%s\"...", objIdx,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_DESTROY, .num = 0, .objIdx = objIdx};
@@ -332,19 +453,20 @@ AER_EXPORT void AERObjectAttachDestroyListener(
 #undef errRet
 }
 
-AER_EXPORT void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
-                                             bool (*listener)(AEREvent *,
-                                                              AERInstance *,
-                                                              AERInstance *)) {
+AER_EXPORT void AERObjectAttachAlarmListener(int32_t objIdx,
+                                             uint32_t alarmIdx,
+                                             bool (*listener)(AEREvent*,
+                                                              AERInstance*,
+                                                              AERInstance*)) {
 #define errRet
     LogInfo("Attaching alarm %u listener to object %i for mod \"%s\"...",
-            alarmIdx, objIdx, ModManGetMod(ModManPeekContext())->name);
+            alarmIdx, objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
     EnsureMax(alarmIdx, 11);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_ALARM, .num = alarmIdx, .objIdx = objIdx};
@@ -356,17 +478,17 @@ AER_EXPORT void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
 }
 
 AER_EXPORT void AERObjectAttachStepListener(int32_t objIdx,
-                                            bool (*listener)(AEREvent *,
-                                                             AERInstance *,
-                                                             AERInstance *)) {
+                                            bool (*listener)(AEREvent*,
+                                                             AERInstance*,
+                                                             AERInstance*)) {
 #define errRet
     LogInfo("Attaching step listener to object %i for mod \"%s\"...", objIdx,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     EventKey key = {
@@ -378,17 +500,18 @@ AER_EXPORT void AERObjectAttachStepListener(int32_t objIdx,
 #undef errRet
 }
 
-AER_EXPORT void AERObjectAttachPreStepListener(
-    int32_t objIdx,
-    bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+AER_EXPORT void AERObjectAttachPreStepListener(int32_t objIdx,
+                                               bool (*listener)(AEREvent*,
+                                                                AERInstance*,
+                                                                AERInstance*)) {
 #define errRet
     LogInfo("Attaching pre-step listener to object %i for mod \"%s\"...",
-            objIdx, ModManGetMod(ModManPeekContext())->name);
+            objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     EventKey key = {
@@ -402,15 +525,15 @@ AER_EXPORT void AERObjectAttachPreStepListener(
 
 AER_EXPORT void AERObjectAttachPostStepListener(
     int32_t objIdx,
-    bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+    bool (*listener)(AEREvent*, AERInstance*, AERInstance*)) {
 #define errRet
     LogInfo("Attaching post-step listener to object %i for mod \"%s\"...",
-            objIdx, ModManGetMod(ModManPeekContext())->name);
+            objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     EventKey key = {
@@ -423,17 +546,18 @@ AER_EXPORT void AERObjectAttachPostStepListener(
 }
 
 AER_EXPORT void AERObjectAttachCollisionListener(
-    int32_t targetObjIdx, int32_t otherObjIdx,
-    bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+    int32_t targetObjIdx,
+    int32_t otherObjIdx,
+    bool (*listener)(AEREvent*, AERInstance*, AERInstance*)) {
 #define errRet
     LogInfo("Attaching %i collision listener to object %i for mod \"%s\"...",
-            otherObjIdx, targetObjIdx, ModManGetMod(ModManPeekContext())->name);
+            otherObjIdx, targetObjIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
     EnsureLookup(HLDObjectLookup(otherObjIdx));
 
-    HLDObject *obj = HLDObjectLookup(targetObjIdx);
+    HLDObject* obj = HLDObjectLookup(targetObjIdx);
     EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_COLLISION,
@@ -446,17 +570,67 @@ AER_EXPORT void AERObjectAttachCollisionListener(
 #undef errRet
 }
 
-AER_EXPORT void AERObjectAttachAnimationEndListener(
+AER_EXPORT void AERObjectAttachRoomStartListener(
     int32_t objIdx,
-    bool (*listener)(AEREvent *, AERInstance *, AERInstance *)) {
+    bool (*listener)(AEREvent* event,
+                     AERInstance* target,
+                     AERInstance* other)) {
 #define errRet
-    LogInfo("Attaching animation end listener to object %i for mod \"%s\"...",
-            objIdx, ModManGetMod(ModManPeekContext())->name);
+    LogInfo("Attaching room start listener to object %i for mod \"%s\"...",
+            objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+
+    EventKey key = {.type = HLD_EVENT_OTHER,
+                    .num = HLD_EVENT_OTHER_ROOM_START,
+                    .objIdx = objIdx};
+    EventManRegisterEventListener(obj, key, listener);
+
+    LogInfo("Successfully attached room start listener.");
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT void AERObjectAttachRoomEndListener(
+    int32_t objIdx,
+    bool (*listener)(AEREvent* event,
+                     AERInstance* target,
+                     AERInstance* other)) {
+#define errRet
+    LogInfo("Attaching room end listener to object %i for mod \"%s\"...",
+            objIdx, ModManGetCurrentMod()->name);
+
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
+    EnsureLookup(obj);
+
+    EventKey key = {.type = HLD_EVENT_OTHER,
+                    .num = HLD_EVENT_OTHER_ROOM_END,
+                    .objIdx = objIdx};
+    EventManRegisterEventListener(obj, key, listener);
+
+    LogInfo("Successfully attached room end listener.");
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT void AERObjectAttachAnimationEndListener(
+    int32_t objIdx,
+    bool (*listener)(AEREvent*, AERInstance*, AERInstance*)) {
+#define errRet
+    LogInfo("Attaching animation end listener to object %i for mod \"%s\"...",
+            objIdx, ModManGetCurrentMod()->name);
+
+    EnsureStageStrict(STAGE_LISTENER_REG);
+    EnsureArg(listener);
+
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_OTHER,
@@ -470,16 +644,18 @@ AER_EXPORT void AERObjectAttachAnimationEndListener(
 }
 
 AER_EXPORT void AERObjectAttachDrawListener(
-    int32_t objIdx, bool (*listener)(AEREvent *event, AERInstance *target,
-                                     AERInstance *other)) {
+    int32_t objIdx,
+    bool (*listener)(AEREvent* event,
+                     AERInstance* target,
+                     AERInstance* other)) {
 #define errRet
     LogInfo("Attaching draw listener to object %i for mod \"%s\"...", objIdx,
-            ModManGetMod(ModManPeekContext())->name);
+            ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     EventKey key = {
@@ -492,16 +668,18 @@ AER_EXPORT void AERObjectAttachDrawListener(
 }
 
 AER_EXPORT void AERObjectAttachGUIDrawListener(
-    int32_t objIdx, bool (*listener)(AEREvent *event, AERInstance *target,
-                                     AERInstance *other)) {
+    int32_t objIdx,
+    bool (*listener)(AEREvent* event,
+                     AERInstance* target,
+                     AERInstance* other)) {
 #define errRet
     LogInfo("Attaching GUI-draw listener to object %i for mod \"%s\"...",
-            objIdx, ModManGetMod(ModManPeekContext())->name);
+            objIdx, ModManGetCurrentMod()->name);
 
     EnsureStageStrict(STAGE_LISTENER_REG);
     EnsureArg(listener);
 
-    HLDObject *obj = HLDObjectLookup(objIdx);
+    HLDObject* obj = HLDObjectLookup(objIdx);
     EnsureLookup(obj);
 
     EventKey key = {.type = HLD_EVENT_DRAW,

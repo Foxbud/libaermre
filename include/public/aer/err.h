@@ -24,6 +24,7 @@
 
 /* ----- PUBLIC TYPES ----- */
 
+#define AER_OUT_OF_MEM AER_OUT_OF_MEM __attribute__((deprecated))
 /**
  * @brief Possible values of ::aererr.
  *
@@ -95,6 +96,7 @@ typedef enum AERErrCode {
      */
     AER_BAD_VAL = 7
 } AERErrCode;
+#undef AER_OUT_OF_MEM
 
 /* ----- PUBLIC GLOBALS ----- */
 

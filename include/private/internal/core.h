@@ -34,6 +34,6 @@ extern CoreStage stage;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-const char *CoreGetAbsAssetPath(const char *relAssetPath);
+const char* CoreGetAbsAssetPath(const char* modName, const char* relAssetPath);
 
 #endif /* INTERNAL_CORE_H */

@@ -27,6 +27,8 @@
 
 /* ----- PUBLIC TYPES ----- */
 
+/* @deprecated Since 1.3.0. Use ::AER_KEY_ERASE_BEFORE instead. */
+#define AER_KEY_ERASE AER_KEY_ERASE __attribute__((deprecated))
 /**
  * @brief Indexes for keypresses in input lookup table.
  *
@@ -36,9 +38,24 @@ typedef enum AERInputKey {
     AER_KEY_INTERRUPT = 0x3,
     AER_KEY_BACKSPACE = 0x8,
     AER_KEY_TAB = 0x9,
+    /**
+     * @since 1.3.0
+     */
+    AER_KEY_ERASE_AFTER = 0xb,
+    /**
+     * @since 1.3.0
+     */
+    AER_KEY_CLEAR = 0xc,
     AER_KEY_ENTER = 0xd,
     AER_KEY_CAPSLOCK = 0x14,
+    /**
+     * @deprecated Since 1.3.0. Use ::AER_KEY_ERASE_BEFORE instead.
+     */
     AER_KEY_ERASE = 0x15,
+    /**
+     * @since 1.3.0
+     */
+    AER_KEY_ERASE_BEFORE = 0x15,
     AER_KEY_ESCAPE = 0x1b,
     AER_KEY_SPACE = 0x20,
     AER_KEY_PAGEUP = 0x21,
@@ -153,6 +170,7 @@ typedef enum AERInputKey {
     AER_KEY_HASH = 0xde,
     AER_KEY_BACKTICK = 0xdf
 } AERInputKey;
+#undef AER_KEY_ERASE
 
 /* ----- PUBLIC CONSTANTS ----- */
 
@@ -177,7 +195,7 @@ extern const char AER_DISPLAY_KEYS[];
  *
  * @sa AERInputKey
  */
-const bool *AERInputGetKeysPressed(void);
+const bool* AERInputGetKeysPressed(void);
 
 /**
  * @brief Query the keyboard key(s) that the user has held this step.
@@ -191,7 +209,7 @@ const bool *AERInputGetKeysPressed(void);
  *
  * @sa AERInputKey
  */
-const bool *AERInputGetKeysHeld(void);
+const bool* AERInputGetKeysHeld(void);
 
 /**
  * @brief Query the keyboard key(s) that the user just released this step.
@@ -205,7 +223,7 @@ const bool *AERInputGetKeysHeld(void);
  *
  * @sa AERInputKey
  */
-const bool *AERInputGetKeysReleased(void);
+const bool* AERInputGetKeysReleased(void);
 
 /**
  * @brief Query the mouse button(s) that the user just pressed this step.
@@ -226,7 +244,7 @@ const bool *AERInputGetKeysReleased(void);
  *
  * @since 1.0.0
  */
-const bool *AERInputGetMouseButtonsPressed(void);
+const bool* AERInputGetMouseButtonsPressed(void);
 
 /**
  * @brief Query the mouse button(s) that the user has held this step.
@@ -239,7 +257,7 @@ const bool *AERInputGetMouseButtonsPressed(void);
  *
  * @since 1.0.0
  */
-const bool *AERInputGetMouseButtonsHeld(void);
+const bool* AERInputGetMouseButtonsHeld(void);
 
 /**
  * @brief Query the mouse button(s) that the user just released this step.
@@ -252,16 +270,14 @@ const bool *AERInputGetMouseButtonsHeld(void);
  *
  * @since 1.0.0
  */
-const bool *AERInputGetMouseButtonsReleased(void);
+const bool* AERInputGetMouseButtonsReleased(void);
 
 /**
- * @brief Query the current position of the mouse cursor in pixels.
+ * @brief Query the current position of the mouse cursor in pixels relative to
+ * the game window.
  *
  * If only one component of the position is needed, then the argument for the
  * unneeded component may be `NULL`.
- *
- * @note This function returns coordinates relative to the game window,
- * not the current room.
  *
  * @param[out] x Horizontal position.
  * @param[out] y Vertical position.
@@ -269,8 +285,44 @@ const bool *AERInputGetMouseButtonsReleased(void);
  * @throw ::AER_SEQ_BREAK if called outside action stage.
  * @throw ::AER_NULL_ARG if both arguments `x` and `y` are `NULL`.
  *
- * @since 1.0.0
+ * @since 1.3.0
+ *
+ * @sa AERInputGetMousePositionVirtual
  */
-void AERInputGetMousePosition(uint32_t *x, uint32_t *y);
+void AERInputGetMousePositionRaw(uint32_t* x, uint32_t* y);
+
+#define void __attribute__((deprecated)) void
+/**
+ * @brief This function is a deprecated alias for @ref
+ * AERInputGetMousePositionRaw.
+ *
+ * @deprecated Since 1.3.0. Use @ref AERInputGetMousePositionRaw instead.
+ *
+ * @since 1.0.0
+ *
+ * @sa AERInputGetMousePositionRaw
+ * @sa AERInputGetMousePositionVirtual
+ */
+void AERInputGetMousePosition(uint32_t* x, uint32_t* y);
+#undef void
+
+/**
+ * @brief Query the current position of the mouse cursor in pixels relative to
+ * the current room.
+ *
+ * If only one component of the position is needed, then the argument for the
+ * unneeded component may be `NULL`.
+ *
+ * @param[out] x Horizontal position.
+ * @param[out] y Vertical position.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_NULL_ARG if both arguments `x` and `y` are `NULL`.
+ *
+ * @since 1.3.0
+ *
+ * @sa AERInputGetMousePositionRaw
+ */
+void AERInputGetMousePositionVirtual(float* x, float* y);
 
 #endif /* AER_INPUT_H */

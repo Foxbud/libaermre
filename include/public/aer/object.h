@@ -18,13 +18,13 @@
  * collision events, argument `other` is set to the instance that the target
  * instance collided with to trigger the event.
  *
- * The argument `event` has a member callback `handle` which "handles" the
- * event. That is to say that calling this function with the arguments that the
- * current event listener received has the effect of calling the next event
- * listener attached to this object event by a mod with lower priority. However,
- * if the current listener happens to be the last in the chain, then calling
- * `handle` will execute the vanilla listener for this event. Regardless, it
- * should not matter to the current event listener which of these is the case.
+ * The argument `event` contains the context necessary for "handling" the event.
+ * Its `handle` member represents the next mod event listener attached to the
+ * currently executing object event, and its `next` member represets the event
+ * context that should be passed to `handle`. However, if the current listener
+ * happens to be the last in the chain, then calling `handle` will execute the
+ * vanilla listener for this event. Regardless, it should not matter to the
+ * current event listener which of these is the case.
  *
  * This means that each listener in the chain is given the option of whether or
  * not to actually handle the event. If a listener chooses not to call `handle`,
@@ -44,12 +44,12 @@
  * @code{.c}
  * bool listener(AEREvent *event, AERInstance *target, AERInstance *other) {
  *   // Code without side effects that (un)conditionally cancels the event.
- *   if (this_condition || that_condition)
+ *   if (thisCondition || thatCondition)
  *     // `event->handle` not called, so return `false`.
  *     return false;
  *
  *   // Call next listener in chain.
- *   if (!event->handle(event, target, other))
+ *   if (!event->handle(event->next, target, other))
  *     // Event not handled, so cease futher processing and return `false`.
  *     return false;
  *
@@ -61,9 +61,11 @@
  * }
  * @endcode
  *
- * *Special thanks to Josiah Bills for helping design this section of the API.*
+ * *Special thanks to Josiah Bills for help designing this section of the API.*
  *
  * @since 1.0.0
+ *
+ * @sa @ref ObjIndex
  *
  * @copyright 2021 the libaermre authors
  *
@@ -676,15 +678,20 @@ typedef enum AERObjectIndex {
  * @throw ::AER_NULL_ARG if argument `name` is `NULL`.
  * @throw ::AER_FAILED_LOOKUP if argument `parentIdx` is an invalid object
  * or either argument `spriteIdx` or `maskIdx` is an invalid sprite.
- * @throw ::AER_BAD_VAL if argument 'name' already in use by another object.
+ * @throw ::AER_BAD_VAL if argument `name` already in use by another object.
  *
  * @since 1.0.0
  *
  * @sa AERModDef::registerObjects
  */
-int32_t AERObjectRegister(const char *name, int32_t parentIdx,
-                          int32_t spriteIdx, int32_t maskIdx, int32_t depth,
-                          bool visible, bool collisions, bool persistent);
+int32_t AERObjectRegister(const char* name,
+                          int32_t parentIdx,
+                          int32_t spriteIdx,
+                          int32_t maskIdx,
+                          int32_t depth,
+                          bool visible,
+                          bool collisions,
+                          bool persistent);
 
 /**
  * @brief Query the total number of vanilla and mod objects registered.
@@ -710,7 +717,7 @@ size_t AERObjectGetNumRegistered(void);
  *
  * @since 1.1.0
  */
-int32_t AERObjectGetByName(const char *name);
+int32_t AERObjectGetByName(const char* name);
 
 /**
  * @brief Query the name of an object.
@@ -724,7 +731,7 @@ int32_t AERObjectGetByName(const char *name);
  *
  * @since 1.0.0
  */
-const char *AERObjectGetName(int32_t objIdx);
+const char* AERObjectGetName(int32_t objIdx);
 
 /**
  * @brief Query the parent of an object.
@@ -766,8 +773,56 @@ int32_t AERObjectGetParent(int32_t objIdx);
  *
  * @since 1.0.0
  */
-size_t AERObjectGetChildren(int32_t objIdx, bool recursive, size_t bufSize,
-                            int32_t *objBuf);
+size_t AERObjectGetChildren(int32_t objIdx,
+                            bool recursive,
+                            size_t bufSize,
+                            int32_t* objBuf);
+
+/**
+ * @brief Query the relational distance between two objects.
+ *
+ * In this context, "relational distance" means how many parent-child
+ * generations are between target object and other object. A distance of `0`
+ * means that target and other are the same object. A positive distance means
+ * that target is a decendant of other. A negative distance means that other is
+ * a decendant of target.
+ *
+ * @param[in] targetIdx Object of interest.
+ * @param[in] otherIdx Object to compare against.
+ *
+ * @return Distance between target object and other object or `0` if
+ * unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if either argument `targetIdx` or `otherIdx` is an
+ * invalid object.
+ * @throw ::AER_BAD_VAL if arguments `targetIdx` and `otherIdx` are not related.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERObjectCompatibleWith
+ */
+int32_t AERObjectRelationTo(int32_t targetIdx, int32_t otherIdx);
+
+/**
+ * @brief Query whether an object is or inherits from another object.
+ *
+ * @param[in] targetIdx Object of interest.
+ * @param[in] otherIdx Object to compare against.
+ *
+ * @return Whether target object is compatible with other object or `false` if
+ * unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if either argument `targetIdx` or `otherIdx` is an
+ * invalid object.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERObjectRelationTo
+ * @sa AERInstanceCompatibleWith
+ */
+bool AERObjectCompatibleWith(int32_t targetIdx, int32_t otherIdx);
 
 /**
  * @brief Query whether or not an object has collision checking enabled.
@@ -798,6 +853,60 @@ bool AERObjectGetCollisions(int32_t objIdx);
 void AERObjectSetCollisions(int32_t objIdx, bool collisions);
 
 /**
+ * @brief Query the default persistence of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ *
+ * @return Default persistence or `false` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.3.0
+ */
+bool AERObjectGetPersistent(int32_t objIdx);
+
+/**
+ * @brief Set the default persistence of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] persistent Default persistence.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.3.0
+ */
+void AERObjectSetPersistent(int32_t objIdx, bool persistent);
+
+/**
+ * @brief Query the default visibility of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ *
+ * @return Default visibility or `false` if unsuccessful.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.3.0
+ */
+bool AERObjectGetVisible(int32_t objIdx);
+
+/**
+ * @brief Set the default visibility of an object.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] visible Default visibility.
+ *
+ * @throw ::AER_SEQ_BREAK if called before start of object registration stage.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since 1.3.0
+ */
+void AERObjectSetVisible(int32_t objIdx, bool visible);
+
+/**
  * @brief Attach a creation event listener to an object.
  *
  * This event listener is called whenever an instance of the object
@@ -820,9 +929,9 @@ void AERObjectSetCollisions(int32_t objIdx, bool collisions);
  * @sa AERInstanceCreate
  */
 void AERObjectAttachCreateListener(int32_t objIdx,
-                                   bool (*listener)(AEREvent *event,
-                                                    AERInstance *target,
-                                                    AERInstance *other));
+                                   bool (*listener)(AEREvent* event,
+                                                    AERInstance* target,
+                                                    AERInstance* other));
 
 /**
  * @brief Attach a destruction event listener to an object.
@@ -848,9 +957,9 @@ void AERObjectAttachCreateListener(int32_t objIdx,
  * @sa AERInstanceDelete
  */
 void AERObjectAttachDestroyListener(int32_t objIdx,
-                                    bool (*listener)(AEREvent *event,
-                                                     AERInstance *target,
-                                                     AERInstance *other));
+                                    bool (*listener)(AEREvent* event,
+                                                     AERInstance* target,
+                                                     AERInstance* other));
 
 /**
  * @brief Attach an alarm event listener to an object.
@@ -875,10 +984,11 @@ void AERObjectAttachDestroyListener(int32_t objIdx,
  * @sa AERInstanceGetAlarm
  * @sa AERInstanceSetAlarm
  */
-void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
-                                  bool (*listener)(AEREvent *event,
-                                                   AERInstance *target,
-                                                   AERInstance *other));
+void AERObjectAttachAlarmListener(int32_t objIdx,
+                                  uint32_t alarmIdx,
+                                  bool (*listener)(AEREvent* event,
+                                                   AERInstance* target,
+                                                   AERInstance* other));
 
 /**
  * @brief Attach a step event listener to an object.
@@ -899,9 +1009,9 @@ void AERObjectAttachAlarmListener(int32_t objIdx, uint32_t alarmIdx,
  * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachStepListener(int32_t objIdx,
-                                 bool (*listener)(AEREvent *event,
-                                                  AERInstance *target,
-                                                  AERInstance *other));
+                                 bool (*listener)(AEREvent* event,
+                                                  AERInstance* target,
+                                                  AERInstance* other));
 
 /**
  * @brief Attach a pre-step event listener to an object.
@@ -924,9 +1034,9 @@ void AERObjectAttachStepListener(int32_t objIdx,
  * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachPreStepListener(int32_t objIdx,
-                                    bool (*listener)(AEREvent *event,
-                                                     AERInstance *target,
-                                                     AERInstance *other));
+                                    bool (*listener)(AEREvent* event,
+                                                     AERInstance* target,
+                                                     AERInstance* other));
 
 /**
  * @brief Attach a post-step event listener to an object.
@@ -947,9 +1057,9 @@ void AERObjectAttachPreStepListener(int32_t objIdx,
  * @sa AERModDef::registerObjectListeners
  */
 void AERObjectAttachPostStepListener(int32_t objIdx,
-                                     bool (*listener)(AEREvent *event,
-                                                      AERInstance *target,
-                                                      AERInstance *other));
+                                     bool (*listener)(AEREvent* event,
+                                                      AERInstance* target,
+                                                      AERInstance* other));
 
 /**
  * @brief Attach a collision event listener to an object.
@@ -976,10 +1086,72 @@ void AERObjectAttachPostStepListener(int32_t objIdx,
  * @sa AERObjectGetCollisions
  * @sa AERObjectSetCollisions
  */
-void AERObjectAttachCollisionListener(int32_t targetObjIdx, int32_t otherObjIdx,
-                                      bool (*listener)(AEREvent *event,
-                                                       AERInstance *target,
-                                                       AERInstance *other));
+void AERObjectAttachCollisionListener(int32_t targetObjIdx,
+                                      int32_t otherObjIdx,
+                                      bool (*listener)(AEREvent* event,
+                                                       AERInstance* target,
+                                                       AERInstance* other));
+
+/**
+ * @brief Attach a room-start event listener to an object.
+ *
+ * This event listener is called whenever an instance of the object has been
+ * pre-populated in a room and that room is (re)started.
+ *
+ * @note This event listener is also called when the current room is reset.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs. For
+ * more information see @ref ObjListeners.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERModDef::registerObjectListeners
+ * @sa AERModDef::roomStartListener
+ * @sa AERObjectAttachRoomEndListener
+ * @sa AERRoomGoto
+ * @sa AERRoomEnter
+ * @sa AERRoomEnterWithPosition
+ */
+void AERObjectAttachRoomStartListener(int32_t objIdx,
+                                      bool (*listener)(AEREvent* event,
+                                                       AERInstance* target,
+                                                       AERInstance* other));
+
+/**
+ * @brief Attach a room-end event listener to an object.
+ *
+ * This event listener is called whenever a room is ending and an instance of
+ * the object exists in that room.
+ *
+ * @note This event listener is also called  when the current room is reset and
+ * when the game ends.
+ *
+ * @param[in] objIdx Object of interest.
+ * @param[in] listener Callback function executed when target event occurs. For
+ * more information see @ref ObjListeners.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside listener registration stage.
+ * @throw ::AER_NULL_ARG if argument `listener` is `NULL`.
+ * @throw ::AER_FAILED_LOOKUP if argument `objIdx` is an invalid object.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERModDef::registerObjectListeners
+ * @sa AERModDef::roomEndListener
+ * @sa AERObjectAttachRoomStartListener
+ * @sa AERRoomGoto
+ * @sa AERRoomEnter
+ * @sa AERRoomEnterWithPosition
+ */
+void AERObjectAttachRoomEndListener(int32_t objIdx,
+                                    bool (*listener)(AEREvent* event,
+                                                     AERInstance* target,
+                                                     AERInstance* other));
 
 /**
  * @brief Attach an animation-end event listener to an object.
@@ -1004,20 +1176,32 @@ void AERObjectAttachCollisionListener(int32_t targetObjIdx, int32_t otherObjIdx,
  * @sa AERInstanceSetSpriteSpeed
  */
 void AERObjectAttachAnimationEndListener(int32_t objIdx,
-                                         bool (*listener)(AEREvent *event,
-                                                          AERInstance *target,
-                                                          AERInstance *other));
+                                         bool (*listener)(AEREvent* event,
+                                                          AERInstance* target,
+                                                          AERInstance* other));
 
 /**
  * @brief Attach a draw event listener to an object.
  *
- * Draw events behave a bit differently from all the other types of events. The
- * biggest difference is that draw events are **not** inherited.
+ * The draw event has unique default behavior. If an object does not have a
+ * vanilla draw listener and none of its parents do either, then the object will
+ * draw itself to the screen without executing any mod event listeners attached
+ * to parent object draw events.
  *
- * The draw event is one of the more performance taxing events in the engine, so
- * it would be a good idea to treat it as a "read-only" event. That is to say
- * that draw listeners should not change any game state, only read state and
- * draw to the screen.
+ * If, on the other hand, an object does not have a vanilla draw listener, but
+ * at least one of its parents does, then the object will not draw itself to the
+ * screen and instead recursively execute parent draw events until the "nearest"
+ * parent vanilla draw listener has been executed.
+ *
+ * Finally, in the case that an object does have a vanilla draw listener, then
+ * that will be executed without executing any parent draw listeners.
+ *
+ * This is one of the more performance taxing events in the engine, so it would
+ * be a good idea to treat it as a "read-only" event. That is to say that draw
+ * listeners should not change any game state, only read state and draw to the
+ * screen.
+ *
+ * @note This event is only triggered for visible instances.
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
@@ -1033,15 +1217,18 @@ void AERObjectAttachAnimationEndListener(int32_t objIdx,
  * @sa draw.h
  */
 void AERObjectAttachDrawListener(int32_t objIdx,
-                                 bool (*listener)(AEREvent *event,
-                                                  AERInstance *target,
-                                                  AERInstance *other));
+                                 bool (*listener)(AEREvent* event,
+                                                  AERInstance* target,
+                                                  AERInstance* other));
 
 /**
  * @brief Attach a GUI-draw event listener to an object.
  *
  * The GUI-draw event is similar to the normal draw event, but it draws
- * directly to the screen-space after all of the normal draw events.
+ * directly to screen-space after all of the normal draw events, and it is
+ * never inherited.
+ *
+ * @note This event is only triggered for visible instances.
  *
  * @param[in] objIdx Object of interest.
  * @param[in] listener Callback function executed when target event occurs.
@@ -1057,8 +1244,8 @@ void AERObjectAttachDrawListener(int32_t objIdx,
  * @sa draw.h
  */
 void AERObjectAttachGUIDrawListener(int32_t objIdx,
-                                    bool (*listener)(AEREvent *event,
-                                                     AERInstance *target,
-                                                     AERInstance *other));
+                                    bool (*listener)(AEREvent* event,
+                                                     AERInstance* target,
+                                                     AERInstance* other));
 
 #endif /* AER_OBJECT_H */

@@ -30,16 +30,16 @@ static FoxMap roomNames = {0};
 
 /* ----- INTERNAL GLOBALS ----- */
 
-int32_t roomIndexPrevious = AER_ROOM__INIT;
+int32_t roomIndexAux = AER_ROOM_AUTOSAVEMESSAGE;
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
 void RoomManBuildNameTable(void) {
     size_t numRooms = hldvars.roomTable->size;
     for (uint32_t roomIdx = 0; roomIdx < numRooms; roomIdx++) {
-        HLDRoom *room = HLDRoomLookup(roomIdx);
+        HLDRoom* room = HLDRoomLookup(roomIdx);
         assert(room);
-        *FoxMapMInsert(const char *, int32_t, &roomNames, room->name) = roomIdx;
+        *FoxMapMInsert(const char*, int32_t, &roomNames, room->name) = roomIdx;
     }
 
     return;
@@ -58,7 +58,7 @@ void RoomManDestructor(void) {
     LogInfo("Deinitializing room module...");
 
     /* Deinitialize name table. */
-    FoxMapMDeinit(const char *, int32_t, &roomNames);
+    FoxMapMDeinit(const char*, int32_t, &roomNames);
     roomNames = (FoxMap){0};
 
     LogInfo("Done deinitializing room module.");
@@ -78,6 +78,7 @@ AER_EXPORT int32_t AERRoomGetCurrent(void) {
 AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
 #define errRet
     EnsureStage(STAGE_ACTION);
+    Ensure(roomIndexAux == AER_ROOM_NULL, AER_SEQ_BREAK);
     EnsureLookup(HLDRoomLookup(roomIdx));
 
     hldfuncs.actionRoomGoto(roomIdx, 0);
@@ -86,23 +87,66 @@ AER_EXPORT void AERRoomGoto(int32_t roomIdx) {
 #undef errRet
 }
 
-AER_EXPORT int32_t AERRoomGetByName(const char *name) {
+AER_EXPORT void AERRoomEnter(int32_t roomIdx, bool fade) {
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    Ensure(roomIndexAux == AER_ROOM_NULL, AER_SEQ_BREAK);
+    EnsureLookup(HLDRoomLookup(roomIdx));
+
+    HLDPrimitiveMakeReal(roomIdxArg, (double)roomIdx);
+    HLDPrimitiveMakeReal(fadeArg, fade ? 1.0 : 2.0);
+    HLDPrimitiveMakeUndefined(undefArg);
+
+    HLDScriptCall(hldfuncs.Script_GoToRoom, &roomIdxArg, &fadeArg, &undefArg,
+                  &undefArg);
+
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT void AERRoomEnterWithPosition(int32_t roomIdx,
+                                         bool fade,
+                                         float x,
+                                         float y) {
+#define errRet
+    EnsureStage(STAGE_ACTION);
+    Ensure(roomIndexAux == AER_ROOM_NULL, AER_SEQ_BREAK);
+    EnsureLookup(HLDRoomLookup(roomIdx));
+
+    HLDPrimitiveMakeReal(roomIdxArg, (double)roomIdx);
+    HLDPrimitiveMakeReal(fadeArg, fade ? 1.0 : 2.0);
+    HLDPrimitiveMakeArrayS(posArg, 2);
+    HLDPrimitiveMakeStringS(typeArg, "xy", 2);
+
+    posArgInnerElements[0] =
+        (HLDPrimitive){.value.r = (double)x, .type = HLD_PRIMITIVE_REAL};
+    posArgInnerElements[1] =
+        (HLDPrimitive){.value.r = (double)y, .type = HLD_PRIMITIVE_REAL};
+
+    HLDScriptCall(hldfuncs.Script_GoToRoom, &roomIdxArg, &fadeArg, &posArg,
+                  &typeArg);
+
+    Ok();
+#undef errRet
+}
+
+AER_EXPORT int32_t AERRoomGetByName(const char* name) {
 #define errRet AER_ROOM_NULL
     EnsureStage(STAGE_ACTION);
     EnsureArg(name);
 
-    int32_t *roomIdx = FoxMapMIndex(const char *, int32_t, &roomNames, name);
+    int32_t* roomIdx = FoxMapMIndex(const char*, int32_t, &roomNames, name);
     EnsureLookup(roomIdx);
 
     Ok(*roomIdx);
 #undef errRet
 }
 
-AER_EXPORT const char *AERRoomGetName(int32_t roomIdx) {
+AER_EXPORT const char* AERRoomGetName(int32_t roomIdx) {
 #define errRet NULL
     EnsureStage(STAGE_ACTION);
 
-    HLDRoom *room = HLDRoomLookup(roomIdx);
+    HLDRoom* room = HLDRoomLookup(roomIdx);
     EnsureLookup(room);
 
     Ok(room->name);

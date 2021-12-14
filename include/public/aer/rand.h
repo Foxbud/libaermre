@@ -23,6 +23,7 @@
 #define AER_RAND_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /* ----- PUBLIC TYPES ----- */
@@ -211,10 +212,27 @@ double AERRandDoubleRange(double min, double max);
 bool AERRandBool(void);
 
 /**
+ * @brief Shuffle an array of arbitrary elements using the automatically-seeded
+ * global generator.
+ *
+ * @param[in] elemSize Size of each buffer element in bytes.
+ * @param[in] bufSize Size of buffer in elements.
+ * @param[in,out] elemBuf Buffer of elements to shuffle.
+ *
+ * @throw ::AER_BAD_VAL if argument `elemSize` is `0`.
+ * @throw ::AER_NULL_ARG if argument `elemBuf` is `NULL`.
+ *
+ * @since 1.4.0
+ *
+ * @sa AERRandGenShuffle
+ */
+void AERRandShuffle(size_t elemSize, size_t bufSize, void* elemBuf);
+
+/**
  * @brief Allocate and initialize a new self-managed pseudorandom number
  * generator.
  *
- * When no longer needed, free this generator using AERRandGenFree.
+ * When no longer needed, free this generator using @ref AERRandGenFree.
  *
  * @param[in] seed Initial generator seed.
  *
@@ -224,11 +242,11 @@ bool AERRandBool(void);
  *
  * @sa AERRandGenFree
  */
-AERRandGen *AERRandGenNew(uint64_t seed);
+AERRandGen* AERRandGenNew(uint64_t seed);
 
 /**
  * @brief Free a self-managed pseudorandom number generator allocated using
- * AERRandGenNew.
+ * @ref AERRandGenNew.
  *
  * @param[in] gen Generator of interest.
  *
@@ -238,7 +256,7 @@ AERRandGen *AERRandGenNew(uint64_t seed);
  *
  * @sa AERRandGenNew
  */
-void AERRandGenFree(AERRandGen *gen);
+void AERRandGenFree(AERRandGen* gen);
 
 /**
  * @brief Re-seed a self-managed pseudorandom number generator.
@@ -250,7 +268,7 @@ void AERRandGenFree(AERRandGen *gen);
  *
  * @since 1.0.0
  */
-void AERRandGenSeed(AERRandGen *gen, uint64_t seed);
+void AERRandGenSeed(AERRandGen* gen, uint64_t seed);
 
 /**
  * @brief Get a pseudorandom unsigned integer on the interval [0, 2^64) using
@@ -266,7 +284,7 @@ void AERRandGenSeed(AERRandGen *gen, uint64_t seed);
  *
  * @sa AERRandUInt
  */
-uint64_t AERRandGenUInt(AERRandGen *gen);
+uint64_t AERRandGenUInt(AERRandGen* gen);
 
 /**
  * @brief Get a pseudorandom unsigned integer on the interval [min, max) using
@@ -290,7 +308,7 @@ uint64_t AERRandGenUInt(AERRandGen *gen);
  *
  * @sa AERRandUIntRange
  */
-uint64_t AERRandGenUIntRange(AERRandGen *gen, uint64_t min, uint64_t max);
+uint64_t AERRandGenUIntRange(AERRandGen* gen, uint64_t min, uint64_t max);
 
 /**
  * @brief Get a pseudorandom signed integer on the interval [-2^63, 2^63) using
@@ -306,7 +324,7 @@ uint64_t AERRandGenUIntRange(AERRandGen *gen, uint64_t min, uint64_t max);
  *
  * @sa AERRandInt
  */
-int64_t AERRandGenInt(AERRandGen *gen);
+int64_t AERRandGenInt(AERRandGen* gen);
 
 /**
  * @brief Get a pseudorandom signed integer on the interval [min, max) using a
@@ -330,7 +348,7 @@ int64_t AERRandGenInt(AERRandGen *gen);
  *
  * @sa AERRandIntRange
  */
-int64_t AERRandGenIntRange(AERRandGen *gen, int64_t min, int64_t max);
+int64_t AERRandGenIntRange(AERRandGen* gen, int64_t min, int64_t max);
 
 /**
  * @brief Get a pseudorandom floating-point value on the interval [0.0f, 1.0f)
@@ -354,7 +372,7 @@ int64_t AERRandGenIntRange(AERRandGen *gen, int64_t min, int64_t max);
  *
  * @sa AERRandFloat
  */
-float AERRandGenFloat(AERRandGen *gen);
+float AERRandGenFloat(AERRandGen* gen);
 
 /**
  * @brief Get a pseudorandom floating-point value on the interval [min, max)
@@ -382,7 +400,7 @@ float AERRandGenFloat(AERRandGen *gen);
  *
  * @sa AERRandFloatRange
  */
-float AERRandGenFloatRange(AERRandGen *gen, float min, float max);
+float AERRandGenFloatRange(AERRandGen* gen, float min, float max);
 
 /**
  * @brief Get a pseudorandom double floating-point value on the interval
@@ -406,7 +424,7 @@ float AERRandGenFloatRange(AERRandGen *gen, float min, float max);
  *
  * @sa AERRandDouble
  */
-double AERRandGenDouble(AERRandGen *gen);
+double AERRandGenDouble(AERRandGen* gen);
 
 /**
  * @brief Get a pseudorandom double floating-point value on the interval
@@ -434,7 +452,7 @@ double AERRandGenDouble(AERRandGen *gen);
  *
  * @sa AERRandDoubleRange
  */
-double AERRandGenDoubleRange(AERRandGen *gen, double min, double max);
+double AERRandGenDoubleRange(AERRandGen* gen, double min, double max);
 
 /**
  * @brief Get a pseudorandom boolean using a self-managed generator.
@@ -449,6 +467,26 @@ double AERRandGenDoubleRange(AERRandGen *gen, double min, double max);
  *
  * @sa AERRandBool
  */
-bool AERRandGenBool(AERRandGen *gen);
+bool AERRandGenBool(AERRandGen* gen);
+
+/**
+ * @brief Shuffle an array of arbitrary elements using a self-managed generator.
+ *
+ * @param[in] gen Generator of interest.
+ * @param[in] elemSize Size of each buffer element in bytes.
+ * @param[in] bufSize Size of buffer in elements.
+ * @param[in,out] elemBuf Buffer of elements to shuffle.
+ *
+ * @throw ::AER_BAD_VAL if argument `elemSize` is `0`.
+ * @throw ::AER_NULL_ARG if either argument `gen` or `elemBuf` is `NULL`.
+ *
+ * @since 1.4.0
+ *
+ * @sa AERRandShuffle
+ */
+void AERRandGenShuffle(AERRandGen* gen,
+                       size_t elemSize,
+                       size_t bufSize,
+                       void* elemBuf);
 
 #endif /* AER_RAND_H */

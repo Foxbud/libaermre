@@ -35,15 +35,21 @@
 
 typedef struct EventTrap {
     FoxArray modListeners;
-    void (*origListener)(HLDInstance *target, HLDInstance *other);
+    void (*origListener)(HLDInstance* target, HLDInstance* other);
     HLDEventType eventType;
 } EventTrap;
 
 typedef struct EventTrapIter {
     AEREvent base;
-    EventTrap *trap;
+    EventTrap* trap;
     uint32_t nextIdx;
 } EventTrapIter;
+
+typedef struct RecursiveRegisterSubscribersContext {
+    size_t* subCount;
+    HLDEventSubscribers subArr;
+    EventKey key;
+} RecursiveRegisterSubscribersContext;
 
 /* ----- PRIVATE GLOBALS ----- */
 
@@ -53,43 +59,45 @@ static FoxMap eventTraps = {0};
 
 static FoxMap eventSubscribers = {0};
 
+static int32_t* drawEventTargets = NULL;
+
 /* ----- INTERNAL GLOBALS ----- */
 
 EventKey currentEvent = {0};
 
 /* ----- PRIVATE FUNCTIONS ----- */
 
-static void EventTrapInit(EventTrap *trap, HLDEventType eventType,
-                          void (*origListener)(HLDInstance *, HLDInstance *)) {
+static void EventTrapInit(EventTrap* trap,
+                          HLDEventType eventType,
+                          void (*origListener)(HLDInstance*, HLDInstance*)) {
     assert(trap);
-    assert(origListener);
 
     trap->eventType = eventType;
     trap->origListener = origListener;
-    FoxArrayMInitExt(ModListener, &trap->modListeners, 2);
+    FoxArrayMInitExt(void*, &trap->modListeners, 2);
 
     return;
 }
 
-static void EventTrapDeinit(EventTrap *trap) {
+static void EventTrapDeinit(EventTrap* trap) {
     assert(trap);
 
     trap->eventType = 0;
     trap->origListener = NULL;
-    FoxArrayMDeinit(ModListener, &trap->modListeners);
+    FoxArrayMDeinit(void*, &trap->modListeners);
 
     return;
 }
 
-static void EventTrapAddListener(EventTrap *trap, ModListener listener) {
+static void EventTrapAddListener(EventTrap* trap, void* listener) {
     assert(trap);
 
-    *FoxArrayMPush(ModListener, &trap->modListeners) = listener;
+    *FoxArrayMPush(void*, &trap->modListeners) = listener;
 
     return;
 }
 
-static bool EventTrapDeinitCallback(EventTrap *trap, void *ctx) {
+static bool EventTrapDeinitCallback(EventTrap* trap, void* ctx) {
     (void)ctx;
 
     EventTrapDeinit(trap);
@@ -97,57 +105,57 @@ static bool EventTrapDeinitCallback(EventTrap *trap, void *ctx) {
     return true;
 }
 
-static bool EventTrapIterNext(EventTrapIter *iter, HLDInstance *target,
-                              HLDInstance *other) {
+static bool EventTrapIterNext(EventTrapIter* iter,
+                              HLDInstance* target,
+                              HLDInstance* other) {
     assert(iter);
     assert(target);
     assert(other);
     bool result = true;
 
-    EventTrap *trap = iter->trap;
-    FoxArray *modListeners = &trap->modListeners;
+    EventTrap* trap = iter->trap;
+    FoxArray* modListeners = &trap->modListeners;
     if (iter->nextIdx < FoxArrayMSize(ModListener, modListeners)) {
-        ModListener *listener =
-            FoxArrayMIndex(ModListener, modListeners, iter->nextIdx++);
-        ModManPushContext(listener->modIdx);
-        result = ((bool (*)(EventTrapIter *, HLDInstance *,
-                            HLDInstance *))listener->func)(iter, target, other);
-        ModManPopContext();
-    } else {
+        bool (*listener)(EventTrapIter*, HLDInstance*, HLDInstance*) =
+            *FoxArrayMIndex(void*, modListeners, iter->nextIdx++);
+        result = listener(iter, target, other);
+    } else if (trap->origListener) {
         trap->origListener(target, other);
     }
 
     return result;
 }
 
-static void EventTrapIterInit(EventTrapIter *iter, EventTrap *trap) {
+static void EventTrapIterInit(EventTrapIter* iter, EventTrap* trap) {
     assert(iter);
     assert(trap);
 
     iter->base.handle =
-        ((bool (*)(AEREvent *, AERInstance *, AERInstance *))EventTrapIterNext);
+        ((bool (*)(AEREvent*, AERInstance*, AERInstance*))EventTrapIterNext);
+    iter->base.next = (AEREvent*)iter;
     iter->trap = trap;
     iter->nextIdx = 0;
 
     return;
 }
 
-static void EventTrapIterDeinit(EventTrapIter *iter) {
+static void EventTrapIterDeinit(EventTrapIter* iter) {
     assert(iter);
 
     iter->base.handle = NULL;
+    iter->base.next = NULL;
     iter->trap = NULL;
     iter->nextIdx = 0;
 
     return;
 }
 
-static int32_t Int32KeyCompare(const int32_t *keyA, const int32_t *keyB) {
+static int32_t Int32KeyCompare(const int32_t* keyA, const int32_t* keyB) {
     return *keyA - *keyB;
 }
 
-static void CommonEventListener(HLDInstance *target, HLDInstance *other) {
-    EventTrap *trap =
+static void CommonEventListener(HLDInstance* target, HLDInstance* other) {
+    EventTrap* trap =
         FoxMapMIndex(EventKey, EventTrap, &eventTraps, currentEvent);
     assert(trap);
 
@@ -161,14 +169,14 @@ static void CommonEventListener(HLDInstance *target, HLDInstance *other) {
     /* Execute listeners and check if event was canceled. */
     if (!EventTrapIterNext(&iter, target, other)) {
         switch (currentEvent.type) {
-        case HLD_EVENT_CREATE:
-            hldfuncs.actionInstanceDestroy(target, other, -1, false);
-            break;
+            case HLD_EVENT_CREATE:
+                hldfuncs.actionInstanceDestroy(target, other, -1, false);
+                break;
 
-            /* TODO Figure out how to cancel destruction event. */
+                /* TODO Figure out how to cancel destruction event. */
 
-        default:
-            break;
+            default:
+                break;
         }
     }
 
@@ -178,82 +186,82 @@ static void CommonEventListener(HLDInstance *target, HLDInstance *other) {
     return;
 }
 
-static void PerformDefaultEvent(HLDInstance *target, HLDInstance *other) {
-    switch (currentEvent.type) {
-    case HLD_EVENT_DRAW: {
-        /* Draw self and do NOT perform parent event. */
-        if (currentEvent.num == HLD_EVENT_DRAW_NORMAL &&
-            HLDSpriteLookup(target->spriteIndex))
-            hldfuncs.actionDrawSelf(target);
-        break;
-    }
-
-    default: {
-        /* Perform parent event. */
-        HLDObject *obj = HLDObjectLookup(currentEvent.objIdx);
-        int32_t parentObjIdx = obj->parentIndex;
-        if (parentObjIdx >= 0 &&
-            (uint32_t)parentObjIdx < (*hldvars.objectTableHandle)->numItems)
-            hldfuncs.actionEventPerform(target, other, parentObjIdx,
-                                        currentEvent.type, currentEvent.num);
-    }
-    }
+static void DefaultEventPerformParent(HLDInstance* target, HLDInstance* other) {
+    HLDObject* obj = HLDObjectLookup(currentEvent.objIdx);
+    int32_t parentObjIdx = obj->parentIndex;
+    if (parentObjIdx >= 0 &&
+        (uint32_t)parentObjIdx < (*hldvars.objectTableHandle)->numItems)
+        hldfuncs.actionEventPerform(target, other, parentObjIdx,
+                                    currentEvent.type, currentEvent.num);
 
     return;
+}
+
+static void DefaultEventDrawSelf(HLDInstance* target, HLDInstance* other) {
+    (void)other;
+
+    if (HLDSpriteLookup(target->spriteIndex))
+        hldfuncs.actionDrawSelf(target);
+
+    return;
+}
+
+static bool RecursiveRegisterSubscribersCallback(
+    const int32_t* objIdx,
+    RecursiveRegisterSubscribersContext* ctx) {
+    ctx->key.objIdx = *objIdx;
+    if (FoxMapMIndex(EventKey, uint8_t, &eventSubscribers, ctx->key))
+        return true;
+
+    uint32_t arrIdx = (*ctx->subCount)++;
+    ctx->subArr.objects[arrIdx] = *objIdx;
+    FoxMapMInsert(EventKey, uint8_t, &eventSubscribers, ctx->key);
+
+    FoxMap* children = ObjectManGetDirectChildren(*objIdx);
+    if (children) {
+        FoxMapMForEachKey(int32_t, int32_t, children,
+                          RecursiveRegisterSubscribersCallback, ctx);
+    }
+
+    return true;
 }
 
 static void RegisterEventSubscriber(EventKey key) {
-    size_t *subCount;
-    HLDEventSubscribers subArr;
+    RecursiveRegisterSubscribersContext ctx = {.key = key};
     switch (key.type) {
-    case HLD_EVENT_ALARM:
-        subCount = (*hldvars.alarmEventSubscriberCounts) + key.num;
-        subArr = (*hldvars.alarmEventSubscribers)[key.num];
-        break;
+        case HLD_EVENT_ALARM:
+            ctx.subCount = (*hldvars.alarmEventSubscriberCounts) + key.num;
+            ctx.subArr = (*hldvars.alarmEventSubscribers)[key.num];
+            break;
 
-    case HLD_EVENT_STEP:
-        subCount = (*hldvars.stepEventSubscriberCounts) + key.num;
-        subArr = (*hldvars.stepEventSubscribers)[key.num];
-        break;
+        case HLD_EVENT_STEP:
+            ctx.subCount = (*hldvars.stepEventSubscriberCounts) + key.num;
+            ctx.subArr = (*hldvars.stepEventSubscribers)[key.num];
+            break;
 
-    default:
-        LogErr("\"%s\" called with unsupported event type %u.", __func__,
-               key.type);
-        abort();
+        default:
+            LogErr("\"%s\" called with unsupported event type %u.", __func__,
+                   key.type);
+            abort();
     }
 
-    if (!FoxMapMIndex(EventKey, uint8_t, &eventSubscribers, key)) {
-        uint32_t arrIdx = (*subCount)++;
-        subArr.objects[arrIdx] = key.objIdx;
-        FoxMapMInsert(EventKey, uint8_t, &eventSubscribers, key);
-
-        FoxArray *allChildren = ObjectManGetAllChildren(key.objIdx);
-        if (allChildren) {
-            size_t numChildren = FoxArrayMSize(int32_t, allChildren);
-            for (uint32_t childIdx = 0; childIdx < numChildren; childIdx++) {
-                key.objIdx = childIdx;
-                if (!FoxMapMIndex(EventKey, uint8_t, &eventSubscribers, key)) {
-                    arrIdx = (*subCount)++;
-                    subArr.objects[arrIdx] = key.objIdx;
-                    FoxMapMInsert(EventKey, uint8_t, &eventSubscribers, key);
-                }
-            }
-        }
-    }
+    int32_t objIdx = key.objIdx;
+    RecursiveRegisterSubscribersCallback(&objIdx, &ctx);
 
     return;
 }
 
-static void MaskEventSubscriptionArray(HLDEventType eventType, size_t numEvents,
-                                       size_t *subCountsArr,
-                                       HLDEventSubscribers *subArrs) {
+static void MaskEventSubscriptionArray(HLDEventType eventType,
+                                       size_t numEvents,
+                                       size_t* subCountsArr,
+                                       HLDEventSubscribers* subArrs) {
     size_t numObjs = (*hldvars.objectTableHandle)->numItems;
 
     for (uint32_t eventNum = 0; eventNum < numEvents; eventNum++) {
         size_t oldSubCount = subCountsArr[eventNum];
-        int32_t *oldSubArr = subArrs[eventNum].objects;
+        int32_t* oldSubArr = subArrs[eventNum].objects;
 
-        int32_t *newSubArr = malloc(numObjs * sizeof(int32_t));
+        int32_t* newSubArr = malloc(numObjs * sizeof(int32_t));
         assert(newSubArr);
         subArrs[eventNum].objects = newSubArr;
         subCountsArr[eventNum] = 0;
@@ -269,12 +277,13 @@ static void MaskEventSubscriptionArray(HLDEventType eventType, size_t numEvents,
     return;
 }
 
-static void SortEventSubscriptionArray(size_t numEvents, size_t *subCountsArr,
-                                       HLDEventSubscribers *subArrs) {
+static void SortEventSubscriptionArray(size_t numEvents,
+                                       size_t* subCountsArr,
+                                       HLDEventSubscribers* subArrs) {
     for (uint32_t eventNum = 0; eventNum < numEvents; eventNum++) {
         qsort(subArrs[eventNum].objects, subCountsArr[eventNum],
               sizeof(int32_t),
-              (int (*)(const void *, const void *))Int32KeyCompare);
+              (int (*)(const void*, const void*))Int32KeyCompare);
     }
 
     return;
@@ -286,11 +295,11 @@ static HLDArrayPreSize ReallocEventArr(HLDArrayPreSize oldArr, size_t newSize) {
     if (oldArr.size < newSize) {
         newArr = (HLDArrayPreSize){
             .size = newSize,
-            .elements = calloc(newSize, sizeof(HLDEventWrapper *))};
+            .elements = calloc(newSize, sizeof(HLDEventWrapper*))};
         assert(newArr.elements);
         if (oldArr.size > 0) {
             memcpy(newArr.elements, oldArr.elements,
-                   oldArr.size * sizeof(HLDEventWrapper *));
+                   oldArr.size * sizeof(HLDEventWrapper*));
             /* TODO Figure out how to safely free oldArr.elements. */
         }
     } else {
@@ -300,7 +309,39 @@ static HLDArrayPreSize ReallocEventArr(HLDArrayPreSize oldArr, size_t newSize) {
     return newArr;
 }
 
-static EventTrap EntrapEvent(HLDObject *obj, HLDEventType eventType,
+static void (*DetermineOriginalListener(HLDNamedFunction* oldHandler,
+                                        int32_t objIdx,
+                                        HLDEventType eventType,
+                                        int32_t eventNum))(HLDInstance*,
+                                                           HLDInstance*) {
+    /* If existing HM listener, use that in all cases. */
+    if (oldHandler) {
+        return oldHandler->function;
+    }
+
+    /* Otherwise, it depends on event type. */
+    switch (eventType) {
+        case HLD_EVENT_DRAW:
+            /* For draw event, it depends on event number. */
+            if (eventNum == HLD_EVENT_DRAW_NORMAL) {
+                /* If target draw event, perform parent event. */
+                if (drawEventTargets[objIdx] >= 0) {
+                    return DefaultEventPerformParent;
+                }
+                /* Otherwise, draw self. */
+                return DefaultEventDrawSelf;
+            }
+            /* If any other draw event number, perform no default event. */
+            return NULL;
+
+        default:
+            /* For all other event types, perform parent event. */
+            return DefaultEventPerformParent;
+    }
+}
+
+static EventTrap EntrapEvent(HLDObject* obj,
+                             HLDEventType eventType,
                              int32_t eventNum) {
     size_t numObjs = (*hldvars.objectTableHandle)->numItems;
     HLDArrayPreSize oldArr, newArr;
@@ -311,55 +352,55 @@ static EventTrap EntrapEvent(HLDObject *obj, HLDEventType eventType,
     /* Get new event array. */
     uint32_t numSubEvents;
     switch (eventType) {
-    case HLD_EVENT_CREATE:
-    case HLD_EVENT_DESTROY:
-        numSubEvents = 1;
-        break;
+        case HLD_EVENT_CREATE:
+        case HLD_EVENT_DESTROY:
+            numSubEvents = 1;
+            break;
 
-    case HLD_EVENT_STEP:
-        numSubEvents = 3;
-        break;
+        case HLD_EVENT_STEP:
+            numSubEvents = 3;
+            break;
 
-    case HLD_EVENT_ALARM:
-        numSubEvents = 12;
-        break;
+        case HLD_EVENT_ALARM:
+            numSubEvents = 12;
+            break;
 
-    case HLD_EVENT_COLLISION:
-        numSubEvents = numObjs;
-        break;
+        case HLD_EVENT_COLLISION:
+            numSubEvents = numObjs;
+            break;
 
-    case HLD_EVENT_OTHER:
-        /*
-         * We don't yet know the maximum number of other events in this
-         * version of the engine, so we're using 128 as a presumably safe
-         * upper bound until we learn the true maximum.
-         */
-        numSubEvents = 128;
-        break;
+        case HLD_EVENT_OTHER:
+            /*
+             * We don't yet know the maximum number of other events in this
+             * version of the engine, so we're using 128 as a presumably safe
+             * upper bound until we learn the true maximum.
+             */
+            numSubEvents = 128;
+            break;
 
-    case HLD_EVENT_DRAW:
-        /*
-         * We don't yet know the maximum number of draw events in this
-         * version of the engine, so we're using 128 as a presumably safe
-         * upper bound until we learn the true maximum.
-         */
-        numSubEvents = 128;
-        break;
+        case HLD_EVENT_DRAW:
+            /*
+             * We don't yet know the maximum number of draw events in this
+             * version of the engine, so we're using 128 as a presumably safe
+             * upper bound until we learn the true maximum.
+             */
+            numSubEvents = 128;
+            break;
 
-    default:
-        LogErr("\"%s\" called with unsupported event type %u.", __func__,
-               eventType);
-        abort();
+        default:
+            LogErr("\"%s\" called with unsupported event type %u.", __func__,
+                   eventType);
+            abort();
     }
     newArr = ReallocEventArr(oldArr, numSubEvents);
 
     /* Update object with new event array. */
     obj->eventListeners[eventType] = newArr;
 
-    /* Get wrapper, event and handler. */
-    HLDEventWrapper *wrapper = ((HLDEventWrapper **)newArr.elements)[eventNum];
-    HLDEvent *event;
-    HLDNamedFunction *oldHandler;
+    /* Get wrapper, event, and handler. */
+    HLDEventWrapper* wrapper = ((HLDEventWrapper**)newArr.elements)[eventNum];
+    HLDEvent* event;
+    HLDNamedFunction* oldHandler;
     if (wrapper) {
         event = wrapper->event;
         oldHandler = event->handler;
@@ -368,45 +409,79 @@ static EventTrap EntrapEvent(HLDObject *obj, HLDEventType eventType,
         oldHandler = NULL;
         event = HLDEventNew(&eventHandler);
         wrapper = HLDEventWrapperNew(event);
-        ((HLDEventWrapper **)newArr.elements)[eventNum] = wrapper;
+        ((HLDEventWrapper**)newArr.elements)[eventNum] = wrapper;
     }
 
     /* Create event trap. */
     EventTrap trap;
-    EventTrapInit(&trap, eventType,
-                  (oldHandler) ? ((void (*)(HLDInstance *,
-                                            HLDInstance *))oldHandler->function)
-                               : (PerformDefaultEvent));
+    EventTrapInit(
+        &trap, eventType,
+        DetermineOriginalListener(oldHandler, obj->index, eventType, eventNum));
 
     return trap;
 }
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void EventManRegisterEventListener(HLDObject *obj, EventKey key,
-                                   bool (*listener)(AEREvent *, AERInstance *,
-                                                    AERInstance *)) {
+void EventManRegisterEventListener(HLDObject* obj,
+                                   EventKey key,
+                                   bool (*listener)(AEREvent*,
+                                                    AERInstance*,
+                                                    AERInstance*)) {
     /* Register subscription if subscribable event. */
     switch (key.type) {
-    case HLD_EVENT_ALARM:
-    case HLD_EVENT_STEP:
-        RegisterEventSubscriber(key);
-        break;
+        case HLD_EVENT_ALARM:
+        case HLD_EVENT_STEP:
+            RegisterEventSubscriber(key);
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 
-    EventTrap *trap = FoxMapMIndex(EventKey, EventTrap, &eventTraps, key);
+    EventTrap* trap = FoxMapMIndex(EventKey, EventTrap, &eventTraps, key);
     if (!trap) {
         trap = FoxMapMInsert(EventKey, EventTrap, &eventTraps, key);
         *trap = EntrapEvent(obj, key.type, key.num);
     }
 
-    EventTrapAddListener(trap, (ModListener){.func = (void (*)(void))listener,
-                                             .modIdx = ModManPeekContext()});
+    EventTrapAddListener(trap, listener);
 
     return;
+}
+
+void EventManRecordDrawTargets(void) {
+#define numDrawTypes (sizeof(HLD_EVENT_DRAW_TYPES) / sizeof(HLDEventDrawType))
+    /* Initialize target table. */
+    size_t numObjs = (*hldvars.objectTableHandle)->numItems;
+    drawEventTargets = malloc(numObjs * sizeof(int32_t));
+    assert(drawEventTargets);
+
+    /* Record draw targets for each object. */
+    for (int32_t objIdx = 0; (size_t)objIdx < numObjs; objIdx++) {
+        HLDObject* obj = HLDObjectLookup(objIdx);
+        assert(obj);
+        HLDArrayPreSize listeners = obj->eventListeners[HLD_EVENT_DRAW];
+
+        /* Check for custom HM draw listener. */
+        if (listeners.size > HLD_EVENT_DRAW_NORMAL &&
+            ((HLDEventWrapper**)listeners.elements)[HLD_EVENT_DRAW_NORMAL]) {
+            drawEventTargets[objIdx] = objIdx;
+        }
+
+        /* Check for default draw listener. */
+        else if (obj->parentIndex < 0) {
+            drawEventTargets[objIdx] = -1;
+        }
+
+        /* Use parent's target. */
+        else {
+            drawEventTargets[objIdx] = drawEventTargets[obj->parentIndex];
+        }
+    }
+
+    return;
+#undef numDrawTypes
 }
 
 void EventManMaskSubscriptionArrays(void) {
@@ -445,18 +520,23 @@ void EventManDestructor(void) {
     LogInfo("Deinitializing event module...");
 
     for (uint32_t idx = 0; idx < 12; idx++) {
-        HLDEventSubscribers *subArr = *hldvars.alarmEventSubscribers + idx;
+        HLDEventSubscribers* subArr = *hldvars.alarmEventSubscribers + idx;
         if (subArr->objects) {
             free(subArr->objects);
             subArr->objects = NULL;
         }
     }
     for (uint32_t idx = 0; idx < 3; idx++) {
-        HLDEventSubscribers *subArr = *hldvars.stepEventSubscribers + idx;
+        HLDEventSubscribers* subArr = *hldvars.stepEventSubscribers + idx;
         if (subArr->objects) {
             free(subArr->objects);
             subArr->objects = NULL;
         }
+    }
+
+    if (drawEventTargets) {
+        free(drawEventTargets);
+        drawEventTargets = NULL;
     }
 
     FoxMapMDeinit(EventKey, uint8_t, &eventSubscribers);

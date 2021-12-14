@@ -93,8 +93,12 @@ void AERFontSetCurrent(int32_t fontIdx);
  *
  * @since 1.1.0
  */
-int32_t AERFontRegister(const char *filename, size_t size, bool bold,
-                        bool italic, int32_t first, int32_t last);
+int32_t AERFontRegister(const char* filename,
+                        size_t size,
+                        bool bold,
+                        bool italic,
+                        int32_t first,
+                        int32_t last);
 
 /**
  * @brief Query the total number of vanilla and mod fonts registered.
@@ -119,7 +123,7 @@ size_t AERFontGetNumRegistered(void);
  *
  * @since 1.1.0
  */
-const char *AERFontGetName(int32_t fontIdx);
+const char* AERFontGetName(int32_t fontIdx);
 
 /**
  * @brief Query the size of a font in pixels.

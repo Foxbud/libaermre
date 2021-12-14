@@ -27,17 +27,20 @@
 
 /* ----- PRIVATE MACROS ----- */
 
-#define BuildMsgFromVA(fmt, lastArg)                                           \
-    ({                                                                         \
-        va_list BuildMsgFromVA_va;                                             \
-        va_start(BuildMsgFromVA_va, (lastArg));                                \
-        vsnprintf(msgBuf, sizeof(msgBuf), (fmt), BuildMsgFromVA_va);           \
-        va_end(BuildMsgFromVA_va);                                             \
-        msgBuf;                                                                \
+#define BuildMsgFromVA(fmt, lastArg)                                 \
+    ({                                                               \
+        va_list BuildMsgFromVA_va;                                   \
+        va_start(BuildMsgFromVA_va, (lastArg));                      \
+        vsnprintf(msgBuf, sizeof(msgBuf), (fmt), BuildMsgFromVA_va); \
+        va_end(BuildMsgFromVA_va);                                   \
+        msgBuf;                                                      \
     })
 
-#define GetCurrentModName()                                                    \
-    ((ModManHasContext()) ? ModManGetMod(ModManPeekContext())->name : "?")
+#define GetCurrentModName()                                        \
+    ({                                                             \
+        Mod* GetCurrentModName_mod = ModManGetCurrentMod();        \
+        GetCurrentModName_mod ? GetCurrentModName_mod->name : "?"; \
+    })
 
 /* ----- PRIVATE TYPES ----- */
 
@@ -45,11 +48,11 @@ typedef enum LogLevel { LOG_INFO, LOG_WARN, LOG_ERR } LogLevel;
 
 /* ----- PRIVATE CONSTANTS ----- */
 
-static const char *MSG_FMT = "[%s][aer][%s] (%s) %s\n";
+static const char* MSG_FMT = "[%s][aer][%s] (%s) %s\n";
 
-static const char *LVL_STRS[3] = {"INFO", "WARNING", "ERROR"};
+static const char* LVL_STRS[3] = {"INFO", "WARNING", "ERROR"};
 
-static const char *INTERNAL_MOD_NAME = "mre";
+static const char* INTERNAL_MOD_NAME = "mre";
 
 /* ----- PRIVATE GLOBALS ----- */
 
@@ -62,14 +65,16 @@ static void FmtCurTime(char buf[9]) {
 
     time_t rawtime;
     time(&rawtime);
-    struct tm *timeinfo = localtime(&rawtime);
+    struct tm* timeinfo = localtime(&rawtime);
     strftime(buf, 9, "%H:%M:%S", timeinfo);
 
     return;
 }
 
-static void Log(FILE *fp, LogLevel logLvl, const char *moduleName,
-                const char *msg) {
+static void Log(FILE* fp,
+                LogLevel logLvl,
+                const char* moduleName,
+                const char* msg) {
     assert(fp != NULL);
     assert(logLvl <= LOG_ERR);
     assert(moduleName != NULL);
@@ -87,7 +92,7 @@ static void Log(FILE *fp, LogLevel logLvl, const char *moduleName,
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-void LogInfo(const char *fmt, ...) {
+void LogInfo(const char* fmt, ...) {
     assert(fmt);
 
     /* Call common log function. */
@@ -96,7 +101,7 @@ void LogInfo(const char *fmt, ...) {
     return;
 }
 
-void LogWarn(const char *fmt, ...) {
+void LogWarn(const char* fmt, ...) {
     assert(fmt);
 
     /* Call common log function. */
@@ -105,7 +110,7 @@ void LogWarn(const char *fmt, ...) {
     return;
 }
 
-void LogErr(const char *fmt, ...) {
+void LogErr(const char* fmt, ...) {
     assert(fmt);
 
     /* Call common log function. */
@@ -116,7 +121,7 @@ void LogErr(const char *fmt, ...) {
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
-AER_EXPORT void AERLogInfo(const char *fmt, ...) {
+AER_EXPORT void AERLogInfo(const char* fmt, ...) {
 #define errRet
     EnsureArg(fmt);
 
@@ -127,7 +132,7 @@ AER_EXPORT void AERLogInfo(const char *fmt, ...) {
 #undef errRet
 }
 
-AER_EXPORT void AERLogWarn(const char *fmt, ...) {
+AER_EXPORT void AERLogWarn(const char* fmt, ...) {
 #define errRet
     EnsureArg(fmt);
 
@@ -138,7 +143,7 @@ AER_EXPORT void AERLogWarn(const char *fmt, ...) {
 #undef errRet
 }
 
-AER_EXPORT void AERLogErr(const char *fmt, ...) {
+AER_EXPORT void AERLogErr(const char* fmt, ...) {
 #define errRet
     EnsureArg(fmt);
 

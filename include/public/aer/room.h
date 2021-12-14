@@ -22,6 +22,7 @@
 #ifndef AER_ROOM_H
 #define AER_ROOM_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -334,14 +335,71 @@ int32_t AERRoomGetCurrent(void);
 /**
  * @brief Change the currently active room to a new one.
  *
+ * This is a low-level engine function that will not create an instance of
+ * ::AER_OBJECT_CHAR in the target room. ::AERRoomEnter is preferrable in the
+ * majority of usecases.
+ *
  * @param[in] roomIdx Index of new room.
  *
- * @throw ::AER_SEQ_BREAK if called outside action stage.
+ * @throw ::AER_SEQ_BREAK if called outside action stage or if a room change is
+ * already in progress.
  * @throw ::AER_FAILED_LOOKUP if argument `roomIdx` is an invalid room.
  *
  * @since 1.0.0
+ *
+ * @sa AERRoomEnter
+ * @sa AERRoomEnterWithPosition
  */
 void AERRoomGoto(int32_t roomIdx);
+
+/**
+ * @brief Change the currently active room to a new one and prepare the room
+ * context.
+ *
+ * If argument `roomIdx` is a "menu" room, then this function behaves similarly
+ * to ::AERRoomGoto. However, if `roomIdx` is an in-game level, then this
+ * function creates an instance of ::AER_OBJECT_CHAR in the room's default
+ * position.
+ *
+ * @param[in] roomIdx Index of new room.
+ * @param[in] fade Whether or not to smoothly transition to new room.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage or if a room change is
+ * already in progress.
+ * @throw ::AER_FAILED_LOOKUP if argument `roomIdx` is an invalid room.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERRoomEnterWithPosition
+ * @sa AERRoomGoto
+ */
+void AERRoomEnter(int32_t roomIdx, bool fade);
+
+/**
+ * @brief Change the currently active room to a new one and prepare the room
+ * context.
+ *
+ * This function behaves the same as ::AERRoomEnter except that if an instance
+ * of ::AER_OBJECT_CHAR is created, then it is created at the provided location
+ * in the new room rather than the default.
+ *
+ * @param[in] roomIdx Index of new room.
+ * @param[in] fade Whether or not to smoothly transition to new room.
+ * @param[in] x Horizontal position in new room at which to create player
+ * instance.
+ * @param[in] y Vertical position in new room at which to create player
+ * instance.
+ *
+ * @throw ::AER_SEQ_BREAK if called outside action stage or if a room change is
+ * already in progress.
+ * @throw ::AER_FAILED_LOOKUP if argument `roomIdx` is an invalid room.
+ *
+ * @since {{MRE_NEXT_MINOR}}
+ *
+ * @sa AERRoomEnter
+ * @sa AERRoomGoto
+ */
+void AERRoomEnterWithPosition(int32_t roomIdx, bool fade, float x, float y);
 
 /**
  * @brief Query the room with a specific name.
@@ -356,7 +414,7 @@ void AERRoomGoto(int32_t roomIdx);
  *
  * @since 1.3.0
  */
-int32_t AERRoomGetByName(const char *name);
+int32_t AERRoomGetByName(const char* name);
 
 /**
  * @brief Query the name of a room.
@@ -370,6 +428,6 @@ int32_t AERRoomGetByName(const char *name);
  *
  * @since 1.3.0
  */
-const char *AERRoomGetName(int32_t roomIdx);
+const char* AERRoomGetName(int32_t roomIdx);
 
 #endif /* AER_ROOM_H */

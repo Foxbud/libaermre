@@ -20,13 +20,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "foxutils/array.h"
+#include "foxutils/map.h"
 
 /* ----- INTERNAL FUNCTIONS ----- */
 
-FoxArray *ObjectManGetDirectChildren(int32_t objIdx);
+FoxMap* ObjectManGetDirectChildren(int32_t objIdx);
 
-FoxArray *ObjectManGetAllChildren(int32_t objIdx);
+FoxMap* ObjectManGetAllChildren(int32_t objIdx);
 
 void ObjectManBuildNameTable(void);
 

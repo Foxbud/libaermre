@@ -41,10 +41,10 @@ typedef struct AEREvent {
      *
      * @brief Handle the current event.
      *
-     * This function has the effect of calling the next event listener attached
-     * to this object event.
+     * This function represents the next event listener attached to the current
+     * object event.
      *
-     * @param[in] event Event object passed to the currently executing listener.
+     * @param[in] event `next` event context.
      * @param[in] target Target instance passed to the currently executing
      * listener.
      * @param[in] other Other instance passed to the currently executing
@@ -56,8 +56,19 @@ typedef struct AEREvent {
      *
      * @memberof AEREvent
      */
-    bool (*handle)(struct AEREvent *event, AERInstance *target,
-                   AERInstance *other);
+    bool (*handle)(struct AEREvent* event,
+                   AERInstance* target,
+                   AERInstance* other);
+    /**
+     * @var next
+     *
+     * @brief Event context for the `handle` event listener.
+     *
+     * @since 1.4.0
+     *
+     * @memberof AEREvent
+     */
+    struct AEREvent* next;
 } AEREvent;
 
 #endif /* AER_EVENT_H */

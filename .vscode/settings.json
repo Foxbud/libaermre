@@ -2,7 +2,10 @@
     // MRE settings.
     "mre": {
         // Names of all extra mods to launch when debugging (must be installed).
-        "extraModNames": []
+        "extraModNames": [
+            "bugcon",
+            "balloons",
+        ]
     },
     // VSCode settings.
     "editor.formatOnType": false,
@@ -14,20 +17,31 @@
     "C_Cpp.default.intelliSenseMode": "gcc-x86",
     "C_Cpp.loggingLevel": "Warning",
     "cSpell.words": [
-        "AERMRE",
         "aer",
         "aererr",
         "aeris",
+        "AERMRE",
         "aerpatch",
         "api",
         "arrs",
+        "bgcolors",
+        "bgin",
+        "bginfloor",
+        "bginfloordregs",
+        "bginprlx",
+        "bgparallaxbattleroom",
+        "bgtestgrid",
         "bools",
+        "brokenshallowsdodge",
+        "cloud",
         "copybrief",
+        "crazybgcolors",
         "deinitializing",
         "ensure",
         "fox",
         "function",
         "game",
+        "goualard",
         "hld",
         "hldfuncs",
         "hldgml",
@@ -49,7 +63,9 @@
         "rcurly",
         "rparen",
         "rsquare",
+        "sprite",
         "ss",
+        "subpage",
         "uncategorized",
         "unpaused",
         "xoshiro"
@@ -58,5 +74,8 @@
         "*.h": "c",
         "*.toml.in": "toml",
     },
-    "C_Cpp.autoAddFileAssociations": false
+    "C_Cpp.autoAddFileAssociations": false,
+    "[toml]": {
+        "editor.formatOnSave": false
+    },
 }
