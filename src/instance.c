@@ -15,6 +15,8 @@
  */
 #include <assert.h>
 
+#include "cclosure.h"
+
 #include "foxutils/arraymacs.h"
 #include "foxutils/mapmacs.h"
 #include "foxutils/math.h"
@@ -28,6 +30,7 @@
 #include "internal/export.h"
 #include "internal/hld.h"
 #include "internal/instance.h"
+#include "internal/iter.h"
 #include "internal/log.h"
 #include "internal/object.h"
 
@@ -60,6 +63,11 @@ typedef struct GetByObjectContext {
     const size_t bufSize;
     HLDInstance** const instBuf;
 } GetByObjectContext;
+
+typedef struct AllInstanceIteratorEnv {
+    IteratorEnv base;
+    HLDInstance* next;
+} AllInstanceIteratorEnv;
 
 /* ----- PRIVATE GLOBALS ----- */
 
@@ -121,6 +129,21 @@ static bool ModLocalKeyGetOrphansCallback(const ModLocalKey* key,
         *FoxArrayMPush(const ModLocalKey*, orphans) = key;
 
     return true;
+}
+
+static bool AllInstanceIteratorClosure(CClosureCtx ctx, AERInstance** inst) {
+#define env ((AllInstanceIteratorEnv*)ctx.env)
+    /* Test for end. */
+    if (!(env->next && inst)) {
+        IteratorEnvFree((IteratorEnv*)env);
+        return false;
+    }
+
+    *inst = (AERInstance*)env->next;
+    env->next = env->next->instanceNext;
+
+    return true;
+#undef env
 }
 
 /* ----- INTERNAL FUNCTIONS ----- */
@@ -203,6 +226,18 @@ AER_EXPORT size_t AERInstanceGetAll(size_t bufSize, AERInstance** instBuf) {
     }
 
     Ok(numInsts);
+#undef errRet
+}
+
+AER_EXPORT AERIterator* AERInstanceIterateAll(void) {
+#define errRet NULL
+    EnsureStage(STAGE_ACTION);
+
+    AllInstanceIteratorEnv* env = (AllInstanceIteratorEnv*)IteratorEnvNew(
+        sizeof(AllInstanceIteratorEnv), AllInstanceIteratorClosure);
+    env->next = (*hldvars.roomCurrent)->instanceFirst;
+
+    return env->base.closure;
 #undef errRet
 }
 

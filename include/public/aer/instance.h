@@ -24,6 +24,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "aer/iter.h"
+
 /* ----- PUBLIC TYPES ----- */
 
 /**
@@ -75,6 +77,8 @@ typedef union AERLocal {
  */
 size_t AERInstanceGetAll(size_t bufSize, AERInstance** instBuf);
 
+AERIterator* AERInstanceIterateAll(void);
+
 /**
  * @brief Query all instances of an object in the current room.
  *
@@ -107,6 +111,8 @@ size_t AERInstanceGetByObject(int32_t objIdx,
                               bool recursive,
                               size_t bufSize,
                               AERInstance** instBuf);
+
+AERIterator* AERInstaceIterateByObject(int32_t objIdx, bool recursive);
 
 /**
  * @brief Query the instance with a specific ID in the current room.

@@ -94,7 +94,8 @@ typedef enum AERErrCode {
      *
      * @since 1.0.0
      */
-    AER_BAD_VAL = 7
+    AER_BAD_VAL = 7,
+    AER_STALE_REF = 8
 } AERErrCode;
 #undef AER_OUT_OF_MEM
 

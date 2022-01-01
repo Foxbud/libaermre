@@ -28,7 +28,10 @@ else()
 endif()
 
 # Set cmake defaults.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+    "$ENV{HOME}/.local/lib32/cmake/CClosure"
+)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -44,6 +47,9 @@ include(CPack)
 
 # Include GenerateExportHeader.
 include(GenerateExportHeader)
+
+# Include CClosure.
+include(CClosureTargets)
 
 find_package(Foxutils REQUIRED)
 find_package(Tomlc99 REQUIRED)
@@ -67,6 +73,7 @@ add_library(aermre SHARED
    src/hld.c
    src/input.c
    src/instance.c
+   src/iter.c
    src/log.c
    src/mod.c
    src/object.c
@@ -100,6 +107,7 @@ target_link_options(aermre
     PRIVATE -rdynamic
 )
 target_link_libraries(aermre
+    PRIVATE CClosure::cclosure_static
     PRIVATE Foxutils::foxutils
     PRIVATE Tomlc99::tomlc99
 )
