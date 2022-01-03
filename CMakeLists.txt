@@ -71,6 +71,7 @@ add_library(aermre SHARED
    src/mod.c
    src/object.c
    src/option.c
+   src/primitive.c
    src/rand.c
    src/room.c
    src/save.c
