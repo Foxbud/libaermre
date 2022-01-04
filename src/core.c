@@ -31,6 +31,7 @@
 #include "internal/mod.h"
 #include "internal/object.h"
 #include "internal/option.h"
+#include "internal/primitive.h"
 #include "internal/rand.h"
 #include "internal/room.h"
 #include "internal/save.h"
@@ -267,6 +268,8 @@ AER_EXPORT void AERHookRoomChange(int32_t newRoomIdx) {
 
     return;
 }
+
+/* See primitive.c for AERHookPrimitivePointerCopy. */
 
 /* ----- PUBLIC FUNCTIONS ----- */
 

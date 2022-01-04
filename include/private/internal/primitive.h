@@ -52,10 +52,31 @@
 
 /* ----- INTERNAL TYPES ----- */
 
+typedef struct PrimitivePointerWrapper {
+    void* ref;
+    void (*decRefs)(struct PrimitivePointerWrapper*);
+} PrimitivePointerWrapper;
+
+typedef struct PrimitiveRCPointerWrapper {
+    PrimitivePointerWrapper base;
+    void (*destructor)(void*);
+    size_t refc;
+} PrimitiveRCPointerWrapper;
+
 typedef struct Primitive {
     union {
-        uint8_t raw[12];
+        uint32_t raw[3];
         double real;
+        struct {
+            union {
+                PrimitivePointerWrapper* norm;
+                PrimitiveRCPointerWrapper* rc;
+            } wrap;
+            uint32_t : 32;
+            uint32_t : 3;
+            bool isOwner : 1;
+            bool isRC : 1;
+        } ptr;
         int32_t i32;
         int64_t i64;
     } val;
@@ -63,6 +84,8 @@ typedef struct Primitive {
 } Primitive;
 
 /* ----- INTERNAL FUNCTIONS ----- */
+
+Primitive PrimitiveMakePointer(void* ref, void (*destructor)(void*));
 
 Primitive PrimitiveCopy(const Primitive* prim);
 

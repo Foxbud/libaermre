@@ -48,7 +48,7 @@ typedef enum AERPrimitiveType {
 } AERPrimitiveType;
 
 typedef struct AERPrimitive {
-    uint8_t raw[16];
+    uint32_t raw[4];
 } AERPrimitive;
 
 /* ----- PUBLIC FUNCTIONS ----- */
@@ -57,7 +57,7 @@ AERPrimitive AERPrimitiveMakeReal(double val);
 
 // AERPrimitive AERPrimitiveMakeString(size_t size);
 
-// AERPrimitive AERPrimitiveMakePointer(void* val, void (*destructor)(void*));
+AERPrimitive AERPrimitiveMakePointer(void* val, void (*destructor)(void*));
 
 AERPrimitive AERPrimitiveMakeInt32(int32_t val);
 
@@ -77,7 +77,7 @@ double AERPrimitiveGetReal(const AERPrimitive* prim);
 
 // char* AERPrimitiveGetString(const AERPrimitive* prim);
 
-// void* AERPrimitiveGetPointer(const AERPrimitive* prim);
+void* AERPrimitiveGetPointer(const AERPrimitive* prim);
 
 int32_t AERPrimitiveGetInt32(const AERPrimitive* prim);
 

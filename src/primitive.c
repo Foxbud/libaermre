@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
+#include <stdlib.h>
+
 #include "aer/primitive.h"
 #include "internal/err.h"
 #include "internal/export.h"
+#include "internal/log.h"
 #include "internal/primitive.h"
 
 /* ----- PRIVATE MACROS ----- */
@@ -47,17 +51,95 @@
 #define EnsureTypeIs(prim, primType) \
     Ensure((((const Primitive*)(prim))->type == (primType)), AER_FAILED_PARSE)
 
+/* ----- PRIVATE FUNCTIONS ----- */
+
+static void PrimitiveRCPointerWrapperDecRefs(PrimitiveRCPointerWrapper* wrap) {
+    if (--wrap->refc > 0)
+        return;
+
+    if (wrap->destructor)
+        wrap->destructor(wrap->base.ref);
+    free(wrap);
+}
+
+static void PrimitivePointerCopy(Primitive* restrict dest,
+                                 const Primitive* restrict src) {
+    assert(src->type == AER_PRIMITIVE_POINTER);
+
+    dest->type = AER_PRIMITIVE_POINTER;
+
+    uint8_t key = (src->val.raw[2] >> 3) & 0x3;
+    switch (key) {
+        case 0x3:
+            dest->val.ptr.isOwner = dest->val.ptr.isRC = true;
+            ++src->val.ptr.wrap.rc->refc;
+            __attribute__((fallthrough));
+        case 0x0:
+        case 0x1:
+            dest->val.ptr.wrap = src->val.ptr.wrap;
+            break;
+
+        default:
+            LogErr(
+                "Encountered invalid pointer type 0x%x during call to function "
+                "\"%s\".",
+                key, __func__);
+            abort();
+    }
+}
+
 /* ----- INTERNAL FUNCTIONS ----- */
 
-Primitive PrimitiveCopy(const Primitive* prim) {
-    return *prim;
+Primitive PrimitiveMakePointer(void* ref, void (*destructor)(void*)) {
+    PrimitiveRCPointerWrapper* wrap = malloc(sizeof(PrimitiveRCPointerWrapper));
+    assert(wrap);
+    wrap->base.ref = ref;
+    wrap->base.decRefs =
+        (void (*)(PrimitivePointerWrapper*))PrimitiveRCPointerWrapperDecRefs;
+    wrap->destructor = destructor;
+    wrap->refc = 1;
+
+    return (Primitive){.type = AER_PRIMITIVE_POINTER,
+                       .val.ptr = {
+                           .wrap.rc = wrap,
+                           .isOwner = true,
+                           .isRC = true,
+                       }};
 }
+
+Primitive PrimitiveCopy(const Primitive* prim) {
+    Primitive result;
+
+    switch (prim->type) {
+        case AER_PRIMITIVE_POINTER:
+            PrimitivePointerCopy(&result, prim);
+            break;
+
+        default:
+            result = *prim;
+    }
+
+    return result;
+}
+
+/* ----- UNLISTED FUNCTIONS ----- */
+
+AER_EXPORT __attribute__((alias("PrimitivePointerCopy"))) void
+AERHookPrimitivePointerCopy(Primitive* restrict dest,
+                            const Primitive* restrict src);
 
 /* ----- PUBLIC FUNCTIONS ----- */
 
 AER_EXPORT AERPrimitive AERPrimitiveMakeReal(double val) {
 #define errRet Cast(AERPrimitive, PrimitiveMakeUndefined())
     Ok(Cast(AERPrimitive, PrimitiveMakeReal(val)));
+#undef errRet
+}
+
+AER_EXPORT AERPrimitive AERPrimitiveMakePointer(void* val,
+                                                void (*destructor)(void*)) {
+#define errRet Cast(AERPrimitive, PrimitiveMakeUndefined())
+    Ok(Cast(AERPrimitive, PrimitiveMakePointer(val, destructor)));
 #undef errRet
 }
 
@@ -103,6 +185,15 @@ AER_EXPORT double AERPrimitiveGetReal(const AERPrimitive* prim) {
     EnsureTypeIs(prim, AER_PRIMITIVE_REAL);
 
     Ok(((const Primitive*)prim)->val.real);
+#undef errRet
+}
+
+AER_EXPORT void* AERPrimitiveGetPointer(const AERPrimitive* prim) {
+#define errRet NULL
+    EnsureArg(prim);
+    EnsureTypeIs(prim, AER_PRIMITIVE_POINTER);
+
+    Ok(((const Primitive*)prim)->val.ptr.wrap.norm->ref);
 #undef errRet
 }
 
